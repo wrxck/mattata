@@ -4,7 +4,7 @@
 # config.lua), delete state file after stop, wait two seconds, and restart.
 
 while true; do
-	tg/bin/telegram-cli -P 4567 -E
+	tg/bin/telegram-cli -P 4568 -E
 	rm ~/.telegram-cli/state
 	echo 'tg has stopped. ^C to exit.'
 	sleep 5s
