@@ -61,6 +61,7 @@ Send /help to get started.
 		'baconipsum',
 		'skateipsum',
 		'starwars',
+		'lua',
 		'help',
 		'greetings'
 	}
