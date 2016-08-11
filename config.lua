@@ -28,7 +28,7 @@ Send /help to get started.
 		'whoami',
 		'nick',
 		'bandersnatch',
-		'reactions',
+		'autoresponses',
 		'wikipedia',
 		'remind',
 		'ping',
@@ -60,6 +60,7 @@ Send /help to get started.
 		'loremipsum',
 		'baconipsum',
 		'skateipsum',
+		'starwars',
 		'help',
 		'greetings'
 	}
