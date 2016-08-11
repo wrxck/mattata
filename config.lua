@@ -11,6 +11,17 @@ Send /help to get started.
 	]],
 	cmd_pat = '/',
 	drua_block_on_blacklist = false,
+	bing_api_key = '',
+	google_api_key = '',
+	google_cse_key = '',
+	owm_api_key = '',
+	lastfm_api_key = '',
+	biblia_api_key = '',
+	thecatapi_key = '',
+	nasa_api_key = '',
+	yandex_key = '',
+	simsimi_key = '',
+	simsimi_trial = true,
 	errors = {
 		generic = 'Error.',
 		connection = 'Connection error.',
@@ -62,7 +73,8 @@ Send /help to get started.
 		'skateipsum',
 		'starwars',
 		'lua',
+		'bigtext',
 		'help',
-		'greetings'
+		'autoresponses'
 	}
 }
