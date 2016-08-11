@@ -30,7 +30,7 @@ function starwars:action(msg, config)
 
 	local url = 'http://swapi.co'
 
-	local sw_url = url .. '/api/films/' .. input:gsub('the phantom menace', '1'):gsub('attack of the clones', '2'):gsub('revenge of the sith', '3'):gsub('a new hope', '4'):gsub('the empire strikes back', '5'):gsub('return of the jedi', '6'):gsub('the force awakens', '7')
+	local sw_url = url .. '/api/films/' .. input:gsub('the phantom menace', '1'):gsub('attack of the clones', '2'):gsub('return of the jedi', '3'):gsub('a new hope', '4'):gsub('the empire strikes back', '5'):gsub('revenge of the sith', '6'):gsub('the force awakens', '7')
 	local sw_jstr, res = HTTP.request(sw_url)
 	if res ~= 200 then
 		utilities.send_reply(self, msg, config.errors.connection)
