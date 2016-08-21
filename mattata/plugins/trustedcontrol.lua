@@ -1,22 +1,22 @@
-local control = {}
+local trustedcontrol = {}
 
 local bot = require('mattata.bot')
 local utilities = require('mattata.utilities')
 
 local cmd_pat
 
-function control:init(config)
+function trustedcontrol:init(config)
 	cmd_pat = config.cmd_pat
-	control.triggers = utilities.triggers(self.info.username, cmd_pat,
-		{'^'..cmd_pat..'script'}):t('reboot', true):t('halt').table
+	trustedcontrol.triggers = utilities.triggers(self.info.username, cmd_pat,
+		{'^'..cmd_pat..'script'}):t('treboot', true):t('thalt').table
 end
 
-function control:action(msg, config)
-    if msg.from.id ~= config.admin then
+function trustedcontrol:action(msg, config)
+    if msg.from.id ~= config.trusted then
         return
     end
     if msg.date < os.time() - 2 then return end
-    if msg.text_lower:match('^'..cmd_pat..'reboot') then
+    if msg.text_lower:match('^'..cmd_pat..'treboot') then
         for pac, _ in pairs(package.loaded) do
             if pac:match('^mattata%.plugins%.') then
                 package.loaded[pac] = nil
@@ -34,7 +34,7 @@ function control:action(msg, config)
         bot.init(self, config)
         utilities.send_reply(self, msg, 'mattata is being rebooted...')
         utilities.send_message(self, msg.chat.id, 'mattata has successfully been rebooted!')
-    elseif msg.text_lower:match('^'..cmd_pat..'halt') then
+    elseif msg.text_lower:match('^'..cmd_pat..'thalt') then
         self.is_started = false
         utilities.send_reply(self, msg, 'mattata is shutting down...')
     elseif msg.text_lower:match('^'..cmd_pat..'script') then
@@ -52,4 +52,4 @@ function control:action(msg, config)
     end
 end
 
-return control
+return trustedcontrol

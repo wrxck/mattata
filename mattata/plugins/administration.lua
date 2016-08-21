@@ -20,7 +20,7 @@ function administration:init(config)
 		flood = {}
 	}
 
-	drua.PORT = config.cli_port or 4568
+	drua.PORT = config.cli_port or 4569
 
 	administration.flags = administration.init_flags(config.cmd_pat)
 	administration.init_command(self, config)
@@ -95,7 +95,7 @@ administration.ranks = {
 	[0] = 'Banned',
 	[1] = 'Users',
 	[2] = 'Moderators',
-	[3] = 'Governors',
+	[3] = 'Governor',
 	[4] = 'Administrators',
 	[5] = 'Owner'
 }
@@ -253,7 +253,6 @@ end
 function administration:update_desc(chat, config)
 	local group = self.database.administration.groups[tostring(chat)]
 	local desc = 'Welcome to ' .. group.name .. '!\n'
-	if group.motd then desc = desc .. group.motd .. '\n' end
 	if group.governor then
 		local gov = self.database.users[tostring(group.governor)]
 		desc = desc .. '\nGovernor: ' .. utilities.build_name(gov.first_name, gov.last_name) .. ' [' .. gov.id .. ']\n'
@@ -730,23 +729,23 @@ function administration.init_command(self_, config_)
   {
   triggers = utilities.triggers(self_.info.username, config_.cmd_pat):t('leave'):t('imgullible').table,
 
-  command = 'imgullible',
+  command = 'kickme',
   privilege = 1,
   interior = true,
-  doc = 'Surprise!',
+  doc = 'Kicks you from the group. Much easier than having to spam to be kicked.',
 
   action = function(self, msg, group, config)
     if administration.get_rank(self, msg.from.id, nil, config) == 5 then
       utilities.send_reply(self, msg, 'I can\'t let you do that, '..msg.from.name..'.')
     else
-      administration.kick_user(self, msg.chat.id, msg.from.id, 'imgullible', config)
+      administration.kick_user(self, msg.chat.id, msg.from.id, 'kickme', config)
       utilities.send_message(self, msg.chat.id, 'Goodbye, ' .. msg.from.name .. '!', true)
-      if msg.chat.type == 'supergroup' then
-        bindings.unbanChatMember(self, { chat_id = msg.chat.id, user_id = msg.from.id } )
+    end 
+    if msg.chat.type == 'supergroup' then
+    bindings.unbanChatMember(self, {chat_id = msg.chat.id, user_id = msg.from.id} )
     end
   end
-end
-},
+		},
 
 		{
 			triggers = utilities.triggers(self_.info.username, config_.cmd_pat):t('ban', true).table,
