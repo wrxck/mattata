@@ -1,15 +1,15 @@
 return {
-    bot_api_key = '', -- Insert the bot API token you received from @BotFather
-    admin = 00000000, -- Replace 00000000 with your numerical user ID
-    lang = 'en',
-    log_chat = -00000000, -- Replace -00000000 with the numerical ID of the group you wish mattata to print information from the console
-    cli_port = 4569, -- If you change this, make sure you also change the port in tg-launch.sh
+    bot_api_key = '', -- insert your bot API token you received from BotFather
+    admin = , -- the numerical ID of the owner, presumably you
+    lang = 'en', -- two digit language code
+    log_chat = , -- the numerical ID of the chat you wish to log any errors to
+    cli_port = 4569, -- the port to use for CLI 
     about_text = [[
 I am mattata, a multi-purpose Telegram bot.
 
 Send /help to get started.
     ]],
-    cmd_pat = '/', -- The symbol to start a command with, usually '/'
+    cmd_pat = '/',
     drua_block_on_blacklist = false,
     bing_api_key = '',
     google_api_key = '',
@@ -20,12 +20,18 @@ Send /help to get started.
     thecatapi_key = '',
     nasa_api_key = '',
     yandex_key = '',
+    lyricsnmusic_key = '',
     errors = {
         generic = 'Error.',
         connection = 'Connection error.',
         results = 'No results found.',
         argument = 'Invalid argument.',
         syntax = 'Invalid syntax.',
+    },
+    mattata = {
+        cleverbot_api = 'https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=',
+        connection = 'I don\'t feel like talking right now.',
+        response = 'I don\'t know what to say to that.'
     },
     plugins = {
         'control',
@@ -70,7 +76,14 @@ Send /help to get started.
         'skateipsum',
         'starwars',
         'lua',
--- Enter any new plugins above this line
+        'cleverbot',
+        'setandget',
+        'reactions',
+        'links',
+        '9gag',
+        'lyrics',
+        'fact',
+        'msg',
         'help',
         'autoresponses'
     }
