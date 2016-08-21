@@ -79,11 +79,9 @@ Send /help to get started.
         'cleverbot',
         'setandget',
         'reactions',
-        'links',
         '9gag',
         'lyrics',
         'fact',
-        'msg',
         'help',
         'autoresponses'
     }
