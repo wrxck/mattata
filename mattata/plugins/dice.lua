@@ -2,12 +2,12 @@ local dice = {}
 
 local utilities = require('mattata.utilities')
 
-dice.command = 'dice <nDr>'
+dice.command = 'dice <number of dice> <range of numbers>'
 
 function dice:init(config)
 	dice.triggers = utilities.triggers(self.info.username, config.cmd_pat):t('dice', true).table
-	dice.doc = config.cmd_pat .. [[dice <nDr>
-Returns a set of dice rolls, where n is the number of rolls and r is the range of numbers each die bears. If only a range is given, returns only one roll.]]
+	dice.doc = config.cmd_pat .. [[dice <number of dice to roll> <range of numbers on the dice>
+Rolls a die a given amount of times, with a given range.]]
 end
 
 function dice:action(msg)
@@ -19,8 +19,8 @@ function dice:action(msg)
 	end
 
 	local count, range
-	if input:match('^[%d]+d[%d]+$') then
-		count, range = input:match('([%d]+)d([%d]+)')
+	if input:match('^[%d]+ [%d]+$') then
+		count, range = input:match('([%d]+) ([%d]+)')
 	elseif input:match('^d?[%d]+$') then
 		count = 1
 		range = input:match('^d?([%d]+)$')
@@ -41,7 +41,7 @@ function dice:action(msg)
 		return
 	end
 
-	local output = '*' .. count .. 'd' .. range .. '*\n`'
+	local output = '*' .. count .. ' rolls with a range of ' .. range .. '*\n`'
 	for _ = 1, count do
 		output = output .. math.random(range) .. '\t'
 	end
