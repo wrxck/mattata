@@ -1,42 +1,33 @@
 local lua = {}
-
-local utilities = require('mattata.utilities')
+local functions = require('mattata.functions')
 local URL = require('socket.url')
 local JSON = require('dkjson')
-
-function lua:init(config)
-	lua.triggers = utilities.triggers(self.info.username, config.cmd_pat):t('lua', true):t('return', true).table
+function lua:init(configuration)
+	lua.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('lua', true):t('exec', true).table
 end
-
-function lua:action(msg, config)
-
-	if msg.from.id ~= config.admin then
+function lua:action(msg, configuration)
+	if msg.from.id ~= configuration.admin then
 		return true
 	end
-
-	local input = utilities.input(msg.text)
+	local input = functions.input(msg.text)
 	if not input then
-		utilities.send_reply(self, msg, 'Please enter a string to load.')
+		functions.send_reply(self, msg, 'Please enter a string of Lua to execute.')
 		return
 	end
-
-	if msg.text_lower:match('^'..config.cmd_pat..'return') then
-		input = 'return ' .. input
+	if msg.text_lower:match('^'..configuration.command_prefix..'exec') then
+		input = 'exec ' .. input
 	end
-
 	local output = loadstring( [[
 		local bot = require('mattata.bot')
-		local bindings = require('mattata.bindings')
-		local utilities = require('mattata.utilities')
+		local telegram_api = require('mattata.telegram_api')
+		local functions = require('mattata.functions')
 		local JSON = require('dkjson')
 		local URL = require('socket.url')
 		local HTTP = require('socket.http')
 		local HTTPS = require('ssl.https')
-		return function (self, msg, config) ]] .. input .. [[ end
-	]] )()(self, msg, config)
-	if output == nil then
-		output = 'Done!'
-	else
+		return function (self, msg, configuration) ]] .. input .. [[ end
+	]] )()(self, msg, configuration)
+	if output ~= nil then
 		if type(output) == 'table' then
 			local s = JSON.encode(output, {indent=true})
 			if URL.escape(s):len() < 4000 then
@@ -45,8 +36,6 @@ function lua:action(msg, config)
 		end
 		output = '```\n' .. tostring(output) .. '\n```'
 	end
-	utilities.send_message(self, msg.chat.id, output, true, msg.message_id, true)
-
+	functions.send_message(self, msg.chat.id, output, true, msg.message_id, true)
 end
-
 return lua
