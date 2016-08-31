@@ -1,14 +1,12 @@
 local ping = {}
-
-local utilities = require('mattata.utilities')
-
-function ping:init(config)
-	ping.triggers = utilities.triggers(self.info.username, config.cmd_pat):t('ping'):t('annyong').table
+local functions = require('mattata.functions')
+function ping:init(configuration)
+	ping.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('ping').table
 end
-
-function ping:action(msg, config)
-	local output = msg.text_lower:match('^'..config.cmd_pat..'ping') and 'Pong!' or 'Annyong.'
-	utilities.send_message(self, msg.chat.id, output)
+function ping:action(msg, configuration)
+	local output = msg.text_lower:match('^'..configuration.command_prefix..'ping') and 'Pong!'
+	if msg.user.id == configuration.admin then
+	    functions.send_reply(self, msg.chat.id, output)
+	end
 end
-
 return ping
