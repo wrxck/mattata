@@ -19,6 +19,7 @@ Send /help to get started.
     chuck_api = 'http://api.icndb.com/jokes/random'
     currency_api = 'https://www.google.com/finance/converter'
     fact_api = 'http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000'
+    imdb_api = 'http://www.omdbapi.com/?t='
     errors = {
         generic = 'WELP. That\'s an error!',
         connection = 'I\'m sorry, but there was a connection error whilst processing your request, please try again later.',
