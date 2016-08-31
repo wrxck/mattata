@@ -13,6 +13,7 @@ Send /help to get started.
     yandex_key = '', -- you can get one of these by heading to https://tech.yandex.com/keys/get/?service=trnsl
     lyricsnmusic_key = '', -- you can get one of these by heading to http://www.lyricsnmusic.com/api_keys/new
     baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text' -- removing this will break baconipsum.lua and may result in further errors or even a consequental loss of data
+    calc_api = 'https://api.mathjs.org/v1/?expr='
     errors = {
         generic = 'WELP. That\'s an error!',
         connection = 'I\'m sorry, but there was a connection error whilst processing your request, please try again later.',
