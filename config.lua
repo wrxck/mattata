@@ -16,6 +16,7 @@ Send /help to get started.
     baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text'
     calc_api = 'https://api.mathjs.org/v1/?expr='
     catfact_api = 'http://catfacts-api.appspot.com/api/facts'
+    chuck_api = 'http://api.icndb.com/jokes/random'
     errors = {
         generic = 'WELP. That\'s an error!',
         connection = 'I\'m sorry, but there was a connection error whilst processing your request, please try again later.',
