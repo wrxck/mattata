@@ -9,10 +9,11 @@ I am mattata, a multi-purpose Telegram bot.
 Send /help to get started.
     ]],
     command_prefix = '/',
-    thecatapi_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
+    cat_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg'
+    cat_api_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
     yandex_key = '', -- you can get one of these by heading to https://tech.yandex.com/keys/get/?service=trnsl
     lyricsnmusic_key = '', -- you can get one of these by heading to http://www.lyricsnmusic.com/api_keys/new
-    baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text' -- removing this will break baconipsum.lua and may result in further errors or even a consequental loss of data
+    baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text'
     calc_api = 'https://api.mathjs.org/v1/?expr='
     catfact_api = 'http://catfacts-api.appspot.com/api/facts'
     errors = {
