@@ -1,27 +1,24 @@
 -- created by wrxck
 local fact = {}
 local JSON = require('dkjson')
-local utilities = require('mattata.utilities')
+local functions = require('mattata.functions')
 local URL = require('socket.url')
 local HTTP = require('socket.http')
-
-function fact:init(config)
-    fact.triggers = utilities.triggers(self.info.username, config.cmd_pat):t('fact', true):t('didyouknow', true).table
-    fact.command = 'fact'
+function fact:init(configuration)
+	fact.command = 'fact'
+    fact.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('fact', true):t('didyouknow', true).table
     fact.doc = 'Returns a random fact!'
 end
-
-function fact:action(msg, config)
-    local url = 'http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000'
-    local jstr = HTTP.request(url)
-    local jdat = JSON.decode(jstr)
-    if jdat.error then
-        utilities.send_reply(self, msg, config.errors.results)
+function fact:action(msg, configuration)
+    local api = configuration.fact_api
+    local raw_fact = HTTP.request(api)
+    local decoded_fact = JSON.decode(raw_fact)
+    if decoded_fact.error then
+        functions.send_reply(self, msg, configuration.errors.results)
         return
     end
     local math = math.random(#jdat)
-    local output = jdat[math].nid:gsub('<p>',''):gsub('</p>',''):gsub('&amp;','&'):gsub('<em>',''):gsub('</em>',''):gsub('<strong>',''):gsub('</strong>','')
-    utilities.send_message(self, msg.chat.id, output, nil, true)
+    local output = decoded_fact[math].nid:gsub('<p>',''):gsub('</p>',''):gsub('&amp;','&'):gsub('<em>',''):gsub('</em>',''):gsub('<strong>',''):gsub('</strong>','')
+    functions.send_message(self, msg.chat.id, output, nil, true)
 end
-
 return fact
