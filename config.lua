@@ -17,6 +17,7 @@ Send /help to get started.
     calc_api = 'https://api.mathjs.org/v1/?expr='
     catfact_api = 'http://catfacts-api.appspot.com/api/facts'
     chuck_api = 'http://api.icndb.com/jokes/random'
+    currency_api = 'https://www.google.com/finance/converter'
     errors = {
         generic = 'WELP. That\'s an error!',
         connection = 'I\'m sorry, but there was a connection error whilst processing your request, please try again later.',
