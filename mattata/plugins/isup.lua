@@ -1,25 +1,20 @@
-local utilities = require('mattata.utilities')
+-- created by wrxck
+local functions = require('mattata.functions')
 local URL = require('socket.url')
 local HTTP = require('socket.http')
 local HTTPS = require('ssl.https')
-
 local isup = {}
-
-function isup:init(config)
-	isup.triggers = utilities.triggers(self.info.username, config.cmd_pat):t('websitedown', true):t('isitup', true):t('isup', true).table
-
-	isup.doc = 'Check if a website is down for everyone or just you.'
+function isup:init(configuration)
+	isup.command = configuration.command_prefix .. 'isup <URL>'
+	isup.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('isdown', true):t('isup', true).table
+	isup.doc = 'Check if the specified URL is down for everyone or just you.'
 end
-
 function isup.website_down_http(url)
-
 	local parsed_url = URL.parse(url,	{ scheme = 'http', authority = '' })
-
 	if not parsed_url.host and parsed_url.path then
 		parsed_url.host = parsed_url.path
 		parsed_url.path = ''
 	end
-
 	local url = URL.build(parsed_url)
 	local protocol
 		if parsed_url.scheme == 'https' then
@@ -39,18 +34,16 @@ function isup.website_down_http(url)
 	end
 	return true
  end
-
-function isup:action(msg, config)
-	local input = utilities.input(msg.text)
+function isup:action(msg, configuration)
+	local input = functions.input(msg.text)
 	if not input then
-		utilities.send_reply(self, msg, isup.doc, true)
+		functions.send_reply(self, msg, isup.doc, true)
 		return
 	end
 	if isup.website_down_http(input) then
-		utilities.send_reply(self, msg, 'This website is up, maybe it\'s just you?')
+		functions.send_reply(self, msg, 'This website is up, maybe it\'s just you?')
 	else
-		utilities.send_reply(self, msg, 'It\'s not just you, this website is down!')
+		functions.send_reply(self, msg, 'It\'s not just you, this website is down!')
 	end
 end
-
 return isup
