@@ -3,5 +3,5 @@
 while true; do
 	lua main.lua
 	echo 'mattata has stopped. ^C to exit.'
-	sleep 5s
+	sleep 3s
 done
