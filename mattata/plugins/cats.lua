@@ -1,38 +1,21 @@
 local cats = {}
-
 local HTTP = require('socket.http')
-local utilities = require('mattata.utilities')
-
-function cats:init(config)
-	if not config.thecatapi_key then
-		print('Missing config value: thecatapi_key.')
-		print('cats.lua will be enabled, but there are more features with a key.')
-	end
-
-	cats.triggers = utilities.triggers(self.info.username, config.cmd_pat):t('cat').table
+local functions = require('mattata.functions')
+function cats:init(configuration)
+	cats.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('cat').table
+	cats.command = 'cat'
+	cats.doc = 'A random picture of a cat!'
 end
-
-cats.command = 'cat'
-cats.doc = 'A random picture of a cat!'
-
-function cats:action(msg, config)
-
-	local url = 'http://thecatapi.com/api/images/get?format=html&type=jpg'
-	if config.thecatapi_key then
-		url = url .. '&api_key=' .. config.thecatapi_key
+function cats:action(msg, configuration)
+	local api = configuration.cat_api .. '&api_key=' .. configuration.cat_api_key
 	end
-
-	local str, res = HTTP.request(url)
+	local str, res = HTTP.request(api)
 	if res ~= 200 then
-		utilities.send_reply(self, msg, config.errors.connection)
+		functions.send_reply(self, msg, configuration.errors.connection)
 		return
 	end
-
 	str = str:match('<img src="(.-)">')
-	local output = '[Pussayy!]('..str..')'
-
-	utilities.send_message(self, msg.chat.id, output, false, nil, true)
-
+	local output = '[Meow!]('..str..')'
+	functions.send_message(self, msg.chat.id, output, false, nil, true)
 end
-
 return cats
