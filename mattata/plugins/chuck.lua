@@ -1,33 +1,22 @@
 local chuck = {}
 local JSON = require('dkjson')
-local utilities = require('mattata.utilities')
+local functions = require('mattata.functions')
 local URL = require('socket.url')
 local HTTP = require('socket.http')
-local HTTPS = require('ssl.https')
-
-function chuck:init(config)
-	chuck.triggers = utilities.triggers(self.info.username, config.cmd_pat):t('chuck', true):t('cn', true):t('chucknorris', true).table
-chuck.command = 'chuck'
-chuck.doc = 'Returns a Chuck Norris joke!'
+function chuck:init(configuration)
+	chuck.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('chuck', true):t('cn', true):t('chucknorris', true).table
+	chuck.command = 'chuck'
+	chuck.doc = 'Generates a Chuck Norris joke!'
 end
-
-function chuck:action(msg, config)
- 
- local url = 'http://api.icndb.com/jokes/random'
-
- local jstr = HTTP.request(url)
-
-	local jdat = JSON.decode(jstr)
-
-	if jdat.error then
-		utilities.send_reply(self, msg, config.errors.results)
+function chuck:action(msg, configuration)
+	local api = configuration.chuck_api
+	local raw_joke = HTTP.request(api)
+	local decoded_joke = JSON.decode(raw_joke)
+	if decoded_joke.error then
+		functions.send_reply(self, msg, configuration.errors.results)
 		return
 	end
-
-local output = jdat.value.joke
-
-	utilities.send_message(self, msg.chat.id, output, nil, true)
-
+	local output = decoded_joke.value.joke
+	functions.send_message(self, msg.chat.id, output, nil, true)
 end
-
 return chuck
