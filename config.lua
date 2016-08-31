@@ -31,6 +31,37 @@ Send /help to get started.
         connection_error = 'Rowan\'s words echoed: There\'s a time and place for everything! But not now.',
         response_error = 'I\'m not sure how to answer that...'
     },
+    fortune_answers = {
+    	"It is certain.",
+    	"It has been confirmed.",
+    	"Without any doubts.",
+    	"Yes, definitely.",
+    	"You may rely on it.",
+    	"As I see it, yes.",
+    	"Most likely.",
+    	"Outlook: not so good.",
+    	"Yes.",
+    	"Signs point to yes.",
+    	"The reply is very weak, try again.",
+    	"Ask again later.",
+    	"I can not tell you right now.",
+    	"Cannot predict right now.",
+    	"Concentrate, and then ask again.",
+    	"Do not count on it.",
+    	"My reply is no.",
+    	"My sources say possibly.",
+    	"Outlook: very good.",
+    	"Very doubtful.",
+    	"Rowan's voice echoes: There is a time and place for everything, but not now."
+    }
+    fortune_yes_no_answers {
+        'Absolutely.',
+	    'In your dreams.',
+	    'Yes.',
+	    'No.',
+	    'It is likely so.',
+	    'Never!'
+    }
     commits = {
     	"One does not simply merge into master",
     	"Merging the merge",
