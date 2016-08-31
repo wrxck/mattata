@@ -1,6 +1,4 @@
 local bot = require('mattata.bot')
-
-local instance = {}
+local session = {}
 local config = require('config')
-
-return bot.run(instance, config)
+return bot.run(session, config)
