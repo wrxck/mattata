@@ -1,28 +1,28 @@
 local bot = {}
 
-local bindings
-local utilities
+local telegram_api
+local functions
 
-bot.version = '1.1'
+bot.version = '1.2'
 
-function bot:init(config)
-	bindings = require('mattata.bindings')
-	utilities = require('mattata.utilities')
+function bot:init(configuration)
+	telegram_api = require('mattata.telegram_api')
+	functions = require('mattata.functions')
 
 	assert(
-		config.bot_api_key ~= '',
-		'You did not set your bot token in the config!'
+		configuration.bot_api_key ~= '',
+		'You did not set your bot token in the configuration!'
 	)
-	self.BASE_URL = 'https://api.telegram.org/bot' .. config.bot_api_key .. '/'
+	self.BASE_URL = 'https://api.telegram.org/bot' .. configuration.bot_api_key .. '/'
 
 	repeat
-		print('Fetching bot information...')
-		self.info = bindings.getMe(self)
+		print('Retrieving bot information...')
+		self.info = telegram_api.getMe(self)
 	until self.info
 	self.info = self.info.result
 
 	if not self.database then
-		self.database = utilities.load_data(self.info.username..'.db')
+		self.database = functions.load_data(self.info.username..'.db')
 	end
 
 	self.database.users = self.database.users or {}
@@ -34,14 +34,14 @@ function bot:init(config)
 	self.database.users[tostring(self.info.id)] = self.info
 
 	self.plugins = {}
-	for _,v in ipairs(config.plugins) do
+	for _,v in ipairs(configuration.plugins) do
 		local p = require('mattata.plugins.'..v)
 		table.insert(self.plugins, p)
-		if p.init then p.init(self, config) end
+		if p.init then p.init(self, configuration) end
 		if p.doc then p.doc = '```\n'..p.doc..'\n```' end
 	end
 
-	print('@' .. self.info.username .. ', AKA ' .. self.info.first_name ..' ('..self.info.id..')')
+	print('@' .. self.info.username .. ', also known as ' .. self.info.first_name ..' ('..self.info.id..')')
 
 	self.last_update = self.last_update or 0
 	self.last_cron = self.last_cron or os.date('%M')
@@ -49,7 +49,7 @@ function bot:init(config)
 	self.is_started = true
 end
 
-function bot:on_msg_receive(msg, config)
+function bot:on_msg_receive(msg, configuration)
 	if msg.date < os.time() - 5 then return end
 	self.database.users[tostring(msg.from.id)] = msg.from
 	if msg.reply_to_message then
@@ -69,8 +69,8 @@ function bot:on_msg_receive(msg, config)
 		msg.reply_to_message.text = msg.reply_to_message.text or msg.reply_to_message.caption or ''
 	end
 
-	if msg.text:match('^'..config.cmd_pat..'start .+') then
-		msg.text = config.cmd_pat .. utilities.input(msg.text)
+	if msg.text:match('^'..configuration.command_prefix..'start .+') then
+		msg.text = configuration.command_prefix .. functions.input(msg.text)
 		msg.text_lower = msg.text:lower()
 	end
 
@@ -78,16 +78,16 @@ function bot:on_msg_receive(msg, config)
 		for _, trigger in ipairs(plugin.triggers or {}) do
 			if string.match(msg.text_lower, trigger) then
 				local success, result = pcall(function()
-					return plugin.action(self, msg, config)
+					return plugin.action(self, msg, configuration)
 				end)
 				if not success then
 
 					if plugin.error then
-						utilities.send_reply(self, msg, plugin.error)
+						functions.send_reply(self, msg, plugin.error)
 					elseif plugin.error == nil then
-						utilities.send_reply(self, msg, config.errors.generic)
+						functions.send_reply(self, msg, configuration.errors.generic)
 					end
-					utilities.handle_exception(self, result, msg.from.id .. ': ' .. msg.text, config)
+					functions.handle_exception(self, result, msg.from.id .. ': ' .. msg.text, configuration)
 					return
 				end
 
@@ -103,41 +103,41 @@ function bot:on_msg_receive(msg, config)
 
 end
 
-function bot:run(config)
-	bot.init(self, config)
+function bot:run(configuration)
+	bot.init(self, configuration)
 	while self.is_started do
-		local res = bindings.getUpdates(self, { timeout=20, offset = self.last_update+1 } )
+		local res = telegram_api.getUpdates(self, { timeout=20, offset = self.last_update+1 } )
 		if res then
 			for _,v in ipairs(res.result) do
 				self.last_update = v.update_id
 				if v.message then
-					bot.on_msg_receive(self, v.message, config)
+					bot.on_msg_receive(self, v.message, configuration)
 				end
 			end
 		else
-			print('Connection error while fetching updates.')
+			print('An error occured whilst retrieving updates from Telegram.)
 		end
 
 		if self.last_cron ~= os.date('%M') then
 			self.last_cron = os.date('%M')
 			for i,v in ipairs(self.plugins) do
 				if v.cron then
-					local result, err = pcall(function() v.cron(self, config) end)
+					local result, err = pcall(function() v.cron(self, configuration) end)
 					if not result then
-						utilities.handle_exception(self, err, 'CRON: ' .. i, config)
+						functions.handle_exception(self, err, 'CRON: ' .. i, configuration)
 					end
 				end
 			end
 		end
 
 		if self.last_database_save ~= os.date('%H') then
-			utilities.save_data(self.info.username..'.db', self.database)
+			functions.save_data(self.info.username..'.db', self.database)
 			self.last_database_save = os.date('%H')
 		end
 
 	end
 
-	utilities.save_data(self.info.username..'.db', self.database)
+	functions.save_data(self.info.username..'.db', self.database)
 	print('Halted.')
 end
 
