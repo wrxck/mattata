@@ -68,7 +68,7 @@ end
 
 local drua = {
 	IP = 'localhost',
-	PORT = 4567
+	PORT = 4570
 }
 
 drua.send = function(command, do_receive)
