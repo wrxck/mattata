@@ -1,11 +1,11 @@
-local bindings = {}
+local telegram_api = {}
 
 local HTTPS = require('ssl.https')
 local JSON = require('dkjson')
 local ltn12 = require('ltn12')
 local MP_ENCODE = require('multipart-post').encode
 
-function bindings:request(method, parameters, file)
+function telegram_api:request(method, parameters, file)
 	parameters = parameters or {}
 	for k,v in pairs(parameters) do
 		parameters[k] = tostring(v)
@@ -52,11 +52,11 @@ function bindings:request(method, parameters, file)
 	end
 end
 
-function bindings.gen(_, key)
+function telegram_api.gen(_, key)
 	return function(self, params, file)
-		return bindings.request(self, key, params, file)
+		return telegram_api.request(self, key, params, file)
 	end
 end
-setmetatable(bindings, { __index = bindings.gen })
+setmetatable(telegram_api, { __index = telegram_api.gen })
 
-return bindings
+return telegram_api
