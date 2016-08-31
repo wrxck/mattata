@@ -1,15 +1,13 @@
 local channel = {}
-
-local bindings = require('mattata.bindings')
-local utilities = require('mattata.utilities')
-
-function channel:init(config)
-	channel.triggers = utilities.triggers(self.info.username, config.cmd_pat):t('ch', true).table
+local telegram_api = require('mattata.telegram_api')
+local functions = require('mattata.functions')
+function channel:init(configuration)
+	channel.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('ch', true).table
 	channel.command = 'ch <channel> \\n <message>'
-	channel.doc = config.cmd_pat .. [[ch <channel>
+	channel.doc = configuration.command_prefix .. [[ch <channel>
 <message>
 
-Sends a message to a channel. Channel may be specified via ID or username. Messages are markdown-enabled. Users may only send messages to channels for which they are the owner or an administrator.
+Sends a message to a Telegram channel. The channel can be specified via ID or username. Messages can be formatted with Markdown. Users can only send messages to channels they own and/or administrate.
 
 The following markdown syntax is supported:
  *bold text*
@@ -19,13 +17,12 @@ The following markdown syntax is supported:
  `‌`‌`pre-formatted fixed-width code block`‌`‌`]]
 end
 
-function channel:action(msg, config)
-
-	local input = utilities.input(msg.text)
+function channel:action(msg, configuration)
+	local input = functions.input(msg.text)
 	local output
 	if input then
-		local chat_id = utilities.get_word(input, 1)
-		local admin_list, t = bindings.getChatAdministrators(self, { chat_id = chat_id } )
+		local chat_id = functions.get_word(input, 1)
+		local admin_list, t = telegram_api.getChatAdministrators(self, { chat_id = chat_id } )
 		if admin_list then
 			local is_admin = false
 			for _, admin in ipairs(admin_list.result) do
@@ -36,14 +33,14 @@ function channel:action(msg, config)
 			if is_admin then
 				local text = input:match('\n(.+)')
 				if text then
-					local success, result = utilities.send_message(self, chat_id, text, true, nil, true)
+					local success, result = functions.send_message(self, chat_id, text, true, nil, true)
 					if success then
 						output = 'Your message has been sent!'
 					else
 						output = 'Sorry, I was unable to send your message.\n`' .. result.description .. '`'
 					end
 				else
-					output = 'Please enter a message to be sent. Markdown is supported.'
+					output = 'Please enter a message to send. Markdown formatting is supported!'
 				end
 			else
 				output = 'Sorry, you do not appear to be an administrator for that channel.'
@@ -54,7 +51,6 @@ function channel:action(msg, config)
 	else
 		output = channel.doc
 	end
-	utilities.send_reply(self, msg, output, true)
+	functions.send_reply(self, msg, output, true)
 end
-
 return channel
