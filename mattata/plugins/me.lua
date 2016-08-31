@@ -1,42 +1,32 @@
 local me = {}
-
-local utilities = require('mattata.utilities')
-
-function me:init(config)
-	me.triggers = utilities.triggers(self.info.username, config.cmd_pat):t('me', true).table
+local functions = require('mattata.functions')
+function me:init(configuration)
 	me.command = 'me'
-	me.doc = 'Returns userdata stored by the bot.'
+	me.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('me', true).table
+	me.doc = 'Prints any userdata stored by mattata which is related to the specified user.'
 end
-
-function me:action(msg, config)
-
+function me:action(msg, configuration)
 	local userdata = self.database.userdata[tostring(msg.from.id)] or {}
-
-	if msg.from.id == config.admin then
+	if msg.from.id == configuration.admin then
 		if msg.reply_to_message then
 			userdata = self.database.userdata[tostring(msg.reply_to_message.from.id)]
 		else
-			local input = utilities.input(msg.text)
+			local input = functions.input(msg.text)
 			if input then
-				local user_id = utilities.id_from_username(self, input)
+				local user_id = functions.id_from_username(self, input)
 				if user_id then
 					userdata = self.database.userdata[tostring(user_id)] or {}
 				end
 			end
 		end
 	end
-
 	local output = ''
 	for k,v in pairs(userdata) do
 		output = output .. '*' .. k .. ':* `' .. tostring(v) .. '`\n'
 	end
-
 	if output == '' then
-		output = 'There is no data stored for this user.'
+		output = 'Sorry, but there is no data stored for this user.'
 	end
-
-	utilities.send_message(self, msg.chat.id, output, true, nil, true)
-
+	functions.send_message(self, msg.chat.id, output, true, nil, true)
 end
-
 return me
