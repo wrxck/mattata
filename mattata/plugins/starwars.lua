@@ -1,20 +1,17 @@
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
-local bindings = require('mattata.bindings')
-local utilities = require('mattata.utilities')
-
+local telegram_api = require('mattata.telegram_api')
+local functions = require('mattata.functions')
 local starwars = {}
-
-function starwars:init(config)
-	starwars.triggers = utilities.triggers(self.info.username, config.cmd_pat)
+function starwars:init(configuration)
+	starwars.triggers = functions.triggers(self.info.username, configuration.command_prefix)
 		:t('starwars', true):t('sw', true).table
-	starwars.doc = config.cmd_pat .. [[starwars <query>
+	starwars.doc = configuration.command_prefix .. [[starwars <query>
 Returns the opening crawl from the specified Star Wars film.
-Alias: ]] .. config.cmd_pat .. 'sw'
+Alias: ]] .. configuration.command_prefix .. 'sw'
 	starwars.command = 'starwars <query>'
 	starwars.base_url = 'http://swapi.co/api/films/'
 end
-
 local films_by_number = {
 	['phantom menace'] = 4,
 	['attack of the clones'] = 5,
@@ -24,7 +21,6 @@ local films_by_number = {
 	['return of the jedi'] = 3,
 	['force awakens'] = 7
 }
-
 local corrected_numbers = {
 	4,
 	5,
@@ -34,21 +30,17 @@ local corrected_numbers = {
 	3,
 	7
 }
-
-function starwars:action(msg, config)
-
-	local input = utilities.input(msg.text_lower)
+function starwars:action(msg, configuration)
+	local input = functions.input(msg.text_lower)
 	if not input then
 		if msg.reply_to_message and msg.reply_to_message.text then
 			input = msg.reply_to_message.text
 		else
-			utilities.send_reply(self, msg, starwars.doc, true)
+			functions.send_reply(self, msg, starwars.doc, true)
 			return
 		end
 	end
-
-	bindings.sendChatAction(self, { chat_id = msg.chat.id, action = 'typing' } )
-
+	telegram_api.sendChatAction(self, { chat_id = msg.chat.id, action = 'typing' } )
 	local film
 	if tonumber(input) then
 		input = tonumber(input)
@@ -63,22 +55,17 @@ function starwars:action(msg, config)
 			end
 		end
 	end
-
 	if not film then
-		utilities.send_reply(self, msg, config.errors.results)
+		functions.send_reply(self, msg, configuration.errors.results)
 		return
 	end
-
 	local url = starwars.base_url .. film
 	local jstr, code = HTTP.request(url)
 	if code ~= 200 then
-		utilities.send_reply(self, msg, config.errors.connection)
+		functions.send_reply(self, msg, configuration.errors.connection)
 		return
 	end
-
 	local output = '*' .. JSON.decode(jstr).opening_crawl .. '*'
-	utilities.send_message(self, msg.chat.id, output, true, nil, true)
-
+	functions.send_message(self, msg.chat.id, output, true, nil, true)
 end
-
 return starwars
