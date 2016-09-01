@@ -1,19 +1,15 @@
 local reddit = {}
-
 local HTTP = require('socket.http')
 local URL = require('socket.url')
 local JSON = require('dkjson')
-local utilities = require('mattata.utilities')
-
+local functions = require('mattata.functions')
 reddit.command = 'reddit [r/subreddit | query]'
-
-function reddit:init(config)
-	reddit.triggers = utilities.triggers(self.info.username, config.cmd_pat, {'^/r/'}):t('reddit', true):t('r', true):t('r/', true).table
-	reddit.doc = config.cmd_pat .. [[reddit [r/subreddit | query]
+function reddit:init(configuration)
+	reddit.triggers = functions.triggers(self.info.username, configuration.command_prefix, {'^/r/'}):t('reddit', true):t('r', true):t('r/', true).table
+	reddit.doc = configuration.command_prefix .. [[reddit [r/subreddit | query]
 Returns the top posts or results for a given subreddit or query. If no argument is given, returns the top posts from r/all. Querying specific subreddits is not supported.
-Aliases: ]] .. config.cmd_pat .. 'r, /r/subreddit'
+Aliases: ]] .. configuration.command_prefix .. 'r, /r/subreddit'
 end
-
 local format_results = function(posts)
 	local output = ''
 	for _,v in ipairs(posts) do
@@ -21,7 +17,7 @@ local format_results = function(posts)
 		local title = post.title:gsub('%[', '('):gsub('%]', ')'):gsub('&amp;', '&')
 		if title:len() > 256 then
 			title = title:sub(1, 253)
-			title = utilities.trim(title) .. '...'
+			title = functions.trim(title) .. '...'
 		end
 		local short_url = 'redd.it/' .. post.id
 		local s = '[' .. title .. '](' .. short_url .. ')'
@@ -32,32 +28,28 @@ local format_results = function(posts)
 	end
 	return output
 end
-
 reddit.subreddit_url = 'http://www.reddit.com/%s/.json?limit='
 reddit.search_url = 'http://www.reddit.com/search.json?q=%s&limit='
 reddit.rall_url = 'http://www.reddit.com/.json?limit='
-
-function reddit:action(msg, config)
-
+function reddit:action(msg, configuration)
 	local limit = 4
 	if msg.chat.type == 'private' then
 		limit = 8
 	end
 	local text = msg.text_lower
 	if text:match('^/r/.') then
-
-		text = msg.text_lower:gsub('^/r/', config.cmd_pat..'r r/')
+		text = msg.text_lower:gsub('^/r/', configuration.command_prefix..'r r/')
 	end
-	local input = utilities.input(text)
+	local input = functions.input(text)
 	local source, url
 	if input then
 		if input:match('^r/.') then
-			input = utilities.get_word(input, 1)
+			input = functions.get_word(input, 1)
 			url = reddit.subreddit_url:format(input) .. limit
-			source = '*/' .. utilities.md_escape(input) .. '*\n'
+			source = '*/' .. functions.md_escape(input) .. '*\n'
 		else
-			input = utilities.input(msg.text)
-			source = '*Results for* _' .. utilities.md_escape(input) .. '_ *:*\n'
+			input = functions.input(msg.text)
+			source = '*Results for* _' .. functions.md_escape(input) .. '_ *:*\n'
 			input = URL.escape(input)
 			url = reddit.search_url:format(input) .. limit
 		end
@@ -67,17 +59,16 @@ function reddit:action(msg, config)
 	end
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
-		utilities.send_reply(self, msg, config.errors.connection)
+		functions.send_reply(self, msg, configuration.errors.connection)
 	else
 		local jdat = JSON.decode(jstr)
 		if #jdat.data.children == 0 then
-			utilities.send_reply(self, msg, config.errors.results)
+			functions.send_reply(self, msg, configuration.errors.results)
 		else
 			local output = format_results(jdat.data.children)
 			output = source .. output
-			utilities.send_message(self, msg.chat.id, output, true, nil, true)
+			functions.send_message(self, msg.chat.id, output, true, nil, true)
 		end
 	end
 end
-
 return reddit
