@@ -9,18 +9,18 @@ I am mattata, a multi-purpose Telegram bot.
 Send /help to get started.
     ]],
     command_prefix = '/',
-    cat_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg'
+    cat_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg',
     cat_api_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
     yandex_key = '', -- you can get one of these by heading to https://tech.yandex.com/keys/get/?service=trnsl
     lyricsnmusic_key = '', -- you can get one of these by heading to http://www.lyricsnmusic.com/api_keys/new
-    baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text'
-    calc_api = 'https://api.mathjs.org/v1/?expr='
-    catfact_api = 'http://catfacts-api.appspot.com/api/facts'
-    chuck_api = 'http://api.icndb.com/jokes/random'
-    currency_api = 'https://www.google.com/finance/converter'
-    fact_api = 'http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000'
-    imdb_api = 'http://www.omdbapi.com/?t='
-    loremipsum_api = 'http://loripsum.net/api/1/medium/plaintext'
+    baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text',
+    calc_api = 'https://api.mathjs.org/v1/?expr=',
+    catfact_api = 'http://catfacts-api.appspot.com/api/facts',
+    chuck_api = 'http://api.icndb.com/jokes/random',
+    currency_api = 'https://www.google.com/finance/converter',
+    fact_api = 'http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000',
+    imdb_api = 'http://www.omdbapi.com/?t=',
+    loremipsum_api = 'http://loripsum.net/api/1/medium/plaintext',
     errors = {
         generic = 'WELP. That\'s an error!',
         connection = 'I\'m sorry, but there was a connection error whilst processing your request, please try again later.',
@@ -55,15 +55,15 @@ Send /help to get started.
     	"Outlook: very good.",
     	"Very doubtful.",
     	"Rowan's voice echoes: There is a time and place for everything, but not now."
-    }
-    fortune_yes_no_answers {
+    },
+    fortune_yes_no_answers = {
         'Absolutely.',
-	    'In your dreams.',
-	    'Yes.',
-	    'No.',
-	    'It is likely so.',
-	    'Never!'
-    }
+	'In your dreams.',
+	'Yes.',
+	'No.',
+	'It is likely so.',
+	'Never!'
+    },
     commits = {
     	"One does not simply merge into master",
     	"Merging the merge",
@@ -471,7 +471,7 @@ Send /help to get started.
     	"trying harder",
     	"i tried",
     	"fml"
-	}
+    },
     plugins = {
         'control',
         'about',
