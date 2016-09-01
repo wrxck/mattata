@@ -5,7 +5,6 @@ return {
     log_chat = '', -- the numerical ID of the chat you wish to log errors/private messages to, you can add telegram.me/groupinfobot to your group to view this information, if necessary
     about_text = [[
 I am mattata, a multi-purpose Telegram bot.
-
 Send /help to get started.
     ]],
     command_prefix = '/',
