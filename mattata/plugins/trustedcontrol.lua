@@ -1,55 +1,50 @@
 local trustedcontrol = {}
-
 local bot = require('mattata.bot')
-local utilities = require('mattata.utilities')
-
-local cmd_pat
-
-function trustedcontrol:init(config)
-	cmd_pat = config.cmd_pat
-	trustedcontrol.triggers = utilities.triggers(self.info.username, cmd_pat,
-		{'^'..cmd_pat..'script'}):t('treboot', true):t('thalt').table
+local functions = require('mattata.functions')
+local command_prefix
+function trustedcontrol:init(configuration)
+	command_prefix = configuration.command_prefix
+	trustedcontrol.triggers = functions.triggers(self.info.username, command_prefix,
+		{'^'..command_prefix..'script'}):t('treboot', true):t('thalt').table
 end
-
-function trustedcontrol:action(msg, config)
-    if msg.from.id ~= config.trusted then
+function trustedcontrol:action(msg, configuration)
+    if msg.from.id ~= configuration.trusted then
         return
     end
     if msg.date < os.time() - 2 then return end
-    if msg.text_lower:match('^'..cmd_pat..'treboot') then
+    if msg.text_lower:match('^'..command_prefix..'treboot') then
         for pac, _ in pairs(package.loaded) do
             if pac:match('^mattata%.plugins%.') then
                 package.loaded[pac] = nil
             end
         end
-        package.loaded['mattata.bindings'] = nil
-        package.loaded['mattata.utilities'] = nil
+        package.loaded['mattata.telegram_api'] = nil
+        package.loaded['mattata.functions'] = nil
         package.loaded['mattata.drua-tg'] = nil
-        package.loaded['config'] = nil
-        if not msg.text_lower:match('%-config') then
-            for k, v in pairs(require('config')) do
-                config[k] = v
+        package.loaded['configuration'] = nil
+        if not msg.text_lower:match('%-configuration') then
+            for k, v in pairs(require('configuration')) do
+                configuration[k] = v
             end
         end
-        bot.init(self, config)
-        utilities.send_reply(self, msg, 'mattata is being rebooted...')
-        utilities.send_message(self, msg.chat.id, 'mattata has successfully been rebooted!')
-    elseif msg.text_lower:match('^'..cmd_pat..'thalt') then
+        bot.init(self, configuration)
+        functions.send_reply(self, msg, 'mattata is being rebooted...')
+        functions.send_message(self, msg.chat.id, 'mattata has successfully been rebooted!')
+    elseif msg.text_lower:match('^'..command_prefix..'thalt') then
         self.is_started = false
-        utilities.send_reply(self, msg, 'mattata is shutting down...')
-    elseif msg.text_lower:match('^'..cmd_pat..'script') then
-        local input = msg.text_lower:match('^'..cmd_pat..'script\n(.+)')
+        functions.send_reply(self, msg, 'mattata is shutting down...')
+    elseif msg.text_lower:match('^'..command_prefix..'script') then
+        local input = msg.text_lower:match('^'..command_prefix..'script\n(.+)')
         if not input then
-            utilities.send_reply(self, msg, 'usage: ```\n'..cmd_pat..'script\n'..cmd_pat..'command <arg>\n...\n```', true)
+            functions.send_reply(self, msg, 'usage: ```\n'..command_prefix..'script\n'..command_prefix..'command <arg>\n...\n```', true)
             return
         end
         input = input .. '\n'
         for command in input:gmatch('(.-)\n') do
-            command = utilities.trim(command)
+            command = functions.trim(command)
             msg.text = command
-            bot.on_msg_receive(self, msg, config)
+            bot.on_msg_receive(self, msg, configuration)
         end
     end
 end
-
 return trustedcontrol
