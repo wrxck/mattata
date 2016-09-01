@@ -115,7 +115,7 @@ function bot:run(configuration)
 				end
 			end
 		else
-			print('An error occured whilst retrieving updates from Telegram.)
+			print('An error occured whilst retrieving updates from Telegram.')
 		end
 
 		if self.last_cron ~= os.date('%M') then
