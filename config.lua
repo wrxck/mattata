@@ -1,8 +1,8 @@
 return {
     bot_api_key = '', -- insert the bot API token you received from BotFather
-    admin = , -- the numerical ID of the owner, who is presumably you
+    admin = nil, -- the numerical ID of the owner, who is presumably you
     lang = 'en', -- two digit locale
-    log_chat = , -- the numerical ID of the chat you wish to log errors/private messages to, you can add telegram.me/groupinfobot to your group to view this information, if necessary
+    log_chat = nil, -- the numerical ID of the chat you wish to log errors/private messages to, you can add telegram.me/groupinfobot to your group to view this information, if necessary
     about_text = [[
 I am mattata, a multi-purpose Telegram bot.
 
