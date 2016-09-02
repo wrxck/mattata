@@ -726,6 +726,7 @@ return {
         'loremipsum',
         'baconipsum',
         'skateipsum',
+        'setandget',
         'starwars',
         'lua',
         '9gag',
