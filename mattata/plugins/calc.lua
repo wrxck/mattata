@@ -9,7 +9,7 @@ function calc:init(configuration)
 Calculates solutions to, well, mathematical expressions. The results are provided by mathjs.org.]]
 end
 function calc:action(msg, configuration)
-	local input = functions.input(msg.text)
+	local input = functions.input(msg.text):gsub("π", "3.14159265359"):gsub("pi", "3.14159265359"):gsub("phi", "1.61803398875"):gsub("the golden ratio", "1.61803398875"):gsub("φ", "1.61803398875")
 	if not input then
 		if msg.reply_to_message and msg.reply_to_message.text then
 			input = msg.reply_to_message.text
