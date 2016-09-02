@@ -7,13 +7,13 @@ return {
 	    I am mattata, a multi-purpose Telegram bot.
 	    Send /help to begin.
 	]],
-	command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
-	cat_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg', -- the API URL for cats.lua
-	cat_api_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
-	yandex_key = '', -- you can get one of these by heading to https://tech.yandex.com/keys/get/?service=trnsl
-	lyricsnmusic_key = '', -- you can get one of these by heading to http://www.lyricsnmusic.com/api_keys/new
-	baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text', -- the API URL for baconipsum.lua
-	calc_api = 'https://api.mathjs.org/v1/?expr=', -- the API URL for calc.lua
+    command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
+    cat_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg', -- the API URL for cats.lua
+    cat_api_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
+    yandex_key = '', -- you can get one of these by heading to https://tech.yandex.com/keys/get/?service=trnsl
+    lyricsnmusic_key = '', -- you can get one of these by heading to http://www.lyricsnmusic.com/api_keys/new
+    baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text', -- the API URL for baconipsum.lua
+    calc_api = 'https://api.mathjs.org/v1/?expr=', -- the API URL for calc.lua
     catfact_api = 'http://catfacts-api.appspot.com/api/facts', -- the API URL for catfact.lua
     chuck_api = 'http://api.icndb.com/jokes/random', -- the API URL for chuck.lua
     currency_api = 'https://www.google.com/finance/converter', -- the API URL for currency.lua
@@ -21,7 +21,7 @@ return {
     imdb_api = 'http://www.omdbapi.com/?t=', -- the API URL for imdb.lua
     loremipsum_api = 'http://loripsum.net/api/1/medium/plaintext', -- the API URL for loremipsum.lua
     errors = {
-    	generic = 'WELP. I\'m afraid an error has occured!',
+        generic = 'WELP. I\'m afraid an error has occured!',
         connection = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
         results = 'I\'m sorry, but I couldn\'t find any results for that.',
         argument = 'I\'m sorry, but the arguments you gave were either invalid or non-existent. Please try again',
