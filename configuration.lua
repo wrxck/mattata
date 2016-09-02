@@ -4,9 +4,9 @@ return {
     lang = 'en', -- two digit locale
     log_chat = '', -- the numerical ID of the chat you wish to log errors/private messages to, you can add telegram.me/groupinfobot to your group to view this information, if necessary
     about_text = [[
-	    I am mattata, a multi-purpose Telegram bot.
-	    Send /help to begin.
-	]],
+        I am mattata, a multi-purpose Telegram bot.
+        Send /help to begin.
+    ]],
     command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
     cat_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg', -- the API URL for cats.lua
     cat_api_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
