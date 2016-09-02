@@ -723,6 +723,7 @@ return {
         'fortune',
         'isup',
         'chuck',
+        'id',
         'loremipsum',
         'baconipsum',
         'skateipsum',
