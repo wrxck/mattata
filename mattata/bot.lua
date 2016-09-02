@@ -1,38 +1,27 @@
 local bot = {}
-
 local telegram_api
 local functions
-
 bot.version = '1.2'
-
 function bot:init(configuration)
 	telegram_api = require('mattata.telegram_api')
 	functions = require('mattata.functions')
-
 	assert(
 		configuration.bot_api_key ~= '',
-		'You did not set your bot token in the configuration!'
+		'You did not set your bot token in the configuration file!'
 	)
 	self.BASE_URL = 'https://api.telegram.org/bot' .. configuration.bot_api_key .. '/'
-
 	repeat
 		print('Retrieving bot information...')
 		self.info = telegram_api.getMe(self)
 	until self.info
 	self.info = self.info.result
-
 	if not self.database then
 		self.database = functions.load_data(self.info.username..'.db')
 	end
-
 	self.database.users = self.database.users or {}
-
 	self.database.userdata = self.database.userdata or {}
-
 	self.database.version = bot.version
-
 	self.database.users[tostring(self.info.id)] = self.info
-
 	self.plugins = {}
 	for _,v in ipairs(configuration.plugins) do
 		local p = require('mattata.plugins.'..v)
@@ -40,15 +29,12 @@ function bot:init(configuration)
 		if p.init then p.init(self, configuration) end
 		if p.doc then p.doc = '```\n'..p.doc..'\n```' end
 	end
-
 	print('@' .. self.info.username .. ', also known as ' .. self.info.first_name ..' ('..self.info.id..')')
-
 	self.last_update = self.last_update or 0
 	self.last_cron = self.last_cron or os.date('%M')
 	self.last_database_save = self.last_database_save or os.date('%H')
 	self.is_started = true
 end
-
 function bot:on_msg_receive(msg, configuration)
 	if msg.date < os.time() - 5 then return end
 	self.database.users[tostring(msg.from.id)] = msg.from
@@ -61,19 +47,15 @@ function bot:on_msg_receive(msg, configuration)
 	elseif msg.left_chat_member then
 		self.database.users[tostring(msg.left_chat_member.id)] = msg.left_chat_member
 	end
-
 	msg.text = msg.text or msg.caption or ''
 	msg.text_lower = msg.text:lower()
-
 	if msg.reply_to_message then
 		msg.reply_to_message.text = msg.reply_to_message.text or msg.reply_to_message.caption or ''
 	end
-
 	if msg.text:match('^'..configuration.command_prefix..'start .+') then
 		msg.text = configuration.command_prefix .. functions.input(msg.text)
 		msg.text_lower = msg.text:lower()
 	end
-
 	for _, plugin in ipairs(self.plugins) do
 		for _, trigger in ipairs(plugin.triggers or {}) do
 			if string.match(msg.text_lower, trigger) then
@@ -81,7 +63,6 @@ function bot:on_msg_receive(msg, configuration)
 					return plugin.action(self, msg, configuration)
 				end)
 				if not success then
-
 					if plugin.error then
 						functions.send_reply(self, msg, plugin.error)
 					elseif plugin.error == nil then
@@ -90,19 +71,15 @@ function bot:on_msg_receive(msg, configuration)
 					functions.handle_exception(self, result, msg.from.id .. ': ' .. msg.text, configuration)
 					return
 				end
-
 				if type(result) == 'table' then
 					msg = result
-
 				elseif result ~= true then
 					return
 				end
 			end
 		end
 	end
-
 end
-
 function bot:run(configuration)
 	bot.init(self, configuration)
 	while self.is_started do
@@ -115,9 +92,8 @@ function bot:run(configuration)
 				end
 			end
 		else
-			print('An error occured whilst retrieving updates from Telegram.')
+			print('An error occured whilst mattata was retrieving updates from Telegram.')
 		end
-
 		if self.last_cron ~= os.date('%M') then
 			self.last_cron = os.date('%M')
 			for i,v in ipairs(self.plugins) do
@@ -129,16 +105,12 @@ function bot:run(configuration)
 				end
 			end
 		end
-
 		if self.last_database_save ~= os.date('%H') then
 			functions.save_data(self.info.username..'.db', self.database)
 			self.last_database_save = os.date('%H')
 		end
-
 	end
-
 	functions.save_data(self.info.username..'.db', self.database)
-	print('Halted.')
+	print('mattata is shutting down...')
 end
-
 return bot
