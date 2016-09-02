@@ -1,39 +1,38 @@
 return {
-    bot_api_key = '', -- insert the bot API token you received from BotFather
-    admin = '', -- the numerical ID of the owner, who is presumably you
-    trusted = '',
-    lang = 'en', -- two digit locale
-    log_chat = '', -- the numerical ID of the chat you wish to log errors/private messages to, you can add telegram.me/groupinfobot to your group to view this information, if necessary
-    about_text = [[
-I am mattata, a multi-purpose Telegram bot.
-Send /help to get started.
-    ]],
-    command_prefix = '/',
-    cat_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg',
-    cat_api_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
-    yandex_key = '', -- you can get one of these by heading to https://tech.yandex.com/keys/get/?service=trnsl
-    lyricsnmusic_key = '', -- you can get one of these by heading to http://www.lyricsnmusic.com/api_keys/new
-    baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text',
-    calc_api = 'https://api.mathjs.org/v1/?expr=',
-    catfact_api = 'http://catfacts-api.appspot.com/api/facts',
-    chuck_api = 'http://api.icndb.com/jokes/random',
-    currency_api = 'https://www.google.com/finance/converter',
-    fact_api = 'http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000',
-    imdb_api = 'http://www.omdbapi.com/?t=',
-    loremipsum_api = 'http://loripsum.net/api/1/medium/plaintext',
+	bot_api_key = '', -- insert the bot API token you received from BotFather
+	admin = '', -- the numerical ID of the owner, who is presumably you
+	lang = 'en', -- two digit locale
+	log_chat = '', -- the numerical ID of the chat you wish to log errors/private messages to, you can add telegram.me/groupinfobot to your group to view this information, if necessary
+	about_text = [[
+		I am mattata, a multi-purpose Telegram bot.
+		Send /help to get started.
+	]],
+	command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
+	cat_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg', -- the API URL for cats.lua
+	cat_api_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
+	yandex_key = '', -- you can get one of these by heading to https://tech.yandex.com/keys/get/?service=trnsl
+	lyricsnmusic_key = '', -- you can get one of these by heading to http://www.lyricsnmusic.com/api_keys/new
+	baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text', -- the API URL for baconipsum.lua
+	calc_api = 'https://api.mathjs.org/v1/?expr=', -- the API URL for calc.lua
+    catfact_api = 'http://catfacts-api.appspot.com/api/facts', -- the API URL for catfact.lua
+    chuck_api = 'http://api.icndb.com/jokes/random', -- the API URL for chuck.lua
+    currency_api = 'https://www.google.com/finance/converter', -- the API URL for currency.lua
+    fact_api = 'http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000', -- the API URL for fact.lua
+    imdb_api = 'http://www.omdbapi.com/?t=', -- the API URL for imdb.lua
+    loremipsum_api = 'http://loripsum.net/api/1/medium/plaintext', -- the API URL for loremipsum.lua
     errors = {
-        generic = 'WELP. That\'s an error!',
-        connection = 'I\'m sorry, but there was a connection error whilst processing your request, please try again later.',
+    	generic = 'WELP. I\'m afraid an error has occured!',
+        connection = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
         results = 'I\'m sorry, but I couldn\'t find any results for that.',
-        argument = 'I\'m sorry, but the given arguments were either invalid or non-existent.',
-        syntax = 'Error. Invalid syntax.',
+        argument = 'I\'m sorry, but the arguments you gave were either invalid or non-existent. Please try again',
+        syntax = 'Syntax error. Please try again.',
     },
     messaging = {
         url = 'https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=',
         connection_error = 'Rowan\'s words echoed: There\'s a time and place for everything! But not now.',
         response_error = 'I\'m not sure how to answer that...'
     },
-    slaps = {
+    slaps = { -- slaps configured for slap.lua to use
         'VICTIM was shot by VICTOR.',
         'VICTIM was pricked to death.',
         'VICTIM walked into a cactus while trying to escape VICTOR.',
@@ -128,7 +127,7 @@ Send /help to get started.
         '"VICTIM was a mistake." - VICTOR',
         'VICTOR checkmated VICTIM in two moves.'
     },
-    puns = {
+    puns = { -- configured puns for puns.lua to use
         "The person who invented the door-knock won the No-bell prize.",
         "I couldn't work out how to fasten my seatbelt. Then it clicked.",
         "Never trust atoms; they make up everything.",
@@ -253,7 +252,7 @@ Send /help to get started.
         "A sea lion is nothing but an ionized seal.",
         "The vegetables from my garden aren't that great. I guess you could say they're mediokra."
     },
-    fortune_answers = {
+    fortune_answers = { -- fortune responses configured for fortune.lua
         "It is certain.",
         "It has been confirmed.",
         "Without any doubts.",
@@ -276,7 +275,7 @@ Send /help to get started.
         "Very doubtful.",
         "Rowan's voice echoes: There is a time and place for everything, but not now."
     },
-    fortune_yes_no_answers = {
+    fortune_yes_no_answers = { -- simple variants of the fortune responses configured for fortune.lua
         'Absolutely.',
         'In your dreams.',
         'Yes.',
@@ -284,7 +283,7 @@ Send /help to get started.
         'It is likely so.',
         'Never!'
     },
-    commits = {
+    commits = { -- commit messages configured for commit.lua
         "One does not simply merge into master",
         "Merging the merge",
         "Another bug bites the dust",
@@ -692,9 +691,8 @@ Send /help to get started.
         "i tried",
         "fml"
     },
-    plugins = {
+    plugins = { -- the plugins which mattata will use
         'control',
-        'trustedcontrol',
         'about',
         'nick',
         'bandersnatch',
