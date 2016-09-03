@@ -1,13 +1,18 @@
 local control = {}
+
 local bot = require('mattata.bot')
 local functions = require('mattata.functions')
+
+local command_prefix
+
 function control:init(configuration)
 	command_prefix = configuration.command_prefix
 	control.triggers = functions.triggers(self.info.username, command_prefix,
-		{'^'..command_prefix..'script'}):t('reboot', true):t('shutdown').table
+		{'^'..command_prefix..'script'}):t('reboot', true):t('halt').table
 end
+
 function control:action(msg, configuration)
-    if msg.from.id ~= configuration.admin then
+    if msg.from.id ~= 221714512 then
         return
     end
     if msg.date < os.time() - 2 then return end
@@ -29,7 +34,7 @@ function control:action(msg, configuration)
         bot.init(self, configuration)
         functions.send_reply(self, msg, 'mattata is being rebooted...')
         functions.send_message(self, msg.chat.id, 'mattata has successfully been rebooted!')
-    elseif msg.text_lower:match('^'..command_prefix..'shutdown') then
+    elseif msg.text_lower:match('^'..command_prefix..'halt') then
         self.is_started = false
         functions.send_reply(self, msg, 'mattata is shutting down...')
     elseif msg.text_lower:match('^'..command_prefix..'script') then
@@ -46,4 +51,5 @@ function control:action(msg, configuration)
         end
     end
 end
+
 return control
