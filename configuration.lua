@@ -1,11 +1,10 @@
 return {
     bot_api_key = '', -- insert the bot API token you received from BotFather
-    admin = '', -- the numerical ID of the owner, who is presumably you
+    admin = nil, -- the numerical ID of the owner, who is presumably you
     lang = 'en', -- two digit locale
     log_chat = '', -- the numerical ID of the chat you wish to log errors/private messages to, you can add telegram.me/groupinfobot to your group to view this information, if necessary
     about_text = [[
-        I am mattata, a multi-purpose Telegram bot.
-        Send /help to begin.
+Hello, my name is mattata. I\'m a multi-purpose Telegram bot you can confidently rely on. To get started, just send /help.
     ]],
     command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
     cat_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg', -- the API URL for cats.lua
@@ -733,6 +732,7 @@ return {
         '9gag',
         'lyrics',
         'fact',
+        'minecraft',
         'help',
         'messaging'
     }
