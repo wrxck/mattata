@@ -26,7 +26,7 @@ function mattata:init(configuration)
   if p.init then p.init(self, configuration) end
   if p.doc then p.doc = '```\n'..p.doc..'\n```' end
  end
- print('mattata was successfully initialised!' .. self.info.first_name ..' ('..self.info.id..')')
+ print('mattata was successfully initialised! ' .. self.info.first_name .. ' ('..self.info.id..')')
  self.last_update = self.last_update or 0
  self.last_cron = self.last_cron or os.date('%M')
  self.last_database_save = self.last_database_save or os.date('%H')

@@ -29,12 +29,12 @@ local escape = function(text)
  text = text:gsub('"', '\\"')
  return text
 end
-local mattata = {
+local drua = {
  IP = 'localhost',
  PORT = 4570
 }
-mattata.send = function(command, do_receive)
- local s = SOCKET.connect(mattata.IP, mattata.PORT)
+drua.send = function(command, do_receive)
+ local s = SOCKET.connect(drua.IP, drua.PORT)
  assert(s, '\nUnable to connect to tg session.')
  s:send(command..'\n')
  local output
@@ -45,86 +45,86 @@ mattata.send = function(command, do_receive)
  s:close()
  return output
 end
-mattata.message = function(target, text)
+drua.message = function(target, text)
  target = format_target(target)
  text = escape(text)
  local command = 'msg %s "%s"'
  command = command:format(target, text)
- return mattata.send(command)
+ return drua.send(command)
 end
-mattata.send_photo = function(target, photo)
+drua.send_photo = function(target, photo)
  target = format_target(target)
  local command = 'send_photo %s %s'
  command = command:format(target, photo)
- return mattata.send(command)
+ return drua.send(command)
 end
-mattata.add_user = function(chat, target)
+drua.add_user = function(chat, target)
  local a
  chat, a = format_target(chat)
  target = format_target(target)
  local command = command_table.add[a]:format(chat, target)
- return mattata.send(command)
+ return drua.send(command)
 end
-mattata.kick_user = function(chat, target)
- mattata.get_info(chat)
+drua.kick_user = function(chat, target)
+ drua.get_info(chat)
  local a
  chat, a = format_target(chat)
  target = format_target(target)
  local command = command_table.kick[a]:format(chat, target)
- return mattata.send(command)
+ return drua.send(command)
 end
-mattata.rename_chat = function(chat, name)
+drua.rename_chat = function(chat, name)
  local a
  chat, a = format_target(chat)
  local command = command_table.rename[a]:format(chat, name)
- return mattata.send(command)
+ return drua.send(command)
 end
-mattata.export_link = function(chat)
+drua.export_link = function(chat)
  local a
  chat, a = format_target(chat)
  local command = command_table.link[a]:format(chat)
- return mattata.send(command, true)
+ return drua.send(command, true)
 end
-mattata.get_photo = function(chat)
+drua.get_photo = function(chat)
  local a
  chat, a = format_target(chat)
  local command = command_table.photo_get[a]:format(chat)
- local output = mattata.send(command, true)
+ local output = drua.send(command, true)
  if output:match('FAIL') then
   return false
  else
   return output:match('Saved to (.+)')
  end
 end
-mattata.set_photo = function(chat, photo)
+drua.set_photo = function(chat, photo)
  local a
  chat, a = format_target(chat)
  local command = command_table.photo_set[a]:format(chat, photo)
- return mattata.send(command)
+ return drua.send(command)
 end
-mattata.get_info = function(target)
+drua.get_info = function(target)
  local a
  target, a = format_target(target)
  local command = command_table.info[a]:format(target)
- return mattata.send(command, true)
+ return drua.send(command, true)
 end
-mattata.channel_set_admin = function(chat, user, rank)
+drua.channel_set_admin = function(chat, user, rank)
  chat = format_target(chat)
  user = format_target(user)
  local command = 'channel_set_admin %s %s %s'
  command = command:format(chat, user, rank)
- return mattata.send(command)
+ return drua.send(command)
 end
-mattata.channel_set_about = function(chat, text)
+drua.channel_set_about = function(chat, text)
  chat = format_target(chat)
  text = escape(text)
  local command = 'channel_set_about %s "%s"'
  command = command:format(chat, text)
- return mattata.send(command)
+ return drua.send(command)
 end
-mattata.block = function(user)
- return mattata.send('block_user user#' .. user)
+drua.block = function(user)
+ return drua.send('block_user user#' .. user)
 end
-mattata.unblock = function(user)
- return mattata.send('unblock_user user#' .. user)
+drua.unblock = function(user)
+ return drua.send('unblock_user user#' .. user)
 end
