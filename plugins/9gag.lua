@@ -20,8 +20,8 @@ function ninegag:action(msg, configuration)
  local jstr = HTTP.request(url)
  local jdat = JSON.decode(jstr)
  local math = math.random(#jdat)
- local random = jdat[math].src
- local output = '[XD]('..random..')'
+ local random = jdat[math]
+ local output = '['..' '..']('.. random.src ..')'
  functions.send_message(self, msg.chat.id, output, false, nil, true)
 end
 return ninegag
