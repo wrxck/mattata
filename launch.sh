@@ -1,6 +1,6 @@
 #!/bin/sh
 while true; do
-	lua main.lua
+	lua mattata.lua
 	echo 'mattata has stopped.'
 	sleep 3s
 done

@@ -1,10 +1,8 @@
 local telegram_api = {}
-
 local HTTPS = require('ssl.https')
 local JSON = require('dkjson')
 local ltn12 = require('ltn12')
 local MP_ENCODE = require('multipart-post').encode
-
 function telegram_api:request(method, parameters, file)
 	parameters = parameters or {}
 	for k,v in pairs(parameters) do
@@ -51,12 +49,10 @@ function telegram_api:request(method, parameters, file)
 		end
 	end
 end
-
 function telegram_api.gen(_, key)
 	return function(self, params, file)
 		return telegram_api.request(self, key, params, file)
 	end
 end
 setmetatable(telegram_api, { __index = telegram_api.gen })
-
 return telegram_api

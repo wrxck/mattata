@@ -48,14 +48,14 @@ function functions.input(s)
 	return s:sub(s:find(' ')+1)
 end
 function functions.utf8_len(s)
- local chars = 0
- for i = 1, string.len(s) do
-  local b = string.byte(s, i)
-  if b < 128 or b >= 192 then
-   chars = chars + 1
-  end
- end
- return chars
+	local chars = 0
+	for i = 1, string.len(s) do
+		local b = string.byte(s, i)
+		if b < 128 or b >= 192 then
+			chars = chars + 1
+		end
+	end
+	return chars
 end
 function functions.trim(str)
 	local s = str:gsub('^%s*(.-)%s*$', '%1')
@@ -268,28 +268,28 @@ function functions.new_set()
   return setmetatable({__count = 0}, functions.set_meta)
 end
 function functions.set_meta:add(x)
-  if x == "__count" then
- return false
-  else
- if not self[x] then
-   self[x] = true
-   self.__count = self.__count + 1
- end
- return true
-  end
+	if x == "__count" then
+		return false
+	else
+		if not self[x] then
+			self[x] = true
+			self.__count = self.__count + 1
+		end
+		return true
+	end
 end
 function functions.set_meta:remove(x)
-  if x == "__count" then
- return false
-  else
- if self[x] then
-   self[x] = nil
-   self.__count = self.__count - 1
- end
- return true
-  end
+	if x == "__count" then
+		return false
+	else
+		if self[x] then
+			self[x] = nil
+			self.__count = self.__count - 1
+		end
+		return true
+	end
 end
 function functions.set_meta:__len()
-  return self.__count
+	return self.__count
 end
 return functions
