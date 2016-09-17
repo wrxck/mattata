@@ -1,4 +1,3 @@
--- Based on functions.lua by topkecleon, these functions are shared across the majority of mattata's plugins and makes the creation of new plugins less complex.
 local functions = {}
 local HTTP = require('socket.http')
 local ltn12 = require('ltn12')
@@ -265,7 +264,7 @@ functions.char = {
 functions.set_meta = {}
 functions.set_meta.__index = functions.set_meta
 function functions.new_set()
-  return setmetatable({__count = 0}, functions.set_meta)
+	return setmetatable({__count = 0}, functions.set_meta)
 end
 function functions.set_meta:add(x)
 	if x == "__count" then
@@ -288,6 +287,29 @@ function functions.set_meta:remove(x)
 		end
 		return true
 	end
+end
+local function create_folder(name)
+	local cmd = io.popen('sudo mkdir '..name)
+	cmd:read('*all')
+	cmd = io.popen('sudo chmod -R 777 '..name)
+	cmd:read('*all')
+	cmd:close()
+end
+function functions.create_file(path, text, mode)
+	if not mode then
+		mode = "w"
+	end
+	file = io.open(path, mode)
+	if not file then
+		create_folder('files')
+		file = io.open(path, mode)
+		if not file then
+			return false
+		end
+	end
+	file:write(text)
+	file:close()
+	return true
 end
 function functions.set_meta:__len()
 	return self.__count

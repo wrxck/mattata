@@ -1,19 +1,19 @@
 local mattata = {}
 local telegram_api
 local functions
-mattata.version = '1.3.2'
+mattata.version = '1.4'
 function mattata:init(configuration)
 	telegram_api = require('telegram_api')
 	functions = require('functions')
-	assert(configuration.api_key ~= '',('You did not set your token in the configuration file!'))
-	self.BASE_URL = 'https://api.telegram.org/bot' .. configuration.api_key .. '/'
+	assert(configuration.bot_api_key ~= '',('You did not set your bot API key in the configuration file!'))
+	self.BASE_URL = 'https://api.telegram.org/bot' .. configuration.bot_api_key .. '/'
 	repeat
 		print('mattata is initialising...')
 		self.info = telegram_api.getMe(self)
 	until self.info
 	self.info = self.info.result
 	if not self.database then
-		self.database = functions.load_data('mattata.db')
+		self.database = functions.load_data('mattatabot.db')
 	end
 	self.database.users = self.database.users or {}
 	self.database.userdata = self.database.userdata or {}
@@ -27,10 +27,10 @@ function mattata:init(configuration)
 			p.init(self, configuration)
 		end
 		if p.doc then
-			p.doc = '```\n'..p.doc..'\n```'
+			p.doc = '```\n' .. p.doc .. '\n```'
 		end
 	end
-	print('mattata was successfully initialised! ' .. self.info.first_name .. ' ('..self.info.id..')')
+	print('mattata was successfully initialised!')
 	self.last_update = self.last_update or 0
 	self.last_cron = self.last_cron or os.date('%M')
 	self.last_database_save = self.last_database_save or os.date('%H')
@@ -55,7 +55,7 @@ function mattata:on_msg_receive(msg, configuration)
 	if msg.reply_to_message then
 		msg.reply_to_message.text = msg.reply_to_message.text or msg.reply_to_message.caption or ''
 	end
-	if msg.text:match('^'..configuration.command_prefix..'start .+') then
+	if msg.text:match('^' .. configuration.command_prefix .. 'start .+') then
 		msg.text = configuration.command_prefix .. functions.input(msg.text)
 		msg.text_lower = msg.text:lower()
 	end
@@ -109,10 +109,10 @@ function mattata:run(configuration)
 			end
 		end
 		if self.last_database_save ~= os.date('%H') then
-			functions.save_data(self.info.username..'.db', self.database)
+			functions.save_data('mattatabot.db', self.database)
 			self.last_database_save = os.date('%H')
 		end
-	end functions.save_data(self.info.username..'.db', self.database)
+	end functions.save_data('mattatabot.db', self.database)
 	print('mattata is shutting down...')
 end
 return mattata

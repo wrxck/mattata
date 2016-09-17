@@ -1,25 +1,40 @@
 return {
-	api_key = '', -- insert the bot API token you received from BotFather
-	admin = nil, -- the numerical ID of the owner, who is presumably you
-	lang = 'en', -- two digit locale
-	log_chat = '', -- the numerical ID of the chat you wish to log errors/private messages to, you can add telegram.me/groupinfobot to your group to view this information, if necessary
-	about_text = [[
-	Hello, my name is mattata. I'm a multi-purpose Telegram bot you can confidently rely on. To get started, just send /help.
-	]],
-	command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
+	bot_api_key = '', -- insert the bot API token you received from BotFather
+	owner_id = nil, -- the numerical ID of the owner, who is presumably you
+	language = 'en', -- two digit locale
+	admin_group = nil, -- the numerical ID of the chat you wish to log errors/private messages to, you can add telegram.me/groupinfobot to your group to view this information, if necessary
+	about_text = 'Hello, my name is mattata. I\'m a multi-purpose Telegram bot you can confidently rely on.\nTo get started, just send /help.\n',
+ 	command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
 	cat_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg', -- the API URL for cats.lua
 	cat_api_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
 	yandex_key = '', -- you can get one of these by heading to https://tech.yandex.com/keys/get/?service=trnsl
 	lyricsnmusic_key = '', -- you can get one of these by heading to http://www.lyricsnmusic.com/api_keys/new
+	canitrust_key = '', -- you can get one of these by heading to http://www.mywot.com/profile/api
 	baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text', -- the API URL for baconipsum.lua
-	skateipsum_api = 'http://skateipsum.com/get/1/1/JSON' -- the API URL for skateipsum.lua
 	calc_api = 'https://api.mathjs.org/v1/?expr=', -- the API URL for calc.lua
 	catfact_api = 'http://catfacts-api.appspot.com/api/facts', -- the API URL for catfact.lua
 	chuck_api = 'http://api.icndb.com/jokes/random', -- the API URL for chuck.lua
-	currency_api = 'http://www.google.com/finance/converter', -- the API URL for currency.lua
+	currency_api = 'https://www.google.com/finance/converter', -- the API URL for currency.lua
 	fact_api = 'http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000', -- the API URL for fact.lua
 	imdb_api = 'http://www.omdbapi.com/?t=', -- the API URL for imdb.lua
 	loremipsum_api = 'http://loripsum.net/api/1/medium/plaintext', -- the API URL for loremipsum.lua
+	starwars_api = 'http://swapi.co/api/films/', -- the API URL for starwars.lua
+	skateipsum_api = 'http://skateipsum.com/get/1/1/JSON', -- the API URL for skateipsum.lua
+	guidgen_api = 'http://www.passwordrandom.com/query?command=guid&format=json&count=1', -- the API URL for guidgen.lua
+	pwgen_api = 'http://www.passwordrandom.com/query?command=password&format=json&count=1', -- the API URL for pwgen.lua
+	yomama_api = 'http://api.yomomma.info/', -- the API URL for yomama.lua
+	ninegag_api = 'http://api-9gag.herokuapp.com/', -- the API URL for 9gag.lua
+	lyricsnmusic_api = 'http://api.lyricsnmusic.com/songs?api_key=', -- the API URL for lyrics.lua
+	mcmigrated_api = 'https://eu.mc-api.net/v3/migrated/', -- the API URL for mcmigrated.lua
+	randomword_api = 'http://www.setgetgo.com/randomword/get.php', -- the API URL for randomword.lua
+	yandex_api = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=', -- the API URL for translate.lua
+	urbandictionary_api = 'http://api.urbandictionary.com/v0/define?term=', -- the API URL for urbandictionary.lua
+	yeoldinsult_api = 'http://quandyfactory.com/insult/json', -- the API URL for yeoldinsult.lua
+	canitrust_api = 'https://api.mywot.com/0.4/public_link_json2?hosts=', -- the API URL for canitrust.lua
+	mcuuid_api = 'http://mcapi.ca/uuid/player/', -- the API URL for mcuuid.lua
+	mchistory_uuid_api = 'https://api.mojang.com/users/profiles/minecraft/', -- the API URL for mchistory.lua
+	mchistory_api = 'https://api.mojang.com/user/profiles/', -- the API URL for mchistory.lua
+	ispwned_api = 'https://haveibeenpwned.com/api/v2/breachedaccount/', -- the API URL for ispwned.lua
 	errors = {
 		generic = 'WELP. I\'m afraid an error has occured!',
 		connection = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
@@ -29,7 +44,7 @@ return {
 	},
 	messaging = {
 		url = 'https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=',
-		connection_error = 'Rowan\'s words echoed: There\'s a time and place for everything! But not now.',
+		connection_error = 'Matt\'s words echoed: There\'s a time and place for everything! But not now.',
 		response_error = 'I\'m not sure how to answer that...'
 	},
 	bandersnatch_full_names = { -- full names configured for plugins/bandersnatch.lua to use
@@ -431,7 +446,7 @@ return {
 		'A sea lion is nothing but an ionized seal.',
 		'The vegetables from my garden aren\'t that great. I guess you could say they\'re mediokra.'
 	},
-	fortune_answers = { -- fortune responses configured for fortune.lua
+	eightball_answers = { -- eightball responses configured for eightball.lua
 		'It is certain.',
 		'It has been confirmed.',
 		'Without any doubts.',
@@ -454,7 +469,7 @@ return {
 		'Very doubtful.',
 		'Rowan\'s voice echoes: There is a time and place for everything, but not now.'
 	},
-	fortune_yes_no_answers = { -- simple variants of the fortune responses configured for fortune.lua
+	eightball_yes_no_answers = { -- simple variants of the eightball responses configured for eightball.lua
 		'Absolutely.',
 		'In your dreams.',
 		'Yes.',
@@ -875,13 +890,13 @@ return {
 		'about',
 		'nick',
 		'bandersnatch',
-		'wiki',
+		'wikipedia',
 		'simplewikipedia',
 		'remind',
 		'ping',
+		'pong',
 		'calc',
 		'urbandictionary',
-		'pokemon-go',
 		'dice',
 		'imdb',
 		'me',
@@ -899,7 +914,7 @@ return {
 		'currency',
 		'pokedex',
 		'echo',
-		'fortune',
+		'eightball',
 		'isup',
 		'chuck',
 		'id',
@@ -913,8 +928,17 @@ return {
 		'lyrics',
 		'fact',
 		'minecraft',
+		'mcmigrated',
+		'mcuuid',
+		'mchistory',
+		'randomword',
+		'yeoldinsult',
+		'ispwned',
+		'yomama',
+		'guidgen',
+		'pwgen',
+		'canitrust',
 		'help',
-		'ayy',
 		'groupmessaging',
 		'messaging'
 	}
