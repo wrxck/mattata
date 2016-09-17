@@ -5,7 +5,7 @@ local functions = require('functions')
 function time:init(configuration)
 	time.command = 'time <location>'
 	time.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('time', true).table
-	time.doc = configuration.command_prefix .. [[time <location> Returns the time, date, and timezone for the given location.]]
+	time.doc = configuration.command_prefix .. 'time <location> - Displays the time, date, and time-zone for the given location.'
 end
 function time:action(msg, configuration)
 	local input = functions.input(msg.text)

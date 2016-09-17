@@ -7,11 +7,13 @@ function control:init(configuration)
 	control.triggers = functions.triggers(self.info.username, command_prefix, {'^'..command_prefix..'script'}):t('reboot', true):t('shutdown').table
 end
 function control:action(msg, configuration)
-	if msg.from.id ~= configuration.admin then
+	if msg.from.id ~= configuration.owner_id then
 		return
 	end
-	if msg.date < os.time() - 2 then return end
-	if msg.text_lower:match('^'..command_prefix..'reboot') then
+	if msg.date < os.time() - 2 then
+		return
+	end
+	if msg.text_lower:match('^' .. command_prefix .. 'reboot') then
 		for pac, _ in pairs(package.loaded) do
 			if pac:match('^plugins%.') then
 				package.loaded[pac] = nil
@@ -27,8 +29,7 @@ function control:action(msg, configuration)
 			end
 		end
 		mattata.init(self, configuration)
-		functions.send_reply(self, msg, 'mattata is rebooting...')
-		functions.send_message(self, msg.chat.id, 'mattata has successfully been rebooted!')
+		functions.send_reply(self, msg, '*mattata is rebooting...*', true)
 	elseif msg.text_lower:match('^'..command_prefix..'shutdown') then
 		self.is_started = false
 		functions.send_reply(self, msg, 'mattata is shutting down...')

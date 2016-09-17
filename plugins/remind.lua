@@ -4,17 +4,17 @@ function remind:init(configuration)
 	self.database.reminders = self.database.reminders or {}
 	remind.command = 'remind <duration> <message>'
 	remind.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('remind', true).table
-	remind.doc = configuration.command_prefix .. 'remind <duration> <message> \nRepeats a message after a duration of time, in minutes.'
+	remind.doc = configuration.command_prefix .. 'remind <duration> <message> - Repeats a message after a duration of time, in minutes.'
 end
 function remind:action(msg)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_message(self, msg.chat.id, remind.doc, true, msg.message_id, true)
+		functions.send_reply(self, msg, remind.doc, true)
 		return
 	end
 	local duration = functions.get_word(input, 1)
 	if not tonumber(duration) then
-		functions.send_message(self, msg.chat.id, remind.doc, true, msg.message_id, true)
+		functions.send_reply(self, msg, remind.doc, true)
 		return
 	end
 	duration = tonumber(duration)
@@ -25,7 +25,7 @@ function remind:action(msg)
 	end
 	local message = functions.input(input)
 	if not message then
-		functions.send_message(self, msg.chat.id, remind.doc, true, msg.message_id, true)
+		functions.send_reply(self, msg, remind.doc, true)
 		return
 	end
 	local chat_id_str = tostring(msg.chat.id)
@@ -40,7 +40,7 @@ function remind:action(msg)
 	local reminder = {
 		time = os.time() + duration * 60,
 		message = message
-	} table.insert(self.database.reminders[chat_id_str], reminder)
+		} table.insert(self.database.reminders[chat_id_str], reminder)
 	local output = 'I will remind you in ' .. duration
 	if duration == 1 then
 		output = output .. ' minute!'

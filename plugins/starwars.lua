@@ -1,13 +1,12 @@
+local starwars = {}
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
 local telegram_api = require('telegram_api')
 local functions = require('functions')
-local starwars = {}
 function starwars:init(configuration)
-	starwars.command = 'starwars <film>'
+	starwars.command = 'starwars <query>'
 	starwars.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('starwars', true):t('sw', true).table
-	starwars.doc = configuration.command_prefix .. [[starwars <query> Returns the opening crawl from the specified Star Wars film. Alias: ]] .. configuration.command_prefix .. 'sw'
-	starwars.base_url = 'http://swapi.co/api/films/'
+	starwars.doc = configuration.command_prefix .. 'starwars <query> - Returns the opening crawl from the specified Star Wars film. Alias:' .. configuration.command_prefix .. 'sw'
 end
 local films_by_number = {
 	['phantom menace'] = 4,
@@ -56,7 +55,7 @@ function starwars:action(msg, configuration)
 		functions.send_reply(self, msg, configuration.errors.results)
 		return
 	end
-	local url = starwars.base_url .. film
+	local url = configuration.starwars_api .. film
 	local jstr, code = HTTP.request(url)
 	if code ~= 200 then
 		functions.send_reply(self, msg, configuration.errors.connection)

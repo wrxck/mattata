@@ -9,7 +9,7 @@ end
 function preview:action(msg)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_message(self, msg.chat.id, preview.doc, true, nil, true)
+		functions.send_reply(self, msg.chat.id, preview.doc, true)
 		return
 	end
 	input = functions.get_word(input, 1)
@@ -19,7 +19,7 @@ function preview:action(msg)
 	local res = HTTP.request(input)
 	if not res then
 		functions.send_reply(self, msg, 'Please provide a valid URL.')
-		return
+	return
 	end
 	if res:len() == 0 then
 		functions.send_reply(self, msg, 'Sorry, the URL you provided is not letting me generate a preview. Please check it\'s a valid link.')

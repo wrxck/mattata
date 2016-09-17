@@ -1,11 +1,11 @@
+local isup = {}
 local functions = require('functions')
 local URL = require('socket.url')
 local HTTP = require('socket.http')
-local isup = {}
 function isup:init(configuration)
 	isup.command = 'isup <URL>'
-	isup.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('isdown', true):t('isup', true).table
-	isup.doc = 'Check if the specified URL is down for everyone or just you.'
+	isup.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('isup', true).table
+	isup.doc = configuration.command_prefix .. 'isup <URL> - Check if the specified URL is down for everyone or just you.'
 end
 function isup.website_down_http(url)
 	local parsed_url = URL.parse(url, { scheme = 'http', authority = '' })
@@ -15,10 +15,10 @@ function isup.website_down_http(url)
 	end
 	local url = URL.build(parsed_url)
 	local protocol
-		if parsed_url.scheme == 'http' then
-			protocol = HTTP
-		else
-			protocol = HTTP
+	if parsed_url.scheme == 'http' then
+		protocol = HTTP
+	else
+		protocol = HTTP
 	end
 	local options = {
 		url = url,

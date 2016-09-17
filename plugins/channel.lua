@@ -4,7 +4,7 @@ local functions = require('functions')
 function channel:init(configuration)
 	channel.command = 'ch <channel> \\n <message>'
 	channel.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('ch', true).table
-	channel.doc = configuration.command_prefix .. [[ch <channel> <message> Sends a message to a Telegram channel. The channel can be specified via ID or username. Messages can be formatted with Markdown. Users can only send messages to channels they own and/or administrate. The message to send must be on a new line (after the command and its respective syntax)]]
+	channel.doc = configuration.command_prefix .. 'ch <channel> <message> - Sends a message to a Telegram channel. The channel can be specified via ID or username. Messages can be formatted with Markdown. Users can only send messages to channels they own and/or administrate.'
 end
 function channel:action(msg, configuration)
 	local input = functions.input(msg.text)

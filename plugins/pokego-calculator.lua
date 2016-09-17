@@ -1,7 +1,7 @@
 local functions = require('functions')
 local pgc = {}
 function pgc:init(configuration)
-	pgc.command = 'gocalc <required candy> <number of pokemon> <number of candy>'
+	pgc.command = 'gocalc <required candy> <#pokemon> <#candy>'
 	pgc.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('gocalc', true).table
 	pgc.doc = configuration.command_prefix .. [[gocalc <required candy> <number of Pokémon> <number of candy> Calculates the number of Pokémon that must be transferred before evolving, how many evolutions the user is able to perform, and how many Pokémon and candy will be left over. All arguments must be positive numbers. Batch jobs may be performed by separating valid sets of arguments by lines. Example (forty pidgeys and three hundred pidgey candies):]] .. configuration.command_prefix .. 'gocalc 12 40 300'
 end

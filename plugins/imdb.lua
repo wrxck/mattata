@@ -6,7 +6,7 @@ local functions = require('functions')
 function imdb:init(configuration)
 	imdb.command = 'imdb <query>'
 	imdb.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('imdb', true).table
-	imdb.doc = configuration.command_prefix .. 'imdb <query> \nReturns an IMDb entry.'
+	imdb.doc = configuration.command_prefix .. 'imdb <query> - Returns an IMDb entry.'
 end
 function imdb:action(msg, configuration)
 	local input = functions.input(msg.text)
@@ -14,7 +14,7 @@ function imdb:action(msg, configuration)
 		if msg.reply_to_message and msg.reply_to_message.text then
 			input = msg.reply_to_message.text
 		else
-			functions.send_message(self, msg.chat.id, imdb.doc, true, msg.message_id, true)
+			functions.send_reply(self, msg, imdb.doc, true)
 			return
 		end
 	end
@@ -33,6 +33,6 @@ function imdb:action(msg, configuration)
 	output = output .. decoded_imdb_result.imdbRating ..'/10 | '.. decoded_imdb_result.Runtime ..' | '.. decoded_imdb_result.Genre ..'\n'
 	output = output .. '_' .. decoded_imdb_result.Plot .. '_\n'
 	output = output .. '[Read more.](http://imdb.com/title/' .. decoded_imdb_result.imdbID .. ')'
-	functions.send_message(self, msg.chat.id, output, true, nil, true)
+	functions.send_reply(self, msg, output, true)
 end
 return imdb

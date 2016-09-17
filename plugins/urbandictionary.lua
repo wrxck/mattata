@@ -6,7 +6,7 @@ local functions = require('functions')
 function urbandictionary:init(configuration)
 	urbandictionary.command = 'urbandictionary <query>'
 	urbandictionary.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('urbandictionary', true):t('ud', true):t('urban', true).table
-	urbandictionary.doc = configuration.command_prefix .. [[urbandictionary <query> Defines the given word - the Urban Dictionary way. Aliases: ]] .. configuration.command_prefix .. 'ud, ' .. configuration.command_prefix .. 'urban'
+	urbandictionary.doc = configuration.command_prefix .. 'urbandictionary <query> - Defines the given word. Urban style. Aliases: ' .. configuration.command_prefix .. 'ud, ' .. configuration.command_prefix .. 'urban'
 end
 function urbandictionary:action(msg, configuration)
 	local input = functions.input(msg.text)
@@ -18,7 +18,7 @@ function urbandictionary:action(msg, configuration)
 			return
 		end
 	end
-	local url = 'http://api.urbandictionary.com/v0/define?term=' .. URL.escape(input)
+	local url = configuration.urbandictionary_api .. URL.escape(input)
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
 		functions.send_reply(self, msg, configuration.errors.connection)

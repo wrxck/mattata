@@ -4,11 +4,10 @@ local HTTP = require('socket.http')
 function loremipsum:init(configuration)
 	loremipsum.command = 'loremipsum'
 	loremipsum.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('loremipsum', true).table
-	loremipsum.doc = 'Generates a few Lorem Ipsum sentences!'
+	loremipsum.doc = configuration.command_prefix .. 'loremipsum - Generates a few Lorem Ipsum sentences!'
 end
 function loremipsum:action(msg, configuration)
-	local api = configuration.loremipsum_api
-	local output = HTTP.request(api)
-	functions.send_message(self, msg.chat.id, output, nil, true)
+	local output = '`' .. HTTP.request(configuration.loremipsum_api) .. '`'
+	functions.send_reply(self, msg, output, true)
 end
 return loremipsum

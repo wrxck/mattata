@@ -6,7 +6,7 @@ local functions = require('functions')
 function translate:init(configuration)
 	translate.command = 'translate [text]'
 	translate.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('translate', true):t('tl', true).table
-	translate.doc = configuration.command_prefix .. [[translate [text] Translates input or the replied-to message into the bot's language.]]
+	translate.doc = configuration.command_prefix .. 'translate [text] - Translates input or the replied-to message into the mattata\'s language.'
 end
 function translate:action(msg, configuration)
 	local input = functions.input(msg.text)
@@ -18,7 +18,7 @@ function translate:action(msg, configuration)
 			return
 		end
 	end
-	local url = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.yandex_key .. '&lang=' .. configuration.lang .. '&text=' .. URL.escape(input)
+	local url = configuration.yandex_api .. configuration.yandex_key .. '&lang=' .. configuration.language .. '&text=' .. URL.escape(input)
 	local str, res = HTTPS.request(url)
 	if res ~= 200 then
 		functions.send_reply(self, msg, configuration.errors.connection)
@@ -29,8 +29,6 @@ function translate:action(msg, configuration)
 		functions.send_reply(self, msg, configuration.errors.connection)
 		return
 	end
-	local output = jdat.text[1]
-	output = '*Translation:*\n"' .. functions.md_escape(output) .. '"'
-	functions.send_reply(self, msg.reply_to_message or msg, output, true)
+	functions.send_reply(self, msg.reply_to_message or msg, '`' .. functions.md_escape(jdat.text[1]) .. '`', true)
 end
 return translate

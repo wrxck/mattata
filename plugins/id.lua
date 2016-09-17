@@ -3,12 +3,12 @@ local id = {}
 function id:init(configuration)
 	id.command = 'id <username/id>'
 	id.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('id', true).table
-	id.doc = configuration.command_prefix .. [[id <username/id> ... Displays detailed information about a user.]]
+	id.doc = configuration.command_prefix .. [[id <username/id> - Displays detailed information about a user.]]
 end
 function id.format(t)
 	if t.username then
 		return string.format(
-			'@%s, who is also known as *%s* ```[%s]```.\n',
+			'@%s is also known as *%s* ```[%s]```.\n',
 			t.username,
 			functions.build_name(t.first_name, t.last_name),
 			t.id

@@ -4,7 +4,7 @@ local functions = require('functions')
 function cats:init(configuration)
 	cats.command = 'cat'
 	cats.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('cat').table
-	cats.doc = 'A random picture of a cat!'
+	cats.doc = configuration.command_prefix .. 'cat - A random picture of a cat!'
 end
 function cats:action(msg, configuration)
 	local api = configuration.cat_api .. '&api_key=' .. configuration.cat_api_key

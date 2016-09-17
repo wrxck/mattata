@@ -11,6 +11,6 @@ function skateipsum:action(msg, configuration)
 	local url = HTTP.request(configuration.skateipsum_api)
 	local jstr = JSON.decode(url)
 	local jdat = jstr[1]
-	functions.send_message(self, msg.chat.id, jdat, true, nil, true)
+	functions.send_message(self, msg.chat.id, jdat, nil, true)
 end
 return skateipsum

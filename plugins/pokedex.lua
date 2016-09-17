@@ -15,7 +15,7 @@ function pokedex:action(msg, configuration)
 		if msg.reply_to_message and msg.reply_to_message.text then
 			input = msg.reply_to_message.text
 		else
-			functions.send_message(self, msg.chat.id, pokedex.doc, true, msg.message_id, true)
+			functions.send_reply(self, msg, pokedex.doc, true)
 			return
 		end
 	end
@@ -41,10 +41,10 @@ function pokedex:action(msg, configuration)
 			poke_type = type_name
 		else
 			poke_type = poke_type .. ' / ' .. type_name
+		end
 	end
-	end	
 	poke_type = poke_type .. ' type'
 	local output = '*' .. dex_jdat.name .. '*\n#' .. dex_jdat.national_id .. ' | ' .. poke_type .. '\n_' .. desc_jdat.description:gsub('POKMON', 'Pokémon'):gsub('Pokmon', 'Pokémon') .. '_'
-	functions.send_message(self, msg.chat.id, output, true, nil, true)
+	functions.send_reply(self, msg, output, true)
 end
 return pokedex

@@ -65,7 +65,7 @@ function reddit:action(msg, configuration)
 		else
 			local output = format_results(jdat.data.children)
 			output = source .. output
-			functions.send_message(self, msg.chat.id, output, true, nil, true)
+			functions.send_reply(self, msg, output, true)
 		end
 	end
 end

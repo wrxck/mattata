@@ -3,8 +3,7 @@ local functions = require('functions')
 function nick:init(configuration)
 	nick.command = 'nick <nickname>'
 	nick.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('nick', true).table
-	nick.doc = configuration.command_prefix .. [[nick <nickname>
-Set your nickname. Use "]] .. configuration.command_prefix .. 'nick --" to delete it.'
+	nick.doc = configuration.command_prefix .. [[nick <nickname> Set your nickname. Use "]] .. configuration.command_prefix .. 'nick --" to delete it.'
 end
 function nick:action(msg, configuration)
 	local id_str, name
