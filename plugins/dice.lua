@@ -8,7 +8,7 @@ end
 function dice:action(msg)
 	local input = functions.input(msg.text_lower)
 	if not input then
-		functions.send_reply(self, msg, dice.doc, true)
+		functions.send_reply(msg, dice.doc, true)
 		return
 	end
 	local count, range
@@ -18,17 +18,17 @@ function dice:action(msg)
 		count = 1
 		range = input:match('^d?([%d]+)$')
 	else
-		functions.send_reply(self, msg, dice.doc, true)
+		functions.send_reply(msg, dice.doc, true)
 		return
 	end
 	count = tonumber(count)
 	range = tonumber(range)
 	if range < 2 then
-		functions.send_reply(self, msg, '`The minimum range is 2.`', true)
+		functions.send_reply(msg, '`The minimum range is 2.`', true)
 		return
 	end
 	if range > 1000 or count > 1000 then
-		functions.send_reply(self, msg, '`The maximum range and count are 1000.`', true)
+		functions.send_reply(msg, '`The maximum range and count are 1000.`', true)
 		return
 	end
 	local output = '*' .. count .. ' rolls with a range of ' .. range .. '*\n`'
@@ -36,6 +36,6 @@ function dice:action(msg)
 		output = output .. math.random(range) .. '\t'
 	end
 	output = output .. '`'
-	functions.send_reply(self, msg, output, true)
+	functions.send_reply(msg, output, true)
 end
 return dice

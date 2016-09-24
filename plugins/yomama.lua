@@ -8,9 +8,17 @@ function yomama:init(configuration)
 	yomama.doc = configuration.command_prefix .. 'yomama - Tells a Yo\' Mama joke!'
 end
 function yomama:action(msg, configuration)
-	local url = HTTP.request(configuration.yomama_api)
-	local raw = JSON.decode(url)
-	local output = '`' .. raw.joke .. '`'
-	functions.send_reply(self, msg, output, true)
+	local jdat = ''
+	local output = ''
+	local jstr, res = HTTP.request(configuration.yomama_api)
+	if res ~= 200 then
+		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+		return
+	else
+		jdat = JSON.decode(jstr)
+		output = '`' .. jdat.joke .. '`'
+		functions.send_reply(msg, output, true)
+		return
+	end
 end
 return yomama

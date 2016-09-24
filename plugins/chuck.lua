@@ -8,13 +8,18 @@ function chuck:init(configuration)
 	chuck.doc = configuration.command_prefix .. 'chuck - Generates a Chuck Norris joke!'
 end
 function chuck:action(msg, configuration)
-	local raw_joke = HTTP.request(configuration.chuck_api)
-	local decoded_joke = JSON.decode(raw_joke)
-	if decoded_joke.error then
-		functions.send_reply(self, msg, configuration.errors.results)
+	local jstr, res = HTTP.request(configuration.chuck_api)
+	if res ~= 200 then
+		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
 		return
+	else
+		local jdat = JSON.decode(jstr)
+		if jdat.error then
+			functions.send_reply(msg, '`' .. configuration.errors.results .. '`', true)
+			return
+		end
+		local output = '`' .. functions.html_escape(jdat.value.joke) .. '`'
+		functions.send_reply(msg, output, true)
 	end
-	local output = '`' .. decoded_joke.value.joke .. '`'
-	functions.send_reply(self, msg, output, true)
 end
 return chuck

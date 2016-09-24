@@ -9,8 +9,8 @@ function about:action(msg, configuration)
 		return
 	end
 	local output = configuration.about_text .. '\nCreated by wrxck. Based on the otouto project by topkecleon.'
-	if (msg.new_chat_member and msg.new_chat_member.id == self.info.id) or msg.text_lower:match('^'..configuration.command_prefix..'about$') or msg.text_lower:match('^'..configuration.command_prefix..'about@'..self.info.username:lower()..'$') or msg.text_lower:match('^'..configuration.command_prefix..'start$') or msg.text_lower:match('^'..configuration.command_prefix..'start@'..self.info.username:lower()..'$') then
-		functions.send_reply(self, msg, output, true)
+	if (msg.new_chat_member and msg.new_chat_member.id == self.info.id) or msg.text_lower:match('^' .. configuration.command_prefix .. 'about$') or msg.text_lower:match('^' .. configuration.command_prefix .. 'about@' .. self.info.username:lower() .. '$') or msg.text_lower:match('^' .. configuration.command_prefix .. 'start$') or msg.text_lower:match('^' .. configuration.command_prefix .. 'start@' .. self.info.username:lower() .. '$') then
+		functions.send_reply(msg, '`' .. output .. '`', true)
 		return
 	end
 	return true

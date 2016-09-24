@@ -14,6 +14,6 @@ function eightball:action(msg, configuration)
 	else
 		output = eightball_answers[math.random(#eightball_answers)]
 	end
-	functions.send_reply(self, msg, output)
+	functions.send_reply(msg, '`' .. output .. '`', true)
 end
 return eightball

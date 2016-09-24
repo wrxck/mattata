@@ -1,17 +1,17 @@
 local slap = {}
 local functions = require('functions')
 function slap:init(configuration)
-	slap.command = 'slap [target]'
+	slap.command = 'slap (target)'
 	slap.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('slap', true).table
-	slap.doc = configuration.command_prefix .. 'slap [target] - Slap somebody.'
+	slap.doc = configuration.command_prefix .. 'slap (target) - Slap somebody.'
 end
 function slap:action(msg, configuration)
 	local slaps = configuration.slaps
 	local input = functions.input(msg.text)
-	local victor_id = msg.from.id
+	local victor_id = msg.from.first_name
 	local victim_id
 	if msg.reply_to_message then
-		victim_id = msg.reply_to_message.from.id
+		victim_id = msg.reply_to_message.from.first_name
 	else
 		if input then
 			if tonumber(input) then
@@ -26,12 +26,12 @@ function slap:action(msg, configuration)
 	end
 	if victim_id then
 		if victim_id == victor_id then
-			victor_id = self.info.id
+			victor_id = self.info.first_name
 		end
 	else
 		if not input then
-			victor_id = self.info.id
-			victim_id = msg.from.id
+			victor_id = self.info.first_name
+			victim_id = msg.from.first_name
 		end
 	end
 	local victor_name, victim_name
@@ -56,6 +56,6 @@ function slap:action(msg, configuration)
 		victor_name = self.info.first_name
 	end
 	local output = functions.char.zwnj .. slaps[math.random(#slaps)]:gsub('VICTIM', victim_name):gsub('VICTOR', victor_name)
-	functions.send_message(self, msg.chat.id, '`' .. output .. '`', true, nil, true)
+	functions.send_reply(msg, '`' .. output .. '`', true)
 end
 return slap

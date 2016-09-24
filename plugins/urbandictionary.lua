@@ -11,29 +11,27 @@ end
 function urbandictionary:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		if msg.reply_to_message and msg.reply_to_message.text then
-			input = msg.reply_to_message.text
-		else
-			functions.send_message(self, msg.chat.id, urbandictionary.doc, true, msg.message_id, true)
-			return
-		end
+		functions.send_reply(msg, urbandictionary.doc, true)
+		return
 	end
 	local url = configuration.urbandictionary_api .. URL.escape(input)
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
-		functions.send_reply(self, msg, configuration.errors.connection)
+		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+		return
+	else
+		local jdat = JSON.decode(jstr)
+		if jdat.result_type == "no_results" then
+			functions.send_reply(msg, '`' .. configuration.errors.results .. '`', true)
+			return
+		end
+		local output = '*' .. jdat.list[1].word .. '*\n\n' .. functions.trim(jdat.list[1].definition)
+		if string.len(jdat.list[1].example) > 0 then
+			output = output .. '_\n\n' .. functions.trim(jdat.list[1].example) .. '_'
+		end
+		output = output:gsub('%[', ''):gsub('%]', '')
+		functions.send_reply(msg, output, true)
 		return
 	end
-	local jdat = JSON.decode(jstr)
-	if jdat.result_type == "no_results" then
-		functions.send_reply(self, msg, configuration.errors.results)
-		return
-	end
-	local output = '*' .. jdat.list[1].word .. '*\n\n' .. functions.trim(jdat.list[1].definition)
-	if string.len(jdat.list[1].example) > 0 then
-		output = output .. '_\n\n' .. functions.trim(jdat.list[1].example) .. '_'
-	end
-	output = output:gsub('%[', ''):gsub('%]', '')
-	functions.send_message(self, msg.chat.id, output, true, nil, true)
 end
 return urbandictionary

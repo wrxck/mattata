@@ -10,17 +10,20 @@ end
 function mcmigrated:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		if msg.reply_to_message and msg.reply_to_message.text then
-			input = msg.reply_to_message.text
+		functions.send_reply(msg, mcmigrated.doc, true)
+		return
+	else
+		local url = configuration.mcmigrated_api .. input
+		local jstr, res = HTTPS.request(url)
+		if res ~= 200 then
+			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			return
 		else
-			functions.send_reply(self, msg, mcmigrated.doc, true)
+			local jdat = JSON.decode(jstr)
+			local output = jdat.migrated:gsub('true', '`This username has been migrated to a Mojang account!`'):gsub('false', '`This username has not been migrated to a Mojang account...`')
+			functions.send_reply(msg, output, true)
 			return
 		end
 	end
-	local url = configuration.mcmigrated_api .. input
-	local jstr = HTTPS.request(url)
-	local jdat = JSON.decode(jstr)
-	local output = jdat.migrated:gsub('true', '`This username has been migrated to a Mojang account!`'):gsub('false', '`This username has not been migrated to a Mojang account...`')
-	functions.send_reply(self, msg, output)
 end
 return mcmigrated

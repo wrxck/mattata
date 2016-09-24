@@ -1,21 +1,21 @@
-local functions = require('functions')
 local id = {}
+local functions = require('functions')
 function id:init(configuration)
-	id.command = 'id <username/id>'
+	id.command = 'id <user>'
 	id.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('id', true).table
-	id.doc = configuration.command_prefix .. [[id <username/id> - Displays detailed information about a user.]]
+	id.doc = configuration.command_prefix .. 'id <user> - Sends the name, ID, and username for the given users. Arguments must be usernames and/or IDs. Input is also accepted via reply. If no input is given, info about you is sent.'
 end
 function id.format(t)
 	if t.username then
 		return string.format(
-			'@%s is also known as *%s* ```[%s]```.\n',
+			'@%s, AKA %s `[%s]`.\n',
 			t.username,
 			functions.build_name(t.first_name, t.last_name),
 			t.id
 		)
 	else
 		return string.format(
-			'*%s* ```[%s]```.\n',
+			'%s `[%s]`.\n',
 			functions.build_name(t.first_name, t.last_name),
 			t.id
 		)
@@ -33,14 +33,14 @@ function id:action(msg)
 				if self.database.users[user] then
 					output = output .. id.format(self.database.users[user])
 				else
-					output = output .. 'I\'m sorry, but don\'t recognise that ID (' .. user .. ').\n'
+					output = output .. 'I don\'t recognise that ID (' .. user .. ').\n'
 				end
 			elseif user:match('^@') then
 				local t = functions.resolve_username(self, user)
 				if t then
 					output = output .. id.format(t)
 				else
-					output = output .. 'I\'m sorry, but I don\'t recognise that username (' .. user .. ').\n'
+					output = output .. 'I don\'t recognise that username (' .. user .. ').\n'
 				end
 			else
 				output = output .. 'Invalid username or ID (' .. user .. ').\n'
@@ -49,6 +49,6 @@ function id:action(msg)
 	else
 		output = id.format(msg.from)
 	end
-	functions.send_reply(self, msg, output, true)
+	functions.send_reply(msg, output, true)
 end
 return id

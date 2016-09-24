@@ -6,7 +6,7 @@ local functions = require('functions')
 function simplewikipedia:init(configuration)
 	simplewikipedia.command = 'simplewikipedia <query>'
 	simplewikipedia.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('simplewikipedia', true):t('sw', true):t('swiki', true).table
-	simplewikipedia.doc = configuration.command_prefix .. 'simplewikipedia <query> - Returns an article from Simple Wikipedia. Aliases: ' .. configuration.command_prefix .. 'sw, ' .. configuration.command_prefix .. 'swiki'
+	simplewikipedia.doc = configuration.command_prefix .. 'simplewikipedia <query> - Returns an article from Simple Wikipedia. Aliases: ' .. configuration.command_prefix .. 'sw, ' .. configuration.command_prefix .. 'swiki.'
 end
 local get_title = function(search)
 	for _,v in ipairs(search) do
@@ -22,7 +22,7 @@ function simplewikipedia:action(msg, configuration)
 		if msg.reply_to_message and msg.reply_to_message.text then
 			input = msg.reply_to_message.text
 		else
-			functions.send_message(self, msg.chat.id, simplewikipedia.doc, true, msg.message_id, true)
+			functions.send_message(msg.chat.id, simplewikipedia.doc, true, msg.message_id, true)
 			return
 		end
 	end
@@ -31,30 +31,30 @@ function simplewikipedia:action(msg, configuration)
 	local search_url = 'http://simple.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch='
 	jstr, res = HTTPS.request(search_url .. URL.escape(input))
 	if res ~= 200 then
-		functions.send_reply(self, msg, configuration.errors.connection)
+		functions.send_reply(msg, configuration.errors.connection)
 		return
 	end
 	jdat = JSON.decode(jstr)
 	if jdat.query.searchinfo.totalhits == 0 then
-		functions.send_reply(self, msg, configuration.errors.results)
+		functions.send_reply(msg, configuration.errors.results)
 		return
 	end
 	local title = get_title(jdat.query.search)
 	if not title then
-		functions.send_reply(self, msg, configuration.errors.results)
+		functions.send_reply(msg, configuration.errors.results)
 		return
 	end
 	local res_url = 'https://simple.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exchars=4000&exsectionformat=plain&titles='
 	jstr, res = HTTPS.request(res_url .. URL.escape(title))
 	if res ~= 200 then
-		functions.send_reply(self, msg, configuration.errors.connection)
+		functions.send_reply(msg, configuration.errors.connection)
 		return
 	end
 	local _
 	local text = JSON.decode(jstr).query.pages
 	_, text = next(text)
 	if not text then
-		functions.send_reply(self, msg, configuration.errors.results)
+		functions.send_reply(msg, configuration.errors.results)
 		return
 	else
 		text = text.extract
@@ -72,7 +72,6 @@ function simplewikipedia:action(msg, configuration)
 	else
 		output = '*' .. title:gsub('%(.+%)', '') .. '*\n' .. text:gsub('%[.+%]','')
 	end
- 	output = output .. '\n\nClick ' .. '[here](' .. url:gsub('%)', '\\)') .. ') to read more'
-	functions.send_message(self, msg.chat.id, output, true, nil, true)
+	functions.send_reply(msg, output, true, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. url:gsub('%)', '\\)') .. '"}]]}')
 end
 return simplewikipedia

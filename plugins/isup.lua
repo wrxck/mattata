@@ -35,13 +35,13 @@ end
 function isup:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(self, msg, isup.doc, true)
+		functions.send_reply(msg, isup.doc, true)
 		return
 	end
 	if isup.website_down_http(input) then
-		functions.send_reply(self, msg, 'This website is up, maybe it\'s just you?')
+		functions.send_reply(msg, 'This website is up, maybe it\'s just you?')
 	else
-		functions.send_reply(self, msg, 'It\'s not just you, this website is down!')
+		functions.send_reply(msg, 'It\'s not just you, this website is down!')
 	end
 end
 return isup

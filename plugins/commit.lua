@@ -8,6 +8,6 @@ end
 function commit:action(msg, configuration)
 	local commits = configuration.commits
 	local output = '`' .. commits[math.random(#commits)] .. '`'
-	functions.send_reply(self, msg, output, true)
+	functions.send_reply(msg, output, true)
 end
 return commit

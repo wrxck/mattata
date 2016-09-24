@@ -11,7 +11,7 @@ function channel:action(msg, configuration)
 	local output
 	if input then
 		local chat_id = functions.get_word(input, 1)
-		local admin_list, t = telegram_api.getChatAdministrators(self, { chat_id = chat_id } )
+		local admin_list, t = telegram_api.getChatAdministrators({ chat_id = chat_id })
 		if admin_list then
 			local is_admin = false
 			for _, admin in ipairs(admin_list.result) do
@@ -22,7 +22,7 @@ function channel:action(msg, configuration)
 			if is_admin then
 				local text = input:match('\n(.+)')
 				if text then
-					local success, result = functions.send_message(self, chat_id, text, true, nil, true)
+					local success, result = functions.send_reply(chat, text, true)
 					if success then
 						output = 'Your message has been sent!'
 					else
@@ -40,6 +40,6 @@ function channel:action(msg, configuration)
 	else
 		output = channel.doc
 	end
-	functions.send_reply(self, msg, output, true)
+	functions.send_reply(msg, output, true)
 end
 return channel

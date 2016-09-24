@@ -3,30 +3,58 @@ local functions = require('functions')
 function me:init(configuration)
 	me.command = 'me'
 	me.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('me', true).table
-	me.doc = 'Prints any userdata stored by mattata which is related to the specified user.'
+	me.doc = configuration.command_prefix .. 'me - Returns userdata stored by the bot.'
 end
 function me:action(msg, configuration)
-	local userdata = self.database.userdata[tostring(msg.from.id)] or {}
-	if msg.from.id == configuration.admin then
+	local user
+	if msg.from.id == configuration.owner_id then
 		if msg.reply_to_message then
-			userdata = self.database.userdata[tostring(msg.reply_to_message.from.id)]
+			user = msg.reply_to_message.from
 		else
 			local input = functions.input(msg.text)
 			if input then
-				local user_id = functions.id_from_username(self, input)
-				if user_id then
-					userdata = self.database.userdata[tostring(user_id)] or {}
+				if tonumber(input) then
+					user = self.database.users[input]
+					if not user then
+						functions.send_reply(msg, 'Unrecognised ID.')
+						return
+					end
+				elseif input:match('^@') then
+					user = functions.resolve_username(self, input)
+					if not user then
+						functions.send_reply(msg, 'Unrecognised username.')
+						return
+					end
+				else
+					functions.send_reply(msg, 'Invalid username or ID.')
+					return
 				end
 			end
 		end
 	end
-	local output = ''
+	user = user or msg.from
+	local userdata = self.database.userdata[tostring(user.id)] or {}
+	local data = {}
 	for k,v in pairs(userdata) do
-		output = output .. '*' .. k .. ':* `' .. tostring(v) .. '`\n'
+		table.insert(data, string.format(
+			'*%s:* `%s`\n',
+			functions.md_escape(k),
+			functions.md_escape(v)
+		))
 	end
-	if output == '' then
-		output = 'Sorry, but there is no data stored for this user.'
+	local output
+	if #data == 0 then
+		output = 'There is no data stored for this user.'
+	else
+		output = string.format(
+			'*%s* `[%s]`*:*\n',
+			functions.md_escape(functions.build_name(
+				user.first_name,
+				user.last_name
+			)),
+			user.id
+		) .. table.concat(data)
 	end
-	functions.send_reply(self, msg, output, true)
+	functions.send_message(msg.chat.id, output, true, nil, true)
 end
 return me

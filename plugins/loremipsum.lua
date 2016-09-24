@@ -7,7 +7,14 @@ function loremipsum:init(configuration)
 	loremipsum.doc = configuration.command_prefix .. 'loremipsum - Generates a few Lorem Ipsum sentences!'
 end
 function loremipsum:action(msg, configuration)
-	local output = '`' .. HTTP.request(configuration.loremipsum_api) .. '`'
-	functions.send_reply(self, msg, output, true)
+	local str, res = HTTP.request(configuration.loremipsum_api)
+	local output = '`' .. str .. '`'
+	if res ~= 200 then
+		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+		return
+	else
+		functions.send_reply(msg, output, true)
+		return
+	end
 end
 return loremipsum

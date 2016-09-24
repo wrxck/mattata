@@ -8,9 +8,15 @@ function guidgen:init(configuration)
 	guidgen.doc = configuration.command_prefix .. 'guidgen - Generates a random GUID.'
 end
 function guidgen:action(msg, configuration)
-	local url = configuration.guidgen_api
-	local guid = HTTP.request(url)
-	local jstr = JSON.decode(guid)
-	functions.send_reply(self, msg, '`' .. jstr.char[1] .. '`', true)
+	local jstr, res = HTTP.request(configuration.guidgen_api)
+	if res ~= 200 then
+		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+		return
+	else
+		local jdat = JSON.decode(jstr)
+		local output = '`' .. jdat.char[1] .. '`'
+		functions.send_reply(msg, output, true)
+		return
+	end
 end
 return guidgen

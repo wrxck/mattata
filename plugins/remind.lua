@@ -1,73 +1,74 @@
 local remind = {}
 local functions = require('functions')
+remind.command = 'remind <duration> <message>'
 function remind:init(configuration)
 	self.database.reminders = self.database.reminders or {}
-	remind.command = 'remind <duration> <message>'
 	remind.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('remind', true).table
-	remind.doc = configuration.command_prefix .. 'remind <duration> <message> - Repeats a message after a duration of time, in minutes.'
+	remind.doc = configuration.command_prefix .. 'remind <duration> <message> - Repeats a message after a duration of time, in minutes. The maximum length of a reminder is %s characters. The maximum duration of a timer is %s minutes. The maximum number of reminders for a group is %s. The maximum number of reminders in private is %s.'
+	remind.doc = remind.doc:format(configuration.remind.max_length, configuration.remind.max_duration, configuration.remind.max_reminders_group, configuration.remind.max_reminders_private)
 end
-function remind:action(msg)
+function remind:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(self, msg, remind.doc, true)
+		functions.send_reply(msg, remind.doc, true)
 		return
 	end
-	local duration = functions.get_word(input, 1)
-	if not tonumber(duration) then
-		functions.send_reply(self, msg, remind.doc, true)
+	local duration = tonumber(functions.get_word(input, 1))
+	if not duration then
+		functions.send_reply(msg, remind.doc, true)
 		return
 	end
-	duration = tonumber(duration)
 	if duration < 1 then
 		duration = 1
-	elseif duration > 526000 then
-		duration = 526000
+	elseif duration > configuration.remind.max_duration then
+		duration = configuration.remind.max_duration
 	end
-	local message = functions.input(input)
-	if not message then
-		functions.send_reply(self, msg, remind.doc, true)
+	local message
+	if msg.reply_to_message and #msg.reply_to_message.text > 0 then
+		message = msg.reply_to_message.text
+	elseif functions.input(input) then
+		message = functions.input(input)
+	else
+		functions.send_reply(msg, remind.doc, true)
+		return
+	end
+	if #message > configuration.remind.max_length then
+		functions.send_reply(msg, 'The maximum length of reminders is ' .. configuration.remind.max_length .. '.')
 		return
 	end
 	local chat_id_str = tostring(msg.chat.id)
+	local output
 	self.database.reminders[chat_id_str] = self.database.reminders[chat_id_str] or {}
-	if msg.chat.type ~= 'private' and functions.table_size(self.database.reminders[chat_id_str]) > 9 then
-		functions.send_reply(self, msg, 'Sorry, this group already has ten reminders.')
-		return
-	elseif msg.chat.type == 'private' and functions.table_size(self.database.reminders[chat_id_str]) > 49 then
-		functions.send_reply(msg, 'Sorry, you already have fifty reminders.')
-		return
-	end
-	local reminder = {
-		time = os.time() + duration * 60,
-		message = message
-		} table.insert(self.database.reminders[chat_id_str], reminder)
-	local output = 'I will remind you in ' .. duration
-	if duration == 1 then
-		output = output .. ' minute!'
+	if msg.chat.type == 'private' and functions.table_size(self.database.reminders[chat_id_str]) >= configuration.remind.max_reminders_private then
+		output = 'Sorry, you already have the maximum number of reminders.'
+	elseif msg.chat.type ~= 'private' and functions.table_size(self.database.reminders[chat_id_str]) >= configuration.remind.max_reminders_group then
+		output = 'Sorry, this group already has the maximum number of reminders.'
 	else
-		output = output .. ' minutes!'
+		table.insert(self.database.reminders[chat_id_str], {
+			time = os.time() + (duration * 60),
+			message = message
+		})
+		output = string.format(
+			'I will remind you in %s minute%s!',
+			duration,
+			duration == 1 and '' or 's'
+		)
 	end
-	functions.send_reply(self, msg, output)
+	functions.send_reply(msg, output, true)
 end
-function remind:cron()
+function remind:cron(configuration)
 	local time = os.time()
 	for chat_id, group in pairs(self.database.reminders) do
-		local new_group = {}
-		for _, reminder in ipairs(group) do
+		for k, reminder in pairs(group) do
 			if time > reminder.time then
-				local output = '*Reminder:*\n"' .. functions.md_escape(reminder.message) .. '"'
-				local res = functions.send_message(self, chat_id, output, true, nil, true)
-				if not res then
-					table.insert(new_group, reminder)
+				local output = functions.style.enquote('Reminder', reminder.message)
+				local res = functions.send_message(chat_id, output, true, nil, true)
+				if res or not configuration.remind.persist then
+					group[k] = nil
 				end
-			else
-				table.insert(new_group, reminder)
 			end
-		end
-		self.database.reminders[chat_id] = new_group
-		if #new_group == 0 then
-			self.database.reminders[chat_id] = nil
 		end
 	end
 end
+
 return remind

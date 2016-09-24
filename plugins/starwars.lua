@@ -6,7 +6,7 @@ local functions = require('functions')
 function starwars:init(configuration)
 	starwars.command = 'starwars <query>'
 	starwars.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('starwars', true):t('sw', true).table
-	starwars.doc = configuration.command_prefix .. 'starwars <query> - Returns the opening crawl from the specified Star Wars film. Alias:' .. configuration.command_prefix .. 'sw'
+	starwars.doc = configuration.command_prefix .. 'starwars <query> - Returns the opening crawl from the specified Star Wars film. Alias:' .. configuration.command_prefix .. 'sw.'
 end
 local films_by_number = {
 	['phantom menace'] = 4,
@@ -32,7 +32,7 @@ function starwars:action(msg, configuration)
 		if msg.reply_to_message and msg.reply_to_message.text then
 			input = msg.reply_to_message.text
 		else
-			functions.send_reply(self, msg, starwars.doc, true)
+			functions.send_reply(msg, starwars.doc, true)
 			return
 		end
 	end
@@ -52,16 +52,16 @@ function starwars:action(msg, configuration)
 		end
 	end
 	if not film then
-		functions.send_reply(self, msg, configuration.errors.results)
+		functions.send_reply(msg, configuration.errors.results)
 		return
 	end
 	local url = configuration.starwars_api .. film
 	local jstr, code = HTTP.request(url)
 	if code ~= 200 then
-		functions.send_reply(self, msg, configuration.errors.connection)
+		functions.send_reply(msg, configuration.errors.connection)
 		return
 	end
 	local output = '*' .. JSON.decode(jstr).opening_crawl .. '*'
-	functions.send_message(self, msg.chat.id, output, true, nil, true)
+	functions.send_reply(msg, output, true)
 end
 return starwars

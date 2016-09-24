@@ -8,9 +8,17 @@ function yeoldinsult:init(configuration)
 	yeoldinsult.doc = configuration.command_prefix .. 'yeoldinsult - Insults you, the old-school way.' 
 end
 function yeoldinsult:action(msg, configuration)
-	local url = HTTP.request(configuration.yeoldinsult_api)
-	local raw = JSON.decode(url)
-	local insult = '`' .. raw.insult .. '`'
-	functions.send_reply(self, msg, insult, true)
+	local jdat = ''
+	local output = ''
+	local jstr, res = HTTP.request(configuration.yeoldinsult_api)
+	if res ~= 200 then
+		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+		return
+	else
+		jdat = JSON.decode(jstr)
+		output = '`' .. jdat.insult .. '`'
+		functions.send_reply(msg, output, true)
+		return
+	end
 end
 return yeoldinsult

@@ -1,6 +1,5 @@
 local mcuuid = {}
 local HTTP = require('socket.http')
-local URL = require('socket.url')
 local JSON = require('dkjson')
 local functions = require('functions')
 function mcuuid:init(configuration)
@@ -11,16 +10,19 @@ end
 function mcuuid:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		if msg.reply_to_message and msg.reply_to_message.text then
-			input = msg.reply_to_message.text
+		functions.send_reply(msg, mcuuid.doc, true)
+		return
+	else
+		local url = configuration.mcuuid_api .. input
+		local jstr, res = HTTP.request(url)
+		if res ~= 200 then
+			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			return
 		else
-			functions.send_reply(self, msg, mcuuid.doc, true)
+			local jdat = JSON.decode(jstr)
+			functions.send_reply(msg, '`' .. jdat[1].uuid_formatted .. '`', true)
 			return
 		end
 	end
-	local url = configuration.mcuuid_api .. input
-	local jstr = HTTP.request(url)
-	local jdat = JSON.decode(jstr)
-	functions.send_reply(self, msg, '`' .. jdat[1].uuid_formatted .. '`', true)
 end
 return mcuuid

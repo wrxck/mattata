@@ -17,7 +17,7 @@ function lua:action(msg, configuration)
 	end
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(self, msg, '`Please enter a string of lua to execute`', true)
+		functions.send_reply(msg, '`Please enter a string of lua to execute`', true)
 		return
 	end
 	if msg.text_lower:match('^' .. configuration.command_prefix .. 'return') then
@@ -31,12 +31,12 @@ function lua:action(msg, configuration)
 		local URL = require('socket.url')
 		local HTTP = require('socket.http')
 		local HTTPS = require('ssl.https')
-		return function (self, msg, configuration) ]] .. input .. [[ end
+		return function (msg, configuration) ]] .. input .. [[ end
 	]] )
 	if output == nil then
 		output = success
 	else
-		success, output = xpcall(output(), lua.error_message, self, msg, configuration)
+		success, output = xpcall(output(), lua.error_message, msg, configuration)
 	end
 	if output ~= nil then
 		if type(output) == 'table' then
@@ -47,6 +47,6 @@ function lua:action(msg, configuration)
 		end
 		output = '`' .. tostring(output) .. '`'
 	end
-	functions.send_message(self, msg.chat.id, output, true, msg.message_id, true)
+	functions.send_message(msg.chat.id, output, true, msg.message_id, true)
 end
 return lua

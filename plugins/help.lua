@@ -12,29 +12,30 @@ function help:init(configuration)
 			end
 		end
 	end
-	table.insert(command_list, 'help [command]')
+	table.insert(command_list, 'help (command)')
 	table.sort(command_list)
-	help_text = help_text .. table.concat(command_list, '\n	» '..configuration.command_prefix) .. '\n*Arguments: <required> [optional]*'
+	help_text = help_text .. table.concat(command_list, '\n	» '..configuration.command_prefix) .. '\n*Arguments: <required> (optional)*'
 	help.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('help', true):t('h', true).table
-	help.doc = configuration.command_prefix .. '*help [command]* \n*Usage information for the given command.*'
+	help.doc = configuration.command_prefix .. '*help (command)* \n*Usage information for the given command.*'
 end
 function help:action(msg)
 	local input = functions.input(msg.text_lower)
+	print('test')
 	if input then
 		for _,plugin in ipairs(self.plugins) do
 			if plugin.help_word == input:gsub('^/', '') then
-				local output = '*Help for* _' .. plugin.help_word .. '_ *:*\n' .. plugin.doc
-				functions.send_reply(self, msg, output, true)
+				local output = '*Help for* `' .. plugin.help_word .. '`*:*\n' .. plugin.doc
+				functions.send_reply(msg, output, true)
 				return
 			end
 		end
-		functions.send_reply(self, msg, '*Sorry, there is no help for that command!*', true)
+		functions.send_reply(msg, '*Sorry, there is no help for that command!*', true)
 	else
-		local res = functions.send_message(self, msg.from.id, help_text, true, nil, true)
+		local res = functions.send_message(msg.from.id, help_text, true, nil, true)
 		if not res then
-			functions.send_reply(self, msg, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=help) for command-related help.', true)
+			functions.send_reply(msg, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=help) for command-related help.', true)
 		elseif msg.chat.type ~= 'private' then
-			functions.send_reply(self, msg, '*Hi there, mate! I have sent you a private message!*', true)
+			functions.send_reply(msg, '*Hi there, mate - I have sent you a private message containing the information you requested.*', true)
 		end
 	end
 end

@@ -9,9 +9,20 @@ function mchistory:init(configuration)
 end
 function mchistory:action(msg, configuration)
 	local input = functions.input(msg.text)
-	local uuid = HTTPS.request(configuration.mchistory_uuid_api .. input)
-	local uuid_output = JSON.decode(uuid)
-	local history = HTTPS.request(configuration.mchistory_api .. uuid_output.id .. '/names')
-	functions.send_reply(self, msg, '`' .. history .. '`', true)
+	if not input then
+		functions.send_reply(msg, mcmigrated.doc, true)
+		return
+	else
+		local jstr, res = HTTPS.request(configuration.mchistory_uuid_api .. input)
+		if res ~= 200 then
+			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			return
+		else
+			local jdat = JSON.decode(jstr)
+			local output = '`' .. HTTPS.request(configuration.mchistory_api .. jdat.id .. '/names') .. '`'
+			functions.send_reply(msg, output, true)
+			return
+		end
+	end
 end
 return mchistory

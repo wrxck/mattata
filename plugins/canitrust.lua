@@ -19,8 +19,6 @@ function canitrust.validate(url)
 	local protocol
 	if parsed_url.scheme == 'http' then
 		protocol = HTTP
-	else
-		protocol = HTTP
 	end
 	local options = {
 		url = url,
@@ -37,7 +35,7 @@ end
 function canitrust:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if input then
-		input = input:gsub('https', ''):gsub('http', ''):gsub('HTTPS', ''):gsub('HTTP', ''):gsub('www.', '')
+		input = input:gsub('https', 'http'):gsub('HTTPS', 'https'):gsub('HTTP', 'http'):gsub('www.', '')
 		local jstr = HTTPS.request(configuration.canitrust_api .. input .. '/&callback=process&key=' .. configuration.canitrust_key)
 		local jdat = JSON.decode(jstr)
 		local output = '`' .. jstr .. '`'
@@ -90,10 +88,15 @@ function canitrust:action(msg, configuration)
 		elseif string.match(output, '"501"') then
 			output = '*This website has been flagged as:* `No issues known`'
 		end
-		functions.send_reply(self, msg, output, true)
-		return
+		if output ~= '*This website has been flagged as:* `Invalid URL`' then
+			functions.send_reply(msg, output, true, '{"inline_keyboard":[[{"text":"' .. 'Proceed to site' .. '", "url":"' .. input .. '"}]]}')
+			return
+		else
+			functions.send_reply(msg, output, true)
+			return
+		end
 	else
-		functions.send_reply(self, msg, canitrust.doc, true)
+		functions.send_reply(msg, canitrust.doc, true)
 		return
 	end
 end

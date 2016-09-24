@@ -4,11 +4,11 @@ local URL = require('socket.url')
 local JSON = require('dkjson')
 local functions = require('functions')
 function reddit:init(configuration)
-	reddit.command = 'reddit [r/subreddit | query]'
+	reddit.command = 'reddit (r/subreddit | query)'
 	reddit.triggers = functions.triggers(self.info.username, configuration.command_prefix, {'^/r/'}):t('reddit', true):t('r', true):t('r/', true).table
-	reddit.doc = configuration.command_prefix .. [[reddit [r/subreddit | query] Returns the top posts or results for a given subreddit or query. If no argument is given, returns the top posts from r/all. Querying specific subreddits is not supported. Aliases: ]] .. configuration.command_prefix .. 'r, /r/subreddit'
+	reddit.doc = configuration.command_prefix .. 'reddit (r/subreddit | query) Returns the top posts or results for a given subreddit or query. If no argument is given, returns the top posts from r/all. Querying specific subreddits is not supported. Aliases: ' .. configuration.command_prefix .. 'r, /r/subreddit'
 end
-local format_results = function(posts)
+local function format_results(posts)
 	local output = ''
 	for _,v in ipairs(posts) do
 		local post = v.data
@@ -57,15 +57,15 @@ function reddit:action(msg, configuration)
 	end
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
-		functions.send_reply(self, msg, configuration.errors.connection)
+		functions.send_reply(msg, configuration.errors.connection)
 	else
 		local jdat = JSON.decode(jstr)
 		if #jdat.data.children == 0 then
-			functions.send_reply(self, msg, configuration.errors.results)
+			functions.send_reply(msg, configuration.errors.results)
 		else
 			local output = format_results(jdat.data.children)
 			output = source .. output
-			functions.send_reply(self, msg, output, true)
+			functions.send_reply(msg, output, true)
 		end
 	end
 end

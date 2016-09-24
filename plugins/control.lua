@@ -21,7 +21,6 @@ function control:action(msg, configuration)
 		end
 		package.loaded['telegram_api'] = nil
 		package.loaded['functions'] = nil
-		package.loaded['drua-tg'] = nil
 		package.loaded['configuration'] = nil
 		if not msg.text_lower:match('%-configuration') then
 			for k, v in pairs(require('configuration')) do
@@ -29,21 +28,21 @@ function control:action(msg, configuration)
 			end
 		end
 		mattata.init(self, configuration)
-		functions.send_reply(self, msg, '*mattata is rebooting...*', true)
+		functions.send_reply(msg, '*mattata is rebooting...*', true)
 	elseif msg.text_lower:match('^'..command_prefix..'shutdown') then
 		self.is_started = false
-		functions.send_reply(self, msg, 'mattata is shutting down...')
+		functions.send_reply(msg, 'mattata is shutting down...')
 	elseif msg.text_lower:match('^'..command_prefix..'script') then
 		local input = msg.text_lower:match('^'..command_prefix..'script\n(.+)')
 		if not input then
-			functions.send_reply(self, msg, 'usage: ```\n'..command_prefix..'script\n'..command_prefix..'command <arg>\n...\n```', true)
+			functions.send_reply(msg, 'usage: ```\n'..command_prefix..'script\n'..command_prefix..'command <arg>\n...\n```', true)
 			return
 		end
 		input = input .. '\n'
 		for command in input:gmatch('(.-)\n') do
 			command = functions.trim(command)
 			msg.text = command
-			mattata.on_msg_receive(self, msg, configuration)
+			mattata.on_msg_receive(msg, configuration)
 		end
 	end
 end

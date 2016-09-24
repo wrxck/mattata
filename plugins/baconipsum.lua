@@ -7,7 +7,14 @@ function baconipsum:init(configuration)
 	baconipsum.doc = configuration.command_prefix .. 'baconipsum - Generate a few meaty Lorem Ipsum sentences!'
 end
 function baconipsum:action(msg, configuration)
-    local output = '`' HTTPS.request(configuration.baconipsum_api) '`'
-    functions.send_reply(self, msg, output, true)
+    local str, res = HTTPS.request(configuration.baconipsum_api)
+    if res ~= 200 then
+    	functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+    	return
+    else
+    	local output = '`' .. str .. '`'
+    	functions.send_reply(msg, output, true)
+    	return
+    end
 end
 return baconipsum

@@ -8,13 +8,17 @@ function catfact:init(configuration)
 	catfact.doc = configuration.command_prefix .. 'catfact - A random cat-related fact!'
 end
 function catfact:action(msg, configuration)
-	local jstr = HTTP.request(configuration.catfact_api)
+	local jstr, res = HTTP.request(configuration.catfact_api)
 	local jdat = JSON.decode(jstr)
+	if res ~= 200 then
+		functions.send_reply(msg, '`' .. configuration,errors.connection .. '`', true)
+		return
+	end
 	if jdat.error then
-		functions.send_reply(self, msg, configuration.errors.results)
+		functions.send_reply(msg, '`' .. configuration.errors.results .. '`', true)
 		return
 	end
 	local output = '`' .. jdat.facts[1] .. '`'
-	functions.send_reply(self, msg, output, true)
+	functions.send_reply(msg, output:gsub('â', ' '), true)
 end
 return catfact

@@ -25,38 +25,26 @@ function messaging:action(msg, configuration)
 		end
 	end
 	if msg.chat.type == 'supergroup' then
-		if string.match(msg.text, 'mattata') then
-			functions.send_action(msg.chat.id, 'typing')
-			functions.send_reply(msg, '`' .. jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!') .. '`', true)
-			return		
-		elseif msg.reply_to_message then
+		if msg.reply_to_message then
 			if msg.reply_to_message.from.id == self.id then
-				functions.send_action(msg.chat.id, 'typing')
-				functions.send_reply(msg, '`' .. jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!') .. '`', true)
+				functions.send_action(chat_id, 'typing')
+				functions.send_reply(msg, '`' .. jdat.clever .. '`', true)
 				return
 			end
 		end
 	elseif msg.chat.type == 'group' then
-		if string.match(msg.text, 'mattata') then
-			functions.send_action(msg.chat.id, 'typing')
-			functions.send_reply(msg, '`' .. jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!') .. '`', true)
-			return		
-		elseif msg.reply_to_message then
+		if msg.reply_to_message then
 			if msg.reply_to_message.from.id == self.id then
-				functions.send_action(msg.chat.id, 'typing')
-				functions.send_reply(msg, '`' .. jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!') .. '`', true)
+				functions.send_action(chat_id, 'typing')
+				functions.send_reply(msg, '`' .. jdat.clever .. '`', true)
 				return
 			end
 		end
 	elseif msg.chat.type == 'channel' then
-		if string.match(msg.text, 'mattata') then
-			functions.send_action(msg.chat.id, 'typing')
-			functions.send_reply(msg, '`' .. jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!') .. '`', true)
-			return		
-		elseif msg.reply_to_message then
+		if msg.reply_to_message then
 			if msg.reply_to_message.from.id == self.id then
-				functions.send_action(msg.chat.id, 'typing')
-				functions.send_reply(msg, '`' .. jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!') .. '`', true)
+				functions.send_action(chat_id, 'typing')
+				functions.send_reply(msg, '`' .. jdat.clever .. '`', true)
 				return
 			end
 		end
@@ -70,7 +58,7 @@ function messaging:action(msg, configuration)
 				functions.send_reply(msg, '`Your message has been sent successfully. Make sure you don\'t delete this chat, else you won\'t be able to receive a response.`', true)
 			end
 		else
-			functions.send_action(msg.chat.id, 'typing')
+			functions.send_action(chat_id, 'typing')
 			functions.send_reply(msg, '`' .. jdat.clever .. '`', true)
 			return
 		end

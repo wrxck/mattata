@@ -4,7 +4,7 @@ function setandget:init(configuration)
 	self.database.setandget = self.database.setandget or {}
 	setandget.command = 'set <name> <value>'
 	setandget.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('set', true):t('get', true).table
-	setandget.doc = configuration.command_prefix .. 'set <name> <value> - Stores a value with the given name.' .. configuration.command_prefix .. 'get [name] - Returns the stored value or a list of stored values.'
+	setandget.doc = configuration.command_prefix .. 'set <name> <value> - Stores a value with the given name.' .. configuration.command_prefix .. 'get (name) - Returns the stored value or a list of stored values.'
 end
 function setandget:action(msg, configuration)
 	local chat_id_str = tostring(msg.chat.id)
@@ -12,19 +12,19 @@ function setandget:action(msg, configuration)
 	self.database.setandget[chat_id_str] = self.database.setandget[chat_id_str] or {}
 	if msg.text_lower:match('^'..configuration.command_prefix..'set') then
 		if not input then
-			functions.send_reply(self, msg, setandget.doc, true)
+			functions.send_reply(msg, setandget.doc, true)
 			return
 		end
 		local name = functions.get_word(input:lower(), 1)
 		local value = functions.input(input)
 		if not name or not value then
-			functions.send_reply(self, msg, setandget.doc, true)
+			functions.send_reply(msg, setandget.doc, true)
 		elseif value == '--' or value == '—' then
 			self.database.setandget[chat_id_str][name] = nil
-			functions.send_reply(self, msg, 'That value has been deleted.')
+			functions.send_reply(msg, 'That value has been deleted.')
 		else
 			self.database.setandget[chat_id_str][name] = value
-			functions.send_reply(self, msg, '"' .. name .. '" has been set to "' .. value .. '".', true)
+			functions.send_reply(msg, '"' .. name .. '" has been set to "' .. value .. '".', true)
 		end
 	elseif msg.text_lower:match('^'..configuration.command_prefix..'get') then
 		if not input then
@@ -37,7 +37,7 @@ function setandget:action(msg, configuration)
 						output = output .. '» ' .. k .. ': `' .. v .. '`\n'
 					end
 				end
-			functions.send_reply(self, msg, output, true)
+			functions.send_reply(msg, output, true)
 			return
 		end
 		local output
@@ -46,7 +46,7 @@ function setandget:action(msg, configuration)
 		else
 			output = 'There is no value with that name, please try again.'
 		end
-		functions.send_reply(self, msg, output, true)
+		functions.send_reply(msg, output, true)
 	end
 end
 return setandget
