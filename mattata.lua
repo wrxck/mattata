@@ -1,5 +1,5 @@
 local mattata = {}
-mattata.version = '1.5'
+mattata.version = '1.5.1'
 function mattata:init(configuration)
 	assert(configuration.bot_api_key, 'You need to enter your bot API key in to the configuration file.')
 	telegram_api = require('telegram_api').init(configuration.bot_api_key)

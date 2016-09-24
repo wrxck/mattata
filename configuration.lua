@@ -956,6 +956,7 @@ return {
 		'coinflip',
 		'rms',
 		'patterns',
+		'xkcd',
 		-- place all new plugins above this line
 		'help',
 		'messaging'
