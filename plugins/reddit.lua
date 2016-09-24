@@ -1,5 +1,5 @@
 local reddit = {}
-local HTTP = require('socket.http')
+local HTTPS = require('ssl.https')
 local URL = require('socket.url')
 local JSON = require('dkjson')
 local functions = require('functions')
@@ -26,9 +26,9 @@ local function format_results(posts)
 	end
 	return output
 end
-reddit.subreddit_url = 'http://www.reddit.com/%s/.json?limit='
-reddit.search_url = 'http://www.reddit.com/search.json?q=%s&limit='
-reddit.rall_url = 'http://www.reddit.com/.json?limit='
+reddit.subreddit_url = 'https://www.reddit.com/%s/.json?limit='
+reddit.search_url = 'https://www.reddit.com/search.json?q=%s&limit='
+reddit.rall_url = 'https://www.reddit.com/.json?limit='
 function reddit:action(msg, configuration)
 	local limit = 4
 	if msg.chat.type == 'private' then
@@ -44,7 +44,7 @@ function reddit:action(msg, configuration)
 		if input:match('^r/.') then
 			input = functions.get_word(input, 1)
 			url = reddit.subreddit_url:format(input) .. limit
-			source = '*/' .. functions.md_escape(input) .. '*\n'
+			source = '*/' .. functions.md_escape(input):gsub('\\', '') .. '*\n'
 		else
 			input = functions.input(msg.text)
 			source = '*Results for* _' .. functions.md_escape(input) .. '_ *:*\n'
@@ -55,13 +55,13 @@ function reddit:action(msg, configuration)
 		url = reddit.rall_url .. limit
 		source = '*/r/all*\n'
 	end
-	local jstr, res = HTTP.request(url)
+	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
 	else
 		local jdat = JSON.decode(jstr)
 		if #jdat.data.children == 0 then
-			functions.send_reply(msg, configuration.errors.results)
+			functions.send_reply(msg, '`' .. configuration.errors.results .. '`', true)
 		else
 			local output = format_results(jdat.data.children)
 			output = source .. output
