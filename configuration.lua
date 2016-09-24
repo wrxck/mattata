@@ -5,11 +5,12 @@ return {
 	admin_group = nil, -- the numerical ID of the chat you wish to log errors/private messages to, you can add telegram.me/groupinfobot to your group to view this information, if necessary
 	about_text = 'Hello, my name is mattata. I\'m a multi-purpose Telegram bot you can confidently rely on.\nTo get started, just send /help.\n',
  	command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
-	cat_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg', -- the API URL for cats.lua
-	cat_api_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
-	yandex_key = '', -- you can get one of these by heading to https://tech.yandex.com/keys/get/?service=trnsl
+	cats_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
+	translate_key = '', -- you can get one of these by heading to https://tech.yandex.com/keys/get/?service=trnsl
 	lyricsnmusic_key = '', -- you can get one of these by heading to http://www.lyricsnmusic.com/api_keys/new
-	canitrust_key = '', -- you can get one of these by heading to http://www.mywot.com/profile/api
+	canitrust_key = '',
+	apod_key = '',
+	cats_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg', -- the API URL for cats.lua
 	baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text', -- the API URL for baconipsum.lua
 	calc_api = 'https://api.mathjs.org/v1/?expr=', -- the API URL for calc.lua
 	catfact_api = 'http://catfacts-api.appspot.com/api/facts', -- the API URL for catfact.lua
@@ -21,13 +22,13 @@ return {
 	starwars_api = 'http://swapi.co/api/films/', -- the API URL for starwars.lua
 	skateipsum_api = 'http://skateipsum.com/get/1/1/JSON', -- the API URL for skateipsum.lua
 	guidgen_api = 'http://www.passwordrandom.com/query?command=guid&format=json&count=1', -- the API URL for guidgen.lua
-	pwgen_api = 'http://www.passwordrandom.com/query?command=password&format=json&count=1', -- the API URL for pwgen.lua
+	pwgen_api = 'http://passwordwolf.com/api?length=', -- the API URL for pwgen.lua
 	yomama_api = 'http://api.yomomma.info/', -- the API URL for yomama.lua
 	ninegag_api = 'http://api-9gag.herokuapp.com/', -- the API URL for 9gag.lua
 	lyricsnmusic_api = 'http://api.lyricsnmusic.com/songs?api_key=', -- the API URL for lyrics.lua
 	mcmigrated_api = 'https://eu.mc-api.net/v3/migrated/', -- the API URL for mcmigrated.lua
 	randomword_api = 'http://www.setgetgo.com/randomword/get.php', -- the API URL for randomword.lua
-	yandex_api = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=', -- the API URL for translate.lua
+	translate_api = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=', -- the API URL for translate.lua
 	urbandictionary_api = 'http://api.urbandictionary.com/v0/define?term=', -- the API URL for urbandictionary.lua
 	yeoldinsult_api = 'http://quandyfactory.com/insult/json', -- the API URL for yeoldinsult.lua
 	canitrust_api = 'https://api.mywot.com/0.4/public_link_json2?hosts=', -- the API URL for canitrust.lua
@@ -35,6 +36,9 @@ return {
 	mchistory_uuid_api = 'https://api.mojang.com/users/profiles/minecraft/', -- the API URL for mchistory.lua
 	mchistory_api = 'https://api.mojang.com/user/profiles/', -- the API URL for mchistory.lua
 	ispwned_api = 'https://haveibeenpwned.com/api/v2/breachedaccount/', -- the API URL for ispwned.lua
+	qotd_api = 'http://quotes.rest/qod.json', -- the API URL for qotd.lua
+	ass_api = 'http://api.obutts.ru/noise/1', -- the API URL for ass.lua
+	apod_api = 'https://api.nasa.gov/planetary/apod?api_key=', -- the API URL for apod.lua
 	errors = {
 		generic = 'WELP. I\'m afraid an error has occured!',
 		connection = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
@@ -46,6 +50,13 @@ return {
 		url = 'https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=',
 		connection_error = 'Matt\'s words echoed: There\'s a time and place for everything! But not now.',
 		response_error = 'I\'m not sure how to answer that...'
+	},
+	remind = {
+		persist = true,
+		max_length = 1000,
+		max_duration = 526000,
+		max_reminders_group = 10,
+		max_reminders_private = 50
 	},
 	bandersnatch_full_names = { -- full names configured for plugins/bandersnatch.lua to use
 		'Wimbledon Tennismatch',
@@ -888,6 +899,7 @@ return {
 	plugins = { -- the plugins which mattata will use
 		'control',
 		'about',
+		-- place all new plugins below this line
 		'nick',
 		'bandersnatch',
 		'wikipedia',
@@ -913,7 +925,6 @@ return {
 		'catfact',
 		'currency',
 		'pokedex',
-		'echo',
 		'eightball',
 		'isup',
 		'chuck',
@@ -938,8 +949,15 @@ return {
 		'guidgen',
 		'pwgen',
 		'canitrust',
+		'qotd',
+		'ass',
+		'apod',
+		'hackernews',
+		'coinflip',
+		'rms',
+		'patterns',
+		-- place all new plugins above this line
 		'help',
-		'groupmessaging',
 		'messaging'
 	}
 } -- End of configuration, you're good to go!
