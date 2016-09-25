@@ -14,10 +14,10 @@ function messaging:inline_callback(inline_query, configuration, matches)
 	local jstr, code = HTTPS.request(configuration.messaging.url .. URL.escape(input))
 	local jdat = JSON.decode(jstr)
 	local results = '[{"type":"article","id":"9","title":"Talk with mattata, inline!","description":"Start typing to see the response","input_message_content":{"message_text":"Me: ' .. input .. ' | mattata: ' .. jdat.clever..'"}}]'
-	functions.answer_inline_query(inline_query, results, 600, nil, nil, 'Me: ' .. input .. ' | mattata: ' .. jdat.clever)
+	functions.answer_inline_query(inline_query, results, 600, nil, nil, 'Me: ' .. input .. ' | ' .. self.info.first_name .. ': ' .. jdat.clever)
 end
 function messaging:action(msg, configuration)
-	local input = msg.text_lower:gsub('mattata ', ''):gsub('mattata, ','')
+	local input = msg.text_lower:gsub(self.info.first_name .. ' ', ''):gsub(self.info.first_name .. ', ','')
 	local jstr, code = HTTPS.request(configuration.messaging.url .. URL.escape(input))
 	local jdat = JSON.decode(jstr)
 	if msg.reply_to_message then
@@ -33,7 +33,7 @@ function messaging:action(msg, configuration)
 		end
 	end
 	if msg.chat.type == 'supergroup' then
-		if string.match(msg.text, 'mattata') then
+		if string.match(msg.text, self.info.first_name) then
 			functions.send_action(msg.chat.id, 'typing')
 			functions.send_reply(msg, '`' .. jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!') .. '`', true)
 			return		
@@ -45,7 +45,7 @@ function messaging:action(msg, configuration)
 			end
 		end
 	elseif msg.chat.type == 'group' then
-		if string.match(msg.text, 'mattata') then
+		if string.match(msg.text, self.info.first_name) then
 			functions.send_action(msg.chat.id, 'typing')
 			functions.send_reply(msg, '`' .. jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!') .. '`', true)
 			return		
@@ -57,7 +57,7 @@ function messaging:action(msg, configuration)
 			end
 		end
 	elseif msg.chat.type == 'channel' then
-		if string.match(msg.text, 'mattata') then
+		if string.match(msg.text, self.info.first_name) then
 			functions.send_action(msg.chat.id, 'typing')
 			functions.send_reply(msg, '`' .. jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!') .. '`', true)
 			return		
