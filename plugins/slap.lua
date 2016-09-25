@@ -3,15 +3,15 @@ local functions = require('functions')
 function slap:init(configuration)
 	slap.command = 'slap (target)'
 	slap.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('slap', true).table
-	slap.doc = configuration.command_prefix .. 'slap (target) - Slap somebody.'
+	slap.doc = configuration.command_prefix .. 'slap (target) - Slap somebody (or something).'
 end
 function slap:action(msg, configuration)
 	local slaps = configuration.slaps
 	local input = functions.input(msg.text)
-	local victor_id = msg.from.first_name
+	local victor_id = msg.from.id
 	local victim_id
 	if msg.reply_to_message then
-		victim_id = msg.reply_to_message.from.first_name
+		victim_id = msg.reply_to_message.from.id
 	else
 		if input then
 			if tonumber(input) then
@@ -26,12 +26,12 @@ function slap:action(msg, configuration)
 	end
 	if victim_id then
 		if victim_id == victor_id then
-			victor_id = self.info.first_name
+			victor_id = self.info.id
 		end
 	else
 		if not input then
-			victor_id = self.info.first_name
-			victim_id = msg.from.first_name
+			victor_id = self.info.id
+			victim_id = msg.from.id
 		end
 	end
 	local victor_name, victim_name

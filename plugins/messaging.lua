@@ -7,6 +7,14 @@ function messaging:init(configuration)
 	messaging.triggers = {
 		'^' .. '' .. ''
 	}
+	messaging.inline_triggers = messaging.triggers
+end
+function messaging:inline_callback(inline_query, configuration, matches)
+	local input = inline_query.query
+	local jstr, code = HTTPS.request(configuration.messaging.url .. URL.escape(input))
+	local jdat = JSON.decode(jstr)
+	local results = '[{"type":"article","id":"9","title":"Talk with mattata, inline!","description":"Start typing to see the response","input_message_content":{"message_text":"Me: ' .. input .. ' | mattata: ' .. jdat.clever..'"}}]'
+	functions.answer_inline_query(inline_query, results, 600, nil, nil, 'Me: ' .. input .. ' | mattata: ' .. jdat.clever)
 end
 function messaging:action(msg, configuration)
 	local input = msg.text_lower:gsub('mattata ', ''):gsub('mattata, ','')

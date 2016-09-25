@@ -7,6 +7,6 @@ function pun:init(configuration)
 end
 function pun:action(msg, configuration)
 	local puns = configuration.puns
-	functions.send_reply(msg, '`' .. puns[math.random(#puns)] .. '`', true)
+	functions.send_reply(msg, '`' .. puns[math.random(#puns)] .. '`', true, '{"inline_keyboard":[[{"text":"Generate a new pun!", "callback_data":"pun"}]]}')
 end
 return pun

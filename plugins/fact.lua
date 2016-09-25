@@ -16,7 +16,7 @@ function fact:action(msg, configuration)
 		local jdat = JSON.decode(jstr)
 		local jrnd = math.random(#jdat)
 		local output = '`' .. jdat[jrnd].nid:gsub('<p>',''):gsub('</p>',''):gsub('&amp;','&'):gsub('<em>',''):gsub('</em>',''):gsub('<strong>',''):gsub('</strong>','') .. '`'
-		functions.send_reply(msg, output, true)
+		functions.send_reply(msg, output, true, '{"inline_keyboard":[[{"text":"Generate a new fact!", "callback_data":"fact"}]]}')
 		return
 	end
 end

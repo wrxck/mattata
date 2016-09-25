@@ -12,7 +12,7 @@ function randomword:action(msg, configuration)
 		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
 		return
 	else
-		functions.send_reply(msg, '*Your random word is:* `' .. word .. '`', true)
+		functions.send_reply(msg, '*Your random word is:* ' .. word, true, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
 		return
 	end
 end
