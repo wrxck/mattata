@@ -1,24 +1,22 @@
 local mattata = {}
-mattata.version = '1.5.1'
+local HTTP = require('socket.http')
+local JSON = require('dkjson')
+mattata.version = '2.0'
 function mattata:init(configuration)
 	assert(configuration.bot_api_key, 'You need to enter your bot API key in to the configuration file.')
 	telegram_api = require('telegram_api').init(configuration.bot_api_key)
 	functions = require('functions')
 	repeat
-		print('Fetching information about mattata...')
+		print('Fetching mattata\'s information...')
 		self.info = telegram_api.getMe()
 	until self.info
 	self.info = self.info.result
-	if not self.database then
-		self.database = functions.load_data(self.info.username..'.db')
-	end
 	self.database_name = configuration.database_name or self.info.username .. '.db'
 	if not self.database then
 		self.database = functions.load_data(self.database_name)
 	end
 	self.database.users = self.database.users or {}
 	self.database.userdata = self.database.userdata or {}
-	self.database.blacklist = self.database.blacklist or {}
 	self.database.version = mattata.version
 	self.database.users[tostring(self.info.id)] = self.info
 	self.plugins = {}
@@ -34,6 +32,9 @@ function mattata:init(configuration)
 		if not plugin.triggers then
 			plugin.triggers = {}
 		end
+		if not plugin.inline_triggers then
+			plugin.inline_triggers = {}
+		end
 	end
 	print('mattata has initialised successfully!')
 	self.last_update = self.last_update or 0
@@ -47,6 +48,14 @@ function mattata:on_msg_receive(msg, configuration)
 	end
 	local plugint = self.plugins
 	local from_id_str = tostring(msg.from.id)
+	self.database.users[from_id_str] = msg.from
+	if msg.reply_to_message then
+		self.database.users[tostring(msg.reply_to_message.from.id)] = msg.reply_to_message.from
+	elseif msg.new_chat_member then
+		self.database.users[tostring(msg.new_chat_member.id)] = msg.new_chat_member
+	elseif msg.left_chat_member then
+		self.database.users[tostring(msg.left_chat_member.id)] = msg.left_chat_member
+	end 
 	msg.text = msg.text or msg.caption or ''
 	msg.text_lower = msg.text:lower()
 	if msg.reply_to_message then
@@ -81,14 +90,25 @@ function mattata:on_msg_receive(msg, configuration)
 			end
 		end
 	end
-	msg = nil
 end
 function mattata:on_callback_receive(callback, msg, configuration)
 	if msg.date < os.time() - 1800 then
 		functions.answer_callback_query(callback, 'That message is too old, please try again.', true)
 		return
 	end
-	if not callback.data:find(':') or not callback.data:find('@'..self.info.username..' ') then
+	if callback.data == "randomword" then
+		functions.edit_message(msg.chat.id, msg.message_id, '*Your random word is:* `' .. HTTP.request(configuration.randomword_api) .. '`', true, true, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
+		return
+	elseif callback.data == "pun" then
+		local puns = configuration.puns
+		functions.edit_message(msg.chat.id, msg.message_id, '`' .. puns[math.random(#puns)] .. '`', true, true, '{"inline_keyboard":[[{"text":"Generate a new pun!", "callback_data":"pun"}]]}')
+		return
+	elseif callback.data == "fact" then
+		local jstr, res = HTTP.request(configuration.fact_api)
+		local jdat = JSON.decode(jstr)
+		local jrnd = math.random(#jdat)
+		local output = '`' .. jdat[jrnd].nid:gsub('<p>',''):gsub('</p>',''):gsub('&amp;','&'):gsub('<em>',''):gsub('</em>',''):gsub('<strong>',''):gsub('</strong>','') .. '`'
+		functions.edit_message(msg.chat.id, msg.message_id, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new fact!", "callback_data":"fact"}]]}')
 		return
 	end
 	callback.data = string.gsub(callback.data, '@'..self.info.username..' ', "")
@@ -103,15 +123,37 @@ function mattata:on_callback_receive(callback, msg, configuration)
 	end
 	functions.answer_callback_query(callback, 'Invalid callback query.')
 end
+function mattata:process_inline_query(inline_query, configuration)
+	if string.len(inline_query.query) > 200 then
+		functions.abort_inline_query(inline_query)
+		return
+	end
+	local plugint = self.plugins
+	for _, plugin in ipairs(plugint) do
+		for _, trigger in ipairs(plugin.inline_triggers) do
+			if string.match(inline_query.query, trigger) then
+				local success, result = pcall(function()
+					plugin.inline_callback(self, inline_query, configuration)
+				end)
+				if not success then
+					return
+				elseif result ~= true then
+					return
+				end
+			end
+		end
+	end
+end
 function mattata:run(configuration)
 	mattata.init(self, configuration)
 	while self.is_started do
 		local res = telegram_api.getUpdates{ timeout = 20, offset = self.last_update+1 }
 		if res then
-			for n=1, #res.result do
-				local v = res.result[n]
+			for _,v in ipairs(res.result) do
 				self.last_update = v.update_id
-				if v.callback_query then
+				if v.inline_query then
+					mattata.process_inline_query(self, v.inline_query, configuration)
+				elseif v.callback_query then
 					mattata.on_callback_receive(self, v.callback_query, v.callback_query.message, configuration)
 				elseif v.message then
 					mattata.on_msg_receive(self, v.message, configuration)
@@ -122,22 +164,21 @@ function mattata:run(configuration)
 		end
 		if self.last_cron ~= os.date('%M') then
 			self.last_cron = os.date('%M')
-			for n=1, #self.plugins do 
-				local v = self.plugins[n]
-				if v.cron then -- Call each plugin's cron function, if it has one.
+			for i,v in ipairs(self.plugins) do
+				if v.cron then
 					local result, err = pcall(function() v.cron(self, configuration) end)
 					if not result then
-						functions.handle_exception(self, err, 'CRON: ' .. n, configuration.log_chat)
+						functions.handle_exception(self, err, 'CRON: ' .. i, configuration.log_chat)
 					end
 				end
 			end
 		end
 		if self.last_database_save ~= os.date('%H') then
-			functions.save_data(self.info.username..'.db', self.database) -- Save the database.
 			self.last_database_save = os.date('%H')
+			functions.save_data(self.info.username, self.database)
 		end
 	end
-	functions.save_data(self.info.username..'.db', self.database)
+	functions.save_data(self.database_name, self.database)
 	print('mattata is shutting down...')
 end
 return mattata

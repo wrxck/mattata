@@ -1,15 +1,17 @@
 return {
-	bot_api_key = '', -- insert the bot API token you received from BotFather
+	bot_api_key = '', -- insert the bot API token you received from @BotFather
 	owner_id = nil, -- the numerical ID of the owner, who is presumably you
 	language = 'en', -- two digit locale
 	admin_group = nil, -- the numerical ID of the chat you wish to log errors/private messages to, you can add telegram.me/groupinfobot to your group to view this information, if necessary
+	muted_users = {},
 	about_text = 'Hello, my name is mattata. I\'m a multi-purpose Telegram bot you can confidently rely on.\nTo get started, just send /help.\n',
  	command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
 	cats_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
 	translate_key = '', -- you can get one of these by heading to https://tech.yandex.com/keys/get/?service=trnsl
-	lyricsnmusic_key = '', -- you can get one of these by heading to http://www.lyricsnmusic.com/api_keys/new
+	lyrics_key = '',
 	canitrust_key = '',
 	apod_key = '',
+	bible_key = '',
 	cats_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg', -- the API URL for cats.lua
 	baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text', -- the API URL for baconipsum.lua
 	calc_api = 'https://api.mathjs.org/v1/?expr=', -- the API URL for calc.lua
@@ -25,7 +27,7 @@ return {
 	pwgen_api = 'http://passwordwolf.com/api?length=', -- the API URL for pwgen.lua
 	yomama_api = 'http://api.yomomma.info/', -- the API URL for yomama.lua
 	ninegag_api = 'http://api-9gag.herokuapp.com/', -- the API URL for 9gag.lua
-	lyricsnmusic_api = 'http://api.lyricsnmusic.com/songs?api_key=', -- the API URL for lyrics.lua
+	lyrics_api = 'https://api.musixmatch.com/ws/1.1/', -- the API URL for lyrics.lua
 	mcmigrated_api = 'https://eu.mc-api.net/v3/migrated/', -- the API URL for mcmigrated.lua
 	randomword_api = 'http://www.setgetgo.com/randomword/get.php', -- the API URL for randomword.lua
 	translate_api = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=', -- the API URL for translate.lua
@@ -39,6 +41,14 @@ return {
 	qotd_api = 'http://quotes.rest/qod.json', -- the API URL for qotd.lua
 	ass_api = 'http://api.obutts.ru/noise/1', -- the API URL for ass.lua
 	apod_api = 'https://api.nasa.gov/planetary/apod?api_key=', -- the API URL for apod.lua
+	identicon_api = 'http://identicon.rmhdev.net/', -- the API URL for identicon.lua
+	mcface_uuid_api = 'https://api.mojang.com/users/profiles/minecraft/', -- the API URL for mcface.lua
+	mcface_api = 'https://tntup.me/avatar/', -- the API URL for mcface.lua
+	qrgen_api = 'http://chart.apis.google.com/chart?cht=qr&chs=500x500&chl=', -- the API URL for qrgen.lua
+	itunes_api = 'https://itunes.apple.com/search?term=', -- the API URL for itunes.lua
+	itunes_album_artwork_api = 'https://itunes.apple.com/search?term=', -- the API URL for itunes_album_artwork.lua
+	bible_asv_api = 'http://api.biblia.com/v1/bible/content/ASV.txt?key=', -- the API URL for bible.lua
+	bible_kjv_api = 'http://api.biblia.com/v1/bible/content/KJVAPOC.txt?key=', -- the API URL for bible.lua
 	errors = {
 		generic = 'WELP. I\'m afraid an error has occured!',
 		connection = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
@@ -487,6 +497,14 @@ return {
 		'No.',
 		'It is likely so.',
 		'Never!'
+	},
+	faces = { -- expressive-emoticon commands configured for faces.lua
+		['shrug'] = '¯\\_(ツ)_/¯',
+		['lenny'] = '( ͡° ͜ʖ ͡°)',
+		['flip'] = '(╯°□°）╯︵ ┻━┻',
+		['look'] = 'ಠ_ಠ',
+		['shots'] = 'SHOTS FIRED',
+		['facepalm'] = '(－‸ლ)'
 	},
 	commits = { -- commit messages configured for commit.lua
 		'One does not simply merge into master',
@@ -957,8 +975,23 @@ return {
 		'rms',
 		'patterns',
 		'xkcd',
+		'jsondump',
+		'giphy',
+		'itunes',
+		'itunes_album_artwork',
+		'github',
+		'leavechat',
+		'unban',
+		'chatinfo',
+		'identicon',
+		'mcface',
+		'qrgen',
+		'bible',
+		'pokemon_go',
+		'echo',
 		-- place all new plugins above this line
 		'help',
+		'faces',
 		'messaging'
 	}
 } -- End of configuration, you're good to go!

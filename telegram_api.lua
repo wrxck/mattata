@@ -4,7 +4,7 @@ local JSON = require('dkjson')
 local ltn12 = require('ltn12')
 local mp_encode = require('multipart-post').encode
 function telegram_api.init(token)
-	telegram_api.BASE_URL = 'HTTPS://api.telegram.org/bot' .. token .. '/'
+	telegram_api.BASE_URL = 'https://api.telegram.org/bot' .. token .. '/'
 	return telegram_api
 end
 function telegram_api.request(method, parameters, file)

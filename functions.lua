@@ -5,6 +5,7 @@ local HTTPS = require('ssl.https')
 local URL = require('socket.url')
 local JSON = require('dkjson')
 local redis = require('redis')
+local utf8 = require('lua-utf8')
 local telegram_api = require('telegram_api')
 function functions.send_message(chat_id, text, disable_web_page_preview, reply_to_message_id, use_markdown, reply_markup)
 	local parse_mode
@@ -59,6 +60,17 @@ function functions.forward_message(chat_id, from_chat_id, message_id)
 		chat_id = chat_id,
 		from_chat_id = from_chat_id,
 		message_id = message_id
+	} )
+end
+function functions.leave_chat(chat_id)
+	return telegram_api.request('leaveChat', {
+		chat_id = chat_id
+	} )
+end
+function functions.unban_chat_member(chat_id, user_id)
+	return telegram_api.request('unbanChatMember', {
+		chat_id = chat_id,
+		user_id = user_id
 	} )
 end
 function functions.send_photo(chat_id, file, text, reply_to_message_id, reply_markup)
@@ -175,6 +187,11 @@ function functions.send_action(chat_id, action)
 	return telegram_api.request('sendChatAction', {
 		chat_id = chat_id,
 		action = action
+	} )
+end
+function functions.get_chat(chat_id)
+	return telegram_api.request('getChat', {
+		chat_id = chat_id
 	} )
 end
 function functions.answer_callback_query(callback, text, show_alert)
@@ -636,5 +653,56 @@ function table.contains(table, element)
 		end
 	end
 	return false
+end
+function functions.fix_utf8(str)
+	return string.char(utf8.codepoint(str, 1, -1))
+end
+functions.set_meta = {}
+functions.set_meta.__index = functions.set_meta
+function functions.new_set()
+	return setmetatable({__count = 0}, functions.set_meta)
+end
+function functions.set_meta:add(x)
+	if x == "__count" then
+		return false
+	else
+		if not self[x] then
+			self[x] = true
+			self.__count = self.__count + 1
+		end
+		return true
+	end
+end
+function functions.set_meta:remove(x)
+	if x == "__count" then
+		return false
+	else
+		if self[x] then
+			self[x] = nil
+			self.__count = self.__count - 1
+		end
+		return true
+	end
+end
+function functions.set_meta:__len()
+	return self.__count
+end
+function functions.answer_inline_query(inline_query, results, cache_time, is_personal, next_offset, switch_pm_text, switch_pm_parameter)
+	return telegram_api.request('answerInlineQuery', {
+		inline_query_id = inline_query.id,
+		results = results,
+		cache_time = cache_time,
+		is_personal = is_personal,
+		next_offset = next_offset,
+		switch_pm_text = switch_pm_text,
+		switch_pm_parameter = switch_pm_parameter
+	} )
+end
+function functions.abort_inline_query(inline_query)
+	return telegram_api.request('answerInlineQuery', {
+		inline_query_id = inline_query.id,
+		cache_time = 5,
+		is_personal = true
+	} )
 end
 return functions
