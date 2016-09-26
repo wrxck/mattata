@@ -189,11 +189,6 @@ function functions.send_action(chat_id, action)
 		action = action
 	} )
 end
-function functions.get_chat(chat_id)
-	return telegram_api.request('getChat', {
-		chat_id = chat_id
-	} )
-end
 function functions.answer_callback_query(callback, text, show_alert)
 	return telegram_api.request('answerCallbackQuery', {
 		callback_query_id = callback.id,
@@ -241,11 +236,16 @@ function string:isempty()
 	return self == nil or self == ''
 end
 function get_name(msg)
-	 local name = msg.from.first_name
-	 if not name then
-	 	name = msg.from.id
-	 end
-	 return name
+	local name = ''
+	if msg.from.last_name then
+		name = msg.from.first_name .. ' ' .. msg.from.last_name
+	else
+		name = msg.from.first_name
+	end
+	if not name then
+		name = msg.from.id
+	end
+	return name
 end
 function run_command(str)
 	local cmd = io.popen(str)
