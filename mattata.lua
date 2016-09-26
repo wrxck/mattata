@@ -1,7 +1,7 @@
 local mattata = {}
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
-mattata.version = '2.0'
+mattata.version = '2.0.1'
 function mattata:init(configuration)
 	assert(configuration.bot_api_key, 'You need to enter your bot API key in to the configuration file.')
 	telegram_api = require('telegram_api').init(configuration.bot_api_key)
@@ -110,6 +110,12 @@ function mattata:on_callback_receive(callback, msg, configuration)
 		local output = '`' .. jdat[jrnd].nid:gsub('<p>',''):gsub('</p>',''):gsub('&amp;','&'):gsub('<em>',''):gsub('</em>',''):gsub('<strong>',''):gsub('</strong>','') .. '`'
 		functions.edit_message(msg.chat.id, msg.message_id, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new fact!", "callback_data":"fact"}]]}')
 		return
+	elseif callback.data == "chuck" then
+		local jstr, res = HTTP.request(configuration.chuck_api)
+		local jdat = JSON.decode(jstr)
+		local output = '`' .. functions.html_escape(jdat.value.chuck) .. '`'
+		functions.edit_message(msg.chat.id, msg.message_id, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new joke!", "callback_data":"chuck"}]]}')
+		return
 	end
 	callback.data = string.gsub(callback.data, '@'..self.info.username..' ', "")
 	local called_plugin = callback.data:match('(.*):.*')
@@ -147,7 +153,7 @@ end
 function mattata:run(configuration)
 	mattata.init(self, configuration)
 	while self.is_started do
-		local res = telegram_api.getUpdates{ timeout = 20, offset = self.last_update+1 }
+		local res = telegram_api.getUpdates{timeout = 20, offset = self.last_update + 1}
 		if res then
 			for _,v in ipairs(res.result) do
 				self.last_update = v.update_id
