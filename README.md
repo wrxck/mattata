@@ -10,3 +10,5 @@ mattata is free software; you are free to redistribute it and/or modify it under
 mattata is based on the [otouto](otou.to) project, by topkecleon.
 
 mattata requires the following dependencies: Lua 5.2/5.3, luasocket, luasec, multipart-post, dkjson and lpeg. To get started, just clone the repository and enter the necessary values in configuration.lua.
+
+Current version: 2.0.1
