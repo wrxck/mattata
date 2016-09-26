@@ -37,7 +37,7 @@ function telegram_api.request(method, parameters, file)
 		url = telegram_api.BASE_URL .. method,
 		method = 'POST',
 		headers = {
-			["Content-Type"] =	"multipart/form-data; boundary=" .. boundary,
+			["Content-Type"] = "multipart/form-data; boundary=" .. boundary,
 			["Content-Length"] = #body,
 		},
 		source = ltn12.source.string(body),
