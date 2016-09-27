@@ -15,6 +15,6 @@ function bandersnatch:action(msg, configuration)
 	else
 		output = '`' .. firstnames[math.random(#firstnames)] .. ' ' .. lastnames[math.random(#lastnames)] .. '`'
 	end
-	functions.send_reply(msg, output, true)
+	functions.send_reply(msg, output, true, '{"inline_keyboard":[[{"text":"Generate a new name!", "callback_data":"bandersnatch"}]]}')
 end
 return bandersnatch
