@@ -116,6 +116,17 @@ function mattata:on_callback_receive(callback, msg, configuration)
 		local output = '`' .. functions.html_escape(jdat.value.chuck) .. '`'
 		functions.edit_message(msg.chat.id, msg.message_id, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new joke!", "callback_data":"chuck"}]]}')
 		return
+	elseif callback.data == "bandersnatch" then
+		local output = ''
+		local fullnames = configuration.bandersnatch_full_names
+		local firstnames = configuration.bandersnatch_first_names
+		local lastnames = configuration.bandersnatch_last_names
+		if math.random(10) == 10 then
+			output = '`' .. fullnames[math.random(#fullnames)] .. '`'
+		else
+			output = '`' .. firstnames[math.random(#firstnames)] .. ' ' .. lastnames[math.random(#lastnames)] .. '`'
+		end
+		functions.send_reply(msg, output, true, '{"inline_keyboard":[[{"text":"Generate a new name!", "callback_data":"bandersnatch"}]]}')
 	end
 	callback.data = string.gsub(callback.data, '@'..self.info.username..' ', "")
 	local called_plugin = callback.data:match('(.*):.*')
