@@ -19,7 +19,7 @@ function chuck:action(msg, configuration)
 			return
 		end
 		local output = '`' .. functions.html_escape(jdat.value.joke) .. '`'
-		functions.send_reply(msg, output, true, '{"inline_keyboard":[[{"text":"Generate a new joke!", "callback_data":"pun"}]]}')
+		functions.send_reply(msg, output, true, '{"inline_keyboard":[[{"text":"Generate a new joke!", "callback_data":"chuck"}]]}')
 	end
 end
 return chuck
