@@ -1,7 +1,7 @@
 local mattata = {}
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
-mattata.version = '2.0.1'
+mattata.version = '2.0.2'
 function mattata:init(configuration)
 	assert(configuration.bot_api_key, 'You need to enter your bot API key in to the configuration file.')
 	telegram_api = require('telegram_api').init(configuration.bot_api_key)
@@ -11,10 +11,8 @@ function mattata:init(configuration)
 		self.info = telegram_api.getMe()
 	until self.info
 	self.info = self.info.result
-	self.database_name = configuration.database_name or self.info.username .. '.db'
-	if not self.database then
-		self.database = functions.load_data(self.database_name)
-	end
+	self.database_name = self.info.username .. '.db'
+	self.database = functions.load_data(self.database_name)
 	self.database.users = self.database.users or {}
 	self.database.userdata = self.database.userdata or {}
 	self.database.version = mattata.version
@@ -61,7 +59,7 @@ function mattata:on_msg_receive(msg, configuration)
 	if msg.reply_to_message then
 		msg.reply_to_message.text = msg.reply_to_message.text or msg.reply_to_message.caption or ''
 	end
-	if msg.text:match('^'..configuration.command_prefix..'start .+') then
+	if msg.text:match('^' .. configuration.command_prefix .. 'start .+') then
 		msg.text = configuration.command_prefix .. functions.input(msg.text)
 		msg.text_lower = msg.text:lower()
 	end
@@ -129,9 +127,9 @@ function mattata:on_callback_receive(callback, msg, configuration)
 		functions.edit_message(msg.chat.id, msg.message, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new name!", "callback_data":"bandersnatch"}]]}')
 		return
 	end
-	callback.data = string.gsub(callback.data, '@'..self.info.username..' ', "")
+	callback.data = string.gsub(callback.data, '@' .. self.info.username .. ' ', "")
 	local called_plugin = callback.data:match('(.*):.*')
-	local param = callback.data:sub(callback.data:find(':')+1)
+	local param = callback.data:sub(callback.data:find(':') + 1)
 	msg = functions.enrich_message(msg)
 	for n=1, #self.plugins do
 		local plugin = self.plugins[n]
@@ -186,7 +184,7 @@ function mattata:run(configuration)
 				if v.cron then
 					local result, err = pcall(function() v.cron(self, configuration) end)
 					if not result then
-						functions.handle_exception(self, err, 'CRON: ' .. i, configuration.log_chat)
+						functions.handle_exception(self, err, 'CRON: ' .. i, configuration.admin_group)
 					end
 				end
 			end
