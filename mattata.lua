@@ -96,27 +96,27 @@ function mattata:on_callback_receive(callback, msg, configuration)
 		functions.answer_callback_query(callback, 'That message is too old, please try again.', true)
 		return
 	end
-	if callback.data == "randomword" then
+	if callback.data == 'randomword' then
 		functions.edit_message(msg.chat.id, msg.message_id, '*Your random word is:* `' .. HTTP.request(configuration.randomword_api) .. '`', true, true, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
 		return
-	elseif callback.data == "pun" then
+	elseif callback.data == 'pun' then
 		local puns = configuration.puns
 		functions.edit_message(msg.chat.id, msg.message_id, '`' .. puns[math.random(#puns)] .. '`', true, true, '{"inline_keyboard":[[{"text":"Generate a new pun!", "callback_data":"pun"}]]}')
 		return
-	elseif callback.data == "fact" then
+	elseif callback.data == 'fact' then
 		local jstr, res = HTTP.request(configuration.fact_api)
 		local jdat = JSON.decode(jstr)
 		local jrnd = math.random(#jdat)
 		local output = '`' .. jdat[jrnd].nid:gsub('<p>',''):gsub('</p>',''):gsub('&amp;','&'):gsub('<em>',''):gsub('</em>',''):gsub('<strong>',''):gsub('</strong>','') .. '`'
 		functions.edit_message(msg.chat.id, msg.message_id, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new fact!", "callback_data":"fact"}]]}')
 		return
-	elseif callback.data == "chuck" then
+	elseif callback.data == 'chuck' then
 		local jstr, res = HTTP.request(configuration.chuck_api)
 		local jdat = JSON.decode(jstr)
 		local output = '`' .. functions.html_escape(jdat.value.chuck) .. '`'
 		functions.edit_message(msg.chat.id, msg.message_id, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new joke!", "callback_data":"chuck"}]]}')
 		return
-	elseif callback.data == "bandersnatch" then
+	elseif callback.data == 'bandersnatch' then
 		local output = ''
 		local fullnames = configuration.bandersnatch_full_names
 		local firstnames = configuration.bandersnatch_first_names
@@ -127,6 +127,7 @@ function mattata:on_callback_receive(callback, msg, configuration)
 			output = '`' .. firstnames[math.random(#firstnames)] .. ' ' .. lastnames[math.random(#lastnames)] .. '`'
 		end
 		functions.edit_message(msg.chat.id, msg.message, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new name!", "callback_data":"bandersnatch"}]]}')
+		return
 	end
 	callback.data = string.gsub(callback.data, '@'..self.info.username..' ', "")
 	local called_plugin = callback.data:match('(.*):.*')
