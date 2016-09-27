@@ -1,7 +1,7 @@
 local mattata = {}
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
-mattata.version = '2.0.2'
+mattata.version = '2.0.3'
 function mattata:init(configuration)
 	assert(configuration.bot_api_key, 'You need to enter your bot API key in to the configuration file.')
 	telegram_api = require('telegram_api').init(configuration.bot_api_key)

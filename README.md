@@ -11,4 +11,4 @@ mattata started off as a small bot based on the [otouto](otou.to) project, by to
 
 mattata requires the following dependencies: Lua 5.2/5.3, luasocket, luasec, multipart-post, ltn12, dkjson, serpent, lpeg and lua-utf8. To get started, just fork and/or clone the repository and enter the necessary values in configuration.lua.
 
-Current version: 2.0.2
+Current version: 2.0.3

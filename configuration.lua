@@ -12,6 +12,8 @@ return {
 	canitrust_key = '',
 	apod_key = '',
 	bible_key = '',
+	synonym_key = '',
+	lastfm_key = '',
 	cats_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg', -- the API URL for cats.lua
 	baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text', -- the API URL for baconipsum.lua
 	calc_api = 'https://api.mathjs.org/v1/?expr=', -- the API URL for calc.lua
@@ -49,19 +51,22 @@ return {
 	itunes_album_artwork_api = 'https://itunes.apple.com/search?term=', -- the API URL for itunes_album_artwork.lua
 	bible_asv_api = 'http://api.biblia.com/v1/bible/content/ASV.txt?key=', -- the API URL for bible.lua
 	bible_kjv_api = 'http://api.biblia.com/v1/bible/content/KJVAPOC.txt?key=', -- the API URL for bible.lua
-	errors = {
+	synonym_api = 'https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=', -- the API URL for define.lua
+	bing_api = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/Web?Query=\'%s\'&$format=json', -- the API URL for bing.lua
+	lastfm_api = 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&format=json&limit=1&api_key=', -- the API URL for lastfm.lua
+	errors = { -- configured error messages for use throughout all plugins
 		generic = 'WELP. I\'m afraid an error has occured!',
 		connection = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
 		results = 'I\'m sorry, but I couldn\'t find any results for that.',
 		argument = 'I\'m sorry, but the arguments you gave were either invalid or non-existent. Please try again',
 		syntax = 'Syntax error. Please try again.',
 	},
-	messaging = {
+	messaging = { -- configured settings for messaging.lua
 		url = 'https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=',
 		connection_error = 'Matt\'s words echoed: There\'s a time and place for everything! But not now.',
 		response_error = 'I\'m not sure how to answer that...'
 	},
-	remind = {
+	remind = { -- configured settings for remind.lua
 		persist = true,
 		max_length = 1000,
 		max_duration = 526000,
@@ -989,6 +994,8 @@ return {
 		'bible',
 		'pokemon_go',
 		'echo',
+		'synonym',
+		'lastfm',
 		-- place all new plugins above this line
 		'help',
 		'faces',
