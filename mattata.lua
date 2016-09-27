@@ -126,7 +126,7 @@ function mattata:on_callback_receive(callback, msg, configuration)
 		else
 			output = '`' .. firstnames[math.random(#firstnames)] .. ' ' .. lastnames[math.random(#lastnames)] .. '`'
 		end
-		functions.send_reply(msg, output, true, '{"inline_keyboard":[[{"text":"Generate a new name!", "callback_data":"bandersnatch"}]]}')
+		functions.edit_message(msg.chat.id, msg.message, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new name!", "callback_data":"bandersnatch"}]]}')
 	end
 	callback.data = string.gsub(callback.data, '@'..self.info.username..' ', "")
 	local called_plugin = callback.data:match('(.*):.*')
