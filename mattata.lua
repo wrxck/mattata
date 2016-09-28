@@ -1,7 +1,7 @@
 local mattata = {}
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
-mattata.version = '2.0.3'
+mattata.version = '2.0.4'
 function mattata:init(configuration)
 	assert(configuration.bot_api_key, 'You need to enter your bot API key in to the configuration file.')
 	telegram_api = require('telegram_api').init(configuration.bot_api_key)
@@ -107,12 +107,6 @@ function mattata:on_callback_receive(callback, msg, configuration)
 		local jrnd = math.random(#jdat)
 		local output = '`' .. jdat[jrnd].nid:gsub('<p>',''):gsub('</p>',''):gsub('&amp;','&'):gsub('<em>',''):gsub('</em>',''):gsub('<strong>',''):gsub('</strong>','') .. '`'
 		functions.edit_message(msg.chat.id, msg.message_id, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new fact!", "callback_data":"fact"}]]}')
-		return
-	elseif callback.data == 'chuck' then
-		local jstr, res = HTTP.request(configuration.chuck_api)
-		local jdat = JSON.decode(jstr)
-		local output = '`' .. functions.html_escape(jdat.value.chuck) .. '`'
-		functions.edit_message(msg.chat.id, msg.message_id, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new joke!", "callback_data":"chuck"}]]}')
 		return
 	elseif callback.data == 'bandersnatch' then
 		local output = ''
