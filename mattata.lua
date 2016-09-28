@@ -1,7 +1,7 @@
 local mattata = {}
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
-mattata.version = '2.0.4'
+mattata.version = '2.0.5'
 function mattata:init(configuration)
 	assert(configuration.bot_api_key, 'You need to enter your bot API key in to the configuration file.')
 	telegram_api = require('telegram_api').init(configuration.bot_api_key)
@@ -11,7 +11,7 @@ function mattata:init(configuration)
 		self.info = telegram_api.getMe()
 	until self.info
 	self.info = self.info.result
-	self.database_name = self.info.username .. '.db'
+	self.database_name = 'mattata.db'
 	self.database = functions.load_data(self.database_name)
 	self.database.users = self.database.users or {}
 	self.database.userdata = self.database.userdata or {}
@@ -91,7 +91,7 @@ function mattata:on_msg_receive(msg, configuration)
 end
 function mattata:on_callback_receive(callback, msg, configuration)
 	if msg.date < os.time() - 1800 then
-		functions.answer_callback_query(callback, 'That message is too old, please try again.', true)
+		functions.answer_callback_query(callback, 'WELP! That message is too old, please try again.', true)
 		return
 	end
 	if callback.data == 'randomword' then

@@ -1,6 +1,6 @@
 #!/bin/sh
 luaver="5.3"
-rocklist="luasocket luasec multipart-post lpeg dkjson luautf8 redis-lua fakeredis ltn12"
+rocklist="luasocket luasec lpeg dkjson luautf8 redis-lua fakeredis ltn12"
 echo "This script is intended for Ubuntu. It may work in Debian."
 echo "This script will request root privileges to install the following packages:"
 echo "lua$luaver liblua$luaver-dev git libssl-dev fortune-mod fortunes unzip make"
@@ -20,6 +20,6 @@ for rock in $rocklist; do
 	sudo luarocks-$luaver install $rock
 done
 sudo -k
-cd ..
+cd ../
 echo "Finished. Use ./launch to start your copy of mattata."
 echo "Be sure to set your bot token and any other necessary values in configuration.lua."
