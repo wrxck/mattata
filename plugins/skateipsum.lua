@@ -14,9 +14,9 @@ function skateipsum:action(msg, configuration)
 		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
 		return
 	else
-		jstr = JSON.decode(url)
-		jdat = jstr[1]
-		functions.send_reply(msg, '`' .. jdat '`', true)
+		jdat = JSON.decode(jstr)
+		output = jdat[1]
+		functions.send_reply(msg, '`' .. output .. '`', true)
 		return
 	end
 end

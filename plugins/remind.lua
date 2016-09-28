@@ -25,9 +25,9 @@ function remind:action(msg, configuration)
 	end
 	local message
 	if msg.reply_to_message and #msg.reply_to_message.text > 0 then
-		message = msg.reply_to_message.text
+		message = msg.reply_to_message.text .. ' @' .. msg.reply_to_message.from.username
 	elseif functions.input(input) then
-		message = functions.input(input)
+		message = functions.input(input) .. ' @' .. msg.from.username
 	else
 		functions.send_reply(msg, remind.doc, true)
 		return
@@ -61,7 +61,7 @@ function remind:cron(configuration)
 	for chat_id, group in pairs(self.database.reminders) do
 		for k, reminder in pairs(group) do
 			if time > reminder.time then
-				local output = functions.style.enquote('Reminder', reminder.message)
+				local output = 'Reminder: ' .. reminder.message
 				local res = functions.send_message(chat_id, output, true, nil, true)
 				if res or not configuration.remind.persist then
 					group[k] = nil
@@ -70,5 +70,4 @@ function remind:cron(configuration)
 		end
 	end
 end
-
 return remind
