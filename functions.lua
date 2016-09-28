@@ -705,10 +705,7 @@ function functions.abort_inline_query(inline_query)
 		is_personal = true
 	} )
 end
-function functions.with_http_timeout(timeout, fun)
-	local original = HTTP.TIMEOUT
-	HTTP.TIMEOUT = timeout
-	fun()
-	HTTP.TIMEOUT = original
+functions.style.enquote = function(title, body)
+    return '*' .. title:gsub('*', '\\*') .. ':*\n"' .. functions.md_escape(body) .. '"'
 end
 return functions
