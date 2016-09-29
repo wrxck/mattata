@@ -31,7 +31,7 @@ function control:action(msg, configuration)
 		functions.send_reply(msg, '*mattata is rebooting...*', true)
 	elseif msg.text_lower:match('^'..command_prefix..'shutdown') then
 		self.is_started = false
-		functions.send_reply(msg, '*mattata is shutting down...*')
+		functions.send_reply(msg, '*mattata is shutting down...*', true)
 	elseif msg.text_lower:match('^'..command_prefix..'script') then
 		local input = msg.text_lower:match('^'..command_prefix..'script\n(.+)')
 		if not input then
