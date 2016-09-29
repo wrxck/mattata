@@ -18,8 +18,8 @@ function pwgen:action(msg, configuration)
 		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
 		return
 	else
-		jdat = JSON.decode(pw)
-		functions.send_reply(msg, '*Password:* `' .. functions.md_escape(jstr[1].password) .. '`\n*Phonetic:* `' .. functions.md_escape(jstr[1].phonetic) .. '`', true)
+		jdat = JSON.decode(jstr)
+		functions.send_reply(msg, '*Password:* `' .. functions.md_escape(jdat[1].password) .. '`\n*Phonetic:* `' .. functions.md_escape(jdat[1].phonetic) .. '`', true)
 		return
 	end
 end
