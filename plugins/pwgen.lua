@@ -22,7 +22,7 @@ function pwgen:action(msg, configuration)
 				return
 			else
 				local jdat = JSON.decode(jstr)
-				functions.send_reply(msg, '*Password:* `' .. functions.md_escape(jstr[1].password) .. '`\n*Phonetic:* `' .. functions.md_escape(jstr[1].phonetic) .. '`', true)
+				functions.send_reply(msg, '*Password:* `' .. functions.md_escape(jdat[1].password) .. '`\n*Phonetic:* `' .. functions.md_escape(jdat[1].phonetic) .. '`', true)
 				return
 			end
 		else
