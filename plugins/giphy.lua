@@ -5,10 +5,9 @@ function giphy:init(configuration)
 	giphy.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('gif', true).table
 	giphy.inline_triggers = giphy.triggers
 end
-function giphy:inline_callback(inline_query, configuration, matches)
-	local input = inline_query.query:gsub('/gif ', '')
-	local url = HTTPS.request('https://api.giphy.com/v1/gifs/search?q='..URL.escape(input)..'&api_key=dc6zaTOxFJmzC')
-	local jdat = JSON.decode(url)
+function giphy:inline_callback(inline_query, configuration)
+	local jstr = HTTPS.request('https://api.giphy.com/v1/gifs/search?q=' .. inline_query.query:gsub('/gif ', '') .. '&api_key=dc6zaTOxFJmzC')
+	local jdat = JSON.decode(jstr)
 	local results = '['
 	local id = 50
 	for n in pairs(jdat.data) do
