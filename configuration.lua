@@ -6,74 +6,94 @@ return {
 	muted_users = {},
 	about_text = 'Hello, my name is mattata. I\'m a multi-purpose Telegram bot you can confidently rely on.\nTo get started, just send /help.\n',
  	command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
-	cats_key = '', -- you can get one of these by heading to http://thecatapi.com/api-key-registration.html
-	translate_key = '', -- you can get one of these by heading to https://tech.yandex.com/keys/get/?service=trnsl
-	lyrics_key = '',
-	canitrust_key = '',
-	apod_key = '',
-	bible_key = '',
-	synonym_key = '',
-	lastfm_key = '',
-	cats_api = 'http://thecatapi.com/api/images/get?format=html&type=jpg', -- the API URL for cats.lua
-	baconipsum_api = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text', -- the API URL for baconipsum.lua
-	calc_api = 'https://api.mathjs.org/v1/?expr=', -- the API URL for calc.lua
-	catfact_api = 'http://catfacts-api.appspot.com/api/facts', -- the API URL for catfact.lua
-	chuck_api = 'http://api.icndb.com/jokes/random', -- the API URL for chuck.lua
-	currency_api = 'https://www.google.com/finance/converter', -- the API URL for currency.lua
-	fact_api = 'http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000', -- the API URL for fact.lua
-	imdb_api = 'http://www.omdbapi.com/?t=', -- the API URL for imdb.lua
-	loremipsum_api = 'http://loripsum.net/api/1/medium/plaintext', -- the API URL for loremipsum.lua
-	starwars_api = 'http://swapi.co/api/films/', -- the API URL for starwars.lua
-	skateipsum_api = 'http://skateipsum.com/get/1/1/JSON', -- the API URL for skateipsum.lua
-	guidgen_api = 'http://www.passwordrandom.com/query?command=guid&format=json&count=1', -- the API URL for guidgen.lua
-	pwgen_api = 'http://passwordwolf.com/api?length=', -- the API URL for pwgen.lua
-	yomama_api = 'http://api.yomomma.info/', -- the API URL for yomama.lua
-	ninegag_api = 'http://api-9gag.herokuapp.com/', -- the API URL for 9gag.lua
-	lyrics_api = 'https://api.musixmatch.com/ws/1.1/', -- the API URL for lyrics.lua
-	mcmigrated_api = 'https://eu.mc-api.net/v3/migrated/', -- the API URL for mcmigrated.lua
-	randomword_api = 'http://www.setgetgo.com/randomword/get.php', -- the API URL for randomword.lua
-	translate_api = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=', -- the API URL for translate.lua
-	urbandictionary_api = 'http://api.urbandictionary.com/v0/define?term=', -- the API URL for urbandictionary.lua
-	yeoldinsult_api = 'http://quandyfactory.com/insult/json', -- the API URL for yeoldinsult.lua
-	canitrust_api = 'https://api.mywot.com/0.4/public_link_json2?hosts=', -- the API URL for canitrust.lua
-	mcuuid_api = 'http://mcapi.ca/uuid/player/', -- the API URL for mcuuid.lua
-	mchistory_uuid_api = 'https://api.mojang.com/users/profiles/minecraft/', -- the API URL for mchistory.lua
-	mchistory_api = 'https://api.mojang.com/user/profiles/', -- the API URL for mchistory.lua
-	ispwned_api = 'https://haveibeenpwned.com/api/v2/breachedaccount/', -- the API URL for ispwned.lua
-	qotd_api = 'http://quotes.rest/qod.json', -- the API URL for qotd.lua
-	ass_api = 'http://api.obutts.ru/noise/1', -- the API URL for ass.lua
-	apod_api = 'https://api.nasa.gov/planetary/apod?api_key=', -- the API URL for apod.lua
-	identicon_api = 'http://identicon.rmhdev.net/', -- the API URL for identicon.lua
-	mcface_uuid_api = 'https://api.mojang.com/users/profiles/minecraft/', -- the API URL for mcface.lua
-	mcface_api = 'https://tntup.me/avatar/', -- the API URL for mcface.lua
-	qrgen_api = 'http://chart.apis.google.com/chart?cht=qr&chs=500x500&chl=', -- the API URL for qrgen.lua
-	itunes_api = 'https://itunes.apple.com/search?term=', -- the API URL for itunes.lua
-	itunes_album_artwork_api = 'https://itunes.apple.com/search?term=', -- the API URL for itunes_album_artwork.lua
-	bible_asv_api = 'http://api.biblia.com/v1/bible/content/ASV.txt?key=', -- the API URL for bible.lua
-	bible_kjv_api = 'http://api.biblia.com/v1/bible/content/KJVAPOC.txt?key=', -- the API URL for bible.lua
-	synonym_api = 'https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=', -- the API URL for define.lua
-	bing_api = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/Web?Query=\'%s\'&$format=json', -- the API URL for bing.lua
-	lastfm_api = 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&format=json&limit=1&api_key=', -- the API URL for lastfm.lua
-	errors = { -- configured error messages for use throughout all plugins
+	keys = {
+		cats = '',
+		translate = '',
+		lyrics = '',
+		canitrust = '',
+		apod = '',
+		bible = '',
+		synonym = '',
+		lastfm = ''
+	},
+	apis = {
+		cats = 'http://thecatapi.com/api/images/get?format=html&type=jpg',
+		baconipsum = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text',
+		calc = 'https://api.mathjs.org/v1/?expr=',
+		catfact = 'http://catfacts-api.appspot.com/api/facts',
+		chuck = 'http://api.icndb.com/jokes/random',
+		currency = 'https://www.google.com/finance/converter',
+		fact = 'http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000',
+		imdb = 'http://www.omdbapi.com/?t=',
+		loremipsum = 'http://loripsum.net/api/1/medium/plaintext',
+		starwars = 'http://swapi.co/api/films/',
+		skateipsum = 'http://skateipsum.com/get/1/1/JSON',
+		guidgen = 'http://www.passwordrandom.com/query?command=guid&format=json&count=1',
+		pwgen = 'http://passwordwolf.com/api?length=',
+		yomama = 'http://api.yomomma.info/',
+		ninegag = 'http://api-9gag.herokuapp.com/',
+		lyrics = 'https://api.musixmatch.com/ws/1.1/',
+		mcmigrated = 'https://eu.mc-api.net/v3/migrated/',
+		randomword = 'http://www.setgetgo.com/randomword/get.php',
+		translate = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=',
+		urbandictionary = 'http://api.urbandictionary.com/v0/define?term=',
+		yeoldinsult = 'http://quandyfactory.com/insult/json',
+		canitrust = 'https://api.mywot.com/0.4/public_link_json2?hosts=',
+		mcuuid = 'http://mcapi.ca/uuid/player/',
+		mchistory = {
+			uuid = 'https://api.mojang.com/users/profiles/minecraft/',
+			history = 'https://api.mojang.com/user/profiles/'
+		},
+		ispwned_api = 'https://haveibeenpwned.com/api/v2/breachedaccount/',
+		qotd_api = 'http://quotes.rest/qod.json',
+		ass_api = 'http://api.obutts.ru/noise/1',
+		apod = 'https://api.nasa.gov/planetary/apod?api_key=',
+		identicon = 'http://identicon.rmhdev.net/',
+		mcface = {
+			uuid = 'https://api.mojang.com/users/profiles/minecraft/',
+			avatar = 'https://tntup.me/avatar/'
+		},
+		qrgen = 'http://chart.apis.google.com/chart?cht=qr&chs=500x500&chl=',
+		itunes = 'https://itunes.apple.com/search?term=',
+		ass = {
+			media = 'http://media.obutts.ru/',
+			get = 'http://api.obutts.ru/butts/get/'
+		},
+		bible = 'http://api.biblia.com/v1/bible/content/ASV.txt?key=',
+		synonym = 'https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=',
+		bing = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/Web?Query=\'%s\'&$format=json',
+		lastfm = 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&format=json&limit=1&api_key=',
+		github = 'https://api.github.com/repos/',
+		time = 'http://www.timeapi.org/utc/',
+		minecraft = 'http://api.syfaro.net/server/status?ip=',
+		giphy = 'https://api.giphy.com/v1/gifs/search?q=',
+		hackernews = {
+			topstories = 'https://hacker-news.firebaseio.com/v0/topstories.json',
+			res = 'https://hacker-news.firebaseio.com/v0/item/%s.json',
+			art = 'https://news.ycombinator.com/item?id=%s'
+		},
+		pokedex = 'http://pokeapi.co/api/v1/pokemon/'
+	},
+	errors = {
 		generic = 'WELP. I\'m afraid an error has occured!',
 		connection = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
 		results = 'I\'m sorry, but I couldn\'t find any results for that.',
 		argument = 'I\'m sorry, but the arguments you gave were either invalid or non-existent. Please try again',
 		syntax = 'Syntax error. Please try again.',
 	},
-	messaging = { -- configured settings for messaging.lua
+	messaging = {
 		url = 'https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=',
 		connection_error = 'Matt\'s words echoed: There\'s a time and place for everything! But not now.',
 		response_error = 'I\'m not sure how to answer that...'
 	},
-	remind = { -- configured settings for remind.lua
+	remind = {
 		persist = true,
 		max_length = 1000,
 		max_duration = 526000,
 		max_reminders_group = 10,
 		max_reminders_private = 50
 	},
-	bandersnatch_full_names = { -- full names configured for plugins/bandersnatch.lua to use
+	bandersnatch_full_names = {
 		'Wimbledon Tennismatch',
 		'Rinkydink Curdlesnoot',
 		'Butawhiteboy Cantbekhan',
@@ -85,7 +105,7 @@ return {
 		'Buckminster Fullerene',
 		'Bourgeoisie Capitalist'
 	},
-	bandersnatch_first_names = { -- first names configured for plugins/bandersnatch.lua to use
+	bandersnatch_first_names = {
 		'Bumblebee',
 		'Bandersnatch',
 		'Broccoli',
@@ -167,7 +187,7 @@ return {
 		'Buckingham',
 		'Barnoldswick'
 	},
-	bandersnatch_last_names = { -- last names configured for plugins/bandersnatch.lua to use
+	bandersnatch_last_names = {
 		'Coddleswort',
 		'Crumplesack',
 		'Curdlesnoot',
@@ -252,7 +272,7 @@ return {
 		'Coochierash',
 		'Thundersnatch'
 	},
-	slaps = { -- slaps configured for plugins/slap.lua to use
+	slaps = {
 		'VICTIM was shot by VICTOR.',
 		'VICTIM was pricked to death.',
 		'VICTIM walked into a cactus while trying to escape VICTOR.',
@@ -347,7 +367,7 @@ return {
 		'\'VICTIM was a mistake.\' - VICTOR',
 		'VICTOR checkmated VICTIM in two moves.'
 	},
-	puns = { -- puns configured for plugins/puns.lua to use
+	puns = {
 		'The person who invented the door-knock won the No-bell prize.',
 		'I couldn\'t work out how to fasten my seatbelt. Then it clicked.',
 		'Never trust atoms; they make up everything.',
@@ -472,7 +492,7 @@ return {
 		'A sea lion is nothing but an ionized seal.',
 		'The vegetables from my garden aren\'t that great. I guess you could say they\'re mediokra.'
 	},
-	eightball_answers = { -- eightball responses configured for eightball.lua
+	eightball_answers = {
 		'It is certain.',
 		'It has been confirmed.',
 		'Without any doubts.',
@@ -495,7 +515,7 @@ return {
 		'Very doubtful.',
 		'Rowan\'s voice echoes: There is a time and place for everything, but not now.'
 	},
-	eightball_yes_no_answers = { -- simple variants of the eightball responses configured for eightball.lua
+	eightball_yes_no_answers = {
 		'Absolutely.',
 		'In your dreams.',
 		'Yes.',
@@ -503,7 +523,7 @@ return {
 		'It is likely so.',
 		'Never!'
 	},
-	faces = { -- expressive-emoticon commands configured for faces.lua
+	faces = {
 		['shrug'] = '¯\\_(ツ)_/¯',
 		['lenny'] = '( ͡° ͜ʖ ͡°)',
 		['flip'] = '(╯°□°）╯︵ ┻━┻',
@@ -511,7 +531,7 @@ return {
 		['shots'] = 'SHOTS FIRED',
 		['facepalm'] = '(－‸ლ)'
 	},
-	commits = { -- commit messages configured for commit.lua
+	commits = {
 		'One does not simply merge into master',
 		'Merging the merge',
 		'Another bug bites the dust',

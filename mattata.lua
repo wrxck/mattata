@@ -1,13 +1,13 @@
 local mattata = {}
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
-mattata.version = '2.1'
+mattata.version = '2.2'
 function mattata:init(configuration)
 	assert(configuration.bot_api_key, 'You need to enter your bot API key in to the configuration file.')
 	telegram_api = require('telegram_api').init(configuration.bot_api_key)
 	functions = require('functions')
 	repeat
-		print('Fetching mattata\'s information...')
+		print('mattata is initialising...')
 		self.info = telegram_api.getMe()
 	until self.info
 	self.info = self.info.result
@@ -19,13 +19,13 @@ function mattata:init(configuration)
 	self.database.users[tostring(self.info.id)] = self.info
 	self.plugins = {}
 	for k,v in pairs(configuration.plugins) do
-		local plugin = require('plugins.'..v)
+		local plugin = require('plugins.' .. v)
 		table.insert(self.plugins, plugin)
 		if plugin.init then
 			plugin.init(self, configuration)
 		end
-		if plugin.doc then
-			plugin.doc = '```\n' .. plugin.doc .. '\n```'
+		if plugin.documentation then
+			plugin.documentation = '\n' .. plugin.documentation .. '\n'
 		end
 		if not plugin.triggers then
 			plugin.triggers = {}
@@ -34,7 +34,7 @@ function mattata:init(configuration)
 			plugin.inline_triggers = {}
 		end
 	end
-	print('mattata has initialised successfully!')
+	print('Successfully started mattata!')
 	self.last_update = self.last_update or 0
 	self.last_cron = self.last_cron or os.date('%M')
 	self.last_database_save = self.last_database_save or os.date('%H')
@@ -44,7 +44,7 @@ function mattata:on_msg_receive(msg, configuration)
 	if msg.date < os.time() - 5 then
 		return
 	end
-	local plugint = self.plugins
+	local plugin_triggers = self.plugins
 	local from_id_str = tostring(msg.from.id)
 	self.database.users[from_id_str] = msg.from
 	if msg.reply_to_message then
@@ -66,7 +66,7 @@ function mattata:on_msg_receive(msg, configuration)
 	if is_service_msg(msg) then
 	  msg = service_modify_msg(msg)
 	end
-	for _, plugin in ipairs(plugint) do
+	for _, plugin in ipairs(plugin_triggers) do
 		for _, trigger in ipairs(plugin.triggers) do
 			if string.match(msg.text_lower, trigger) then
 				local success, result = pcall(function()
@@ -95,18 +95,17 @@ function mattata:on_callback_receive(callback, msg, configuration)
 		return
 	end
 	if callback.data == 'randomword' then
-		functions.edit_message(msg.chat.id, msg.message_id, '*Your random word is:* `' .. HTTP.request(configuration.randomword_api) .. '`', true, true, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
+		functions.edit_message(msg.chat.id, msg.message_id, '*Your random word is:* ' .. HTTP.request(configuration.randomword_api), true, true, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
 		return
 	elseif callback.data == 'pun' then
 		local puns = configuration.puns
-		functions.edit_message(msg.chat.id, msg.message_id, '`' .. puns[math.random(#puns)] .. '`', true, true, '{"inline_keyboard":[[{"text":"Generate a new pun!", "callback_data":"pun"}]]}')
+		functions.edit_message(msg.chat.id, msg.message_id, puns[math.random(#puns)], true, true, '{"inline_keyboard":[[{"text":"Generate a new pun!", "callback_data":"pun"}]]}')
 		return
 	elseif callback.data == 'fact' then
 		local jstr, res = HTTP.request(configuration.fact_api)
 		local jdat = JSON.decode(jstr)
 		local jrnd = math.random(#jdat)
-		local output = '`' .. jdat[jrnd].nid:gsub('<p>',''):gsub('</p>',''):gsub('&amp;','&'):gsub('<em>',''):gsub('</em>',''):gsub('<strong>',''):gsub('</strong>','') .. '`'
-		functions.edit_message(msg.chat.id, msg.message_id, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new fact!", "callback_data":"fact"}]]}')
+		functions.edit_message(msg.chat.id, msg.message_id, jdat[jrnd].nid:gsub('<p>',''):gsub('</p>',''):gsub('&amp;','&'):gsub('<em>',''):gsub('</em>',''):gsub('<strong>',''):gsub('</strong>',''), true, true, '{"inline_keyboard":[[{"text":"Generate a new fact!", "callback_data":"fact"}]]}')
 		return
 	elseif callback.data == 'bandersnatch' then
 		local output = ''
@@ -114,11 +113,11 @@ function mattata:on_callback_receive(callback, msg, configuration)
 		local firstnames = configuration.bandersnatch_first_names
 		local lastnames = configuration.bandersnatch_last_names
 		if math.random(10) == 10 then
-			output = '`' .. fullnames[math.random(#fullnames)] .. '`'
+			output = fullnames[math.random(#fullnames)]
 		else
-			output = '`' .. firstnames[math.random(#firstnames)] .. ' ' .. lastnames[math.random(#lastnames)] .. '`'
+			output = firstnames[math.random(#firstnames)] .. ' ' .. lastnames[math.random(#lastnames)]
 		end
-		functions.edit_message(msg.chat.id, msg.message, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new name!", "callback_data":"bandersnatch"}]]}')
+		functions.edit_message(msg.chat.id, msg.message_id, output, true, true, '{"inline_keyboard":[[{"text":"Generate a new name!", "callback_data":"bandersnatch"}]]}')
 		return
 	end
 	callback.data = string.gsub(callback.data, '@' .. self.info.username .. ' ', "")
@@ -138,8 +137,8 @@ function mattata:process_inline_query(inline_query, configuration)
 		functions.abort_inline_query(inline_query)
 		return
 	end
-	local plugint = self.plugins
-	for _, plugin in ipairs(plugint) do
+	local plugin_triggers = self.plugins
+	for _, plugin in ipairs(plugin_triggers) do
 		for _, trigger in ipairs(plugin.inline_triggers) do
 			if string.match(inline_query.query, trigger) then
 				local success, result = pcall(function()

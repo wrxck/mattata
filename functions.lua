@@ -183,12 +183,6 @@ function functions.send_venue(chat_id, latitude, longitude, reply_to_message_id,
 		reply_to_message_id = reply_to_message_id
 	} )
 end
-function functions.send_action(chat_id, action)
-	return telegram_api.request('sendChatAction', {
-		chat_id = chat_id,
-		action = action
-	} )
-end
 function functions.answer_callback_query(callback, text, show_alert)
 	return telegram_api.request('answerCallbackQuery', {
 		callback_query_id = callback.id,
@@ -235,7 +229,7 @@ function string:isempty()
 	self = functions.trim(self)
 	return self == nil or self == ''
 end
-function get_name(msg)
+function functions.get_name(msg)
 	local name = ''
 	if msg.from.last_name then
 		name = msg.from.first_name .. ' ' .. msg.from.last_name
