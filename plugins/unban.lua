@@ -10,7 +10,7 @@ function unban:action(msg, configuration)
 			functions.unban_chat_member(msg.chat.id, msg.reply_to_message.from.id)
 			return
 		else
-			functions.send_reply(msg, '`Please reply to a message sent by the user you\'d like to unban.`', true)
+			functions.send_reply(msg, 'Please reply to a message sent by the user you\'d like to unban.')
 			return
 		end
 	else

@@ -6,19 +6,19 @@ function giphy:init(configuration)
 	giphy.inline_triggers = giphy.triggers
 end
 function giphy:inline_callback(inline_query, configuration)
-	local jstr = HTTPS.request('https://api.giphy.com/v1/gifs/search?q=' .. inline_query.query:gsub('/gif ', '') .. '&api_key=dc6zaTOxFJmzC')
+	local jstr = HTTPS.request(configuration.apis.giphy .. inline_query.query:gsub('/gif ', '') .. '&api_key=dc6zaTOxFJmzC')
 	local jdat = JSON.decode(jstr)
 	local results = '['
 	local id = 50
 	for n in pairs(jdat.data) do
-		results = results..'{"type":"mpeg4_gif","id":"'..id..'","mpeg4_url":"'..jdat.data[n].images.original.mp4..'","thumb_url":"'..jdat.data[n].images.fixed_height.url..'","mpeg4_width":'..jdat.data[n].images.original.width..',"mp4_height":'..jdat.data[n].images.original.height..'}'
+		results = results .. '{"type":"mpeg4_gif","id":"' .. id .. '","mpeg4_url":"' .. jdat.data[n].images.original.mp4 .. '","thumb_url":"' .. jdat.data[n].images.fixed_height.url .. '","mpeg4_width":' .. jdat.data[n].images.original.width .. ',"mp4_height":' .. jdat.data[n].images.original.height .. '}'
 		id = id + 1
 		if n < #jdat.data then
-			results = results..','
+			results = results .. ','
 		end
 	end
-	local results = results..']'
-	functions.answer_inline_query(inline_query, results, 3600)
+	local results = results .. ']'
+	functions.answer_inline_query(inline_query, results, 50)
 end
 function giphy:action()
 end

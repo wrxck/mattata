@@ -3,7 +3,7 @@ local functions = require('functions')
 function slap:init(configuration)
 	slap.command = 'slap (target)'
 	slap.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('slap', true).table
-	slap.doc = configuration.command_prefix .. 'slap (target) - Slap somebody (or something).'
+	slap.documentation = configuration.command_prefix .. 'slap (target) - Slap somebody (or something).'
 end
 function slap:action(msg, configuration)
 	local slaps = configuration.slaps
@@ -55,7 +55,6 @@ function slap:action(msg, configuration)
 	else
 		victor_name = self.info.first_name
 	end
-	local output = functions.char.zwnj .. slaps[math.random(#slaps)]:gsub('VICTIM', victim_name):gsub('VICTOR', victor_name)
-	functions.send_reply(msg, '`' .. output .. '`', true)
+	functions.send_reply(msg, functions.char.zwnj .. slaps[math.random(#slaps)]:gsub('VICTIM', victim_name):gsub('VICTOR', victor_name))
 end
 return slap

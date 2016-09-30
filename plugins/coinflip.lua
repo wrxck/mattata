@@ -3,7 +3,7 @@ local functions = require('functions')
 function coinflip:init(configuration)
 	coinflip.command = 'coinflip (guess)'
 	coinflip.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('coinflip', true):t('cf', true).table
-	coinflip.doc = configuration.command_prefix .. 'coinflip (guess) - Flips a coin and returns the result! If no arguments are given, the result of a random coin flip is returned; if, however, an argument is given, the result of the random coin flip tests against your guess and returns the result and whether your guess was correct. Alias: ' .. configuration.command_prefix .. 'cf'
+	coinflip.documentation = configuration.command_prefix .. 'coinflip (guess) - Flips a coin and returns the result! If no arguments are given, the result of a random coin flip is returned; if, however, an argument is given, the result of the random coin flip tests against your guess and returns the result and whether your guess was correct. Alias: ' .. configuration.command_prefix .. 'cf.'
 end
 function coinflip:action(msg)
 	local input = functions.input(msg.text)

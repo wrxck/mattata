@@ -6,23 +6,23 @@ local functions = require('functions')
 function urbandictionary:init(configuration)
 	urbandictionary.command = 'urbandictionary <query>'
 	urbandictionary.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('urbandictionary', true):t('ud', true):t('urban', true).table
-	urbandictionary.doc = configuration.command_prefix .. 'urbandictionary <query> - Defines the given word. Urban style. Aliases: ' .. configuration.command_prefix .. 'ud, ' .. configuration.command_prefix .. 'urban'
+	urbandictionary.documentation = configuration.command_prefix .. 'urbandictionary <query> - Defines the given word. Urban style. Aliases: ' .. configuration.command_prefix .. 'ud, ' .. configuration.command_prefix .. 'urban.'
 end
 function urbandictionary:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(msg, urbandictionary.doc, true)
+		functions.send_reply(msg, urbandictionary.documentation)
 		return
 	end
-	local url = configuration.urbandictionary_api .. URL.escape(input)
+	local url = configuration.apis.urbandictionary .. URL.escape(input)
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
-		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+		functions.send_reply(msg, configuration.errors.connection)
 		return
 	else
 		local jdat = JSON.decode(jstr)
 		if jdat.result_type == "no_results" then
-			functions.send_reply(msg, '`' .. configuration.errors.results .. '`', true)
+			functions.send_reply(msg, configuration.errors.results)
 			return
 		end
 		local output = '*' .. jdat.list[1].word .. '*\n\n' .. functions.trim(jdat.list[1].definition)

@@ -4,16 +4,16 @@ local functions = require('functions')
 function qrgen:init(configuration)
 	qrgen.command = 'qrgen <string>'
 	qrgen.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('qrgen', true).table
-	qrgen.doc = configuration.command_prefix .. 'qrgen - Converts the given string to an QR code.'
+	qrgen.documentation = configuration.command_prefix .. 'qrgen - Converts the given string to an QR code.'
 end
 function qrgen:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(msg, qrgen.doc, true)
+		functions.send_reply(msg, qrgen.documentation)
 		return
 	end
-	local str = configuration.qrgen_api .. URL.escape(input) .. '&chld=H|0'
-	functions.send_action(msg.from.id, 'upload_photo')
+	local str = configuration.apis.qrgen .. URL.escape(input) .. '&chld=H|0'
+	telegram_api.sendChatAction{ chat_id = msg.from.id, action = 'upload_photo' }
 	local res = functions.send_photo(msg.from.id, functions.download_to_file(str,  math.random(5000) .. '.png'), 'Here is your string, \'' .. input .. '\' - as a QR code.')
 	if not res then
 		if msg.chat.type ~= 'private' then
@@ -21,7 +21,7 @@ function qrgen:action(msg, configuration)
 			return
 		end
 	elseif msg.chat.type ~= 'private' then
-		functions.send_reply(msg, '`I sent you your QR code via private message.`', true)
+		functions.send_reply(msg, 'I have sent you your QR code via a private message.')
 		return
 	end
 end

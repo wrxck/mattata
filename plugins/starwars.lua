@@ -1,12 +1,12 @@
 local starwars = {}
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
-local telegram_api = require('telegram_api')
 local functions = require('functions')
+local telegram_api = require('telegram_api')
 function starwars:init(configuration)
 	starwars.command = 'starwars <query>'
 	starwars.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('starwars', true):t('sw', true).table
-	starwars.doc = configuration.command_prefix .. 'starwars <query> - Returns the opening crawl from the specified Star Wars film. Alias:' .. configuration.command_prefix .. 'sw.'
+	starwars.documentation = configuration.command_prefix .. 'starwars <query> - Returns the opening crawl from the specified Star Wars film. Alias: ' .. configuration.command_prefix .. 'sw.'
 end
 local films_by_number = {
 	['phantom menace'] = 4,
@@ -27,16 +27,11 @@ local corrected_numbers = {
 	7
 }
 function starwars:action(msg, configuration)
-	local input = functions.input(msg.text_lower)
+	local input = functions.input(msg.text)
 	if not input then
-		if msg.reply_to_message and msg.reply_to_message.text then
-			input = msg.reply_to_message.text
-		else
-			functions.send_reply(msg, starwars.doc, true)
-			return
-		end
+		functions.send_reply(msg, starwars.documentation)
+		return
 	end
-	telegram_api.sendChatAction(self, { chat_id = msg.chat.id, action = 'typing' } )
 	local film
 	if tonumber(input) then
 		input = tonumber(input)
@@ -55,13 +50,14 @@ function starwars:action(msg, configuration)
 		functions.send_reply(msg, configuration.errors.results)
 		return
 	end
-	local url = configuration.starwars_api .. film
-	local jstr, code = HTTP.request(url)
-	if code ~= 200 then
+	local jstr, res = HTTP.request(configuration.apis.starwars .. film)
+	if res ~= 200 then
 		functions.send_reply(msg, configuration.errors.connection)
 		return
 	end
-	local output = '*' .. JSON.decode(jstr).opening_crawl .. '*'
-	functions.send_reply(msg, output, true)
+	local jdat = JSON.decode(jstr)
+	local output = jdat.opening_crawl
+	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
+	functions.send_reply(msg, output)
 end
 return starwars

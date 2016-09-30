@@ -6,7 +6,7 @@ local functions = require('functions')
 function wikipedia:init(configuration)
 	wikipedia.command = 'wikipedia <query>'
 	wikipedia.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('wikipedia', true):t('wiki', true):t('w', true).table
-	wikipedia.doc = configuration.command_prefix .. 'wikipedia <query> - Returns an article from Wikipedia. Aliases: ' .. configuration.command_prefix .. 'w, ' .. configuration.command_prefix .. 'wiki.'
+	wikipedia.documentation = configuration.command_prefix .. 'wikipedia <query> - Returns an article from Wikipedia. Aliases: ' .. configuration.command_prefix .. 'w, ' .. configuration.command_prefix .. 'wiki.'
 end
 local get_title = function(search)
 	for _,v in ipairs(search) do
@@ -19,14 +19,11 @@ end
 function wikipedia:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		if msg.reply_to_message and msg.reply_to_message.text then
-			input = msg.reply_to_message.text
-		else
-			functions.send_message(msg.chat.id, wikipedia.doc, true, msg.message_id, true)
-			return
-		end
+		functions.send_reply(msg, wikipedia.documentation)
+		return
+	else
+		input = input:gsub('#', ' sharp')
 	end
-	input = input:gsub('#', ' sharp')
 	local jstr, res, jdat
 	local search_url = 'http://en.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch='
 	jstr, res = HTTPS.request(search_url .. URL.escape(input))

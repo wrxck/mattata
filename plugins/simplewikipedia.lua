@@ -6,10 +6,10 @@ local functions = require('functions')
 function simplewikipedia:init(configuration)
 	simplewikipedia.command = 'simplewikipedia <query>'
 	simplewikipedia.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('simplewikipedia', true):t('sw', true):t('swiki', true).table
-	simplewikipedia.doc = configuration.command_prefix .. 'simplewikipedia <query> - Returns an article from Simple Wikipedia. Aliases: ' .. configuration.command_prefix .. 'sw, ' .. configuration.command_prefix .. 'swiki.'
+	simplewikipedia.documentation = configuration.command_prefix .. 'simplewikipedia <query> - Returns an article from Simple Wikipedia. Aliases: ' .. configuration.command_prefix .. 'sw, ' .. configuration.command_prefix .. 'swiki.'
 end
 local get_title = function(search)
-	for _,v in ipairs(search) do
+	for _, v in ipairs(search) do
 		if not v.snippet:match('may refer to:') then
 			return v.title
 		end
@@ -19,12 +19,8 @@ end
 function simplewikipedia:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		if msg.reply_to_message and msg.reply_to_message.text then
-			input = msg.reply_to_message.text
-		else
-			functions.send_message(msg.chat.id, simplewikipedia.doc, true, msg.message_id, true)
-			return
-		end
+		functions.send_reply(msg, simplewikipedia.documentation)
+		return
 	end
 	input = input:gsub('#', ' sharp')
 	local jstr, res, jdat

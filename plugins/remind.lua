@@ -1,21 +1,21 @@
 local remind = {}
 local functions = require('functions')
-remind.command = 'remind <duration> <message>'
 function remind:init(configuration)
 	self.database.reminders = self.database.reminders or {}
+	remind.command = 'remind <duration> <message>'
 	remind.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('remind', true).table
-	remind.doc = configuration.command_prefix .. 'remind <duration> <message> - Repeats a message after a duration of time, in minutes. The maximum length of a reminder is %s characters. The maximum duration of a timer is %s minutes. The maximum number of reminders for a group is %s. The maximum number of reminders in private is %s.'
-	remind.doc = remind.doc:format(configuration.remind.max_length, configuration.remind.max_duration, configuration.remind.max_reminders_group, configuration.remind.max_reminders_private)
+	remind.documentation = configuration.command_prefix .. 'remind <duration> <message> - Repeats a message after a duration of time, in minutes. The maximum length of a reminder is %s characters. The maximum duration of a timer is %s minutes. The maximum number of reminders for a group is %s. The maximum number of reminders in private is %s.'
+	remind.documentation = remind.documentation:format(configuration.remind.max_length, configuration.remind.max_duration, configuration.remind.max_reminders_group, configuration.remind.max_reminders_private)
 end
 function remind:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(msg, remind.doc, true)
+		functions.send_reply(msg, remind.documentation)
 		return
 	end
 	local duration = tonumber(functions.get_word(input, 1))
 	if not duration then
-		functions.send_reply(msg, remind.doc, true)
+		functions.send_reply(msg, remind.documentation)
 		return
 	end
 	if duration < 1 then
@@ -29,11 +29,11 @@ function remind:action(msg, configuration)
 	elseif functions.input(input) then
 		message = functions.input(input) .. ' @' .. msg.from.username
 	else
-		functions.send_reply(msg, remind.doc, true)
+		functions.send_reply(msg, remind.documentation)
 		return
 	end
 	if #message > configuration.remind.max_length then
-		functions.send_reply(msg, 'The maximum length of reminders is ' .. configuration.remind.max_length .. '.')
+		functions.send_reply(msg, 'The maximum length of reminders is ' .. configuration.remind.max_length .. '.', true)
 		return
 	end
 	local chat_id_str = tostring(msg.chat.id)
@@ -49,7 +49,7 @@ function remind:action(msg, configuration)
 			message = message
 		})
 		output = string.format(
-			'I will remind you in %s minute%s!',
+			'I will remind you in *%s* minute%s!',
 			duration,
 			duration == 1 and '' or 's'
 		)

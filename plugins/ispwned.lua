@@ -6,15 +6,15 @@ local functions = require('functions')
 function ispwned:init(configuration)
 	ispwned.command = 'ispwned <username/email>'
 	ispwned.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('ispwned', true).table
-	ispwned.doc = configuration.command_prefix .. 'ispwned <username/email> - Tells you if the given username/email has been identified in any data leaks.'
+	ispwned.documentation = configuration.command_prefix .. 'ispwned <username/email> - Tells you if the given username/email has been identified in any data leaks.'
 end
 function ispwned:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(msg, ispwned.doc, true)
+		functions.send_reply(msg, ispwned.documentation, true)
 		return
 	else
-		local jstr = HTTPS.request(configuration.ispwned_api .. input)
+		local jstr = HTTPS.request(configuration.apis.ispwned .. input)
 		local jdat = JSON.decode(jstr)
 		local _, count = string.gsub(jstr, "Title", "")
 		local output = ''

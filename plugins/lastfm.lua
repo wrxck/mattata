@@ -6,18 +6,18 @@ local functions = require('functions')
 function lastfm:init(configuration)
 	lastfm.command = 'lastfm'
 	lastfm.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('lastfm', true):t('np', true):t('fmset', true).table
-	lastfm.doc = configuration.command_prefix .. 'np (username) - Returns what you are or were last listening to. If you specify a username, info will be returned for that username.' .. configuration.command_prefix .. 'fmset <username> - Sets your last.fm username. Otherwise, ' .. configuration.command_prefix .. 'np will use your Telegram username. Use ' .. configuration.command_prefix .. 'fmset -del to delete it.'
+	lastfm.documentation = configuration.command_prefix .. 'np (username) - Returns what you are or were last listening to. If you specify a username, info will be returned for that username.' .. configuration.command_prefix .. 'fmset <username> - Sets your last.fm username. Otherwise, ' .. configuration.command_prefix .. 'np will use your Telegram username. Use ' .. configuration.command_prefix .. 'fmset -del to delete it.'
 end
 function lastfm:action(msg, configuration)
 	local input = functions.input(msg.text)
 	local from_id_str = tostring(msg.from.id)
 	self.database.userdata[from_id_str] = self.database.userdata[from_id_str] or {}
 	if string.match(msg.text, '^' .. configuration.command_prefix .. 'lastfm') then
-		functions.send_message(msg.chat.id, lastfm.doc, true, msg.message_id, true)
+		functions.send_reply(msg, lastfm.documentation)
 		return
 	elseif string.match(msg.text, '^' .. configuration.command_prefix .. 'fmset') then
 		if not input then
-			functions.send_message(msg.chat.id, lastfm.doc, true, msg.message_id, true)
+			functions.send_reply(msg, lastfm.documentation)
 		elseif input == '-del' then
 			self.database.userdata[from_id_str].lastfm = nil
 			functions.send_reply(msg, 'Your last.fm username has been forgotten.')
@@ -27,7 +27,7 @@ function lastfm:action(msg, configuration)
 		end
 		return
 	end
-	local url = configuration.lastfm_api .. configuration.lastfm_key .. '&user='
+	local url = configuration.apis.lastfm .. configuration.keys.lastfm .. '&user='
 	local username
 	local alert = ''
 	if input then
@@ -54,7 +54,7 @@ function lastfm:action(msg, configuration)
 	end
 	local jdat = JSON.decode(jstr)
 	if jdat.error then
-		functions.send_reply(msg, 'Please specify your last.fm username or set it with '..configuration.command_prefix..'fmset.')
+		functions.send_reply(msg, 'Please specify your last.fm username or set it with ' .. configuration.command_prefix .. 'fmset.')
 		return
 	end
 	jdat = jdat.recenttracks.track[1] or jdat.recenttracks.track
@@ -75,6 +75,6 @@ function lastfm:action(msg, configuration)
 		artist = jdat.artist['#text']
 	end
 	output = output .. title .. ' - ' .. artist .. alert
-	functions.send_message(msg.chat.id, output)
+	functions.send_reply(msg, output)
 end
 return lastfm

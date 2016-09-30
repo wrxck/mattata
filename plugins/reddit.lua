@@ -6,11 +6,11 @@ local functions = require('functions')
 function reddit:init(configuration)
 	reddit.command = 'reddit (r/subreddit | query)'
 	reddit.triggers = functions.triggers(self.info.username, configuration.command_prefix, {'^/r/'}):t('reddit', true):t('r', true):t('r/', true).table
-	reddit.doc = configuration.command_prefix .. 'reddit (r/subreddit | query) Returns the top posts or results for a given subreddit or query. If no argument is given, returns the top posts from r/all. Querying specific subreddits is not supported. Aliases: ' .. configuration.command_prefix .. 'r, /r/subreddit'
+	reddit.documentation = configuration.command_prefix .. 'reddit (r/subreddit | query) Returns the top posts or results for a given subreddit or query. If no argument is given, returns the top posts from r/all. Querying specific subreddits is not supported. Aliases: ' .. configuration.command_prefix .. 'r, /r/subreddit.'
 end
 local function format_results(posts)
 	local output = ''
-	for _,v in ipairs(posts) do
+	for _, v in ipairs(posts) do
 		local post = v.data
 		local title = post.title:gsub('%[', '('):gsub('%]', ')'):gsub('&amp;', '&')
 		if title:len() > 256 then
@@ -36,7 +36,7 @@ function reddit:action(msg, configuration)
 	end
 	local text = msg.text_lower
 	if text:match('^/r/.') then
-		text = msg.text_lower:gsub('^/r/', configuration.command_prefix..'r r/')
+		text = msg.text_lower:gsub('^/r/', configuration.command_prefix .. 'r r/')
 	end
 	local input = functions.input(text)
 	local source, url
@@ -57,16 +57,16 @@ function reddit:action(msg, configuration)
 	end
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+		functions.send_reply(msg, configuration.errors.connection)
+	end
+	local jdat = JSON.decode(jstr)
+	if #jdat.data.children == 0 then
+		functions.send_reply(msg, configuration.errors.results)
 	else
-		local jdat = JSON.decode(jstr)
-		if #jdat.data.children == 0 then
-			functions.send_reply(msg, '`' .. configuration.errors.results .. '`', true)
-		else
-			local output = format_results(jdat.data.children)
-			output = source .. output
-			functions.send_reply(msg, output, true)
-		end
+		local output = format_results(jdat.data.children)
+		output = source .. output
+		functions.send_reply(msg, output, true)
+		return
 	end
 end
 return reddit

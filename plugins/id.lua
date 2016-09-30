@@ -4,7 +4,7 @@ function id:init(configuration)
 	id.command = 'id <user>'
 	id.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('id', true).table
 	id.inline_triggers = id.triggers
-	id.doc = configuration.command_prefix .. 'id <user> - Sends the name, ID, and username for the given users. Arguments must be usernames and/or IDs. Input is also accepted via reply. If no input is given, info about you is sent.'
+	id.documentation = configuration.command_prefix .. 'id <user> - Sends the name, ID, and username for the given users. Arguments must be usernames and/or IDs. Input is also accepted via reply. If no input is given, info about you is sent.'
 end
 function id.format(t)
 	if t.username then
@@ -22,10 +22,9 @@ function id.format(t)
 		)
 	end
 end
-function id:inline_callback(inline_query, configuration, matches)
-	local output = inline_query.from.id
-	local results = '[{"type":"article","id":"9","title":"/id","description":"Get your numerical ID","input_message_content":{"message_text":"Your ID is: '..inline_query.from.id..'","parse_mode":"Markdown"}}]'
-	functions.answer_inline_query(inline_query, results, 600, nil, nil, inline_query.from.id)
+function id:inline_callback(inline_query, configuration)
+	local results = '[{"type":"article","id":"50","title":"/id","description":"Your ID is: ' .. inline_query.from.id .. '","input_message_content":{"message_text":"' .. inline_query.from.id .. '","parse_mode":"Markdown"}}]'
+	functions.answer_inline_query(inline_query, results, 50)
 end
 function id:action(msg)
 	local output

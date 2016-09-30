@@ -7,7 +7,7 @@ xkcd.strip_url = 'http://xkcd.com/%s/info.0.json'
 function xkcd:init(configuration)
 	xkcd.command = 'xkcd (i)'
 	xkcd.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('xkcd', true).table
-	xkcd.doc = configuration.command_prefix .. 'xkcd (i) - Returns the latest xkcd strip and its alt text. If a number is given, returns that number strip. If "r" is passed in place of a number, returns a random strip.'
+	xkcd.documentation = configuration.command_prefix .. 'xkcd (i) - Returns the latest xkcd strip and its alt text. If a number is given, returns that number strip. If "r" is passed in place of a number, returns a random strip.'
 	local jstr = HTTP.request(xkcd.base_url)
 	if jstr then
 		local data = JSON.decode(jstr)
@@ -29,9 +29,9 @@ function xkcd:action(msg, configuration)
 	local url = xkcd.strip_url:format(input)
 	local jstr, code = HTTP.request(url)
 	if code == 404 then
-		functions.send_reply(msg, '`' .. configuration.errors.results .. '`', true)
+		functions.send_reply(msg, configuration.errors.results)
 	elseif code ~= 200 then
-		functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+		functions.send_reply(msg, configuration.errors.connection)
 	else
 		local data = JSON.decode(jstr)
 		functions.send_photo(msg.chat.id, functions.download_to_file(data.img), data.num .. ' | ' .. functions.fix_utf8(data.safe_title) .. ' | ' .. data.day .. '/' .. data.month .. '/' .. data.year, msg.message_id, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. 'https://xkcd.com/' .. data.num .. '"}]]}')

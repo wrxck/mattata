@@ -7,7 +7,7 @@ end
 function chatinfo:action(msg)
 	local output = ''
 	if msg.chat.type ~= 'private' then
-		output = 'You are speaking in the ' .. msg.chat.type .. ' \'*' .. msg.chat.title .. '*\' ' .. '(`' .. msg.chat.id .. '`).'
+		output = 'You are speaking in the ' .. msg.chat.type .. ' *' .. msg.chat.title .. '*. ' .. 'The ID is `' .. msg.chat.id .. '`.'
 		functions.send_reply(msg, output, true)
 		return
 	else

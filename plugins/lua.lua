@@ -17,7 +17,7 @@ function lua:action(msg, configuration)
 	end
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(msg, '`Please enter a string of lua to execute`', true)
+		functions.send_reply(msg, 'Please enter a string of lua to execute')
 		return
 	end
 	if msg.text_lower:match('^' .. configuration.command_prefix .. 'return') then

@@ -1,10 +1,10 @@
-local functions = require('functions')
 local patterns = {}
+local functions = require('functions')
 function patterns:init(configuration)
 	patterns.command = 's/<pattern>/<substitution>'
 	patterns.help_word = 'sed'
-	patterns.doc = configuration.command_prefix .. 's/<pattern>/<substitution> Replace all matches for the given pattern. Uses Lua patterns.'
 	patterns.triggers = { configuration.command_prefix .. '?s/.-/.-$' }
+	patterns.documentation = configuration.command_prefix .. 's/<pattern>/<substitution> Replace all matches for the Lua pattern(s).'
 end
 function patterns:action(msg)
 	if not msg.reply_to_message then
@@ -16,7 +16,9 @@ function patterns:action(msg)
 		output = output:gsub('"$', '')
 	end
 	local m1, m2 = msg.text:match('^/?s/(.-)/(.-)/?$')
-	if not m2 then return true end
+	if not m2 then
+		return true
+	end
 	local res
 	res, output = pcall(
 		function()
@@ -24,10 +26,10 @@ function patterns:action(msg)
 		end
 	)
 	if res == false then
-		functions.send_reply(msg, '`Malformed pattern!`', true)
+		functions.send_reply(msg, 'Invalid pattern.')
 	else
-		output = 'Did you mean `' .. functions.trim(output:sub(1, 4000)) .. '`?'
-		functions.send_reply(msg.reply_to_message, output, true)
+		output = 'Did you mean _' .. functions.trim(output:sub(1, 4000)) .. '_?'
+		functions.send_reply(msg, output, true)
 	end
 end
 return patterns

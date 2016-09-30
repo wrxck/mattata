@@ -1,10 +1,8 @@
 local control = {}
 local mattata = require('mattata')
 local functions = require('functions')
-local command_prefix
 function control:init(configuration)
-	command_prefix = configuration.command_prefix
-	control.triggers = functions.triggers(self.info.username, command_prefix, {'^'..command_prefix..'script'}):t('reboot', true):t('shutdown').table
+	control.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('reload', true).table
 end
 function control:action(msg, configuration)
 	if msg.from.id ~= configuration.owner_id then
@@ -13,7 +11,7 @@ function control:action(msg, configuration)
 	if msg.date < os.time() - 2 then
 		return
 	end
-	if msg.text_lower:match('^' .. command_prefix .. 'reboot') then
+	if msg.text_lower:match('^' .. configuration.command_prefix .. 'reload') then
 		for pac, _ in pairs(package.loaded) do
 			if pac:match('^plugins%.') then
 				package.loaded[pac] = nil
@@ -28,22 +26,7 @@ function control:action(msg, configuration)
 			end
 		end
 		mattata.init(self, configuration)
-		functions.send_reply(msg, '*mattata is rebooting...*', true)
-	elseif msg.text_lower:match('^'..command_prefix..'shutdown') then
-		self.is_started = false
-		functions.send_reply(msg, '*mattata is shutting down...*', true)
-	elseif msg.text_lower:match('^'..command_prefix..'script') then
-		local input = msg.text_lower:match('^'..command_prefix..'script\n(.+)')
-		if not input then
-			functions.send_reply(msg, 'Usage: ```\n'..command_prefix..'script\n'..command_prefix..'command <arg>\n...\n```', true)
-			return
-		end
-		input = input .. '\n'
-		for command in input:gmatch('(.-)\n') do
-			command = functions.trim(command)
-			msg.text = command
-			mattata.on_msg_receive(msg, configuration)
-		end
+		functions.send_reply(msg, 'mattata is reloading...')
 	end
 end
 return control

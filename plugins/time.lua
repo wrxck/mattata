@@ -5,15 +5,15 @@ local functions = require('functions')
 function time:init(configuration)
 	time.command = 'time'
 	time.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('time', true).table
-	time.doc = configuration.command_prefix .. 'time - Without any arguments, this will send the current date and time in UTC. Supports natural language queries as an argument, i.e. \'' .. configuration.command_prefix .. 'time 5 hours before noon next friday\'. You can also say \'in PDT\', for example; and, if it\'s a supported time zone, it\'ll send the said information - adjusted to that time zone. The time zones which are currently supported are: GMT, MST, EST, AST, CST, MSK, EET and CET. If you have any suggestions, please contact @wrxck.'
+	time.documentation = configuration.command_prefix .. 'time - Without any arguments, this will send the current date and time in UTC. Supports natural language queries as an argument, i.e. \'' .. configuration.command_prefix .. 'time 5 hours before noon next friday\'. You can also say \'in PDT\', for example; and, if it\'s a supported time zone, it\'ll send the said information - adjusted to that time zone. The time zones which are currently supported are: GMT, MST, EST, AST, CST, MSK, EET and CET. If you have any suggestions, please contact @wrxck.'
 end
 function time:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		local url = 'http://www.timeapi.org/utc/'
+		local url = configuration.time_api
 		local time, res = HTTP.request(url)
 		if res ~= 200 then
-			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			functions.send_reply(msg, configuration.errors.connection)
 			return
 		else
 			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
@@ -24,7 +24,7 @@ function time:action(msg, configuration)
 		local url = 'http://www.timeapi.org/mst/' .. input
 		local time, res = HTTP.request(url)
 		if res ~= 200 then
-			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			functions.send_reply(msg, configuration.errors.connection)
 			return
 		else
 			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
@@ -35,7 +35,7 @@ function time:action(msg, configuration)
 		local url = 'http://www.timeapi.org/est/' .. input
 		local time, res = HTTP.request(url)
 		if res ~= 200 then
-			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			functions.send_reply(msg, configuration.errors.connection)
 			return
 		else
 			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
@@ -46,7 +46,7 @@ function time:action(msg, configuration)
 		local url = 'http://www.timeapi.org/ast/' .. input
 		local time, res = HTTP.request(url)
 		if res ~= 200 then
-			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			functions.send_reply(msg, configuration.errors.connection)
 			return
 		else
 			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
@@ -57,7 +57,7 @@ function time:action(msg, configuration)
 		local url = 'http://www.timeapi.org/cst/' .. input
 		local time, res = HTTP.request(url)
 		if res ~= 200 then
-			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			functions.send_reply(msg, configuration.errors.connection)
 			return
 		else
 			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
@@ -68,7 +68,7 @@ function time:action(msg, configuration)
 		local url = 'http://www.timeapi.org/msk/' .. input
 		local time, res = HTTP.request(url)
 		if res ~= 200 then
-			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			functions.send_reply(msg, configuration.errors.connection)
 			return
 		else
 			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
@@ -79,7 +79,7 @@ function time:action(msg, configuration)
 		local url = 'http://www.timeapi.org/eet/' .. input
 		local time, res = HTTP.request(url)
 		if res ~= 200 then
-			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			functions.send_reply(msg, configuration.errors.connection)
 			return
 		else
 			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
@@ -90,7 +90,7 @@ function time:action(msg, configuration)
 		local url = 'http://www.timeapi.org/cet/' .. input
 		local time, res = HTTP.request(url)
 		if res ~= 200 then
-			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			functions.send_reply(msg, configuration.errors.connection)
 			return
 		else
 			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
@@ -101,7 +101,7 @@ function time:action(msg, configuration)
 		local url = 'http://www.timeapi.org/gmt/' .. input
 		local time, res = HTTP.request(url)
 		if res ~= 200 then
-			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			functions.send_reply(msg, configuration.errors.connection)
 			return
 		else
 			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
@@ -112,7 +112,7 @@ function time:action(msg, configuration)
 		local url = 'http://www.timeapi.org/utc/' .. input
 		local time, res = HTTP.request(url)
 		if res ~= 200 then
-			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			functions.send_reply(msg, configuration.errors.connection)
 			return
 		else
 			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
@@ -122,7 +122,7 @@ function time:action(msg, configuration)
 		local url = 'http://www.timeapi.org/utc/' .. input
 		local time, res = HTTP.request(url)
 		if res ~= 200 then
-			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
+			functions.send_reply(msg, configuration.errors.connection)
 			return
 		else
 			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)

@@ -5,23 +5,20 @@ function baconipsum:init(configuration)
 	baconipsum.command = 'baconipsum'
 	baconipsum.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('baconipsum', true).table
 	baconipsum.inline_triggers = baconipsum.triggers
-	baconipsum.doc = configuration.command_prefix .. 'baconipsum - Generate a few meaty Lorem Ipsum sentences!'
+	baconipsum.documentation = configuration.command_prefix .. 'baconipsum - Generate a few meaty Lorem Ipsum sentences!'
 end
 function baconipsum:inline_callback(inline_query, configuration)
-    local str, res = HTTPS.request(configuration.baconipsum_api)
+    local str, res = HTTPS.request(configuration.apis.baconipsum)
     local output = '`' .. str .. '`'
-	local results = '[{"type":"article","id":"10","title":"/baconipsum","description":"Generate a few meaty Lorem Ipsum sentences!","input_message_content":{"message_text":"' .. output .. '","parse_mode":"Markdown"}}]'
-	functions.answer_inline_query(inline_query, results, 900)
+	local results = '[{"type":"article","id":"50","title":"/baconipsum","description":"' .. output:gsub('`', '') .. '","input_message_content":{"message_text":"' .. output .. '","parse_mode":"Markdown"}}]'
+	functions.answer_inline_query(inline_query, results, 50)
 end
 function baconipsum:action(msg, configuration)
-    local str, res = HTTPS.request(configuration.baconipsum_api)
+    local output, res = HTTPS.request(configuration.apis.baconipsum)
     if res ~= 200 then
-    	functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
-    	return
-    else
-    	local output = '`' .. str .. '`'
-    	functions.send_reply(msg, output, true)
+    	functions.send_reply(msg, configuration.errors.connection)
     	return
     end
+    functions.send_reply(msg, output)
 end
 return baconipsum

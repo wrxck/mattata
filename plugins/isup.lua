@@ -5,7 +5,7 @@ local HTTP = require('socket.http')
 function isup:init(configuration)
 	isup.command = 'isup <URL>'
 	isup.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('isup', true).table
-	isup.doc = configuration.command_prefix .. 'isup <URL> - Check if the specified URL is down for everyone or just you.'
+	isup.documentation = configuration.command_prefix .. 'isup <URL> - Check if the specified URL is down for everyone or just you.'
 end
 function isup.website_down_http(url)
 	local parsed_url = URL.parse(url, { scheme = 'http', authority = '' })
@@ -35,7 +35,7 @@ end
 function isup:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(msg, isup.doc, true)
+		functions.send_reply(msg, isup.documentation)
 		return
 	end
 	if isup.website_down_http(input) then

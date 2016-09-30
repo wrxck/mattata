@@ -7,37 +7,28 @@ function translate:init(configuration)
 	translate.command = 'translate (text)'
 	translate.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('translate', true):t('tl', true).table
 	translate.inline_triggers = translate.triggers
-	translate.doc = configuration.command_prefix .. 'translate (text) - Translates input or the replied-to message into mattata\'s language. Alias: ' .. configuration.command_prefix .. 'tl.'
+	translate.documentation = configuration.command_prefix .. 'translate (text) - Translates input or the replied-to message into mattata\'s language. Alias: ' .. configuration.command_prefix .. 'tl.'
 end
-function translate:inline_callback(inline_query, configuration, matches)
-	local input = inline_query.query:gsub('/translate ', '')
-	local url = configuration.translate_api .. configuration.translate_key .. '&lang=' .. configuration.language .. '&text=' .. URL.escape(input)
-	local str = HTTPS.request(url)
-	local jdat = JSON.decode(str)
-	local results = '[{"type":"article","id":"9","title":"Translate","description":"Translate the inputted text into English","input_message_content":{"message_text":"'..functions.md_escape(jdat.text[1])..'","parse_mode":"Markdown"}}]'
-	functions.answer_inline_query(inline_query, results, 600, nil, nil, functions.md_escape(jdat.text[1]))
+function translate:inline_callback(inline_query, configuration)
+	local url = configuration.apis.translate .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text=' .. URL.escape(inline_query.query)
+	local jstr = HTTPS.request(url)
+	local jdat = JSON.decode(jstr)
+	local results = '[{"type":"article","id":"50","title":"/translate","description":"' .. functions.md_escape(jdat.text[1]):gsub('/translate ', '') .. '","input_message_content":{"message_text":"' .. functions.md_escape(jdat.text[1]) .. '","parse_mode":"Markdown"}}]'
+	functions.answer_inline_query(inline_query, results, 50)
 end
 function translate:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		if msg.reply_to_message and msg.reply_to_message.text then
-			input = msg.reply_to_message.text
-		else
-			functions.send_message(msg.chat.id, translate.doc, true, msg.message_id, true)
-			return
-		end
+		functions.send_reply(msg, translate.documentation)
+		return
 	end
-	local url = configuration.translate_api .. configuration.translate_key .. '&lang=' .. configuration.language .. '&text=' .. URL.escape(input)
-	local str, res = HTTPS.request(url)
+	local url = configuration.apis.translate .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text=' .. URL.escape(input)
+	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
 		functions.send_reply(msg, configuration.errors.connection)
 		return
 	end
-	local jdat = JSON.decode(str)
-	if jdat.code ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
-		return
-	end
-	functions.send_reply(msg.reply_to_message or msg, '`' .. functions.md_escape(jdat.text[1]) .. '`', true)
+	local jdat = JSON.decode(jstr)
+	functions.send_reply(msg, functions.md_escape(jdat.text[1]))
 end
 return translate

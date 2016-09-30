@@ -3,7 +3,7 @@ local functions = require('functions')
 function me:init(configuration)
 	me.command = 'me'
 	me.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('me', true).table
-	me.doc = configuration.command_prefix .. 'me - Returns userdata stored by the bot.'
+	me.documentation = configuration.command_prefix .. 'me - Returns userdata stored by mattata.'
 end
 function me:action(msg, configuration)
 	local user

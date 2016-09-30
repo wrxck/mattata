@@ -10,19 +10,16 @@ end
 function mcuuid:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(msg, mcuuid.doc, true)
+		functions.send_reply(msg, mcuuid.documentation)
 		return
-	else
-		local url = configuration.mcuuid_api .. input
-		local jstr, res = HTTP.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, '`' .. configuration.errors.connection .. '`', true)
-			return
-		else
-			local jdat = JSON.decode(jstr)
-			functions.send_reply(msg, '`' .. jdat[1].uuid_formatted .. '`', true)
-			return
-		end
 	end
+	local url = configuration.apis.mcuuid .. input
+	local jstr, res = HTTP.request(url)
+	if res ~= 200 then
+		functions.send_reply(msg, configuration.errors.connection)
+		return
+	end
+	local jdat = JSON.decode(jstr)
+	functions.send_reply(msg, jdat[1].uuid_formatted)
 end
 return mcuuid

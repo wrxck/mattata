@@ -1,9 +1,9 @@
-local functions = require('functions')
 local pgc = {}
+local functions = require('functions')
 function pgc:init(configuration)
 	pgc.command = 'gocalc <required candy> <#pokemon> <#candy>'
 	pgc.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('gocalc', true).table
-	pgc.doc = configuration.command_prefix .. 'gocalc <required candy> <number of Pokémon> <number of candy> - Calculates the number of Pokémon that must be transferred before evolving, how many evolutions the user is able to perform, and how many Pokémon and candy will be left over. All arguments must be positive numbers. Batch jobs may be performed by separating valid sets of arguments by lines. Example (forty pidgeys and three hundred pidgey candies):' .. configuration.command_prefix .. 'gocalc 12 40 300'
+	pgc.documentation = configuration.command_prefix .. 'gocalc <required candy> <number of Pokémon> <number of candy> - Calculates the number of Pokémon that must be transferred before evolving, how many evolutions the user is able to perform, and how many Pokémon and candy will be left over. All arguments must be positive numbers. Batch jobs may be performed by separating valid sets of arguments by lines. Example (forty pidgeys and three hundred pidgey candies): ' .. configuration.command_prefix .. 'gocalc 12 40 300.'
 end
 local pidgey_calc = function(candies_to_evolve, mons, candies)
 	local transferred = 0;
@@ -60,7 +60,7 @@ end
 function pgc:action(msg)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(msg, pgc.doc, true)
+		functions.send_reply(msg, pgc.documentation)
 		return
 	end
 	input = input .. '\n'
@@ -74,18 +74,18 @@ function pgc:action(msg)
 		else
 			total_evolutions = total_evolutions + info.evolve
 			local s = '*Transfer:* %s. \n*Evolve:* %s (%s XP, %s minutes). \n*Leftover:* %s mons, %s candy.\n\n'
-			s = s:format(info.transfer, info.evolve, info.evolve..'k', info.evolve*0.5, info.leftover_mons, info.leftover_candy)
+			s = s:format(info.transfer, info.evolve, info.evolve .. 'k', info.evolve * 0.5, info.leftover_mons, info.leftover_candy)
 			output = output .. s
 		end
 	end
 	local s = '*Total evolutions:* %s. \n*Recommendation:* %s'
 	local recommendation
-	local egg_count = math.floor(total_evolutions/60)
+	local egg_count = math.floor(total_evolutions / 60)
 	if egg_count < 1 then
 		recommendation = 'I recommend you wait until you have, at least, sixty Pokémon to evolve before using a lucky egg.'
 	else
 		recommendation = 'Use %s lucky egg(s) for %s evolutions.'
-		recommendation = recommendation:format(egg_count, egg_count*60)
+		recommendation = recommendation:format(egg_count, egg_count * 60)
 	end
 	s = s:format(total_evolutions, recommendation)
 	output = output .. s

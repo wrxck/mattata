@@ -7,7 +7,7 @@ local functions = require('functions')
 function canitrust:init(configuration)
 	canitrust.command = 'canitrust <URL>'
 	canitrust.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('canitrust', true).table
-	canitrust.doc = configuration.command_prefix .. 'canitrust <URL> - Tells you of any known security issues with a website.'
+	canitrust.documentation = configuration.command_prefix .. 'canitrust <URL> - Tells you of any known security issues with a website.'
 end
 function canitrust.validate(url)
 	local parsed_url = URL.parse(url, { scheme = 'http', authority = '' })
@@ -36,59 +36,57 @@ function canitrust:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if input then
 		input = input:gsub('https', 'http'):gsub('HTTPS', 'https'):gsub('HTTP', 'http'):gsub('www.', '')
-		local jstr = HTTPS.request(configuration.canitrust_api .. input .. '/&callback=process&key=' .. configuration.canitrust_key)
+		local jstr = HTTPS.request(configuration.apis.canitrust .. URL.escape(input) .. '/&callback=process&key=' .. configuration.keys.canitrust)
 		local jdat = JSON.decode(jstr)
-		local output = '`' .. jstr .. '`'
+		local output = ''
 		if not canitrust.validate(input) then
-			output = '*This website has been flagged as:* `Invalid URL`'
+			output = 'Invalid URL.'
 		end
 		if jstr == 'process({ "' .. input .. '": { "target": "' .. input .. '" } } )' and canitrust.validate(input) then
-			output = '*This website has been flagged as:* `No issues known`'
+			output = 'There are *no known issues* with this website.'
 		end
-		if string.match(output, '"101"') then
-			output = '*This website has been flagged as:* `Malware`'
-		elseif string.match(output, '"102"') then
-			output = '*This website has been flagged as:* `Poor customer experience`'
-		elseif string.match(output, '"103"') then
-			output = '*This website has been flagged as:* `Phishing`'
-		elseif string.match(output, '"104"') then
-			output = '*This website has been flagged as:* `Scam`'
-		elseif string.match(output, '"105"') then
-			output = '*This website has been flagged as:* `Potentially illegal`'
-		elseif string.match(output, '"201"') then
-			output = '*This website has been flagged as:* `Misleading claims or unethical`'
-		elseif string.match(output, '"202"') then
-			output = '*This website has been flagged as:* `Privacy risks`'
-		elseif string.match(output, '"203"') then
-			output = '*This website has been flagged as:* `Suspicious`'
-		elseif string.match(output, '"204"') then
-			output = '*This website has been flagged as:* `Hate, discrimination`'
-		elseif string.match(output, '"205"') then
-			output = '*This website has been flagged as:* `Spam`'
-		elseif string.match(output, '"206"') then
-			output = '*This website has been flagged as:* `Potentially unwanted programs`'
-		elseif string.match(output, '"207"') then
-			output = '*This website has been flagged as:* `Ads/pop-ups`'
-		elseif string.match(output, '"301"') then
-			output = '*This website has been flagged as:* `Online tracking`'
-		elseif string.match(output, '"302"') then
-			output = '*This website has been flagged as:* `Alternative or controversial medicine`'
-		elseif string.match(output, '"303"') then
-			output = '*This website has been flagged as:* `Opinions, religion, politics`'
-		elseif string.match(output, '"303"') then
-			output = '*This website has been flagged as:* `Other`'
-		elseif string.match(output, '"401"') then
-			output = '*This website has been flagged as:* `Adult content`'
-		elseif string.match(output, '"402"') then
-			output = '*This website has been flagged as:* `Incidental nudity`'
-		elseif string.match(output, '"403"') then
-			output = '*This website has been flagged as:* `Gruesome or shocking`'
-		elseif string.match(output, '"404"') then
-			output = '*This website has been flagged as:* `Site for kids`'
-		elseif string.match(output, '"501"') then
-			output = '*This website has been flagged as:* `No issues known`'
+		if string.match(jstr, '"101"') then
+			output = 'This website is likely to contain *malware*.'
+		elseif string.match(jstr, '"102"') then
+			output = 'This website is likely to provide a *poor customer experience*.'
+		elseif string.match(jstr, '"103"') then
+			output = 'This website has been flagged as *phishing*.'
+		elseif string.match(jstr, '"104"') then
+			output = 'This website has been flagged as *a scam*.'
+		elseif string.match(jstr, '"105"') then
+			output = 'This website is *potentially illegal*.'
+		elseif string.match(jstr, '"201"') then
+			output = 'This website is known to be *unethical*, and may provide *misleading claims*.'
+		elseif string.match(jstr, '"202"') then
+			output = 'This website has been flagged as a *privacy risk*.'
+		elseif string.match(jstr, '"203"') then
+			output = 'This website is *suspicious*.'
+		elseif string.match(jstr, '"204"') then
+			output = 'This website has been flagged for containing *hate/discrimination*.'
+		elseif string.match(jstr, '"205"') then
+			output = 'This website has been flagged as *spam*.'
+		elseif string.match(jstr, '"206"') then
+			output = 'This website has been known to distribute *potentially unwanted programs*.'
+		elseif string.match(jstr, '"207"') then
+			output = 'This website contains *ads/pop-ups*.'
+		elseif string.match(jstr, '"301"') then
+			output = 'This website is known to *track your online activity*.'
+		elseif string.match(jstr, '"302"') then
+			output = 'This website has been associated with *alternative or controversial medicine*.'
+		elseif string.match(jstr, '"303"') then
+			output = 'This website is likely to contain *religious/political beliefs*.'
+		elseif string.match(jstr, '"401"') then
+			output = 'This website contains *adult content*.'
+		elseif string.match(jstr, '"402"') then
+			output = 'This website contains *incidental nudity*.'
+		elseif string.match(jstr, '"403"') then
+			output = 'This website has been flagged as *gruesome or shocking*.'
+		elseif string.match(jstr, '"404"') then
+			output = 'This website is *suitable for kids*.'
+		elseif string.match(jstr, '"501"') then
+			output = 'There are *no known issues* with this website.'
 		end
-		if output ~= '*This website has been flagged as:* `Invalid URL`' then
+		if output ~= 'Invalid URL.' then
 			functions.send_reply(msg, output, true, '{"inline_keyboard":[[{"text":"' .. 'Proceed to site' .. '", "url":"' .. input .. '"}]]}')
 			return
 		else
@@ -96,7 +94,7 @@ function canitrust:action(msg, configuration)
 			return
 		end
 	else
-		functions.send_reply(msg, canitrust.doc, true)
+		functions.send_reply(msg, canitrust.documentation)
 		return
 	end
 end
