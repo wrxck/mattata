@@ -13,9 +13,10 @@ function ninegag:inline_callback(inline_query, configuration)
 	local jstr = HTTP.request(configuration.apis.ninegag)
 	local jdat = JSON.decode(jstr)
 	local results = '['
+	local id = 50
 	for n in pairs(jdat) do
 		local title = jdat[n].title:gsub('"', '\\"')
-		results = results .. '{"type":"photo","id":"50","photo_url":"' .. jdat[n].src .. '","thumb_url":"' .. jdat[n].src .. '","caption":"' .. title .. '","reply_markup":{"inline_keyboard":[[{"text":"Read more", "url":"' .. jdat[n].url .. '"}]]}}'
+		results = results .. '{"type":"photo","id":"' .. id .. '","photo_url":"' .. jdat[n].src .. '","thumb_url":"' .. jdat[n].src .. '","caption":"' .. title .. '","reply_markup":{"inline_keyboard":[[{"text":"Read more", "url":"' .. jdat[n].url .. '"}]]}}'
 		id = id + 1
 		if n < #jdat then
 			results = results .. ','
