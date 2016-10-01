@@ -3,6 +3,7 @@ local HTTPS = require('ssl.https')
 local URL = require('socket.url')
 local JSON = require('dkjson')
 local functions = require('functions')
+local telegram_api = require('telegram_api')
 function itunes_album_artwork:init(configuration)
 	itunes_album_artwork.command = 'albumart <song/album>'
 	itunes_album_artwork.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('albumart', true).table
