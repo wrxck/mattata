@@ -18,17 +18,31 @@ function translate:inline_callback(inline_query, configuration)
 end
 function translate:action(msg, configuration)
 	local input = functions.input(msg.text)
-	if not input then
-		functions.send_reply(msg, translate.documentation)
+	local url = configuration.apis.translate .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text='
+	if msg.reply_to_message then
+		url = url .. URL.escape(msg.reply_to_message.text)
+		local jstr, res = HTTPS.request(url)
+		if res ~= 200 then
+			functions.send_reply(msg, configuration.errors.connection)
+			return
+		end
+		local jdat = JSON.decode(jstr)
+		functions.send_reply(msg, functions.md_escape(jdat.text[1]))
+		return
+	else
+		if not input then
+			functions.send_reply(msg, translate.documentation)
+			return
+		end
+		url = url .. URL.escape(input)
+		local jstr, res = HTTPS.request(url)
+		if res ~= 200 then
+			functions.send_reply(msg, configuration.errors.connection)
+			return
+		end
+		local jdat = JSON.decode(jstr)
+		functions.send_reply(msg, functions.md_escape(jdat.text[1]))
 		return
 	end
-	local url = configuration.apis.translate .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text=' .. URL.escape(input)
-	local jstr, res = HTTPS.request(url)
-	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
-		return
-	end
-	local jdat = JSON.decode(jstr)
-	functions.send_reply(msg, functions.md_escape(jdat.text[1]))
 end
 return translate
