@@ -10,32 +10,33 @@ function ass:init(configuration)
 end
 function ass:action(msg, configuration)
 	if msg.chat.type == 'private' then
-		local jstr, res = HTTP.request(configuration.ass_api)
+		local jstr, res = HTTP.request(configuration.apis.ass.noise)
 		local input = tonumber(functions.input(msg.text))
 		if res ~= 200 then
 			functions.send_reply(msg, configuration.errors.connection)
 			return
 		end
+		local jdat = ''
 		if not input then
-			local jdat = JSON.decode(jstr)
+			jdat = JSON.decode(jstr)
 			output = configuration.apis.ass.media .. jdat[1].preview
 			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
 			functions.send_photo(msg.chat.id, functions.download_to_file(output), 'Image #' .. tonumber(jdat[1].id), msg.message_id)
 			return
 		elseif input < 7 then 
-			local jdat = JSON.decode(jstr)
+			jdat = JSON.decode(jstr)
 			output = configuration.apis.ass.media .. jdat[1].preview
 			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
 			functions.send_photo(msg.chat.id, functions.download_to_file(output), 'That ID doesn\'t belong to an image, so here is: Image #' .. tonumber(jdat[1].id), msg.message_id)
 			return
 		elseif input > 3990 then
-			local jdat = JSON.decode(jstr)
+			jdat = JSON.decode(jstr)
 			output = configuration.apis.ass.media .. jdat[1].preview
 			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
 			functions.send_photo(msg.chat.id, functions.download_to_file(output), 'That ID doesn\'t belong to an image, so here is: Image #' .. tonumber(jdat[1].id), msg.message_id)
 			return
 		elseif tonumber(input) == nil then
-			local jdat = JSON.decode(jstr)
+			jdat = JSON.decode(jstr)
 			output = configuration.apis.ass.media .. jdat[1].preview
 			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
 			functions.send_photo(msg.chat.id, functions.download_to_file(output), 'That ID doesn\'t belong to an image, so here is: Image #' .. tonumber(jdat[1].id), msg.message_id)
@@ -43,7 +44,7 @@ function ass:action(msg, configuration)
 		else
 			local input = tonumber(functions.input(msg.text))
 			local jstr, res = HTTP.request(configuration.apis.ass.get .. input)
-			local jdat = JSON.decode(jstr)
+			jdat = JSON.decode(jstr)
 			output = configuration.apis.ass.media .. jdat[1].preview
 			if res ~= 200 then
 				functions.send_reply(msg, configuration.errors.connection)
@@ -54,7 +55,7 @@ function ass:action(msg, configuration)
 			return
 		end
 	else
-		functions.send_reply(msg, 'Since this is NSFW, please execute this command in a private chat with me.', '{"inline_keyboard":[[{"text":"Take me there!", "url":"http://telegram.me/' .. self.info.username .. '?start=ass"}]]}')
+		functions.send_reply(msg, 'Since this is NSFW, please execute this command in a private chat with me.', false, '{"inline_keyboard":[[{"text":"Take me there!", "url":"http://telegram.me/' .. self.info.username .. '?start=ass"}]]}')
 		return
 	end
 end

@@ -5,7 +5,7 @@ local functions = require('functions')
 function mcuuid:init(configuration)
 	mcuuid.command = 'mcuuid <Minecraft username>'
 	mcuuid.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('mcuuid', true).table
-	mcuuid.doc = configuration.command_prefix .. 'mcuuid <Minecraft username> - Tells you the UUID of a Minecraft username.'
+	mcuuid.documentation = configuration.command_prefix .. 'mcuuid <Minecraft username> - Tells you the UUID of a Minecraft username.'
 end
 function mcuuid:action(msg, configuration)
 	local input = functions.input(msg.text)
@@ -20,6 +20,12 @@ function mcuuid:action(msg, configuration)
 		return
 	end
 	local jdat = JSON.decode(jstr)
-	functions.send_reply(msg, jdat[1].uuid_formatted)
+	local output = jdat[1].uuid_formatted
+	if string.len(output) < 36 then
+		output = 'The given username is inexistent.'
+	else
+		output = output
+	end
+	functions.send_reply(msg, output)
 end
 return mcuuid

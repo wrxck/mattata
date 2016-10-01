@@ -1,6 +1,7 @@
 local identicon = {}
 local URL = require('socket.url')
 local functions = require('functions')
+local telegram_api = require('telegram_api')
 function identicon:init(configuration)
 	identicon.command = 'identicon <string>'
 	identicon.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('identicon', true).table
@@ -13,7 +14,7 @@ function identicon:action(msg, configuration)
 		return
 	end
 	local str = configuration.apis.identicon .. URL.escape(input) .. '.png'
-	functions.send_typing(msg.from.id, 'upload_photo')
+	telegram_api.sendChatAction{ chat_id = msg.from.id, action = 'upload_photo' }
 	local res = functions.send_photo(msg.from.id, functions.download_to_file(str), 'Here is your string, \'' .. input .. '\' - as an identicon.')
 	if not res then
 		if msg.chat.type ~= 'private' then

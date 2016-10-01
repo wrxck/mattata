@@ -19,8 +19,12 @@ function mcmigrated:action(msg, configuration)
 		functions.send_reply(msg, configuration.errors.connection)
 		return
 	end
-	local jdat = JSON.decode(jstr)
-	local output = jdat.migrated:gsub('true', 'This username has been migrated to a Mojang account!'):gsub('false', 'This username has not been migrated to a Mojang account.')
+	local output = ''
+	if string.match(jstr, 'true') then
+		output = 'This username has been migrated to a Mojang account!'
+	else
+		output = 'This username either does not exist, or it just hasn\'t been migrated to a Mojang account.'
+	end
 	functions.send_reply(msg, output)
 end
 return mcmigrated

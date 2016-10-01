@@ -6,13 +6,13 @@ function eightball:init(configuration)
 	eightball.documentation = configuration.command_prefix .. 'eightball - Returns your destined decision through mattata\'s sixth sense.'
 end
 function eightball:action(msg, configuration)
-	local eightball_answers = configuration.eightball_answers
-	local eightball_yes_no_answers = configuration.eightball_yes_no_answers
+	local answers = configuration.eightball.answers
+	local yes_no_answers = configuration.eightball.yes_no_answers
 	local output = ''
 	if msg.text_lower:match('y/n%p?$') then
-		output = eightball_yes_no_answers[math.random(#eightball_yes_no_answers)]
+		output = yes_no_answers[math.random(#yes_no_answers)]
 	else
-		output = eightball_answers[math.random(#eightball_answers)]
+		output = answers[math.random(#answers)]
 	end
 	functions.send_reply(msg, output)
 end

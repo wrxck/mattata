@@ -8,9 +8,9 @@ function bandersnatch:init(configuration)
 end
 function bandersnatch:inline_callback(inline_query, configuration)
     local output = ''
-	local fullnames = configuration.bandersnatch_full_names
-	local firstnames = configuration.bandersnatch_first_names
-	local lastnames = configuration.bandersnatch_last_names
+	local fullnames = configuration.bandersnatch.full_names
+	local firstnames = configuration.bandersnatch.first_names
+	local lastnames = configuration.bandersnatch.last_names
 	if math.random(10) == 10 then
 		output = fullnames[math.random(#fullnames)]
 	else
@@ -21,9 +21,9 @@ function bandersnatch:inline_callback(inline_query, configuration)
 end
 function bandersnatch:action(msg, configuration)
 	local output = ''
-	local fullnames = configuration.bandersnatch_full_names
-	local firstnames = configuration.bandersnatch_first_names
-	local lastnames = configuration.bandersnatch_last_names
+	local fullnames = configuration.bandersnatch.full_names
+	local firstnames = configuration.bandersnatch.first_names
+	local lastnames = configuration.bandersnatch.last_names
 	if math.random(10) == 10 then
 		output = fullnames[math.random(#fullnames)]
 	else
