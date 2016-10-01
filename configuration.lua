@@ -82,7 +82,7 @@ return {
 		syntax = 'Syntax error. Please try again.',
 	},
 	messaging = {
-		url = 'https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=',
+		url = 'http://www.matthewhesketh.com/mattata.php?text=',
 		connection_error = 'Matt\'s words echoed: There\'s a time and place for everything! But not now.',
 		response_error = 'I\'m not sure how to answer that...'
 	},
