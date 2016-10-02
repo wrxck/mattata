@@ -6,6 +6,7 @@ return {
 	muted_users = {},
 	about_text = 'Hello, my name is mattata. I\'m a multi-purpose Telegram bot you can confidently rely on.\nTo get started, just send /help.\n',
  	command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
+	file_download_location = '/tmp/', -- the location to save all downloaded media to
 	keys = {
 		cats = '',
 		translate = '',
@@ -82,7 +83,7 @@ return {
 		syntax = 'Syntax error. Please try again.',
 	},
 	messaging = {
-		url = 'http://www.matthewhesketh.com/mattata.php?text=',
+		url = 'https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=',
 		connection_error = 'Matt\'s words echoed: There\'s a time and place for everything! But not now.',
 		response_error = 'I\'m not sure how to answer that...'
 	},

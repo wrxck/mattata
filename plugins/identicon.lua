@@ -14,16 +14,7 @@ function identicon:action(msg, configuration)
 		return
 	end
 	local str = configuration.apis.identicon .. URL.escape(input) .. '.png'
-	telegram_api.sendChatAction{ chat_id = msg.from.id, action = 'upload_photo' }
-	local res = functions.send_photo(msg.from.id, functions.download_to_file(str), 'Here is your string, \'' .. input .. '\' - as an identicon.')
-	if not res then
-		if msg.chat.type ~= 'private' then
-			functions.send_reply(msg, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. ') so I can send you the identicon.', true)
-			return
-		end
-	elseif msg.chat.type ~= 'private' then
-		functions.send_reply(msg, 'I sent you your identicon via a private message.')
-		return
-	end
+	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
+	local res = functions.send_photo(msg.chat.id, functions.download_to_file(str), 'Here is your string, \'' .. input .. '\' - as an identicon.')
 end
 return identicon

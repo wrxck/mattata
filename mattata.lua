@@ -1,11 +1,13 @@
 local mattata = {}
-local HTTP = require('socket.http')
+local HTTPS = require('socket.http')
 local JSON = require('dkjson')
-mattata.version = '2.2.1'
+local telegram_api = require('telegram_api')
+mattata.version = '2.3'
 function mattata:init(configuration)
 	assert(configuration.bot_api_key, 'You need to enter your bot API key in to the configuration file.')
 	telegram_api = require('telegram_api').init(configuration.bot_api_key)
 	functions = require('functions')
+	configuration = require('configuration')
 	repeat
 		print('mattata is initialising...')
 		self.info = telegram_api.getMe()
@@ -41,9 +43,6 @@ function mattata:init(configuration)
 	self.is_started = true
 end
 function mattata:on_msg_receive(msg, configuration)
-	if msg.date < os.time() - 5 then
-		return
-	end
 	local plugin_triggers = self.plugins
 	local from_id_str = tostring(msg.from.id)
 	self.database.users[from_id_str] = msg.from

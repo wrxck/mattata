@@ -4,9 +4,9 @@ local HTTP = require('socket.http')
 local HTTPS = require('ssl.https')
 local URL = require('socket.url')
 local JSON = require('dkjson')
-local redis = require('redis')
 local utf8 = require('lua-utf8')
 local telegram_api = require('telegram_api')
+local configuration = require('configuration')
 function functions.send_message(chat_id, text, disable_web_page_preview, reply_to_message_id, use_markdown, reply_markup)
 	local parse_mode
 	if type(use_markdown) == 'string' then
@@ -85,9 +85,9 @@ function functions.send_photo(chat_id, file, text, reply_to_message_id, reply_ma
 	}, {
 		photo = file
 	} )
-	if string.match(file, '/tmp/') then
+	if string.match(file, configuration.file_download_location) then
 		os.remove(file)
-		print("Deleted: " .. file)
+		print("Deleted " .. file)
 	end
 	return output
 end
@@ -104,7 +104,7 @@ function functions.send_audio(chat_id, file, reply_to_message_id, duration, perf
 	}, {
 		audio = file
 	} )
-	if string.match(file, '/tmp/') then
+	if string.match(file, configuration.file_download_location) then
 		os.remove(file)
 		print("Deleted " .. file)
 	end
@@ -122,7 +122,7 @@ function functions.send_document(chat_id, file, text, reply_to_message_id, reply
 	}, {
 		document = file
 	} )
-	if string.match(file, '/tmp/') then
+	if string.match(file, configuration.file_download_location) then
 		os.remove(file)
 		print("Deleted " .. file)
 	end
@@ -142,7 +142,7 @@ function functions.send_video(chat_id, file, text, reply_to_message_id, duration
 	}, {
 		video = file
 	} )
-	if string.match(file, '/tmp/') then
+	if string.match(file, configuration.file_download_location) then
 		os.remove(file)
 		print("Deleted " .. file)
 	end
@@ -159,7 +159,7 @@ function functions.send_voice(chat_id, file, reply_to_message_id, duration)
 	}, {
 		voice = file
 	} )
-	if string.match(file, '/tmp/') then
+	if string.match(file, configuration.file_download_location) then
 		os.remove(file)
 		print("Deleted " .. file)
 	end
@@ -253,9 +253,9 @@ end
 function functions.download_to_file(url, file_name)
 	print('Downloading ' .. url)
 	if not file_name then
-		file_name = '/tmp/' .. url:match('.+/(.-)$') or '/tmp/' .. os.time()
+		file_name = configuration.file_download_location .. url:match('.+/(.-)$') or configuration.file_download_location .. os.time()
 	else
-		file_name = '/tmp/' .. file_name
+		file_name = configuration.file_download_location .. file_name
 	end
 	local body = {}
 	local doer = HTTP
@@ -279,10 +279,10 @@ function functions.download_to_file(url, file_name)
 	return file_name
 end
 function functions.load_data(filename)
-	local f = io.open(filename)
-	if f then
-		local s = f:read('*all')
-		f:close()
+	local file = io.open(filename)
+	if file then
+		local s = file:read('*all')
+		file:close()
 		return JSON.decode(s)
 	else
 		return {}
@@ -290,9 +290,9 @@ function functions.load_data(filename)
 end
 function functions.save_data(filename, data)
 	local s = JSON.encode(data)
-	local f = io.open(filename, 'w')
-	f:write(s)
-	f:close()
+	local file = io.open(filename, 'w')
+	file:write(s)
+	file:close()
 end
 function get_file_size(file)
 	local current = file:seek()
@@ -547,14 +547,6 @@ function post_petition(url, arguments, headers)
 	response_body = JSON.decode(table.concat(response_body))
 	return response_body, response_headers
 end
-function get_redis_hash(msg, var)
-	if msg.chat.type == 'group' or msg.chat.type == 'supergroup' then
-		return 'chat:'..msg.chat.id..':'..var
-	end
-	if msg.chat.type == 'private' then
-		return 'user:'..msg.from.id..':'..var
-	end
-end
 function functions.utf8_len(s)
     local chars = 0
     for i = 1, string.len(s) do
@@ -587,15 +579,6 @@ function string.starts(String,Start)
 end
 function string.ends(str, fin)
 	return fin == '' or string.sub(str, -string.len(fin)) == fin
-end
-function get_location(user_id)
-	local hash = 'user:'..user_id
-	local set_location = redis:hget(hash, 'location')
-	if set_location == 'false' or set_location == nil then
-		return false
-	else
-		return set_location
-	end
 end
 function get_HTTP_header(url)
 	local doer = HTTP
