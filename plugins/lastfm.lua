@@ -1,8 +1,10 @@
 local lastfm = {}
 local HTTP = require('socket.http')
+local HTTPS = require('ssl.https')
 local URL = require('socket.url')
 local JSON = require('dkjson')
 local functions = require('functions')
+local telegram_api = require('telegram_api')
 function lastfm:init(configuration)
 	lastfm.command = 'lastfm'
 	lastfm.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('lastfm', true):t('np', true):t('fmset', true).table
@@ -43,11 +45,7 @@ function lastfm:action(msg, configuration)
 		return
 	end
 	url = url .. URL.escape(username)
-	local jstr, res
-	functions.with_http_timeout(
-		1, function ()
-			jstr, res = HTTP.request(url)
-	end)
+	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
 		functions.send_reply(msg, configuration.errors.connection)
 		return
