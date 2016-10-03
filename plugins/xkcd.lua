@@ -7,7 +7,7 @@ xkcd.strip_url = 'http://xkcd.com/%s/info.0.json'
 function xkcd:init(configuration)
 	xkcd.command = 'xkcd (i)'
 	xkcd.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('xkcd', true).table
-	xkcd.documentation = configuration.command_prefix .. 'xkcd (i) - Returns the latest xkcd strip and its alt text. If a number is given, returns that number strip. If "r" is passed in place of a number, returns a random strip.'
+	xkcd.documentation = configuration.command_prefix .. 'xkcd (i) - Returns the latest xkcd strip and its alt text. If a number is given, returns that number strip. If \'r\' is passed in place of a number, returns a random strip.'
 	local jstr = HTTP.request(xkcd.base_url)
 	if jstr then
 		local data = JSON.decode(jstr)

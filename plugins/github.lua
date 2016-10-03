@@ -14,7 +14,7 @@ function github:action(msg, configuration)
 	else
 		input = input:gsub(' ', '/')
 	end
-	local jstr = HTTPS.request('https://api.github.com/repos/' .. input)
+	local jstr = HTTPS.request(configuration.apis.github .. input)
 	local jdat = JSON.decode(jstr)
 	if jdat.id then
 		local full_name = ''

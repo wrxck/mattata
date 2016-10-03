@@ -5,7 +5,7 @@ local functions = require('functions')
 function time:init(configuration)
 	time.command = 'time'
 	time.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('time', true).table
-	time.documentation = configuration.command_prefix .. 'time - Without any arguments, this will send the current date and time in UTC. Supports natural language queries as an argument, i.e. \'' .. configuration.command_prefix .. 'time 5 hours before noon next friday\'. You can also say \'in PDT\', for example; and, if it\'s a supported time zone, it\'ll send the said information - adjusted to that time zone. The time zones which are currently supported are: GMT, MST, EST, AST, CST, MSK, EET and CET. If you have any suggestions, please contact @wrxck.'
+	time.documentation = configuration.command_prefix .. 'time - Without any arguments, this will send the current date and time in UTC. Supports natural language queries as an argument, i.e. \'' .. configuration.command_prefix .. 'time 5 hours before noon next friday\'. You can also say \'in PDT\', for example; and, if it\'s a supported time zone, it\'ll send the said information - adjusted to that time zone. The time zones which are currently supported are: GMT, MST, EST, AST, CST, MSK, EET and CET..'
 end
 function time:action(msg, configuration)
 	local input = functions.input(msg.text)

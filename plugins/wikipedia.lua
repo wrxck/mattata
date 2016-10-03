@@ -24,31 +24,30 @@ function wikipedia:action(msg, configuration)
 	else
 		input = input:gsub('#', ' sharp')
 	end
-	local jstr, res, jdat
-	local search_url = 'http://en.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch='
-	jstr, res = HTTPS.request(search_url .. URL.escape(input))
-	if res ~= 200 then
+	local search_url = 'http://' .. configuration.wikipedia_language .. '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch='
+	local search_jstr, search_res = HTTPS.request(search_url .. URL.escape(input))
+	if search_res ~= 200 then
 		functions.send_reply(msg, configuration.errors.connection)
 		return
 	end
-	jdat = JSON.decode(jstr)
-	if jdat.query.searchinfo.totalhits == 0 then
+	local search_jdat = JSON.decode(search_jstr)
+	if search_jdat.query.searchinfo.totalhits == 0 then
 		functions.send_reply(msg, configuration.errors.results)
 		return
 	end
-	local title = get_title(jdat.query.search)
+	local title = get_title(search_jdat.query.search)
 	if not title then
 		functions.send_reply(msg, configuration.errors.results)
 		return
 	end
-	local res_url = 'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exchars=4000&exsectionformat=plain&titles='
-	jstr, res = HTTPS.request(res_url .. URL.escape(title))
-	if res ~= 200 then
+	local result_url = 'https://' .. configuration.wikipedia_language .. '.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exchars=4000&exsectionformat=plain&titles='
+	local result_jstr, result_res = HTTPS.request(result_url .. URL.escape(title))
+	if result_res ~= 200 then
 		functions.send_reply(msg, configuration.errors.connection)
 		return
 	end
 	local _
-	local text = JSON.decode(jstr).query.pages
+	local text = JSON.decode(result_jstr).query.pages
 	_, text = next(text)
 	if not text then
 		functions.send_reply(msg, configuration.errors.results)
@@ -61,7 +60,7 @@ function wikipedia:action(msg, configuration)
 	if l then
 		text = text:sub(1, l-1)
 	end
-	local url = 'https://en.wikipedia.org/wiki/' .. URL.escape(title)
+	local url = 'https://' .. configuration.wikipedia_language .. '.wikipedia.org/wiki/' .. URL.escape(title)
 	title = title:gsub('%(.+%)', '')
 	local output
 	if string.match(text:sub(1, title:len()), title) then

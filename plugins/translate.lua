@@ -7,7 +7,7 @@ function translate:init(configuration)
 	translate.command = 'translate (text)'
 	translate.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('translate', true):t('tl', true).table
 	translate.inline_triggers = translate.triggers
-	translate.documentation = configuration.command_prefix .. 'translate (text) - Translates input or the replied-to message into mattata\'s language. Alias: ' .. configuration.command_prefix .. 'tl.'
+	translate.documentation = configuration.command_prefix .. 'translate (text) - Translates input or the replied-to message into ' .. self.info.first_name .. '\'s language. Alias: ' .. configuration.command_prefix .. 'tl.'
 end
 function translate:inline_callback(inline_query, configuration)
 	local url = configuration.apis.translate .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text=' .. URL.escape(inline_query.query)
@@ -20,15 +20,17 @@ function translate:action(msg, configuration)
 	local input = functions.input(msg.text)
 	local url = configuration.apis.translate .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text='
 	if msg.reply_to_message then
-		url = url .. URL.escape(msg.reply_to_message.text)
-		local jstr, res = HTTPS.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
+		if not input then
+			url = url .. URL.escape(msg.reply_to_message.text)
+			local jstr, res = HTTPS.request(url)
+			if res ~= 200 then
+				functions.send_reply(msg, configuration.errors.connection)
+				return
+			end
+			local jdat = JSON.decode(jstr)
+			functions.send_reply(msg, functions.md_escape(jdat.text[1]))
 			return
 		end
-		local jdat = JSON.decode(jstr)
-		functions.send_reply(msg, functions.md_escape(jdat.text[1]))
-		return
 	else
 		if not input then
 			functions.send_reply(msg, translate.documentation)

@@ -3,9 +3,8 @@ local functions = require('functions')
 local telegram_api = require('telegram_api')
 local rms = {}
 function rms:init(configuration)
-	rms.url = 'https://rms.sexy/img/'
 	rms.list = {}
-	rms.str = HTTPS.request(rms.url)
+	rms.str = HTTPS.request(configuration.apis.rms)
 	for link in rms.str:gmatch('<a href=".-%.%a%a%a">(.-)</a>') do
 		table.insert(rms.list, link)
 	end

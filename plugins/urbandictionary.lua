@@ -19,19 +19,17 @@ function urbandictionary:action(msg, configuration)
 	if res ~= 200 then
 		functions.send_reply(msg, configuration.errors.connection)
 		return
-	else
-		local jdat = JSON.decode(jstr)
-		if jdat.result_type == "no_results" then
-			functions.send_reply(msg, configuration.errors.results)
-			return
-		end
-		local output = '*' .. jdat.list[1].word .. '*\n\n' .. functions.trim(jdat.list[1].definition)
-		if string.len(jdat.list[1].example) > 0 then
-			output = output .. '_\n\n' .. functions.trim(jdat.list[1].example) .. '_'
-		end
-		output = output:gsub('%[', ''):gsub('%]', '')
-		functions.send_reply(msg, output, true)
+	end
+	local jdat = JSON.decode(jstr)
+	if jdat.result_type == "no_results" then
+		functions.send_reply(msg, configuration.errors.results)
 		return
 	end
+	local output = '*' .. jdat.list[1].word .. '*\n\n' .. functions.trim(jdat.list[1].definition)
+	if string.len(jdat.list[1].example) > 0 then
+		output = output .. '_\n\n' .. functions.trim(jdat.list[1].example) .. '_'
+	end
+	output = output:gsub('%[', ''):gsub('%]', '')
+	functions.send_reply(msg, output, true)
 end
 return urbandictionary

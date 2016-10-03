@@ -12,6 +12,6 @@ function randomword:action(msg, configuration)
 		functions.send_reply(msg, configuration.errors.connection)
 		return
 	end
-	functions.send_reply(msg, '*Your random word is:* ' .. str, true, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
+	functions.send_reply(msg, 'Your random word is: *' .. str .. '*.', true, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
 end
 return randomword
