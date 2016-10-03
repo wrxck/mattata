@@ -8,9 +8,6 @@ function control:action(msg, configuration)
 	if msg.from.id ~= configuration.owner_id then
 		return
 	end
-	if msg.date < os.time() - 2 then
-		return
-	end
 	if msg.text_lower:match('^' .. configuration.command_prefix .. 'reload') then
 		for pac, _ in pairs(package.loaded) do
 			if pac:match('^plugins%.') then
