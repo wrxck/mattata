@@ -75,7 +75,7 @@ function lastfm:action(msg, configuration)
 		artist = jdat.artist['#text']
 	end
 	output = output .. title .. ' - ' .. artist .. alert
-	local url = configuration.apis.itunes .. URL.escape(input)
+	local url = configuration.apis.itunes .. URL.escape(artist)
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
 		functions.send_reply(msg, configuration.errors.connection)
