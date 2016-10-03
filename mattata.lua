@@ -1,5 +1,6 @@
 local mattata = {}
-local HTTPS = require('socket.http')
+local HTTP = require('socket.http')
+local HTTPS = require('ssl.https')
 local JSON = require('dkjson')
 local telegram_api = require('telegram_api')
 mattata.version = '2.4'
@@ -90,14 +91,14 @@ function mattata:on_msg_receive(msg, configuration)
 end
 function mattata:on_callback_receive(callback, msg, configuration)
 	if callback.data == 'randomword' then
-		functions.edit_message(msg.chat.id, msg.message_id, 'Your random word is: *' .. str .. '*.' .. HTTP.request(configuration.randomword_api), true, true, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
+		functions.edit_message(msg.chat.id, msg.message_id, 'Your random word is: *' .. HTTP.request(configuration.apis.randomword) .. '*.', true, true, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
 		return
 	elseif callback.data == 'pun' then
 		local puns = configuration.puns
 		functions.edit_message(msg.chat.id, msg.message_id, puns[math.random(#puns)], true, true, '{"inline_keyboard":[[{"text":"Generate a new pun!", "callback_data":"pun"}]]}')
 		return
 	elseif callback.data == 'fact' then
-		local jstr, res = HTTP.request(configuration.fact_api)
+		local jstr, res = HTTP.request(configuration.apis.fact)
 		local jdat = JSON.decode(jstr)
 		local jrnd = math.random(#jdat)
 		functions.edit_message(msg.chat.id, msg.message_id, jdat[jrnd].nid:gsub('<p>',''):gsub('</p>',''):gsub('&amp;','&'):gsub('<em>',''):gsub('</em>',''):gsub('<strong>',''):gsub('</strong>',''), true, true, '{"inline_keyboard":[[{"text":"Generate a new fact!", "callback_data":"fact"}]]}')
