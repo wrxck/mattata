@@ -36,27 +36,8 @@ function github:action(msg, configuration)
 			description = jdat.description
 		end
 		local forks = ''
-		if jdat.forks then
-			forks = jdat.forks
-		end
-		local forks_url = ''
-		if jdat.forks_url then
-			forks_url = jdat.forks_url:gsub('api.', ''):gsub('/repos', '')
-		end
-		local watchers = ''
-		if jdat.watchers then
-			watchers = jdat.watchers
-		end
-		local watchers_count = ''
-		if tonumber(forks) == 1 then
-			watchers_count = ' watcher'
-		else
-			watchers_count = ' watchers'
-		end
-		local watchers_url = html_url .. '/watchers'
-		local open_issues = ''
-		if jdat.open_issues then
-			open_issues = jdat.open_issues
+		if jdat.forks_count then
+			forks = jdat.forks_count
 		end
 		local forks_count = ''
 		if tonumber(forks) == 1 then
@@ -64,8 +45,31 @@ function github:action(msg, configuration)
 		else
 			forks_count = ' forks'
 		end
-		local stats = '[' .. forks .. forks_count .. '](' .. forks_url .. ') *|* [' .. watchers .. watchers_count .. '](' .. watchers_url .. ') *|* Last updated at ' .. updated_at
-		local output = title .. '\n' .. '`' .. description .. '`' .. '\n' .. stats
+		local forks_url = html_url .. '/forks'
+		local watchers = ''
+		if jdat.watchers_count then
+			watchers = jdat.watchers_count
+		end
+		local watchers_count = ''
+		if tonumber(watchers) == 1 then
+			watchers_count = ' watcher'
+		else
+			watchers_count = ' watchers'
+		end
+		local watchers_url = html_url .. '/watchers'
+		local stargazers = ''
+		if jdat.stargazers_count then
+			stargazers = jdat.stargazers_count
+		end
+		local stargazers_count = ''
+		if tonumber(stargazers) == 1 then
+			stargazers_count = ' stargazer'
+		else
+			stargazers_count = ' stargazers'
+		end
+		local stargazers_url = html_url .. '/stargazers'
+		local stats = '[' .. forks .. forks_count .. '](' .. forks_url .. ') *|* [' .. watchers .. watchers_count .. '](' .. watchers_url .. ') *|* [' .. stargazers .. stargazers_count .. '](' .. stargazers_url .. ') \nLast updated at ' .. updated_at
+		local output = title .. '\n\n' .. '`' .. description .. '`' .. '\n\n' .. stats
 		functions.send_reply(msg, output, true)
 		return
 	else
