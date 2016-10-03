@@ -5,17 +5,16 @@ local functions = require('functions')
 function github:init(configuration)
 	github.command = 'github <username> <repository>'
 	github.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('github', true).table
-	github.documentation = configuration.command_prefix .. 'github <username> <repository> - Returns information about the specified user\'s repository.'
+	github.doc = configuration.command_prefix .. 'github <username> <repository> - Returns information about the specified GitHub repository.'
 end
 function github:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(msg, github.documentation)
-		return
+		functions.send_reply(msg, github.doc)
 	else
 		input = input:gsub(' ', '/')
 	end
-	local jstr = HTTPS.request(configuration.apis.github .. input)
+	local jstr = HTTPS.request('https://api.github.com/repos/' .. input)
 	local jdat = JSON.decode(jstr)
 	if jdat.id then
 		local full_name = ''
@@ -36,19 +35,36 @@ function github:action(msg, configuration)
 		if jdat.description then
 			description = jdat.description
 		end
-		local forks = jdat.forks
-		local forks_url = jdat.forks_url:gsub('api.', ''):gsub('/repos', '')
-		local watchers = jdat.watchers
-		local open_issues = jdat.open_issues
+		local forks = ''
+		if jdat.forks then
+			forks = jdat.forks
+		end
+		local forks_url = ''
+		if jdat.forks_url then
+			forks_url = jdat.forks_url:gsub('api.', ''):gsub('/repos', '')
+		end
+		local watchers = ''
+		if jdat.watchers then
+			watchers = jdat.watchers
+		end
+		local watchers_count = ''
+		if tonumber(forks) == 1 then
+			watchers_count = ' watcher'
+		else
+			watchers_count = ' watchers'
+		end
+		local watchers_url = html_url .. '/watchers'
+		local open_issues = ''
+		if jdat.open_issues then
+			open_issues = jdat.open_issues
+		end
 		local forks_count = ''
-		if tonumber(forks) < 1 then
-			forks_count = ' forks'
-		elseif tonumber(forks) == 1 then
+		if tonumber(forks) == 1 then
 			forks_count = ' fork'
 		else
 			forks_count = ' forks'
 		end
-		local stats = '[' .. forks .. forks_count .. '](' .. forks_url .. ') *|* Last updated at ' .. updated_at
+		local stats = '[' .. forks .. forks_count .. '](' .. forks_url .. ') *|* [' .. watchers .. watchers_count .. '](' .. watchers_url .. ') *|* Last updated at ' .. updated_at
 		local output = title .. '\n' .. '`' .. description .. '`' .. '\n' .. stats
 		functions.send_reply(msg, output, true)
 		return
