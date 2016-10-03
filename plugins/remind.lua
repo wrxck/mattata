@@ -24,61 +24,61 @@ function remind:action(msg, configuration)
 	elseif duration == "one" or "1" then
 		if secondary == "hour" then
 			duration = 60
-		elseif secondary == "minute" then
+		else
 			duration = 1
 		end
 	elseif duration == "two" or "2" then
 		if secondary == "hours" then
 			duration = 120
-		elseif secondary == "minutes" then
+		else
 			duration = 2
 		end
 	elseif duration == "three" or "3" then
 		if secondary == "hours" then
 			duration = 180
-		elseif secondary == "minutes" then
+		else
 			duration = 3
 		end
 	elseif duration == "four" or "4" then
 		if secondary == "hours" then
 			duration = 240
-		elseif secondary == "minutes" then
+		else
 			duration = 4
 		end
 	elseif duration == "five" or "5" then
 		if secondary == "hours" then
 			duration = 300
-		elseif secondary == "minutes" then
+		else
 			duration = 5
 		end
 	elseif duration == "six" or "6" then
 		if secondary == "hours" then
 			duration = 360
-		elseif secondary == "minutes" then
+		else
 			duration = 6
 		end
 	elseif duration == "seven" or "7" then
 		if secondary == "hours" then
 			duration = 420
-		elseif secondary == "minutes" then
+		else
 			duration = 7
 		end
 	elseif duration == "eight" or "8" then
 		if secondary == "hours" then
 			duration = 480
-		elseif secondary == "minutes" then
+		else
 			duration = 8
 		end
 	elseif duration == "nine" or "9" then
 		if secondary == "hours" then
 			duration = 540
-		elseif secondary == "minutes" then
+		else
 			duration = 9
 		end
 	elseif duration == "ten" or "10" then
 		if secondary == "hours" then
 			duration = 600
-		elseif secondary == "minutes" then
+		else
 			duration = 10
 		end
 	else
