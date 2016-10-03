@@ -2,7 +2,7 @@ local mattata = {}
 local HTTPS = require('socket.http')
 local JSON = require('dkjson')
 local telegram_api = require('telegram_api')
-mattata.version = '2.3'
+mattata.version = '2.4'
 function mattata:init(configuration)
 	assert(configuration.bot_api_key, 'You need to enter your bot API key in to the configuration file.')
 	telegram_api = require('telegram_api').init(configuration.bot_api_key)
@@ -36,7 +36,7 @@ function mattata:init(configuration)
 			plugin.inline_triggers = {}
 		end
 	end
-	print('Successfully started mattata!')
+	print('Successfully started @' .. self.info.username .. '!')
 	self.last_update = self.last_update or 0
 	self.last_cron = self.last_cron or os.date('%M')
 	self.last_database_save = self.last_database_save or os.date('%H')
@@ -89,12 +89,8 @@ function mattata:on_msg_receive(msg, configuration)
 	end
 end
 function mattata:on_callback_receive(callback, msg, configuration)
-	if msg.date < os.time() - 1800 then
-		functions.answer_callback_query(callback, 'WELP! That message is too old, please try again.', true)
-		return
-	end
 	if callback.data == 'randomword' then
-		functions.edit_message(msg.chat.id, msg.message_id, '*Your random word is:* ' .. HTTP.request(configuration.randomword_api), true, true, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
+		functions.edit_message(msg.chat.id, msg.message_id, 'Your random word is: *' .. str .. '*.' .. HTTP.request(configuration.randomword_api), true, true, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
 		return
 	elseif callback.data == 'pun' then
 		local puns = configuration.puns

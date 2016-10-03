@@ -17,7 +17,7 @@ function telegram_api.request(method, parameters, file)
 		if not file_name then
 			return false
 		end
-		if string.match(file_name, '/tmp/') then
+		if string.match(file_name, '/home/Matt/dir/mattata/tmp/') then
 			local file_result = io.open(file_name, 'r')
 			local file_data = {
 				filename = file_name,

@@ -2,7 +2,8 @@ return {
 	bot_api_key = '', -- insert the bot API token you received from @BotFather
 	owner_id = nil, -- the numerical ID of the owner, who is presumably you
 	language = 'en', -- two digit locale
-	admin_group = nil, -- the numerical ID of the chat you wish to log errors/private messages to, you can add telegram.me/groupinfobot to your group to view this information, if necessary
+	wikipedia_language = 'en', -- locale to use for wikipedia.lua, set to 'simple' for results from simple wikipedia
+	admin_group = nil, -- the numerical ID of the chat you wish to log errors/private messages to, you can add https://telegram.me/matticatebot to your group and send /id@matticatebot to view this information, if necessary
 	muted_users = {},
 	about_text = 'Hello, my name is mattata. I\'m a multi-purpose Telegram bot you can confidently rely on.\nTo get started, just send /help.\n',
  	command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
@@ -19,7 +20,6 @@ return {
 	},
 	apis = {
 		cats = 'http://thecatapi.com/api/images/get?format=html&type=jpg',
-		baconipsum = 'https://baconipsum.com/api/?type=all-meat&sentences=3&start-with-lorem=1&format=text',
 		calc = 'https://api.mathjs.org/v1/?expr=',
 		catfact = 'http://catfacts-api.appspot.com/api/facts',
 		chuck = 'http://api.icndb.com/jokes/random',
@@ -28,7 +28,6 @@ return {
 		imdb = 'http://www.omdbapi.com/?t=',
 		loremipsum = 'http://loripsum.net/api/1/medium/plaintext',
 		starwars = 'http://swapi.co/api/films/',
-		skateipsum = 'http://skateipsum.com/get/1/1/JSON',
 		guidgen = 'http://www.passwordrandom.com/query?command=guid&format=json&count=1',
 		pwgen = 'http://passwordwolf.com/api?length=',
 		yomama = 'http://api.yomomma.info/',
@@ -73,14 +72,16 @@ return {
 			res = 'https://hacker-news.firebaseio.com/v0/item/%s.json',
 			art = 'https://news.ycombinator.com/item?id=%s'
 		},
-		pokedex = 'http://pokeapi.co/api/v1/pokemon/'
+		pokedex = 'http://pokeapi.co/api/v1/pokemon/',
+		github = 'https://api.github.com/repos/',
+		rms = 'https://rms.sexy/img/'
 	},
 	errors = {
 		generic = 'WELP. I\'m afraid an error has occured!',
 		connection = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
 		results = 'I\'m sorry, but I couldn\'t find any results for that.',
 		argument = 'I\'m sorry, but the arguments you gave were either invalid or non-existent. Please try again',
-		syntax = 'Syntax error. Please try again.',
+		syntax = 'Syntax error. Please try again.'
 	},
 	messaging = {
 		url = 'https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=',
@@ -950,10 +951,8 @@ return {
 		'nick',
 		'bandersnatch',
 		'wikipedia',
-		'simplewikipedia',
 		'remind',
 		'ping',
-		'pong',
 		'calc',
 		'urbandictionary',
 		'dice',
@@ -977,8 +976,6 @@ return {
 		'chuck',
 		'id',
 		'loremipsum',
-		'baconipsum',
-		'skateipsum',
 		'starwars',
 		'setandget',
 		'lua',
@@ -1010,7 +1007,6 @@ return {
 		'itunes_album_artwork',
 		'github',
 		'leavechat',
-		'unban',
 		'chatinfo',
 		'identicon',
 		'mcface',
