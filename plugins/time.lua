@@ -10,7 +10,7 @@ end
 function time:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		local url = configuration.time_api
+		local url = configuration.apis.time
 		local time, res = HTTP.request(url)
 		if res ~= 200 then
 			functions.send_reply(msg, configuration.errors.connection)
