@@ -10,7 +10,7 @@ function apod:init(configuration)
 	apod.documentation = configuration.command_prefix .. 'apod (YYYY/MM/DD) - Sends the Astronomy Picture of the Day.'
 end
 function apod:inline_callback(inline_query, configuration)
-	local jstr = '[' .. HTTPS.request(configuration.apis.apod .. configuration.api_keys.apod) .. ']'
+	local jstr = '[' .. HTTPS.request(configuration.apis.apod .. configuration.keys.apod) .. ']'
 	local jdat = JSON.decode(jstr)
 	local results = '['
 	local id = 50
@@ -28,7 +28,7 @@ end
 function apod:action(msg, configuration)
 	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
 	local input = functions.input(msg.text)
-	local url = configuration.apod_api .. configuration.api_keys.apod
+	local url = configuration.apis.apod .. configuration.keys.apod
 	local date = os.date('%F')
 	if input then
 		if input:match('^(%d%d%d%d)%/(%d%d)%/(%d%d)$') then
