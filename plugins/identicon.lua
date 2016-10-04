@@ -15,6 +15,6 @@ function identicon:action(msg, configuration)
 	end
 	local str = configuration.apis.identicon .. URL.escape(input) .. '.png'
 	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
-	local res = functions.send_photo(msg.chat.id, functions.download_to_file(str), 'Here is your string, \'' .. input .. '\' - as an identicon.')
+	functions.send_photo(msg.chat.id, functions.download_to_file(str), 'Here is your string, \'' .. input .. '\' - as an identicon.')
 end
 return identicon
