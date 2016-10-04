@@ -15,6 +15,6 @@ end
 function rms:action(msg, configuration)
 	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
 	local choice = rms.list[math.random(#rms.list)]
-	functions.send_photo(msg.chat.id, functions.download_to_file(rms.url .. choice))
+	functions.send_photo(msg.chat.id, functions.download_to_file(configuration.apis.rms .. choice))
 end
 return rms
