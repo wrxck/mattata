@@ -13,11 +13,77 @@ function remind:action(msg, configuration)
 		functions.send_reply(msg, remind.documentation)
 		return
 	end
-	local duration = tonumber(functions.get_word(input, 1))
+	local duration = functions.get_word(input, 1)
+	local secondary = functions.get_word(input, 2)
 	if not duration then
 		functions.send_reply(msg, remind.documentation)
 		return
 	end
+	if duration == "tomorrow" then
+		duration = 1440
+	elseif duration == "one" or "1" then
+		if secondary == "hour" then
+			duration = 60
+		else
+			duration = 1
+		end
+	elseif duration == "two" or "2" then
+		if secondary == "hours" then
+			duration = 120
+		else
+			duration = 2
+		end
+	elseif duration == "three" or "3" then
+		if secondary == "hours" then
+			duration = 180
+		else
+			duration = 3
+		end
+	elseif duration == "four" or "4" then
+		if secondary == "hours" then
+			duration = 240
+		else
+			duration = 4
+		end
+	elseif duration == "five" or "5" then
+		if secondary == "hours" then
+			duration = 300
+		else
+			duration = 5
+		end
+	elseif duration == "six" or "6" then
+		if secondary == "hours" then
+			duration = 360
+		else
+			duration = 6
+		end
+	elseif duration == "seven" or "7" then
+		if secondary == "hours" then
+			duration = 420
+		else
+			duration = 7
+		end
+	elseif duration == "eight" or "8" then
+		if secondary == "hours" then
+			duration = 480
+		else
+			duration = 8
+		end
+	elseif duration == "nine" or "9" then
+		if secondary == "hours" then
+			duration = 540
+		else
+			duration = 9
+		end
+	elseif duration == "ten" or "10" then
+		if secondary == "hours" then
+			duration = 600
+		else
+			duration = 10
+		end
+	else
+		if tonumber(duration) == nil then
+			functions.send_reply(msg.remind.documentation)
 	if duration < 1 then
 		duration = 1
 	elseif duration > configuration.remind.max_duration then
