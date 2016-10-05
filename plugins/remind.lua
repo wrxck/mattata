@@ -84,6 +84,8 @@ function remind:action(msg, configuration)
 	else
 		if tonumber(duration) == nil then
 			functions.send_reply(msg.remind.documentation)
+		end
+	end
 	if duration < 1 then
 		duration = 1
 	elseif duration > configuration.remind.max_duration then
