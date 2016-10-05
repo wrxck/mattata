@@ -38,29 +38,13 @@ function pokemon_go:action(msg, configuration)
 		if not team then
 			output = 'Invalid team.'
 		else
-			local id_str = tostring(msg.from.id)
-			local db = self.database.pokemon_go
-			local db_membership = db.membership
-			if not db_membership[team] then
-				db_membership[team] = functions.new_set()
-			end
-			for t, set in pairs(db_membership) do
-				if t ~= team then
-					set:remove(id_str)
-				else
-					set:add(id_str)
-				end
-			end
+			local db = self.database.userdata[msg.from.id]
+			db.pokemon_go = team
 			output = 'Your team is now ' .. team .. '.'
 		end
 	else
-		local db = self.database.pokemon_go
-		local db_membership = db.membership
-		local output_temp = {'Membership:'}
-		for t, set in pairs(db_membership) do
-			table.insert(output_temp, t .. ': ' .. #set)
-		end
-		output = table.concat(output_temp, '\n')
+		local db = self.database.userdata[msg.from.id]
+		output = 'Your team is ' .. db.pokemon_go .. '.'
 	end
 	functions.send_reply(msg, output)
 end
