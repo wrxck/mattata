@@ -18,7 +18,7 @@ function messaging:inline_callback(inline_query, configuration, matches)
 	functions.answer_inline_query(inline_query, results, 50)
 end
 function messaging:action(msg, configuration)
-	local input = msg.text_lower:gsub(self.info.first_name .. ' ', ''):gsub(self.info.first_name .. ', ','')
+	local input = msg.text_lower:gsub(self.info.first_name .. ' ', ''):gsub(self.info.first_name .. ', ',''):gsub('Mattata, ',''):gsub('Mattata ','')
 	local jstr, res = HTTPS.request(configuration.messaging.url .. URL.escape(input))
 	if res ~= 200 then
 		functions.send_reply(msg, configuration.errors.connection)
@@ -37,43 +37,7 @@ function messaging:action(msg, configuration)
 			end
 		end
 	end
-	if msg.chat.type == 'supergroup' then
-		if string.match(msg.text, self.info.first_name) then
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
-			functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'))
-			return		
-		elseif msg.reply_to_message then
-			if msg.reply_to_message.from.id == self.id then
-				telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
-				functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'))
-				return
-			end
-		end
-	elseif msg.chat.type == 'group' then
-		if string.match(msg.text, self.info.first_name) then
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
-			functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'))
-			return		
-		elseif msg.reply_to_message then
-			if msg.reply_to_message.from.id == self.id then
-				telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
-				functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'))
-				return
-			end
-		end
-	elseif msg.chat.type == 'channel' then
-		if string.match(msg.text, self.info.first_name) then
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
-			functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'))
-			return		
-		elseif msg.reply_to_message then
-			if msg.reply_to_message.from.id == self.id then
-				telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
-				functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'))
-				return
-			end
-		end
-	elseif msg.chat.type == 'private' then
+	if msg.chat.type == 'private' then
 		if string.match(input, configuration.command_prefix .. 'msg') then
 			if input == configuration.command_prefix .. 'msg' then
 				functions.send_reply(msg, 'Please enter a message to send to the administrators.')
@@ -86,6 +50,27 @@ function messaging:action(msg, configuration)
 			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
 			functions.send_reply(msg, jdat.clever)
 			return
+		end
+	else
+		if string.match(msg.text, 'trick or treat') then
+			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
+			functions.send_reply(msg, 'Trick, motherfucker!')
+			return
+		elseif string.match(msg.text, 'nigger') then
+			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
+			functions.send_reply(msg, 'You racist bastard!')
+			return
+		elseif string.match(msg.text, self.info.first_name) or string.match(msg.text, 'Mattata') then
+			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
+			functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'))
+			return
+		end	
+		if msg.reply_to_message then
+			if msg.reply_to_message.from.id == self.info.id then
+				telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
+				functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'))
+				return
+			end
 		end
 	end
 end
