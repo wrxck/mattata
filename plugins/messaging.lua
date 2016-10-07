@@ -10,7 +10,7 @@ function messaging:init(configuration)
 	}
 	messaging.inline_triggers = messaging.triggers
 end
-function messaging:inline_callback(inline_query, configuration, matches)
+function messaging:inline_callback(inline_query, configuration)
 	local input = inline_query.query
 	local jstr = HTTPS.request(configuration.messaging.url .. URL.escape(input))
 	local jdat = JSON.decode(jstr)
