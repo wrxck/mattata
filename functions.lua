@@ -682,4 +682,10 @@ function functions.abort_inline_query(inline_query)
 		is_personal = true
 	} )
 end
+function functions.send_action(chat_id, action)
+	return telegram_api.request('sendChatAction', {
+		chat_id = chat_id,
+		action = action
+	} )
+end
 return functions
