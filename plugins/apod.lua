@@ -2,7 +2,6 @@ local apod = {}
 local HTTPS = require('ssl.https')
 local JSON = require('dkjson')
 local functions = require('functions')
-local telegram_api = require('telegram_api')
 function apod:init(configuration)
 	apod.command = 'apod (YYYY/MM/DD)'
 	apod.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('apod', true).table
@@ -26,7 +25,6 @@ function apod:inline_callback(inline_query, configuration)
 	functions.answer_inline_query(inline_query, results, 50)
 end
 function apod:action(msg, configuration)
-	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
 	local input = functions.input(msg.text)
 	local url = configuration.apis.apod .. configuration.keys.apod
 	local date = os.date('%F')
@@ -41,6 +39,7 @@ function apod:action(msg, configuration)
 		functions.send_reply(msg, configuration.errors.connection)
 		return
 	end
+	functions.send_action(msg.chat.id, 'upload_photo')
 	local jdat = JSON.decode(jstr)
 	local title = '"' .. jdat.title .. '" = ' .. jdat.date
 	functions.send_photo(msg.chat.id, functions.download_to_file(jdat.url), title:gsub('-', '/'):gsub('=', '-'), msg.message_id)

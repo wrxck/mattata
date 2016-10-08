@@ -2,7 +2,6 @@ local ninegag = {}
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
 local functions = require('functions')
-local telegram_api = require('telegram_api')
 function ninegag:init(configuration)
 	ninegag.command = '9gag'
 	ninegag.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('9gag', true).table
@@ -26,7 +25,7 @@ function ninegag:inline_callback(inline_query, configuration)
 	functions.answer_inline_query(inline_query, results, 50)
 end
 function ninegag:action(msg, configuration)
-	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
+	functions.send_action(msg.chat.id, 'upload_photo')
 	local url = configuration.apis.ninegag
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then

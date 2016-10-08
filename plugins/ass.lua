@@ -2,7 +2,6 @@ local ass = {}
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
 local functions = require('functions')
-local telegram_api = require('telegram_api')
 function ass:init(configuration)
 	ass.command = 'ass (id)'
 	ass.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('ass', true).table
@@ -20,25 +19,25 @@ function ass:action(msg, configuration)
 		if not input then
 			jdat = JSON.decode(jstr)
 			output = configuration.apis.ass.media .. jdat[1].preview
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
+			functions.send_action(msg.chat.id, 'upload_photo')
 			functions.send_photo(msg.chat.id, functions.download_to_file(output), 'Image #' .. tonumber(jdat[1].id), msg.message_id)
 			return
 		elseif input < 7 then 
 			jdat = JSON.decode(jstr)
 			output = configuration.apis.ass.media .. jdat[1].preview
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
+			functions.send_action(msg.chat.id, 'upload_photo')
 			functions.send_photo(msg.chat.id, functions.download_to_file(output), 'That ID doesn\'t belong to an image, so here is: Image #' .. tonumber(jdat[1].id), msg.message_id)
 			return
 		elseif input > 3990 then
 			jdat = JSON.decode(jstr)
 			output = configuration.apis.ass.media .. jdat[1].preview
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
+			functions.send_action(msg.chat.id, 'upload_photo')
 			functions.send_photo(msg.chat.id, functions.download_to_file(output), 'That ID doesn\'t belong to an image, so here is: Image #' .. tonumber(jdat[1].id), msg.message_id)
 			return
 		elseif tonumber(input) == nil then
 			jdat = JSON.decode(jstr)
 			output = configuration.apis.ass.media .. jdat[1].preview
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
+			functions.send_action(msg.chat.id, 'upload_photo')
 			functions.send_photo(msg.chat.id, functions.download_to_file(output), 'That ID doesn\'t belong to an image, so here is: Image #' .. tonumber(jdat[1].id), msg.message_id)
 			return
 		else
@@ -50,7 +49,7 @@ function ass:action(msg, configuration)
 				functions.send_reply(msg, configuration.errors.connection)
 				return
 			end
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
+			functions.send_action(msg.chat.id, 'upload_photo')
 			functions.send_photo(msg.chat.id, functions.download_to_file(output), 'Image #' .. tonumber(jdat[1].id), msg.message_id)
 			return
 		end
