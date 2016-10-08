@@ -1598,6 +1598,9 @@ return {
 		'lastfm',
 		'spotify',
 		'trump',
+		'istuesday',
+		'tobase64',
+		'tohex',
 		-- place all new plugins above this line
 		'help',
 		'faces',
