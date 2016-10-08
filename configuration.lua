@@ -4,7 +4,6 @@ return {
 	language = 'en', -- two digit locale
 	wikipedia_language = 'en', -- locale to use for wikipedia.lua, set to 'simple' for results from simple wikipedia
 	admin_group = nil, -- the numerical ID of the chat you wish to log errors/private messages to, you can add https://telegram.me/matticatebot to your group and send /id@matticatebot to view this information, if necessary
-	muted_users = {},
 	about_text = 'Hello, my name is mattata. I\'m a multi-purpose Telegram bot you can confidently rely on.\nTo get started, just send /help.\n',
  	command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
 	file_download_location = '/tmp/', -- the location to save all downloaded media to
@@ -74,7 +73,8 @@ return {
 		},
 		pokedex = 'http://pokeapi.co/api/v1/pokemon/',
 		github = 'https://api.github.com/repos/',
-		rms = 'https://rms.sexy/img/'
+		rms = 'https://rms.sexy/img/',
+		spotify = 'https://api.spotify.com/v1'
 	},
 	errors = {
 		generic = 'WELP. I\'m afraid an error has occured!',
@@ -88,12 +88,17 @@ return {
 		connection_error = 'Matt\'s words echoed: There\'s a time and place for everything! But not now.',
 		response_error = 'I\'m not sure how to answer that...'
 	},
+	dice = {
+		maximum_range = 200,
+		maximum_count = 200,
+		minimum_range = 2
+	},
 	remind = {
 		persist = true,
-		max_length = 1000,
-		max_duration = 526000,
-		max_reminders_group = 10,
-		max_reminders_private = 50
+		maximum_length = 1000,
+		maximum_duration = 526000,
+		maximum_reminders_group = 10,
+		maximum_reminders_private = 50
 	},
 	bandersnatch = {
 		full_names = {
@@ -1016,6 +1021,7 @@ return {
 		'echo',
 		'synonym',
 		'lastfm',
+		'spotify',
 		-- place all new plugins above this line
 		'help',
 		'faces',

@@ -5,7 +5,7 @@ function dice:init(configuration)
 	dice.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('dice', true).table
 	dice.documentation = configuration.command_prefix .. 'dice <number of dice to roll> <range of numbers on the dice> - Rolls a die a given amount of times, with a given range.'
 end
-function dice:action(msg)
+function dice:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
 		functions.send_reply(msg, dice.documentation)
@@ -20,15 +20,20 @@ function dice:action(msg)
 	end
 	count = tonumber(count)
 	range = tonumber(range)
-	if range < 2 then
-		functions.send_reply(msg, 'The minimum range is 2.')
+	if range < configuration.dice.minimum_range then
+		functions.send_reply(msg, 'The minimum range is ' .. configuration.dice.minimum_range .. '.')
 		return
 	end
-	if range > 1000 or count > 1000 then
-		functions.send_reply(msg, 'The maximum range and count are 1000.')
-		return
+	if range > configuration.dice.maximum_range or count > configuration.dice.maximum_count then
+		if configuration.dice.maximum_range == configuration.dice.maximum_count then
+			functions.send_reply(msg, 'The maximum range and count are both ' .. configuration.dice.maximum_range .. '.')
+			return
+		else
+			functions.send_reply(msg, 'The maximum range is ' .. configuration.dice.maximum_range .. ', and the maximum count is ' .. configuration.dice.maximum_count .. '.')
+			return
+		end
 	end
-	local output = '*' .. count .. '* rolls with a range of *' .. range .. '*\n\n'
+	local output = '*' .. count .. '* rolls with a range of *' .. range .. '*\n'
 	for _ = 1, count do
 		output = output .. math.random(range) .. '\t'
 	end

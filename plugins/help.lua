@@ -30,7 +30,7 @@ function help:action(msg)
 		end
 		functions.send_reply(msg, 'Sorry, there is no documented help for that command.', true)
 	else
-		local res = functions.send_message(msg.from.id, help_text, true, nil, true, '{"inline_keyboard":[[{"text":"Official Channel", "url":"https://telegram.me/mattata"}]]}')
+		local res = functions.send_message(msg.from.id, help_text, true, nil, true, '{"inline_keyboard":[[{"text":"Official Channel", "url":"https://telegram.me/mattata"},{"text":"Source Code", "url":"https://matthewhesketh.github.io/mattata"}]]}')
 		if not res then
 			functions.send_reply(msg, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=help) to get started.', true)
 		elseif msg.chat.type ~= 'private' then
