@@ -3,7 +3,7 @@ local functions = require('functions')
 function tobase64:init(configuration)
 	tobase64.command = 'tobase64 <string>'
 	tobase64.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('tobase64', true).table
-	tobase64.documentation = configuration.command_prefix .. '/tobase64 <string> - Converts the given string to bit64.'
+	tobase64.documentation = configuration.command_prefix .. 'tobase64 <string> - Converts the given string to bit64.'
 end
 local bit = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 function tobase64:encode(str)

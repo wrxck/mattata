@@ -3,7 +3,7 @@ local functions = require('functions')
 function tohex:init(configuration)
 	tohex.command = 'tohex <string>'
 	tohex.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('tohex', true).table
-	tohex.documentation = configuration.command_prefix .. '/tohex <string> - Converts the given string to hexadecimal.'
+	tohex.documentation = configuration.command_prefix .. 'tohex <string> - Converts the given string to hexadecimal.'
 end
 function tohex:num(num)
 	local hexstr = '0123456789abcdef'
