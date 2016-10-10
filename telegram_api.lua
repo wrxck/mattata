@@ -3,6 +3,7 @@ local HTTPS = require('ssl.https')
 local JSON = require('dkjson')
 local ltn12 = require('ltn12')
 local mp_encode = require('multipart-post').encode
+local configuration = require('configuration')
 function telegram_api.init(token)
 	telegram_api.api = 'https://api.telegram.org/bot' .. token .. '/'
 	return telegram_api
@@ -17,7 +18,7 @@ function telegram_api.request(method, parameters, file)
 		if not file_name then
 			return false
 		end
-		if string.match(file_name, '/home/Matt/dir/mattata/tmp/') then
+		if string.match(file_name, configuration.file_download_location) then
 			local file_result = io.open(file_name, 'r')
 			local file_data = {
 				filename = file_name,
