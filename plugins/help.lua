@@ -12,11 +12,11 @@ function help:init(configuration)
 			end
 		end
 	end
-	table.insert(command_list, 'help (command)')
+	table.insert(command_list, 'help <command>')
 	table.sort(command_list)
 	help_text = help_text .. table.concat(command_list, '\n	» '..configuration.command_prefix) .. '\n\n*Arguments:* <required> (optional)'
 	help.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('help', true):t('h', true).table
-	help.documentation = configuration.command_prefix .. '*help (command)* \nUsage information for the given command.'
+	help.documentation = configuration.command_prefix .. '*help <command>* \nUsage information for the given command.'
 end
 function help:action(msg)
 	local input = functions.input(msg.text)
