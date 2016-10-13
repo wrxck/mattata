@@ -1,9 +1,8 @@
 local itunes_album_artwork = {}
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
+local HTTPS = require('dependencies.ssl.https')
+local URL = require('dependencies.socket.url')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
-local telegram_api = require('telegram_api')
 function itunes_album_artwork:init(configuration)
 	itunes_album_artwork.command = 'albumart <song/album>'
 	itunes_album_artwork.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('albumart', true).table
@@ -25,7 +24,7 @@ function itunes_album_artwork:action(msg, configuration)
 			if tonumber(jdat.resultCount) > 0 then
 				if jdat.results[1].artworkUrl100 then
 					local artworkUrl100 = jdat.results[1].artworkUrl100:gsub('/100x100bb.jpg', '/10000x10000bb.jpg')
-					telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
+					functions.send_action(msg.chat.id, 'upload_photo')
 					functions.send_photo(msg.chat.id, functions.download_to_file(artworkUrl100))
 					return
 				else

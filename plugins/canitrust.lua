@@ -1,8 +1,8 @@
 local canitrust = {}
-local HTTPS = require('ssl.https')
-local HTTP = require('socket.http')
-local URL = require('socket.url')
-local JSON = require('dkjson')
+local HTTPS = require('dependencies.ssl.https')
+local HTTP = require('dependencies.socket.http')
+local URL = require('dependencies.socket.url')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function canitrust:init(configuration)
 	canitrust.command = 'canitrust <URL>'

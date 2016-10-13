@@ -1,7 +1,7 @@
 local reddit = {}
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
+local HTTPS = require('dependencies.ssl.https')
+local URL = require('dependencies.socket.url')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function reddit:init(configuration)
 	reddit.command = 'reddit (r/subreddit | query)'

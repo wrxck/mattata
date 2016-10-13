@@ -1,6 +1,6 @@
 local guidgen = {}
-local HTTP = require('socket.http')
-local JSON = require('dkjson')
+local HTTP = require('dependencies.socket.http')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function guidgen:init(configuration)
 	guidgen.command = 'guidgen'

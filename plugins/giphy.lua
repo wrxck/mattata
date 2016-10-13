@@ -1,6 +1,6 @@
 local giphy = {}
-local HTTPS = require('ssl.https')
-local JSON = require('dkjson')
+local HTTPS = require('dependencies.ssl.https')
+local JSON = require('dependencies.dkjson')
 function giphy:init(configuration)
 	giphy.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('gif', true).table
 	giphy.inline_triggers = giphy.triggers

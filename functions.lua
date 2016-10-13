@@ -1,10 +1,9 @@
 local functions = {}
-local ltn12 = require('ltn12')
-local HTTP = require('socket.http')
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
-local utf8 = require('lua-utf8')
+local ltn12 = require('dependencies.ltn12')
+local HTTP = require('dependencies.socket.http')
+local HTTPS = require('dependencies.ssl.https')
+local URL = require('dependencies.socket.url')
+local JSON = require('dependencies.dkjson')
 local telegram_api = require('telegram_api')
 local configuration = require('configuration')
 function functions.send_message(chat_id, text, disable_web_page_preview, reply_to_message_id, use_markdown, reply_markup)
@@ -630,9 +629,6 @@ function table.contains(table, element)
 		end
 	end
 	return false
-end
-function functions.fix_utf8(str)
-	return string.char(utf8.codepoint(str, 1, -1))
 end
 functions.set_meta = {}
 functions.set_meta.__index = functions.set_meta

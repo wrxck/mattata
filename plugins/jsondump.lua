@@ -1,10 +1,10 @@
 local jsondump = {}
 local functions = require('functions')
-local JSON = require('serpent')
+local JSON = require('dependencies.serpent')
 function jsondump:init(configuration)
 	jsondump.command = 'jsondump'
 	jsondump.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('jsondump', true).table
-	JSON = require('dkjson')
+	JSON = require('dependencies.dkjson')
 	jsondump.serialise = function(t) return JSON.encode(t, {indent=true}) end
 end
 function jsondump:action(msg)

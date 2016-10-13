@@ -1,5 +1,5 @@
 local istuesday = {}
-local HTTP = require('socket.http')
+local HTTP = require('dependencies.socket.http')
 local functions = require('functions')
 function istuesday:init(configuration)
 	istuesday.command = 'istuesday'

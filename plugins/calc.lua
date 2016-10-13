@@ -1,6 +1,6 @@
 local calc = {}
-local URL = require('socket.url')
-local HTTP = require('socket.http')
+local URL = require('dependencies.socket.url')
+local HTTP = require('dependencies.socket.http')
 local functions = require('functions')
 function calc:init(configuration)
 	calc.command = 'calc <expression>'

@@ -1,6 +1,6 @@
 local loremipsum = {}
 local functions = require('functions')
-local HTTP = require('socket.http')
+local HTTP = require('dependencies.socket.http')
 function loremipsum:init(configuration)
 	loremipsum.command = 'loremipsum'
 	loremipsum.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('loremipsum', true).table

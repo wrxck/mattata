@@ -1,5 +1,5 @@
 local randomword = {}
-local HTTP = require('socket.http')
+local HTTP = require('dependencies.socket.http')
 local functions = require('functions')
 function randomword:init(configuration)
 	randomword.command = 'randomword'

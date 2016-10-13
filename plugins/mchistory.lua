@@ -1,6 +1,6 @@
 local mchistory = {}
-local HTTPS = require('ssl.https')
-local JSON = require('dkjson')
+local HTTPS = require('dependencies.ssl.https')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function mchistory:init(configuration)
 	mchistory.command = 'mchistory <Minecraft username>'

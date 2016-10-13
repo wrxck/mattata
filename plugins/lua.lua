@@ -1,10 +1,10 @@
 local lua = {}
 local functions = require('functions')
-local URL = require('socket.url')
-local JSON = require('serpent')
+local URL = require('dependencies.socket.url')
+local JSON = require('dependencies.serpent')
 function lua:init(configuration)
 	lua.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('lua', true):t('return', true).table
-	JSON = require('dkjson')
+	JSON = require('dependencies.dkjson')
 	lua.serialise = function(t) return JSON.encode(t, {indent=true}) end
 	lua.loadstring = load or loadstring
 	lua.error_message = function(x)
@@ -27,10 +27,10 @@ function lua:action(msg, configuration)
 		local mattata = require('mattata')
 		local telegram_api = require('telegram_api')
 		local functions = require('functions')
-		local JSON = require('dkjson')
-		local URL = require('socket.url')
-		local HTTP = require('socket.http')
-		local HTTPS = require('ssl.https')
+		local JSON = require('dependencies.dkjson')
+		local URL = require('dependencies.socket.url')
+		local HTTP = require('dependencies.socket.http')
+		local HTTPS = require('dependencies.ssl.https')
 		return function (msg, configuration) ]] .. input .. [[ end
 	]] )
 	if output == nil then
@@ -41,9 +41,7 @@ function lua:action(msg, configuration)
 	if output ~= nil then
 		if type(output) == 'table' then
 			local s = lua.serialise(output)
-			if URL.escape(s):len() < 4000 then
-				output = s
-			end
+			output = s
 		end
 		output = '`' .. tostring(output) .. '`'
 	end

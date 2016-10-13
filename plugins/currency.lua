@@ -1,5 +1,5 @@
 local currency = {}
-local HTTPS = require('ssl.https')
+local HTTPS = require('dependencies.ssl.https')
 local functions = require('functions')
 function currency:init(configuration)
 	currency.command = 'currency (amount) <from> TO <to>'

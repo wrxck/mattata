@@ -1,7 +1,6 @@
 local mcface = {}
-local HTTPS = require('ssl.https')
+local HTTPS = require('dependencies.ssl.https')
 local functions = require('functions')
-local telegram_api = require('telegram_api')
 function mcface:init(configuration)
 	mcface.command = 'mcface <Minecraft username>'
 	mcface.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('mcface', true).table
@@ -19,7 +18,7 @@ function mcface:action(msg, configuration)
 		return
 	end
 	local str = configuration.apis.mcface.avatar .. input .. '/100.png'
-	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
+	functions.send_action(msg.chat.id, 'upload_photo')
 	functions.send_photo(msg.chat.id, functions.download_to_file(str), input, msg.message_id)
 end
 return mcface

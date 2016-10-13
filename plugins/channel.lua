@@ -1,5 +1,4 @@
 local channel = {}
-local telegram_api = require('telegram_api')
 local functions = require('functions')
 function channel:init(configuration)
 	channel.command = 'ch <channel> \\n <message>'

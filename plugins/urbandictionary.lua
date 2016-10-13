@@ -1,7 +1,7 @@
 local urbandictionary = {}
-local HTTP = require('socket.http')
-local URL = require('socket.url')
-local JSON = require('dkjson')
+local HTTP = require('dependencies.socket.http')
+local URL = require('dependencies.socket.url')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function urbandictionary:init(configuration)
 	urbandictionary.command = 'urbandictionary <query>'

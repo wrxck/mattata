@@ -1,6 +1,6 @@
 local mcuuid = {}
-local HTTP = require('socket.http')
-local JSON = require('dkjson')
+local HTTP = require('dependencies.socket.http')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function mcuuid:init(configuration)
 	mcuuid.command = 'mcuuid <Minecraft username>'

@@ -1,7 +1,6 @@
 local cats = {}
-local HTTP = require('socket.http')
+local HTTP = require('dependencies.socket.http')
 local functions = require('functions')
-local telegram_api = require('telegram_api')
 function cats:init(configuration)
 	cats.command = 'cat'
 	cats.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('cat').table
@@ -15,7 +14,7 @@ function cats:action(msg, configuration)
 		return
 	end
 	str = str:match('<img src="(.-)">')
-	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
+	functions.send_action(msg.chat.id, 'upload_photo')
 	functions.send_photo(msg.chat.id, functions.download_to_file(str), 'Meow!', msg.message_id)
 end
 return cats

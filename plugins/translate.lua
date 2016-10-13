@@ -1,7 +1,7 @@
 local translate = {}
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
+local HTTPS = require('dependencies.ssl.https')
+local URL = require('dependencies.socket.url')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function translate:init(configuration)
 	translate.command = 'translate (text)'
@@ -28,7 +28,7 @@ function translate:action(msg, configuration)
 				return
 			end
 			local jdat = JSON.decode(jstr)
-			functions.send_reply(msg, functions.md_escape(jdat.text[1]))
+			functions.send_reply(msg, '*Translation: *' .. functions.md_escape(jdat.text[1]), true)
 			return
 		end
 	else
@@ -43,7 +43,7 @@ function translate:action(msg, configuration)
 			return
 		end
 		local jdat = JSON.decode(jstr)
-		functions.send_reply(msg, functions.md_escape(jdat.text[1]))
+		functions.send_reply(msg, '*Translation: *' .. functions.md_escape(jdat.text[1]), true)
 		return
 	end
 end

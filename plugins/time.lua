@@ -1,6 +1,6 @@
 local time = {}
-local HTTP = require('socket.http')
-local JSON = require('dkjson')
+local HTTP = require('dependencies.socket.http')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function time:init(configuration)
 	time.command = 'time'

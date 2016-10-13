@@ -1,6 +1,6 @@
 local apod = {}
-local HTTPS = require('ssl.https')
-local JSON = require('dkjson')
+local HTTPS = require('dependencies.ssl.https')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function apod:init(configuration)
 	apod.command = 'apod (YYYY/MM/DD)'

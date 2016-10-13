@@ -1,7 +1,7 @@
 local isup = {}
 local functions = require('functions')
-local URL = require('socket.url')
-local HTTP = require('socket.http')
+local URL = require('dependencies.socket.url')
+local HTTP = require('dependencies.socket.http')
 function isup:init(configuration)
 	isup.command = 'isup <URL>'
 	isup.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('isup', true).table

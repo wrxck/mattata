@@ -1,7 +1,7 @@
 local catfact = {}
-local JSON = require('dkjson')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
-local HTTP = require('socket.http')
+local HTTP = require('dependencies.socket.http')
 function catfact:init(configuration)
 	catfact.command = 'catfact'
 	catfact.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('catfact', true).table
@@ -16,11 +16,11 @@ function catfact:inline_callback(inline_query, configuration)
 end
 function catfact:action(msg, configuration)
 	local jstr, res = HTTP.request(configuration.apis.catfact)
-	local jdat = JSON.decode(jstr)
 	if res ~= 200 then
 		functions.send_reply(msg, configuration.errors.connection)
 		return
 	end
+	local jdat = JSON.decode(jstr)
 	functions.send_reply(msg, jdat.facts[1]:gsub('â', ' '))
 end
 return catfact

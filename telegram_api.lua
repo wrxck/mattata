@@ -1,8 +1,8 @@
 local telegram_api = {}
-local HTTPS = require('ssl.https')
-local JSON = require('dkjson')
-local ltn12 = require('ltn12')
-local mp_encode = require('multipart-post').encode
+local HTTPS = require('dependencies.ssl.https')
+local JSON = require('dependencies.dkjson')
+local ltn12 = require('dependencies.ltn12')
+local mp_encode = require('dependencies.multipart-post').encode
 local configuration = require('configuration')
 function telegram_api.init(token)
 	telegram_api.api = 'https://api.telegram.org/bot' .. token .. '/'

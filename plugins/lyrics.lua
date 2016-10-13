@@ -1,7 +1,7 @@
 local lyrics = {}
 local functions = require('functions')
-local HTTPS = require('ssl.https')
-local JSON = require('dkjson')
+local HTTPS = require('dependencies.ssl.https')
+local JSON = require('dependencies.dkjson')
 function lyrics:init(configuration)
 	lyrics.command =  'lyrics <query>'
 	lyrics.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('lyrics', true).table

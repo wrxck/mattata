@@ -1,10 +1,9 @@
 local lastfm = {}
-local HTTP = require('socket.http')
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
+local HTTP = require('dependencies.socket.http')
+local HTTPS = require('dependencies.ssl.https')
+local URL = require('dependencies.socket.url')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
-local telegram_api = require('telegram_api')
 function lastfm:init(configuration)
 	lastfm.command = 'lastfm'
 	lastfm.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('lastfm', true):t('np', true):t('fmset', true).table
@@ -81,14 +80,20 @@ function lastfm:action(msg, configuration)
 	else
 		local jdat = JSON.decode(jstr)
 		if tonumber(jdat.resultCount) > 0 then
-			if jdat.results[1].artworkUrl100 then
-				local artworkUrl100 = jdat.results[1].artworkUrl100:gsub('/100x100bb.jpg', '/10000x10000bb.jpg')
-				telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
-				functions.send_photo(msg.chat.id, functions.download_to_file(artworkUrl100), output, msg.message_id)
-				return
-			else
+			if artist and title == 'Unknown' then
+				functions.send_action(msg.chat.id, 'typing')
 				functions.send_reply(msg, output)
 				return
+			else
+				if jdat.results[1].artworkUrl100 then
+					local artworkUrl100 = jdat.results[1].artworkUrl100:gsub('/100x100bb.jpg', '/10000x10000bb.jpg')
+					functions.send_action(msg.chat.id, 'upload_photo')
+					functions.send_photo(msg.chat.id, functions.download_to_file(artworkUrl100), output, msg.message_id)
+					return
+				else
+					functions.send_reply(msg, output)
+					return
+				end
 			end
 		else
 			functions.send_reply(msg, output)

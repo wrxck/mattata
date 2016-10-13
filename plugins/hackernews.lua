@@ -1,8 +1,7 @@
-local HTTPS = require('ssl.https')
-local JSON = require('dkjson')
-local functions = require('functions')
-local telegram_api = require('telegram_api')
 local hackernews = {}
+local HTTPS = require('dependencies.ssl.https')
+local JSON = require('dependencies.dkjson')
+local functions = require('functions')
 function hackernews:init(configuration)
 	hackernews.command = 'hackernews'
 	hackernews.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('hackernews', true):t('hn', true).table
@@ -60,7 +59,7 @@ function hackernews:action(msg, configuration)
 	for i = 1, res_count do
 		output = output .. hackernews.results[i]
 	end
-	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
+	functions.send_action(msg.chat.id, 'typing')
 	functions.send_message(msg.chat.id, output, true, nil, 'html')
 end
 return hackernews

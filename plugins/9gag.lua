@@ -1,6 +1,6 @@
 local ninegag = {}
-local HTTP = require('socket.http')
-local JSON = require('dkjson')
+local HTTP = require('dependencies.socket.http')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function ninegag:init(configuration)
 	ninegag.command = '9gag'
@@ -25,7 +25,6 @@ function ninegag:inline_callback(inline_query, configuration)
 	functions.answer_inline_query(inline_query, results, 50)
 end
 function ninegag:action(msg, configuration)
-	functions.send_action(msg.chat.id, 'upload_photo')
 	local url = configuration.apis.ninegag
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
@@ -37,6 +36,7 @@ function ninegag:action(msg, configuration)
 	local link_image = jdat[jrnd].src
 	local title = jdat[jrnd].title
 	local post_url = jdat[jrnd].url
+	functions.send_action(msg.chat.id, 'upload_photo')
 	functions.send_photo(msg.chat.id, functions.download_to_file(link_image), title, msg.message_id, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. post_url .. '"}]]}')
 end
 return ninegag

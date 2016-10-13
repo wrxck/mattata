@@ -1,9 +1,8 @@
 local spotify = {}
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
+local HTTPS = require('dependencies.ssl.https')
+local URL = require('dependencies.socket.url')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
-local telegram_api = require('telegram_api')
 function spotify:init(configuration)
 	spotify.command = 'spotify <track ID>'
 	spotify.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('spotify', true).table

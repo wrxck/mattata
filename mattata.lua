@@ -1,9 +1,9 @@
 local mattata = {}
-local HTTP = require('socket.http')
-local HTTPS = require('ssl.https')
-local JSON = require('dkjson')
+local HTTP = require('dependencies.socket.http')
+local HTTPS = require('dependencies.ssl.https')
+local JSON = require('dependencies.dkjson')
 local telegram_api = require('telegram_api')
-mattata.version = '2.5'
+mattata.version = '2.6'
 function mattata:init(configuration)
 	assert(configuration.bot_api_key, 'You need to enter your bot API key in to the configuration file.')
 	telegram_api = require('telegram_api').init(configuration.bot_api_key)
@@ -154,7 +154,7 @@ function mattata:run(configuration)
 	while self.is_started do
 		local res = telegram_api.getUpdates{timeout = 20, offset = self.last_update + 1}
 		if res then
-			for _,v in ipairs(res.result) do
+			for _, v in ipairs(res.result) do
 				self.last_update = v.update_id
 				if v.inline_query then
 					mattata.process_inline_query(self, v.inline_query, configuration)

@@ -1,6 +1,6 @@
 local pwgen = {}
-local HTTP = require('socket.http')
-local JSON = require('dkjson')
+local HTTP = require('dependencies.socket.http')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function pwgen:init(configuration)
 	pwgen.command = 'pwgen <length>'

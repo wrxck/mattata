@@ -1,7 +1,7 @@
 local wikipedia = {}
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
+local HTTPS = require('dependencies.ssl.https')
+local URL = require('dependencies.socket.url')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function wikipedia:init(configuration)
 	wikipedia.command = 'wikipedia <query>'

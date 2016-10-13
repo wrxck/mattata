@@ -1,7 +1,7 @@
 local chuck = {}
-local JSON = require('dkjson')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
-local HTTP = require('socket.http')
+local HTTP = require('dependencies.socket.http')
 function chuck:init(configuration)
 	chuck.command = 'chuck'
 	chuck.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('chuck', true).table

@@ -1,5 +1,5 @@
 local preview = {}
-local HTTP = require('socket.http')
+local HTTP = require('dependencies.socket.http')
 local functions = require('functions')
 function preview:init(configuration)
 	preview.command = 'preview <url>'

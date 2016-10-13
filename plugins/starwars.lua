@@ -1,8 +1,7 @@
 local starwars = {}
-local HTTP = require('socket.http')
-local JSON = require('dkjson')
+local HTTP = require('dependencies.socket.http')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
-local telegram_api = require('telegram_api')
 function starwars:init(configuration)
 	starwars.command = 'starwars <query>'
 	starwars.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('starwars', true):t('sw', true).table
@@ -57,7 +56,7 @@ function starwars:action(msg, configuration)
 	end
 	local jdat = JSON.decode(jstr)
 	local output = jdat.opening_crawl
-	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
+	functions.send_action(msg.chat.id, 'typing')
 	functions.send_reply(msg, output)
 end
 return starwars

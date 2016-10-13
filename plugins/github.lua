@@ -1,16 +1,17 @@
 local github = {}
-local HTTPS = require('ssl.https')
-local JSON = require('dkjson')
+local HTTPS = require('dependencies.ssl.https')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
 function github:init(configuration)
 	github.command = 'github <username> <repository>'
 	github.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('github', true).table
-	github.doc = configuration.command_prefix .. 'github <username> <repository> - Returns information about the specified GitHub repository.'
+	github.documentation = configuration.command_prefix .. 'github <username> <repository> - Returns information about the specified GitHub repository.'
 end
 function github:action(msg, configuration)
 	local input = functions.input(msg.text)
 	if not input then
-		functions.send_reply(msg, github.doc)
+		functions.send_reply(msg, github.documentation)
+		return
 	else
 		input = input:gsub(' ', '/')
 	end

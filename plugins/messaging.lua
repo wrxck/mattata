@@ -1,8 +1,7 @@
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
+local HTTPS = require('dependencies.ssl.https')
+local URL = require('dependencies.socket.url')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
-local telegram_api = require('telegram_api')
 local messaging = {}
 function messaging:init(configuration)
 	messaging.triggers = {
@@ -47,28 +46,27 @@ function messaging:action(msg, configuration)
 				functions.send_reply(msg, 'Your message has been sent successfully. Make sure you don\'t delete this chat, else you won\'t be able to receive a response.')
 			end
 		else
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
-			functions.send_reply(msg, jdat.clever)
+			functions.send_action(msg.chat.id, 'typing')
+			functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'):gsub('?%.', '?'))
 			return
 		end
 	else
-		if string.match(msg.text, 'trick or treat') then
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
-			functions.send_reply(msg, 'Trick, motherfucker!')
-			return
-		elseif string.match(msg.text, 'nigger') then
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
-			functions.send_reply(msg, 'You racist bastard!')
-			return
-		elseif string.match(msg.text, self.info.first_name) or string.match(msg.text, 'Mattata') then
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
-			functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'))
+		if string.match(msg.text, self.info.first_name) or string.match(msg.text, 'Mattata') then
+			functions.send_action(msg.chat.id, 'typing')
+			functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'):gsub('?%.', '?'))
 			return
 		end	
 		if msg.reply_to_message then
+			if msg.reply_to_message.from.id ~= msg.from.id then
+				if msg.reply_to_message.from.username then
+					if string.match(msg.reply_to_message.text, '@' .. msg.reply_to_message.from.username) then
+						functions.forward_message(msg.reply_to_message.from.id, msg.chat.id, msg.message_id)
+					end
+				end
+			end
 			if msg.reply_to_message.from.id == self.info.id then
-				telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
-				functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'))
+				functions.send_action(msg.chat.id, 'typing')
+				functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'):gsub('?%.', '?'))
 				return
 			end
 		end

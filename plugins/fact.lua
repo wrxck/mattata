@@ -1,7 +1,7 @@
 local fact = {}
-local JSON = require('dkjson')
+local JSON = require('dependencies.dkjson')
 local functions = require('functions')
-local HTTP = require('socket.http')
+local HTTP = require('dependencies.socket.http')
 function fact:init(configuration)
 	fact.command = 'fact'
 	fact.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('fact', true).table
