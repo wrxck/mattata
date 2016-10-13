@@ -34,7 +34,7 @@ function xkcd:action(msg, configuration)
 		functions.send_reply(msg, configuration.errors.connection)
 	else
 		local data = JSON.decode(jstr)
-		functions.send_photo(msg.chat.id, functions.download_to_file(data.img), data.num .. ' | ' .. functions.fix_utf8(data.safe_title) .. ' | ' .. data.day .. '/' .. data.month .. '/' .. data.year, msg.message_id, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. 'https://xkcd.com/' .. data.num .. '"}]]}')
+		functions.send_photo(msg.chat.id, functions.download_to_file(data.img), data.num .. ' | ' .. data.safe_title .. ' | ' .. data.day .. '/' .. data.month .. '/' .. data.year, msg.message_id, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. 'https://xkcd.com/' .. data.num .. '"}]]}')
 	end
 end
 return xkcd
