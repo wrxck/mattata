@@ -16,12 +16,17 @@ function mattata:init(configuration)
 	self.info = self.info.result
 	self.database_name = self.info.username
 	self.database = functions.load_data(self.database_name)
+	if not self.database then
+		functions.load_data(self.database_name)
+	end
 	self.database.users = self.database.users or {}
 	self.database.userdata = self.database.userdata or {}
+	self.database.reminders = self.database.reminders or {}
+	self.database.pokemon_go = self.database.pokemon_go or {}
 	self.database.version = mattata.version
 	self.database.users[tostring(self.info.id)] = self.info
 	self.plugins = {}
-	for k,v in pairs(configuration.plugins) do
+	for k, v in pairs(configuration.plugins) do
 		local plugin = require('plugins.' .. v)
 		table.insert(self.plugins, plugin)
 		if plugin.init then
