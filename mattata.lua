@@ -22,7 +22,6 @@ function mattata:init(configuration)
 	self.database.users = self.database.users or {}
 	self.database.userdata = self.database.userdata or {}
 	self.database.reminders = self.database.reminders or {}
-	self.database.pokemon_go = self.database.pokemon_go or {}
 	self.database.version = mattata.version
 	self.database.users[tostring(self.info.id)] = self.info
 	self.plugins = {}
