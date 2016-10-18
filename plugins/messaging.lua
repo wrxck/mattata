@@ -1,8 +1,8 @@
+local messaging = {}
 local HTTPS = require('dependencies.ssl.https')
 local URL = require('dependencies.socket.url')
 local JSON = require('dependencies.dkjson')
 local functions = require('functions')
-local messaging = {}
 function messaging:init(configuration)
 	messaging.triggers = {
 		'^' .. '' .. ''
@@ -24,18 +24,6 @@ function messaging:action(msg, configuration)
 		return
 	end
 	local jdat = JSON.decode(jstr)
-	if msg.reply_to_message then
-		if msg.reply_to_message.from.id == self.id then
-			if msg.chat.id == configuration.admin_group then
-				if not string.match(input, configuration.command_prefix) then
-					functions.send_message(msg.reply_to_message.forward_from.id, input, true, nil, true)
-					return
-				else
-					functions.send_reply(msg, 'That message wasn\'t sent because it contained \'' .. configuration.command_prefix .. '\'')
-				end
-			end
-		end
-	end
 	if msg.chat.type == 'private' then
 		if string.match(input, configuration.command_prefix .. 'msg') then
 			if input == configuration.command_prefix .. 'msg' then
@@ -51,23 +39,56 @@ function messaging:action(msg, configuration)
 			return
 		end
 	else
+		if string.match(msg.text, '😐😐😐') or string.match(msg.text, '😑😑😑') or string.match(msg.text, ':|:|:|') or string.match(msg.text, '🙁🙁🙁') or string.match(msg.text, '☹☹☹️') or string.match(msg.text, '🌹🌹🌹') or string.match(msg.text, '😒😒😒') or string.match(msg.text, '😭😭😭') or string.match(msg.text, '💋💋💋') then -- Idea by @aRandomStranger
+			functions.send_action(msg.chat.id, 'typing')
+			functions.send_reply(msg, '*⚠️ WEEDOW WEEDOW ⚠️*\n_Random iranian spammer detected._', true)
+		end
+		if string.match(msg.text_lower, 'ayy') then
+			functions.send_reply(msg, 'lmao')
+			return
+		end
+		if string.match(msg.text_lower, 'lmao') then
+			functions.send_reply(msg, 'ayy')
+			return
+		end
 		if string.match(msg.text, self.info.first_name) or string.match(msg.text, 'Mattata') then
 			functions.send_action(msg.chat.id, 'typing')
 			functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'):gsub('?%.', '?'))
 			return
-		end	
+		end
+		if string.match(msg.text, '%^%?') then
+			functions.send_reply(msg, 'Since this user used the trigger `^?`, any messages sent in reply will be forwarded to them.', true)
+			return
+		end
 		if msg.reply_to_message then
 			if msg.reply_to_message.from.id ~= msg.from.id then
 				if msg.reply_to_message.from.username then
-					if string.match(msg.reply_to_message.text, '@' .. msg.reply_to_message.from.username) then
+					if string.match(msg.reply_to_message.text, '%^%?') then
 						functions.forward_message(msg.reply_to_message.from.id, msg.chat.id, msg.message_id)
 					end
 				end
 			end
 			if msg.reply_to_message.from.id == self.info.id then
-				functions.send_action(msg.chat.id, 'typing')
-				functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'):gsub('?%.', '?'))
-				return
+				if msg.chat.id == configuration.admin_group then
+					if string.match(input, configuration.command_prefix) then
+						functions.send_reply(msg, 'That message wasn\'t sent because it contained \'' .. configuration.command_prefix .. '\'')
+						return
+					else
+						if msg.reply_to_message.forward_from then
+							local admin_res = functions.send_message(msg.reply_to_message.forward_from.id, input, true, nil, true)
+							if admin_res then
+								functions.send_reply(msg, 'Your message was sent successfully!')
+							else
+								functions.send_reply(msg, 'Your message failed to send - this probably means the user blocked me.')
+							end
+							return
+						end
+					end
+				else
+					functions.send_action(msg.chat.id, 'typing')
+					functions.send_reply(msg, jdat.clever:gsub('Hakuna Matata.', 'I\'m mattata!'):gsub('Hakuna.', 'I\'m mattata!'):gsub('?%.', '?'))
+					return
+				end
 			end
 		end
 	end

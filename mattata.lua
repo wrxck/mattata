@@ -3,7 +3,7 @@ local HTTP = require('dependencies.socket.http')
 local HTTPS = require('dependencies.ssl.https')
 local JSON = require('dependencies.dkjson')
 local telegram_api = require('telegram_api')
-mattata.version = '2.6'
+mattata.version = '2.7'
 function mattata:init(configuration)
 	assert(configuration.bot_api_key, 'You need to enter your bot API key in to the configuration file.')
 	telegram_api = require('telegram_api').init(configuration.bot_api_key)
@@ -130,7 +130,7 @@ function mattata:on_callback_receive(callback, msg, configuration)
 			plugin:callback(callback, msg, self, configuration, param)
 		end
 	end
-	functions.answer_callback_query(callback, 'Invalid callback query.')
+	functions.answer_callback_query(callback)
 end
 function mattata:process_inline_query(inline_query, configuration)
 	if string.len(inline_query.query) > 200 then

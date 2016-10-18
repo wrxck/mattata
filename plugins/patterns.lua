@@ -28,7 +28,7 @@ function patterns:action(msg)
 	if res == false then
 		functions.send_reply(msg, 'Invalid pattern.')
 	else
-		output = 'Did you mean _' .. functions.trim(output:sub(1, 4000)) .. '_?'
+		output = '*Uh... ' .. msg.reply_to_message.from.first_name .. '? Are you sure you didn\'t mean:*\n' .. functions.trim(output:sub(1, 4000))
 		functions.send_reply(msg, output, true)
 	end
 end

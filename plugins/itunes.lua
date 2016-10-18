@@ -10,14 +10,14 @@ function itunes:init(configuration)
 end
 function itunes:action(msg, configuration)
 	local input = functions.input(msg.text)
+	if not input then
+		functions.send_reply(msg, itunes.documentation)
+		return
+	end
 	local url = configuration.apis.itunes .. URL.escape(input)
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
 		functions.send_reply(msg, configuration.errors.connection)
-		return
-	end
-	if not input then
-		functions.send_reply(msg, itunes.documentation)
 		return
 	else
 		local jdat = JSON.decode(jstr)

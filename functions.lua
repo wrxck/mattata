@@ -664,7 +664,7 @@ function functions.answer_inline_query(inline_query, results, cache_time, is_per
 	return telegram_api.request('answerInlineQuery', {
 		inline_query_id = inline_query.id,
 		results = results,
-		cache_time = cache_time,
+		cache_time = 0,
 		is_personal = is_personal,
 		next_offset = next_offset,
 		switch_pm_text = switch_pm_text,

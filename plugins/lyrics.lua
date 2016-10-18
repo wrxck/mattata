@@ -36,7 +36,7 @@ function lyrics:action(msg, configuration)
 			return
 		end
 		local lyrics = '*' .. jdat_id.message.body.track_list[1].track.track_name .. ' - ' .. jdat_id.message.body.track_list[1].track.artist_name .. '*\n\n' .. jdat.message.body.lyrics.lyrics_body:gsub('%...', ''):gsub('This Lyrics is NOT for Commercial use', '')
-		functions.send_message(msg.chat.id, lyrics, true, nil, true, '{"inline_keyboard":[[{"text":"Read more", "url":"'..jdat_id.message.body.track_list[1].track.track_share_url..'"}]]}')
+		functions.send_message(msg.chat.id, lyrics, true, nil, true, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. jdat_id.message.body.track_list[1].track.track_share_url .. '"}]]}')
 	end
 end
 return lyrics

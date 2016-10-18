@@ -14,6 +14,11 @@ function qotd:action(msg, configuration)
 		return
 	end
 	local jdat = JSON.decode(jstr)
-	functions.send_reply(msg, '_' .. jdat.contents.quotes[1].quote .. '_ - *' .. jdat.contents.quotes[1].author .. '*', true)
+	if string.match(jstr, 'null') then
+		output = configuration.errors.connection
+	else
+		output = '_' .. jdat.contents.quotes[1].quote .. '_ - *' .. jdat.contents.quotes[1].author .. '*'
+	end
+	functions.send_reply(msg, output, true)
 end
 return qotd

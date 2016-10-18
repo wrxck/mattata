@@ -24,5 +24,6 @@ function control:action(msg, configuration)
 	mattata.init(self, configuration)
 	print(self.info.first_name .. ' is reloading...')
 	functions.send_reply(msg, self.info.first_name .. ' is reloading...')
+	functions.edit_message(msg.chat.id, msg.message_id + 1, self.info.first_name .. ' successfully reloaded!', true, true)
 end
 return control

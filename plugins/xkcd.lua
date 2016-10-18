@@ -14,6 +14,7 @@ function xkcd:init(configuration)
 		if data then
 			xkcd.latest = data.num
 		end
+		
 	end
 	xkcd.latest = xkcd.latest
 end
@@ -27,10 +28,10 @@ function xkcd:action(msg, configuration)
 		input = xkcd.latest
 	end
 	local url = xkcd.strip_url:format(input)
-	local jstr, code = HTTP.request(url)
-	if code == 404 then
+	local jstr, res = HTTP.request(url)
+	if res == 404 then
 		functions.send_reply(msg, configuration.errors.results)
-	elseif code ~= 200 then
+	elseif res ~= 200 then
 		functions.send_reply(msg, configuration.errors.connection)
 	else
 		local data = JSON.decode(jstr)

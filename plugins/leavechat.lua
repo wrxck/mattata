@@ -5,22 +5,23 @@ function leavechat:init(configuration)
 end
 function leavechat:action(msg, configuration)
 	local input = functions.input(msg.text)
-	if input then
-		if msg.from.id == configuration.owner_id then
-			functions.send_message(input, 'Bye.', true, nil, true)
-			functions.leave_chat(input)
-			return
-		end	
-	else
-		if msg.from.id == configuration.owner_id then
-			if msg.chat.type ~= 'private' then
-				functions.send_reply(msg, 'Bye.')
-				functions.leave_chat(msg.chat.id)
-				return
-			else
-				functions.send_reply(msg, 'You can\'t force me to leave a private chat with you.')
-				return
+	local admin_list, t = functions.get_chat_administrators(msg.chat.id)
+	if admin_list then
+		local is_admin = false
+		for _, admin in ipairs(admin_list.result) do
+			if admin.user.id == msg.from.id then
+				is_admin = true
+			elseif msg.from.id == configuration.owner_id then
+				is_admin = true
 			end
+		end
+		if is_admin then
+			functions.send_message(msg.chat.id, 'Well, fuck you then, ' .. msg.from.first_name .. '...', true, nil, true)
+			functions.leave_chat(msg.chat.id)
+			return
+		else
+			functions.send_message(msg.chat.id, 'Sorry, you do not appear to be an administrator for this group.', true, nil, true)
+			return
 		end
 	end
 end

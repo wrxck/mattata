@@ -21,11 +21,11 @@ function synonym:action(msg, configuration)
 		return
 	end
 	local jdat = JSON.decode(jstr)
-	if jstr ~= '{"head":{},"def":[]}' then
-		functions.send_reply(msg, 'You could use the word *' .. jdat.def[1].tr[1].text .. '* instead.')
+	if jstr == '{"head":{},"def":[]}' then
+		functions.send_reply(msg, configuration.errors.results)
 		return
 	else
-		functions.send_reply(msg, configuration.errors.results)
+		functions.send_reply(msg, 'You could use the word *' .. jdat.def[1].tr[1].text .. '* instead.', true)
 		return
 	end
 end
