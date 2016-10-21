@@ -20,7 +20,6 @@ function messaging:action(msg, configuration)
 	local input = msg.text_lower:gsub(self.info.first_name .. ' ', ''):gsub(self.info.first_name .. ', ',''):gsub('Mattata, ',''):gsub('Mattata ','')
 	local jstr, res = HTTPS.request(configuration.messaging.url .. URL.escape(input))
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
 		return
 	end
 	local jdat = JSON.decode(jstr)
