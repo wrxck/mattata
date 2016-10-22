@@ -13,11 +13,11 @@ function help:init(configuration)
 			end
 		end
 	end
-	table.insert(arguments_list, 'help <arguments>')
+	table.insert(arguments_list, 'help <plugin>')
 	table.sort(arguments_list)
-	help_text = help_text .. table.concat(arguments_list, '\n	» '..configuration.commandPrefix) .. '\n\n*Arguments:* <required> (optional)'
+	help_text = help_text .. table.concat(arguments_list, '\n	» ' .. configuration.commandPrefix) .. '\n\n*Arguments:* <required> (optional)'
 	help.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('help', true):c('h', true).table
-	help.help = configuration.commandPrefix .. '*help <arguments>* \nUsage information for the given arguments.'
+	help.help = configuration.commandPrefix .. '*help <plugin>* \nUsage information for the given plugin.'
 end
 
 function help:onMessageReceive(msg)
@@ -32,9 +32,9 @@ function help:onMessageReceive(msg)
 		end
 		mattata.sendMessage(msg.chat.id, 'Sorry, there is no documented help for that arguments.', nil, true, false, msg.message_id, nil)
 	else
-		local res = mattata.sendMessage(msg.from.id, help_text, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"Official Channel", "url":"https://telegram.me/mattata"},{"text":"Source Code", "url":"https://github.com/matthewhesketh/mattata"},{"text":"Rate me", "url":"https://telegram.me/storebot?start=mattatabot"}]]}')
+		local res = mattata.sendMessage(msg.from.id, help_text, 'Markdown', true, false, nil, '{"inline_keyboard":[[{"text":"Official Channel", "url":"https://telegram.me/mattata"},{"text":"Source Code", "url":"https://github.com/matthewhesketh/mattata"},{"text":"Rate me", "url":"https://telegram.me/storebot?start=mattatabot"}]]}')
 		if not res then
-			mattata.send_reply(msg.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=help) to get started.', 'Markdown', true, false, msg.message_id, nil)
+			mattata.sendMessage(msg.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=help) to get started.', 'Markdown', true, false, msg.message_id, nil)
 		elseif msg.chat.type ~= 'private' then
 			mattata.sendMessage(msg.chat.id, 'I have sent you a private message containing the requested information.', nil, true, false, msg.message_id, nil)
 		end
