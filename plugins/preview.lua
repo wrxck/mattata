@@ -1,32 +1,35 @@
 local preview = {}
 local HTTP = require('dependencies.socket.http')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function preview:init(configuration)
-	preview.command = 'preview <url>'
-	preview.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('preview', true).table
-	preview.documentation = configuration.command_prefix .. 'preview <link> - Sends an "unlinked" preview of the given URL.'
+	preview.arguments = 'preview <url>'
+	preview.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('preview', true).table
+	preview.help = configuration.commandPrefix .. 'preview <link> - Sends an "unlinked" preview of the given URL.'
 end
-function preview:action(msg)
-	local input = functions.input(msg.text)
+
+function preview:onMessageReceive(msg)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, preview.documentation)
+		mattata.sendMessage(msg.chat.id, preview.help, nil, true, false, msg.message_id, nil)
 		return
 	else
-		input = functions.get_word(input, 1)
+		input = mattata.getWord(input, 1)
 	end
 	if not input:match('^https?://.+') then
 		input = 'http://' .. input
 	end
 	local res = HTTP.request(input)
 	if not res then
-		functions.send_reply(msg, 'Please provide a valid URL.')
+		mattata.sendMessage(msg.chat.id, 'Please provide a valid URL.', nil, true, false, msg.message_id, nil)
 	return
 	end
 	if res:len() == 0 then
-		functions.send_reply(msg, 'Sorry, the URL you provided is not letting me generate a preview. Please check it\'s valid.')
+		mattata.sendMessage(msg.chat.id, 'Sorry, the URL you provided is not letting me generate a preview. Please check it\'s valid.', nil, true, false, msg.message_id, nil)
 		return
 	end
 	local output = '[​](' .. input .. ')'
-	functions.send_message(msg.chat.id, output, false, nil, true)
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', false, false, msg.message_id, nil)
 end
+
 return preview

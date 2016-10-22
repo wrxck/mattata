@@ -1,19 +1,22 @@
 local yeoldinsult = {}
 local HTTP = require('dependencies.socket.http')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function yeoldinsult:init(configuration)
-	yeoldinsult.command = 'yeoldinsult'
-	yeoldinsult.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('yeoldinsult', true).table
-	yeoldinsult.documentation = configuration.command_prefix .. 'yeoldinsult - Insults you, the old-school way.' 
+	yeoldinsult.arguments = 'yeoldinsult'
+	yeoldinsult.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('yeoldinsult', true).table
+	yeoldinsult.help = configuration.commandPrefix .. 'yeoldinsult - Insults you, the old-school way.' 
 end
-function yeoldinsult:action(msg, configuration)
+
+function yeoldinsult:onMessageReceive(msg, configuration)
 	local jstr, res = HTTP.request(configuration.apis.yeoldinsult)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
-	functions.send_reply(msg, jdat.insult)
+	mattata.sendMessage(msg.chat.id, jdat.insult, nil, true, false, msg.message_id, nil)
 end
+
 return yeoldinsult

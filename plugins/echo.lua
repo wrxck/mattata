@@ -1,16 +1,19 @@
 local echo = {}
-local functions = require('functions')
+local mattata = require('mattata')
+
 function echo:init(configuration)
-	echo.command = 'echo <text>'
-	echo.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('echo', true).table
-	echo.documentation = configuration.command_prefix .. 'echo <text> - Repeats a string of text.'
+	echo.arguments = 'echo <text>'
+	echo.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('echo', true).table
+	echo.help = configuration.commandPrefix .. 'echo <text> - Repeats a string of text.'
 end
-function echo:action(msg)
-	local input = functions.input(msg.text)
+
+function echo:onMessageReceive(msg)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, echo.documentation)
+		mattata.sendMessage(msg, echo.help, nil, true, false, msg.message_id, nil)
 		return
 	end
-	functions.send_reply(msg, input)
+	mattata.sendMessage(msg.chat.id, input, nil, true, false, msg.message_id, nil)
 end
+
 return echo

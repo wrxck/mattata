@@ -1,16 +1,18 @@
 local github = {}
 local HTTPS = require('dependencies.ssl.https')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function github:init(configuration)
-	github.command = 'github <username> <repository>'
-	github.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('github', true).table
-	github.documentation = configuration.command_prefix .. 'github <username> <repository> - Returns information about the specified GitHub repository.'
+	github.arguments = 'github <username> <repository>'
+	github.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('github', true).table
+	github.help = configuration.commandPrefix .. 'github <username> <repository> - Returns information about the specified GitHub repository.'
 end
-function github:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function github:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, github.documentation)
+		mattata.sendMessage(msg.chat.id, github.help, nil, true, false, msg.message_id, nil)
 		return
 	else
 		input = input:gsub(' ', '/')
@@ -71,11 +73,12 @@ function github:action(msg, configuration)
 		local stargazers_url = html_url .. '/stargazers'
 		local stats = '[' .. forks .. forks_count .. '](' .. forks_url .. ') *|* [' .. watchers .. watchers_count .. '](' .. watchers_url .. ') *|* [' .. stargazers .. stargazers_count .. '](' .. stargazers_url .. ') \nLast updated at ' .. updated_at
 		local output = title .. '\n\n' .. '`' .. description .. '`' .. '\n\n' .. stats
-		functions.send_reply(msg, output, true)
+		mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 		return
 	else
-		functions.send_reply(msg, configuration.errors.results)
+		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
 		return
 	end
 end
+
 return github

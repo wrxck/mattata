@@ -1,11 +1,13 @@
 local eightball = {}
-local functions = require('functions')
+local mattata = require('mattata')
+
 function eightball:init(configuration)
-	eightball.command = 'eightball'
-	eightball.triggers = functions.triggers(self.info.username, configuration.command_prefix, {'[Yy]/[Nn]%p*$'}):t('eightball', true).table
-	eightball.documentation = configuration.command_prefix .. 'eightball - Returns your destined decision through mattata\'s sixth sense.'
+	eightball.arguments = 'eightball'
+	eightball.commands = mattata.commands(self.info.username, configuration.commandPrefix, {'[Yy]/[Nn]%p*$'}):c('eightball', true).table
+	eightball.help = configuration.commandPrefix .. 'eightball - Returns your destined decision through mattata\'s sixth sense.'
 end
-function eightball:action(msg, configuration)
+
+function eightball:onMessageReceive(msg, configuration)
 	local answers = configuration.eightball.answers
 	local yes_no_answers = configuration.eightball.yes_no_answers
 	local output = ''
@@ -14,6 +16,7 @@ function eightball:action(msg, configuration)
 	else
 		output = answers[math.random(#answers)]
 	end
-	functions.send_reply(msg, output)
+	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
 end
+
 return eightball

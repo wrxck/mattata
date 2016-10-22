@@ -1,17 +1,20 @@
 local randomword = {}
 local HTTP = require('dependencies.socket.http')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function randomword:init(configuration)
-	randomword.command = 'randomword'
-	randomword.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('randomword', true):t('rw', true).table
-	randomword.documentation = configuration.command_prefix .. 'randomword - Generates a random word. Alias: ' .. configuration.command_prefix .. 'rw.'
+	randomword.arguments = 'randomword'
+	randomword.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('randomword', true):c('rw', true).table
+	randomword.help = configuration.commandPrefix .. 'randomword - Generates a random word. Alias: ' .. configuration.commandPrefix .. 'rw.'
 end
-function randomword:action(msg, configuration)
+
+function randomword:onMessageReceive(msg, configuration)
 	local str, res = HTTP.request(configuration.apis.randomword)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
-	functions.send_reply(msg, 'Your random word is: *' .. str .. '*.', true, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
+	mattata.sendMessage(msg.chat.id, 'Your random word is: *' .. str .. '*.', 'Markdown', true, false, msg.message_id, nil, '{"inline_keyboard":[[{"text":"Generate another!", "callback_data":"randomword"}]]}')
 end
+
 return randomword

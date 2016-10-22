@@ -1,16 +1,18 @@
 local channel = {}
-local functions = require('functions')
+local mattata = require('mattata')
+
 function channel:init(configuration)
-	channel.command = 'ch <channel> \\n <message>'
-	channel.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('ch', true).table
-	channel.documentation = configuration.command_prefix .. 'ch <channel> <message> - Sends a message to a Telegram channel/group. The channel/group can be specified via ID or username. Messages can be formatted with Markdown. Users can only send messages to channels/groups they own and/or administrate.'
+	channel.arguments = 'ch <channel> \\n <message>'
+	channel.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('ch', true).table
+	channel.help = configuration.commandPrefix .. 'ch <channel> <message> - Sends a message to a Telegram channel/group. The channel/group can be specified via ID or username. Messages can be formatted with Markdown. Users can only send messages to channels/groups they own and/or administrate.'
 end
-function channel:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function channel:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	local output
 	if input then
-		local chat_id = functions.get_word(input, 1)
-		local admin_list, t = functions.get_chat_administrators(chat_id)
+		local chat_id = mattata.getWord(input, 1)
+		local admin_list, t = mattata.getChatAdministrators(chat_id)
 		if admin_list then
 			local is_admin = false
 			for _, admin in ipairs(admin_list.result) do
@@ -21,7 +23,7 @@ function channel:action(msg, configuration)
 			if is_admin then
 				local text = input:match('\n(.+)')
 				if text then
-					local success = functions.send_message(chat_id, text, true, nil, true)
+					local success = mattata.sendMessage(chat_id, text, 'Markdown', true, false, nil, nil)
 					if success then
 						output = 'Your message has been sent!'
 					else
@@ -37,8 +39,9 @@ function channel:action(msg, configuration)
 			output = 'Sorry, I was unable to retrieve a list of administrators for that group/channel.\n' .. t.description
 		end
 	else
-		output = channel.documentation
+		output = channel.help
 	end
-	functions.send_reply(msg, output)
+	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
 end
+
 return channel

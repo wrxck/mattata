@@ -2,21 +2,23 @@ local ispwned = {}
 local HTTPS = require('dependencies.ssl.https')
 local URL = require('dependencies.socket.url')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function ispwned:init(configuration)
-	ispwned.command = 'ispwned <username/email>'
-	ispwned.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('ispwned', true).table
-	ispwned.documentation = configuration.command_prefix .. 'ispwned <username/email> - Tells you if the given username/email has been identified in any data leaks.'
+	ispwned.arguments = 'ispwned <username/email>'
+	ispwned.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('ispwned', true).table
+	ispwned.help = configuration.commandPrefix .. 'ispwned <username/email> - Tells you if the given username/email has been identified in any data leaks.'
 end
-function ispwned:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function ispwned:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, ispwned.documentation)
+		mattata.sendMessage(msg.chat.id, ispwned.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jstr, res = HTTPS.request(configuration.apis.ispwned .. URL.escape(input))
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -43,6 +45,7 @@ function ispwned:action(msg, configuration)
 	elseif count == 9 then
 		output = '*Found ' .. count .. ' entries:*\n' .. jdat[math.abs(count - 8)].Title .. '\n' .. jdat[math.abs(count - 7)].Title .. '\n' .. jdat[math.abs(count - 6)].Title .. '\n' .. jdat[math.abs(count - 5)].Title .. '\n' .. jdat[math.abs(count - 4)].Title .. '\n' .. jdat[math.abs(count - 3)].Title .. '\n' .. jdat[math.abs(count - 2)].Title .. '\n' .. jdat[math.abs(count)].Title
 	end
-	functions.send_reply(msg, output, true)
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 end
+
 return ispwned

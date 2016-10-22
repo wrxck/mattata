@@ -1,13 +1,15 @@
 local isup = {}
-local functions = require('functions')
+local mattata = require('mattata')
 local URL = require('dependencies.socket.url')
 local HTTP = require('dependencies.socket.http')
+
 function isup:init(configuration)
-	isup.command = 'isup <URL>'
-	isup.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('isup', true).table
-	isup.documentation = configuration.command_prefix .. 'isup <URL> - Check if the specified URL is down for everyone or just you.'
+	isup.arguments = 'isup <URL>'
+	isup.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('isup', true).table
+	isup.help = configuration.commandPrefix .. 'isup <URL> - Check if the specified URL is down for everyone or just you.'
 end
-function isup.website_down_http(url)
+
+function isup.isWebsiteDown(url)
 	local parsed_url = URL.parse(url, { scheme = 'http', authority = '' })
 	if not parsed_url.host and parsed_url.path then
 		parsed_url.host = parsed_url.path
@@ -32,16 +34,18 @@ function isup.website_down_http(url)
 	end
 	return true
 end
-function isup:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function isup:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, isup.documentation)
+		mattata.sendMessage(msg.chat.id, isup.help, nil, true, false, msg.message_id, nil)
 		return
 	end
-	if isup.website_down_http(input) then
-		functions.send_reply(msg, 'This website is up, maybe it\'s just you?')
+	if isup.isWebsiteDown(input) then
+		mattata.sendMessage(msg.chat.id, 'This website is up, maybe it\'s just you?', nil, true, false, msg.message_id, nil)
 	else
-		functions.send_reply(msg, 'It\'s not just you, this website is down!')
+		mattata.sendMessage(msg.chat.id, 'It\'s not just you, this website is down!', nil, true, false, msg.message_id, nil)
 	end
 end
+
 return isup

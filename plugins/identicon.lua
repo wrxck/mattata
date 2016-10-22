@@ -1,19 +1,22 @@
 local identicon = {}
 local URL = require('dependencies.socket.url')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function identicon:init(configuration)
-	identicon.command = 'identicon <string>'
-	identicon.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('identicon', true).table
-	identicon.documentation = configuration.command_prefix .. 'identicon - Converts the given string to an identicon.'
+	identicon.arguments = 'identicon <string>'
+	identicon.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('identicon', true).table
+	identicon.help = configuration.commandPrefix .. 'identicon - Converts the given string to an identicon.'
 end
-function identicon:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function identicon:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, identicon.documentation)
+		mattata.sendMessage(msg.chat.id, identicon.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local str = configuration.apis.identicon .. URL.escape(input) .. '.png'
-	functions.send_action(msg.chat.id, 'upload_photo')
-	functions.send_photo(msg.chat.id, functions.download_to_file(str), 'Here is your string, \'' .. input .. '\' - as an identicon.')
+	mattata.sendChatAction(msg.chat.id, 'upload_photo')
+	mattata.sendPhoto(msg.chat.id, str, nil, false, msg.message_id, nil)
 end
+
 return identicon

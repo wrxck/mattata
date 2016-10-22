@@ -1,17 +1,20 @@
 local loremipsum = {}
-local functions = require('functions')
+local mattata = require('mattata')
 local HTTP = require('dependencies.socket.http')
+
 function loremipsum:init(configuration)
-	loremipsum.command = 'loremipsum'
-	loremipsum.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('loremipsum', true).table
-	loremipsum.documentation = configuration.command_prefix .. 'loremipsum - Generates a few Lorem Ipsum sentences!'
+	loremipsum.arguments = 'loremipsum'
+	loremipsum.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('loremipsum', true).table
+	loremipsum.help = configuration.commandPrefix .. 'loremipsum - Generates a few Lorem Ipsum sentences!'
 end
-function loremipsum:action(msg, configuration)
+
+function loremipsum:onMessageReceive(msg, configuration)
 	local output, res = HTTP.request(configuration.apis.loremipsum)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
-	functions.send_reply(msg, output)
+	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
 end
+
 return loremipsum

@@ -1,24 +1,27 @@
 local qrgen = {}
 local URL = require('dependencies.socket.url')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function qrgen:init(configuration)
-	qrgen.command = 'qrgen <string>'
-	qrgen.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('qrgen', true).table
-	qrgen.documentation = configuration.command_prefix .. 'qrgen - Converts the given string to an QR code.'
+	qrgen.arguments = 'qrgen <string>'
+	qrgen.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('qrgen', true).table
+	qrgen.help = configuration.commandPrefix .. 'qrgen - Converts the given string to an QR code.'
 end
-function qrgen:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function qrgen:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, qrgen.documentation)
+		mattata.sendMessage(msg.chat.id, qrgen.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local str = configuration.apis.qrgen .. URL.escape(input) .. '&chld=H|0'
-	local res = functions.send_photo(msg.from.id, functions.download_to_file(str,  math.random(5000) .. '.png'), 'Here is your string, \'' .. input .. '\' - as a QR code.')
+	local res = mattata.sendPhoto(msg.from.id, str .. '.png', nil, false, msg.message_id, nil)
 	if not res then
-		functions.send_reply(msg, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. ') so I can send you the QR code.', true)
+		mattata.sendMessage(msg.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. ') so I can send you the QR code.', 'Markdown', true, false, msg.message_id, nil)
 	else
-		functions.send_action(msg.from.id, 'upload_photo')
-		functions.send_reply(msg, 'I have sent you your QR code via a private message.')
+		mattata.sendChatAction(msg.from.id, 'upload_photo')
+		mattata.sendMessage(msg.chat.id, 'I have sent you your QR code via a private message.', nil, true, false, msg.message_id, nil)
 	end
 end
+
 return qrgen

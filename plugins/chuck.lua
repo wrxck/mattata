@@ -1,26 +1,30 @@
 local chuck = {}
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
 local HTTP = require('dependencies.socket.http')
+
 function chuck:init(configuration)
-	chuck.command = 'chuck'
-	chuck.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('chuck', true).table
-	chuck.inline_triggers = chuck.triggers
-	chuck.documentation = configuration.command_prefix .. 'chuck - Generates a Chuck Norris joke!'
+	chuck.arguments = 'chuck'
+	chuck.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('chuck', true).table
+	chuck.inlineCommands = chuck.commands
+	chuck.help = configuration.commandPrefix .. 'chuck - Generates a Chuck Norris joke!'
 end
-function chuck:inline_callback(inline_query, configuration)
+
+function chuck:onInlineCallback(inline_query, configuration)
 	local jstr = HTTP.request(configuration.apis.chuck)
 	local jdat = JSON.decode(jstr)
-	local results = '[{"type":"article","id":"50","title":"/chuck","description":"' .. chuck.documentation .. '","input_message_content":{"message_text":"' .. jdat.value.joke .. '","parse_mode":"Markdown"}}]'
-	functions.answer_inline_query(inline_query, results, 50)
+	local results = '[{"type":"article","id":"1","title":"/chuck","description":"' .. chuck.help .. '","input_message_content":{"message_text":"' .. jdat.value.joke .. '","parse_mode":"Markdown"}}]'
+	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
-function chuck:action(msg, configuration)
+
+function chuck:onMessageReceive(msg, configuration)
 	local jstr, res = HTTP.request(configuration.apis.chuck)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
-	functions.send_reply(msg, functions.html_escape(jdat.value.joke))
+	mattata.sendMessage(msg.chat.id, mattata.htmlEscape(jdat.value.joke), nil, true, false, msg.message_id, nil)
 end
+
 return chuck

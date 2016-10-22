@@ -1,45 +1,47 @@
 local me = {}
-local functions = require('functions')
+local mattata = require('mattata')
+
 function me:init(configuration)
-	me.command = 'me'
-	me.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('me', true).table
-	me.documentation = configuration.command_prefix .. 'me - Returns userdata stored by mattata.'
+	me.arguments = 'me'
+	me.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('me', true).table
+	me.help = configuration.commandPrefix .. 'me - Returns user-data stored by mattata.'
 end
-function me:action(msg, configuration)
+
+function me:onMessageReceive(msg, configuration)
 	local user
-	if msg.from.id == configuration.owner_id then
+	if msg.from.id == configuration.owner then
 		if msg.reply_to_message then
 			user = msg.reply_to_message.from
 		else
-			local input = functions.input(msg.text)
+			local input = mattata.input(msg.text)
 			if input then
 				if tonumber(input) then
-					user = self.database.users[input]
+					user = self.db.users[input]
 					if not user then
-						functions.send_reply(msg, 'Unrecognised ID.')
+						mattata.sendMessage(msg.chat.id, 'Unrecognised ID.', nil, true, false, msg.message_id, nil)
 						return
 					end
 				elseif input:match('^@') then
-					user = functions.resolve_username(self, input)
+					user = mattata.resUsername(self, input)
 					if not user then
-						functions.send_reply(msg, 'Unrecognised username.')
+						mattata.sendMessage(msg.chat.id, 'Unrecognised username.', nil, true, false, msg.message_id, nil)
 						return
 					end
 				else
-					functions.send_reply(msg, 'Invalid username or ID.')
+					mattata.sendMessage(msg.chat.id, 'Invalid username or ID.', nil, true, false, msg.message_id, nil)
 					return
 				end
 			end
 		end
 	end
 	user = user or msg.from
-	local userdata = self.database.userdata[tostring(user.id)] or {}
+	local userdata = self.db.userdata[tostring(user.id)] or {}
 	local data = {}
 	for k,v in pairs(userdata) do
 		table.insert(data, string.format(
 			'*%s:* `%s`\n',
-			functions.md_escape(k),
-			functions.md_escape(v)
+			mattata.markdownEscape(k),
+			mattata.markdownEscape(v)
 		))
 	end
 	local output
@@ -48,13 +50,14 @@ function me:action(msg, configuration)
 	else
 		output = string.format(
 			'*%s* `[%s]`*:*\n',
-			functions.md_escape(functions.build_name(
+			mattata.markdownEscape(mattata.build_name(
 				user.first_name,
 				user.last_name
 			)),
 			user.id
 		) .. table.concat(data)
 	end
-	functions.send_message(msg.chat.id, output, true, nil, true)
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 end
+
 return me

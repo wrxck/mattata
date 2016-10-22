@@ -1,14 +1,16 @@
 local hextorgb = {}
-local functions = require('functions')
+local mattata = require('mattata')
+
 function hextorgb:init(configuration)
-	hextorgb.command = 'hextorgb <colour hex>'
-	hextorgb.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('hextorgb', true).table
-	hextorgb.documentation = configuration.command_prefix .. 'hextorgb <colour hex> - Converts the given colour hex to its RGB format.'
+	hextorgb.arguments = 'hextorgb <colour hex>'
+	hextorgb.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('hextorgb', true).table
+	hextorgb.help = configuration.commandPrefix .. 'hextorgb <colour hex> - Converts the given colour hex to its RGB format.'
 end
-function hextorgb:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function hextorgb:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, hextorgb.documentation)
+		mattata.sendMessage(msg.chat.id, hextorgb.help, nil, true, false, msg.message_id, nil)
 		return
 	else
 		input = input:gsub('#', '')
@@ -20,8 +22,9 @@ function hextorgb:action(msg, configuration)
 		b = tonumber('0x' .. input:sub(5, 6))
 		output = '`rgb(' .. r .. ', ' .. g .. ', ' .. b .. ')`'
 	else
-		output = hextorgb.documentation
+		output = hextorgb.help
 	end
-	functions.send_reply(msg, output, true)
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 end
+
 return hextorgb

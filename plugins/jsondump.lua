@@ -1,24 +1,29 @@
 local jsondump = {}
-local functions = require('functions')
+local mattata = require('mattata')
 local JSON = require('dependencies.serpent')
+
 function jsondump:init(configuration)
-	jsondump.command = 'jsondump'
-	jsondump.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('jsondump', true).table
+	jsondump.arguments = 'jsondump'
+	jsondump.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('jsondump', true).table
 	JSON = require('dependencies.dkjson')
-	jsondump.serialise = function(t) return JSON.encode(t, {indent=true}) end
+	jsondump.serialise = function(t)
+		return JSON.encode(t, { indent = true } )
+	end
 end
-function jsondump:action(msg)
-	local input = functions.input(msg.text)
+
+function jsondump:onMessageReceive(msg)
+	local input = mattata.input(msg.text)
 	local output = ''
 	local s = jsondump.serialise(msg)
 	if s:len() < 4000 then
 		output = '`' .. tostring(s) .. '`'
 	end
-	local res = functions.send_message(msg.from.id, output, true, nil, true)
+	local res = mattata.sendMessage(msg.from.id, output, 'Markdown', true, false, msg.message_id, nil)
 	if not res then
-		functions.send_reply(msg, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. ') so I can send you the raw JSON.', true)
+		mattata.sendMessage(msg.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. ') so I can send you the raw JSON.', 'Markdown', true, false, msg.message_id, nil)
 	elseif msg.chat.type ~= 'private' then
-		functions.send_reply(msg, 'I have sent you the raw JSON via a private message.')
+		mattata.sendMessage(msg.chat.id, 'I have sent you the raw JSON via a private message.', nil, true, false, msg.message_id, nil)
 	end
 end
+
 return jsondump

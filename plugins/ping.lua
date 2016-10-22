@@ -1,9 +1,12 @@
 local ping = {}
-local functions = require('functions')
+local mattata = require('mattata')
+
 function ping:init(configuration)
-	ping.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('ping', true):t('pong', true).table
+	ping.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('ping', true):c('pong', true).table
 end
-function ping:action(msg, configuration)
-	functions.send_reply(msg, 'Pong!')
+
+function ping:onMessageReceive(msg, configuration)
+	mattata.sendMessage(msg.chat.id, 'Pong!', nil, true, false, msg.message_id, nil)
 end
+
 return ping

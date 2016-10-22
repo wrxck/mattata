@@ -1,12 +1,14 @@
 local patterns = {}
-local functions = require('functions')
+local mattata = require('mattata')
+
 function patterns:init(configuration)
-	patterns.command = 's/<pattern>/<substitution>'
+	patterns.arguments = 's/<pattern>/<substitution>'
 	patterns.help_word = 'sed'
-	patterns.triggers = { configuration.command_prefix .. '?s/.-/.-$' }
-	patterns.documentation = configuration.command_prefix .. 's/<pattern>/<substitution> Replace all matches for the Lua pattern(s).'
+	patterns.commands = { configuration.commandPrefix .. '?s/.-/.-$' }
+	patterns.help = configuration.commandPrefix .. 's/<pattern>/<substitution> Replace all matches for the Lua pattern(s).'
 end
-function patterns:action(msg)
+
+function patterns:onMessageReceive(msg)
 	if not msg.reply_to_message then
 		return true
 	end
@@ -26,10 +28,11 @@ function patterns:action(msg)
 		end
 	)
 	if res == false then
-		functions.send_reply(msg, 'Invalid pattern.')
+		mattata.sendMessage(msg.chat.id, 'Invalid pattern.', nil, true, false, msg.message_id, nil)
 	else
-		output = '*Uh... ' .. msg.reply_to_message.from.first_name .. '? Are you sure you didn\'t mean:*\n' .. functions.trim(output:sub(1, 4000))
-		functions.send_reply(msg, output, true)
+		output = '*Uh... ' .. msg.reply_to_message.from.first_name .. '? Are you sure you didn\'t mean:*\n' .. mattata.trim(output:sub(1, 4000))
+		mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 	end
 end
+
 return patterns

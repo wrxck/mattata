@@ -1,22 +1,24 @@
 local mcuuid = {}
 local HTTP = require('dependencies.socket.http')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function mcuuid:init(configuration)
-	mcuuid.command = 'mcuuid <Minecraft username>'
-	mcuuid.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('mcuuid', true).table
-	mcuuid.documentation = configuration.command_prefix .. 'mcuuid <Minecraft username> - Tells you the UUID of a Minecraft username.'
+	mcuuid.arguments = 'mcuuid <Minecraft username>'
+	mcuuid.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('mcuuid', true).table
+	mcuuid.help = configuration.commandPrefix .. 'mcuuid <Minecraft username> - Tells you the UUID of a Minecraft username.'
 end
-function mcuuid:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function mcuuid:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, mcuuid.documentation)
+		mattata.sendMessage(msg.chat.id, mcuuid.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local url = configuration.apis.mcuuid .. input
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -26,6 +28,7 @@ function mcuuid:action(msg, configuration)
 	else
 		output = output
 	end
-	functions.send_reply(msg, output)
+	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
 end
+
 return mcuuid

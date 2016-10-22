@@ -1,52 +1,55 @@
 local setandget = {}
-local functions = require('functions')
+local mattata = require('mattata')
+
 function setandget:init(configuration)
-	self.database.setandget = self.database.setandget or {}
-	setandget.command = 'set <name> <value>'
-	setandget.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('set', true):t('get', true).table
-	setandget.documentation = configuration.command_prefix .. 'set <name> <value> - Stores a value with the given name. ' .. configuration.command_prefix .. 'get (name) - Returns the stored value or a list of stored values.'
+	self.db.setandget = self.db.setandget or {}
+	setandget.arguments = 'set <name> <value>'
+	setandget.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('set', true):c('get', true).table
+	setandget.help = configuration.commandPrefix .. 'set <name> <value> - Stores a value with the given name. ' .. configuration.commandPrefix .. 'get (name) - Returns the stored value or a list of stored values.'
 end
-function setandget:action(msg, configuration)
+
+function setandget:onMessageReceive(msg, configuration)
 	local chat_id_str = tostring(msg.chat.id)
-	local input = functions.input(msg.text)
-	self.database.setandget[chat_id_str] = self.database.setandget[chat_id_str] or {}
-	if msg.text_lower:match('^' .. configuration.command_prefix .. 'set') then
+	local input = mattata.input(msg.text)
+	self.db.setandget[chat_id_str] = self.db.setandget[chat_id_str] or {}
+	if msg.text_lower:match('^' .. configuration.commandPrefix .. 'set') then
 		if not input then
-			functions.send_reply(msg, setandget.documentation)
+			mattata.sendMessage(msg.chat.id, setandget.help, nil, true, false, msg.message_id, nil)
 			return
 		end
-		local name = functions.get_word(input:lower(), 1)
-		local value = functions.input(input)
+		local name = mattata.getWord(input:lower(), 1)
+		local value = mattata.input(input)
 		if not name or not value then
-			functions.send_reply(msg, setandget.documentation)
+			mattata.sendMessage(msg.chat.id, setandget.help)
 		elseif value == '--' or value == '-del' then
-			self.database.setandget[chat_id_str][name] = nil
-			functions.send_reply(msg, 'That value has been deleted.', true)
+			self.db.setandget[chat_id_str][name] = nil
+			mattata.sendMessage(msg.chat.id, 'That value has been deleted.', nil, true, false, msg.message_id, nil)
 		else
-			self.database.setandget[chat_id_str][name] = value
-			functions.send_reply(msg, '"' .. name .. '" has been set to "' .. value .. '".')
+			self.db.setandget[chat_id_str][name] = value
+			mattata.sendMessage(msg.chat.id, '"' .. name .. '" has been set to "' .. value .. '".', nil, true, false, msg.message_id, nil)
 		end
-	elseif msg.text_lower:match('^' .. configuration.command_prefix .. 'get') then
+	elseif msg.text_lower:match('^' .. configuration.commandPrefix .. 'get') then
 		if not input then
 			local output
-				if functions.table_size(self.database.setandget[chat_id_str]) == 0 then
+				if mattata.table_size(self.db.setandget[chat_id_str]) == 0 then
 					output = '`No values have been stored here.`'
 				else
 					output = '*List of stored values:*\n'
-					for k,v in pairs(self.database.setandget[chat_id_str]) do
+					for k,v in pairs(self.db.setandget[chat_id_str]) do
 						output = output .. '» ' .. k .. ': `' .. v .. '`\n'
 					end
 				end
-			functions.send_reply(msg, output, true)
+			mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 			return
 		end
 		local output
-		if self.database.setandget[chat_id_str][input:lower()] then
-			output = self.database.setandget[chat_id_str][input:lower()]
+		if self.db.setandget[chat_id_str][input:lower()] then
+			output = self.db.setandget[chat_id_str][input:lower()]
 		else
 			output = 'There is no value with that name, please try again.'
 		end
-		functions.send_reply(msg, output)
+		mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
 	end
 end
+
 return setandget

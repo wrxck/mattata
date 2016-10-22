@@ -1,18 +1,20 @@
 local apod = {}
 local HTTPS = require('dependencies.ssl.https')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function apod:init(configuration)
-	apod.command = 'apod (YYYY/MM/DD)'
-	apod.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('apod', true).table
-	apod.inline_triggers = apod.triggers
-	apod.documentation = configuration.command_prefix .. 'apod (YYYY/MM/DD) - Sends the Astronomy Picture of the Day.'
+	apod.arguments = 'apod (YYYY/MM/DD)'
+	apod.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('apod', true).table
+	apod.inlineCommands = apod.commands
+	apod.help = configuration.commandPrefix .. 'apod (YYYY/MM/DD) - Sends the Astronomy Picture of the Day.'
 end
-function apod:inline_callback(inline_query, configuration)
+
+function apod:onInlineCallback(inline_query, configuration)
 	local jstr = '[' .. HTTPS.request(configuration.apis.apod .. configuration.keys.apod) .. ']'
 	local jdat = JSON.decode(jstr)
 	local results = '['
-	local id = 50
+	local id = 1
 	for n in pairs(jdat) do
 		local title = jdat[n].title:gsub('"', '\\"')
 		results = results .. '{"type":"photo","id":"' .. id .. '","photo_url":"' .. jdat[n].url .. '","thumb_url":"' .. jdat[n].url .. '","caption":"' .. title .. '","reply_markup":{"inline_keyboard":[[{"text":"Read more", "url":"' .. jdat[n].url .. '"}]]}}'
@@ -22,10 +24,11 @@ function apod:inline_callback(inline_query, configuration)
 		end
 	end
 	local results = results .. ']'
-	functions.answer_inline_query(inline_query, results, 50)
+	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
-function apod:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function apod:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	local url = configuration.apis.apod .. configuration.keys.apod
 	local date = os.date('%F')
 	if input then
@@ -36,12 +39,13 @@ function apod:action(msg, configuration)
 	end
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
-	functions.send_action(msg.chat.id, 'upload_photo')
+	mattata.sendChatAction(msg.chat.id, 'upload_photo')
 	local jdat = JSON.decode(jstr)
 	local title = '"' .. jdat.title .. '" = ' .. jdat.date
-	functions.send_photo(msg.chat.id, functions.download_to_file(jdat.url), title:gsub('-', '/'):gsub('=', '-'), msg.message_id)
+	mattata.sendPhoto(msg.chat.id, jdat.url, title:gsub('-', '/'):gsub('=', '-'), false, msg.message_id, nil)
 end
+
 return apod

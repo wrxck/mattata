@@ -2,15 +2,17 @@ local spotify = {}
 local HTTPS = require('dependencies.ssl.https')
 local URL = require('dependencies.socket.url')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function spotify:init(configuration)
-	spotify.command = 'spotify <track ID>'
-	spotify.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('spotify', true).table
+	spotify.arguments = 'spotify <track ID>'
+	spotify.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('spotify', true).table
 end
-function spotify:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function spotify:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, spotify.documentation)
+		mattata.sendMessage(msg.chat.id, spotify.help, nil, true, false, msg.message_id, nil)
 		return
 	else
 		input = input:gsub('spotify:track:', '')
@@ -18,7 +20,7 @@ function spotify:action(msg, configuration)
 	local url = configuration.apis.spotify .. '/tracks/' .. input
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -36,6 +38,7 @@ function spotify:action(msg, configuration)
 	else
 		output = '*\'' .. name .. '\'*, by *' .. artist .. '*, is track number ' .. track_number .. ' on the album *\'' .. album .. '\'*. The song lasts for ' .. duration .. ' seconds. ' .. name .. ' has a Spotify popularity of ' .. popularity .. '. Send `/albumart ' .. album .. '` for a hi-res version of the album artwork.'
 	end
-	functions.send_reply(msg, output, true, '{"inline_keyboard":[[{"text":"Album", "url":"' .. album_url .. '"},{"text":"Artist", "url":"' .. artist_url .. '"}]]}')
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil, '{"inline_keyboard":[[{"text":"Album", "url":"' .. album_url .. '"},{"text":"Artist", "url":"' .. artist_url .. '"}]]}')
 end
+
 return spotify

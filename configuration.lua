@@ -1,13 +1,13 @@
 return {
-	bot_api_key = '', -- insert the bot API token you received from @BotFather
-	owner_id = nil, -- the numerical ID of the owner, who is presumably you
+	botToken = '', -- insert the bot API token you received from @BotFather
+	owner = nil, -- the numerical ID of the owner, who is presumably you
 	language = 'en', -- two digit locale
-	wikipedia_language = 'en', -- locale to use for wikipedia.lua, set to 'simple' for results from simple wikipedia
-	admin_group = nil, -- the numerical ID of the chat you wish to log errors/private messages to, you can add https://telegram.me/matticatebot to your group and send /id@matticatebot to view this information, if necessary
-	about_text = 'Hello, my name is mattata. I\'m a multi-purpose Telegram bot you can confidently rely on.\nTo get started, just send /help.\n',
- 	command_prefix = '/', -- the symbol mattata commands will be executed with ('/' by default)
-	file_download_location = '/tmp/', -- the location to save all downloaded media to
-	plugins = { -- the plugins which mattata will use
+	wikiLanguage = 'en', -- locale to use for wikipedia.lua, set to 'simple' for results from simple wikipedia
+	adminGroup = nil, -- the numerical ID of the chat you wish to log errors/private messages to, you can add https://telegram.me/matticatebot to your group and send /id@matticatebot to view this information, if necessary
+	aboutText = 'Hello, my name is mattata. I\'m a multi-purpose Telegram bot you can confidently rely on.\nTo get started, just send /help.\n',
+ 	commandPrefix = '/', -- the symbol bot commands will be executed with ('/' by default)
+	fileDownloadLocation = '/tmp/', -- the location to save all downloaded media to
+	plugins = { -- the plugins which mattata will enable on launch
 		'control',
 		'about',
 		-- place all new plugins below this line
@@ -70,7 +70,6 @@ return {
 		'itunes_album_artwork',
 		'github',
 		'leavechat',
-		'chatinfo',
 		'identicon',
 		'mcface',
 		'qrgen',
@@ -171,23 +170,23 @@ return {
 	},
 	messaging = {
 		url = 'https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=',
-		connection_error = 'Matt\'s words echoed: There\'s a time and place for everything! But not now.',
-		response_error = 'I\'m not sure how to answer that...'
+		connectionError = 'Matt\'s words echoed: There\'s a time and place for everything! But not now.',
+		responseError = 'I\'m not sure how to answer that...'
 	},
 	dice = {
-		maximum_range = 200,
-		maximum_count = 200,
-		minimum_range = 2
+		maximumRange = 200,
+		maximumCount = 200,
+		minimumRange = 2
 	},
 	remind = {
 		persist = true,
-		maximum_length = 1000,
-		maximum_duration = 526000,
-		maximum_reminders_group = 10,
-		maximum_reminders_private = 50
+		maximumLength = 1000,
+		maximumDuration = 526000,
+		maximumGroupReminders = 10,
+		maximumPrivateReminders = 50
 	},
 	bandersnatch = {
-		full_names = {
+		fullNames = {
 			'Wimbledon Tennismatch',
 			'Rinkydink Curdlesnoot',
 			'Butawhiteboy Cantbekhan',
@@ -199,7 +198,7 @@ return {
 			'Buckminster Fullerene',
 			'Bourgeoisie Capitalist'
 		},
-		first_names = {
+		firstNames = {
 			'Bumblebee',
 			'Bandersnatch',
 			'Broccoli',
@@ -281,7 +280,7 @@ return {
 			'Buckingham',
 			'Barnoldswick'
 		},
-		last_names = {
+		lastNames = {
 			'Coddleswort',
 			'Crumplesack',
 			'Curdlesnoot',

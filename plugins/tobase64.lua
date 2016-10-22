@@ -1,11 +1,13 @@
 local tobase64 = {}
-local functions = require('functions')
-function tobase64:init(configuration)
-	tobase64.command = 'tobase64 <string>'
-	tobase64.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('tobase64', true).table
-	tobase64.documentation = configuration.command_prefix .. 'tobase64 <string> - Converts the given string to bit64.'
-end
+local mattata = require('mattata')
 local bit = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+
+function tobase64:init(configuration)
+	tobase64.arguments = 'tobase64 <string>'
+	tobase64.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('tobase64', true).table
+	tobase64.help = configuration.commandPrefix .. 'tobase64 <string> - Converts the given string to bit64.'
+end
+
 function tobase64:encode(str)
 	return ((str:gsub('.', function(x) 
 		local r, bit = '', x:byte()
@@ -24,12 +26,14 @@ function tobase64:encode(str)
 		return bit:sub(c + 1, c + 1)
 	end) .. ({ '', '==', '=' })[#str%3 + 1])
 end
-function tobase64:action(msg)
-	local input = functions.input(msg.text)
+
+function tobase64:onMessageReceive(msg)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, tobase64.documentation)
+		mattata.sendMessage(msg.chat.id, tobase64.help, nil, true, false, msg.message_id, nil)
 		return
 	end
-	functions.send_reply(msg, '`' .. tobase64:encode(input) .. '`', true)
+	mattata.sendMessage(msg.chat.id, '`' .. tobase64:encode(input) .. '`', 'Markdown', true, false, msg.message_id, nil)
 end
+
 return tobase64

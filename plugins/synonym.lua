@@ -2,31 +2,34 @@ local synonym = {}
 local HTTPS = require('dependencies.ssl.https')
 local URL = require('dependencies.socket.url')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function synonym:init(configuration)
-	synonym.command = 'synonym <word>'
-	synonym.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('synonym', true).table
-	synonym.documentation = configuration.command_prefix .. 'synonym <word> - Sends a synonym of the given word.'
+	synonym.arguments = 'synonym <word>'
+	synonym.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('synonym', true).table
+	synonym.help = configuration.commandPrefix .. 'synonym <word> - Sends a synonym of the given word.'
 end
-function synonym:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function synonym:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, synonym.documentation)
+		mattata.sendMessage(msg.chat.id, synonym.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local url = configuration.apis.synonym .. configuration.keys.synonym .. '&lang=' .. configuration.language .. '-' .. configuration.language .. '&text=' .. URL.escape(input)
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
 	if jstr == '{"head":{},"def":[]}' then
-		functions.send_reply(msg, configuration.errors.results)
+		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
 		return
 	else
-		functions.send_reply(msg, 'You could use the word *' .. jdat.def[1].tr[1].text .. '* instead.', true)
+		mattata.sendMessage(msg.chat.id, 'You could use the word *' .. jdat.def[1].tr[1].text .. '* instead.', 'Markdown', true, false, msg.message_id, nil)
 		return
 	end
 end
+
 return synonym

@@ -1,12 +1,14 @@
 local starwars = {}
 local HTTP = require('dependencies.socket.http')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function starwars:init(configuration)
-	starwars.command = 'starwars <query>'
-	starwars.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('starwars', true):t('sw', true).table
-	starwars.documentation = configuration.command_prefix .. 'starwars <query> - Returns the opening crawl from the specified Star Wars film. Alias: ' .. configuration.command_prefix .. 'sw.'
+	starwars.arguments = 'starwars <query>'
+	starwars.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('starwars', true):c('sw', true).table
+	starwars.help = configuration.commandPrefix .. 'starwars <query> - Returns the opening crawl from the specified Star Wars film. Alias: ' .. configuration.commandPrefix .. 'sw.'
 end
+
 local films_by_number = {
 	['phantom menace'] = 4,
 	['attack of the clones'] = 5,
@@ -16,6 +18,7 @@ local films_by_number = {
 	['return of the jedi'] = 3,
 	['force awakens'] = 7
 }
+
 local corrected_numbers = {
 	4,
 	5,
@@ -25,10 +28,11 @@ local corrected_numbers = {
 	3,
 	7
 }
-function starwars:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function starwars:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, starwars.documentation)
+		mattata.sendMessage(msg.chat.id, starwars.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local film
@@ -46,17 +50,18 @@ function starwars:action(msg, configuration)
 		end
 	end
 	if not film then
-		functions.send_reply(msg, configuration.errors.results)
+		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jstr, res = HTTP.request(configuration.apis.starwars .. film)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
 	local output = jdat.opening_crawl
-	functions.send_action(msg.chat.id, 'typing')
-	functions.send_reply(msg, output)
+	mattata.sendChatAction(msg.chat.id, 'typing')
+	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
 end
+
 return starwars

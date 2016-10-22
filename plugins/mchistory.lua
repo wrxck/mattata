@@ -1,27 +1,29 @@
 local mchistory = {}
 local HTTPS = require('dependencies.ssl.https')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function mchistory:init(configuration)
-	mchistory.command = 'mchistory <Minecraft username>'
-	mchistory.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('mchistory', true).table
-	mchistory.documentation = configuration.command_prefix .. 'mchistory <Minecraft username> - Returns the name history of a Minecraft username.'
+	mchistory.arguments = 'mchistory <Minecraft username>'
+	mchistory.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('mchistory', true).table
+	mchistory.help = configuration.commandPrefix .. 'mchistory <Minecraft username> - Returns the name history of a Minecraft username.'
 end
-function mchistory:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function mchistory:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, mchistory.documentation)
+		mattata.sendMessage(msg.chat.id, mchistory.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jstr_uuid, res_uuid = HTTPS.request(configuration.apis.mchistory.uuid .. input)
 	if res_uuid ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat_uuid = JSON.decode(jstr_uuid)
 	local jstr, res = HTTPS.request(configuration.apis.mchistory.history .. jdat_uuid.id .. '/names')
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -56,6 +58,7 @@ function mchistory:action(msg, configuration)
 	elseif count == 14 then
 		output = '*This player has changed their username thirteen times.*\nTheir current username is: `' .. jdat[count].name .. '`\nTheir old usernames were: `' .. jdat[count - 1].name .. '`, `' .. jdat[count - 2].name .. '`, `' .. jdat[count - 3].name .. '`, `' .. jdat[count - 4].name .. '`, `' .. jdat[count - 5].name .. '`, `' .. jdat[count - 6].name .. '`, `' .. jdat[count - 7].name .. '`, `' .. jdat[count - 8].name .. '`, `' .. jdat[count - 9].name .. '`, `' .. jdat[count - 10].name .. '`, `' .. jdat[count - 11].name .. '`, `' .. jdat[count - 12].name .. '` and `' .. jdat[count - 13].name .. '`'
 	end
-	functions.send_reply(msg, output, true)
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 end
+
 return mchistory

@@ -1,14 +1,16 @@
 local dice = {}
-local functions = require('functions')
+local mattata = require('mattata')
+
 function dice:init(configuration)
-	dice.command = 'dice <number of dice> <range of numbers>'
-	dice.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('dice', true).table
-	dice.documentation = configuration.command_prefix .. 'dice <number of dice to roll> <range of numbers on the dice> - Rolls a die a given amount of times, with a given range.'
+	dice.arguments = 'dice <number of dice> <range of numbers>'
+	dice.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('dice', true).table
+	dice.help = configuration.commandPrefix .. 'dice <number of dice to roll> <range of numbers on the dice> - Rolls a die a given amount of times, with a given range.'
 end
-function dice:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function dice:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, dice.documentation)
+		mattata.sendMessage(msg.chat.id, dice.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local count, range
@@ -20,16 +22,16 @@ function dice:action(msg, configuration)
 	end
 	count = tonumber(count)
 	range = tonumber(range)
-	if range < configuration.dice.minimum_range then
-		functions.send_reply(msg, 'The minimum range is ' .. configuration.dice.minimum_range .. '.')
+	if range < configuration.dice.minimumRange then
+		mattata.sendMessage(msg.chat.id, 'The minimum range is ' .. configuration.dice.minimumRange .. '.', nil, true, false, msg.message_id, nil)
 		return
 	end
-	if range > configuration.dice.maximum_range or count > configuration.dice.maximum_count then
-		if configuration.dice.maximum_range == configuration.dice.maximum_count then
-			functions.send_reply(msg, 'The maximum range and count are both ' .. configuration.dice.maximum_range .. '.')
+	if range > configuration.dice.maximumRange or count > configuration.dice.maximumCount then
+		if configuration.dice.maximumRange == configuration.dice.maximumCount then
+			mattata.sendMessage(msg.chat.id, 'The maximum range and count are both ' .. configuration.dice.maximumRange .. '.', nil, true, false, msg.message_id, nil)
 			return
 		else
-			functions.send_reply(msg, 'The maximum range is ' .. configuration.dice.maximum_range .. ', and the maximum count is ' .. configuration.dice.maximum_count .. '.')
+			mattata.sendMessage(msg.chat.id, 'The maximum range is ' .. configuration.dice.maximumRange .. ', and the maximum count is ' .. configuration.dice.maximumCount .. '.', nil, true, false, msg.message_id, nil)
 			return
 		end
 	end
@@ -37,6 +39,7 @@ function dice:action(msg, configuration)
 	for _ = 1, count do
 		output = output .. math.random(range) .. '\t'
 	end
-	functions.send_reply(msg, output, true)
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 end
+
 return dice

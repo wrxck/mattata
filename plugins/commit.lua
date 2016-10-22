@@ -1,12 +1,15 @@
 local commit = {}
-local functions = require('functions')
+local mattata = require('mattata')
+
 function commit:init(configuration)
-	commit.command = 'commit'
-	commit.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('commit', true).table
-	commit.documentation = configuration.command_prefix .. 'commit - Generates fun (and somewhat-relatable) commit message ideas.'
+	commit.arguments = 'commit'
+	commit.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('commit', true).table
+	commit.help = configuration.commandPrefix .. 'commit - Generates fun (and somewhat-relatable) commit message ideas.'
 end
-function commit:action(msg, configuration)
+
+function commit:onMessageReceive(msg, configuration)
 	local commits = configuration.commits
-	functions.send_reply(msg, commits[math.random(#commits)])
+	mattata.sendMessage(msg.chat.id, commits[math.random(#commits)], nil, true, false, msg.message_id, nil)
 end
+
 return commit

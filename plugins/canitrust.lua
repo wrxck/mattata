@@ -3,11 +3,11 @@ local HTTPS = require('dependencies.ssl.https')
 local HTTP = require('dependencies.socket.http')
 local URL = require('dependencies.socket.url')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
 function canitrust:init(configuration)
-	canitrust.command = 'canitrust <URL>'
-	canitrust.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('canitrust', true).table
-	canitrust.documentation = configuration.command_prefix .. 'canitrust <URL> - Tells you of any known security issues with a website.'
+	canitrust.arguments = 'canitrust <URL>'
+	canitrust.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('canitrust', true).table
+	canitrust.help = configuration.commandPrefix .. 'canitrust <URL> - Tells you of any known security issues with a website.'
 end
 function canitrust.validate(url)
 	local parsed_url = URL.parse(url, { scheme = 'http', authority = '' })
@@ -32,8 +32,8 @@ function canitrust.validate(url)
 	end
 	return true
 end
-function canitrust:action(msg, configuration)
-	local input = functions.input(msg.text)
+function canitrust:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if input then
 		input = input:gsub('https', 'http'):gsub('HTTPS', 'https'):gsub('HTTP', 'http'):gsub('www.', '')
 		local jstr = HTTPS.request(configuration.apis.canitrust .. URL.escape(input) .. '/&callback=process&key=' .. configuration.keys.canitrust)
@@ -87,14 +87,14 @@ function canitrust:action(msg, configuration)
 			output = 'There are *no known issues* with this website.'
 		end
 		if output ~= 'Invalid URL.' then
-			functions.send_reply(msg, output, true, '{"inline_keyboard":[[{"text":"' .. 'Proceed to site' .. '", "url":"' .. input .. '"}]]}')
+			mattata.sendMessage(msg.chat.id, output, true, '{"inline_keyboard":[[{"text":"' .. 'Proceed to site' .. '", "url":"' .. input .. '"}]]}')
 			return
 		else
-			functions.send_reply(msg, output, true)
+			mattata.sendMessage(msg.chat.id, output, true)
 			return
 		end
 	else
-		functions.send_reply(msg, canitrust.documentation)
+		mattata.sendMessage(msg.chat.id, canitrust.help)
 		return
 	end
 end

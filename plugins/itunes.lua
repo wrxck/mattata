@@ -2,22 +2,24 @@ local itunes = {}
 local HTTPS = require('dependencies.ssl.https')
 local URL = require('dependencies.socket.url')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function itunes:init(configuration)
-	itunes.command = 'itunes <song>'
-	itunes.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('itunes', true).table
-	itunes.documentation = configuration.command_prefix .. 'itunes <song> - Returns information about the given song, from iTunes.'
+	itunes.arguments = 'itunes <song>'
+	itunes.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('itunes', true).table
+	itunes.help = configuration.commandPrefix .. 'itunes <song> - Returns information about the given song, from iTunes.'
 end
-function itunes:action(msg, configuration)
-	local input = functions.input(msg.text)
+
+function itunes:onMessageReceive(msg, configuration)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, itunes.documentation)
+		mattata.sendMessage(msg.chat.id, itunes.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local url = configuration.apis.itunes .. URL.escape(input)
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	else
 		local jdat = JSON.decode(jstr)
@@ -49,10 +51,11 @@ function itunes:action(msg, configuration)
 			else
 				output = configuration.errors.results
 			end
-			functions.send_action(msg.chat.id, 'typing')
-			functions.send_message(msg.chat.id, output, true, nil, true)
+			mattata.sendChatAction(msg.chat.id, 'typing')
+			mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 			return
 		end
 	end
 end
+
 return itunes

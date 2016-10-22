@@ -1,15 +1,17 @@
 local istuesday = {}
 local HTTP = require('dependencies.socket.http')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function istuesday:init(configuration)
-	istuesday.command = 'istuesday'
-	istuesday.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('istuesday', true):t('it', true).table
-	istuesday.documentation = configuration.command_prefix .. 'istuesday - Tells you if it\'s Tuesday or not. Alias: ' .. configuration.command_prefix .. 'it.'
+	istuesday.arguments = 'istuesday'
+	istuesday.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('istuesday', true):c('it', true).table
+	istuesday.help = configuration.commandPrefix .. 'istuesday - Tells you if it\'s Tuesday or not. Alias: ' .. configuration.commandPrefix .. 'it.'
 end
-function istuesday:action(msg)
+
+function istuesday:onMessageReceive(msg)
 	local str, res = HTTP.request('http://www.studentology.net/tuesday')
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local output = ''
@@ -18,6 +20,7 @@ function istuesday:action(msg)
 	else
 		output = 'No.'
 	end
-	functions.send_reply(msg, output)
+	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
 end
+
 return istuesday

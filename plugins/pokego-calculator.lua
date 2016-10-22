@@ -1,10 +1,12 @@
 local pgc = {}
-local functions = require('functions')
+local mattata = require('mattata')
+
 function pgc:init(configuration)
-	pgc.command = 'gocalc <required candy> <#pokemon> <#candy>'
-	pgc.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('gocalc', true).table
-	pgc.documentation = configuration.command_prefix .. 'gocalc <required candy> <number of Pokémon> <number of candy> - Calculates the number of Pokémon that must be transferred before evolving, how many evolutions the user is able to perform, and how many Pokémon and candy will be left over. All arguments must be positive numbers. Batch jobs may be performed by separating valid sets of arguments by lines. Example (forty pidgeys and three hundred pidgey candies): ' .. configuration.command_prefix .. 'gocalc 12 40 300.'
+	pgc.arguments = 'gocalc <required candy> <#pokemon> <#candy>'
+	pgc.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('gocalc', true).table
+	pgc.help = configuration.commandPrefix .. 'gocalc <required candy> <number of Pokémon> <number of candy> - Calculates the number of Pokémon that must be transferred before evolving, how many evolutions the user is able to perform, and how many Pokémon and candy will be left over. All arguments must be positive numbers. Batch jobs may be performed by separating valid sets of arguments by lines. Example (forty pidgeys and three hundred pidgey candies): ' .. configuration.commandPrefix .. 'gocalc 12 40 300.'
 end
+
 local pidgey_calc = function(candies_to_evolve, mons, candies)
 	local transferred = 0;
 	local evolved = 0;
@@ -40,6 +42,7 @@ local pidgey_calc = function(candies_to_evolve, mons, candies)
 		leftover_candy = candies
 	}
 end
+
 local single_job = function(input)
 	local req_candy, mons, candies = input:match('^(%d+) (%d+) (%d+)$')
 	req_candy = tonumber(req_candy)
@@ -57,10 +60,11 @@ local single_job = function(input)
 		return pidgey_calc(req_candy, mons, candies)
 	end
 end
-function pgc:action(msg)
-	local input = functions.input(msg.text)
+
+function pgc:onMessageReceive(msg)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, pgc.documentation)
+		mattata.sendMessage(msg.chat.id, pgc.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	input = input .. '\n'
@@ -89,6 +93,7 @@ function pgc:action(msg)
 	end
 	s = s:format(total_evolutions, recommendation)
 	output = output .. s
-	functions.send_reply(msg, output, true)
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 end
+
 return pgc

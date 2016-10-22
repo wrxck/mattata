@@ -1,23 +1,25 @@
 local pokedex = {}
 local HTTP = require('dependencies.socket.http')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function pokedex:init(configuration)
-	pokedex.command = 'pokedex <query>'
-	pokedex.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('pokedex', true):t('dex', true).table
-	pokedex.documentation = configuration.command_prefix .. 'pokedex <query> - Returns a Pokedex entry from pokeapi.co. Alias: ' .. configuration.command_prefix .. 'dex.'
+	pokedex.arguments = 'pokedex <query>'
+	pokedex.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('pokedex', true):c('dex', true).table
+	pokedex.help = configuration.commandPrefix .. 'pokedex <query> - Returns a Pokedex entry from pokeapi.co. Alias: ' .. configuration.commandPrefix .. 'dex.'
 end
-function pokedex:action(msg, configuration)
-	functions.send_action(msg.chat.id, 'upload_photo')
-	local input = functions.input(msg.text)
+
+function pokedex:onMessageReceive(msg, configuration)
+	mattata.sendChatAction(msg.chat.id, 'upload_photo')
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, pokedex.documentation)
+		mattata.sendMessage(msg.chat.id, pokedex.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local url = configuration.apis.pokedex .. input
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -26,7 +28,7 @@ function pokedex:action(msg, configuration)
 	local desc_url = 'http://pokeapi.co' .. jdat.descriptions[math.random(#jdat.descriptions)].resource_uri
 	local desc_jstr, desc_res = HTTP.request(desc_url)
 	if desc_res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local desc_jdat = JSON.decode(desc_jstr)
@@ -42,6 +44,7 @@ function pokedex:action(msg, configuration)
 	end
 	poke_type = poke_type .. ' type'
 	local output = 'Name: ' .. name .. '\nID: ' .. id .. '\nType: ' .. poke_type .. '\nDescription: ' .. description
-	functions.send_photo(msg.chat.id, functions.download_to_file('https://img.pokemondb.net/artwork/' .. name:gsub('^%u', string.lower) .. '.jpg'), output, msg.message_id)
+	mattata.sendPhoto(msg.chat.id, 'https://img.pokemondb.net/artwork/' .. name:gsub('^%u', string.lower) .. '.jpg', nil, false, msg.message_id, nil)
 end
+
 return pokedex

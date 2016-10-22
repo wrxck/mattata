@@ -1,12 +1,15 @@
 local pun = {}
-local functions = require('functions')
+local mattata = require('mattata')
+
 function pun:init(configuration)
-	pun.command = 'pun'
-	pun.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('pun', true).table
-	pun.documentation = configuration.command_prefix .. 'pun - Sends a pun.'
+	pun.arguments = 'pun'
+	pun.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('pun', true).table
+	pun.help = configuration.commandPrefix .. 'pun - Sends a pun.'
 end
-function pun:action(msg, configuration)
+
+function pun:onMessageReceive(msg, configuration)
 	local puns = configuration.puns
-	functions.send_reply(msg, puns[math.random(#puns)], true, '{"inline_keyboard":[[{"text":"Generate a new pun!", "callback_data":"pun"}]]}')
+	mattata.sendMessage(msg.chat.id, puns[math.random(#puns)], 'Markdown', true, false, msg.message_id, nil, '{"inline_keyboard":[[{"text":"Generate a new pun!", "callback_data":"pun"}]]}')
 end
+
 return pun

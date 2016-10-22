@@ -1,37 +1,43 @@
 local tohex = {}
-local functions = require('functions')
+local mattata = require('mattata')
 function tohex:init(configuration)
-	tohex.command = 'tohex <string>'
-	tohex.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('tohex', true).table
-	tohex.documentation = configuration.command_prefix .. 'tohex <string> - Converts the given string to hexadecimal.'
+	tohex.arguments = 'tohex <string>'
+	tohex.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('tohex', true).table
+	tohex.help = configuration.commandPrefix .. 'tohex <string> - Converts the given string to hexadecimal.'
 end
-function tohex:num(num)
-	local hexstr = '0123456789abcdef'
+
+function tohex:numberToHex(int)
+	local hexString = '0123456789abcdef'
 	local s = ''
-	while num > 0 do
-		local mod = math.fmod(num, 16)
-		s = string.sub(hexstr, mod+1, mod+1) .. s
-		num = math.floor(num / 16)
+	while int > 0 do
+		local mod = math.fmod(int, 16)
+		s = string.sub(hexString, mod + 1, mod +1 ) .. s
+		int = math.floor(int / 16)
 	end
-	if s == '' then s = '0' end
+	if s == '' then
+		s = '0'
+	end
 	return s
 end
-function tohex:str(str)
+
+function tohex:stringToHex(str)
 	local hex = ''
 	while #str > 0 do
-		local hb = tohex:num(string.byte(str, 1, 1))
+		local hb = tohex:numberToHex(string.byte(str, 1, 1))
 		if #hb < 2 then hb = '0' .. hb end
 		hex = hex .. hb
 		str = string.sub(str, 2)
 	end
 	return hex
 end
-function tohex:action(msg)
-	local input = functions.input(msg.text)
+
+function tohex:onMessageReceive(msg)
+	local input = mattata.input(msg.text)
 	if not input then
-		functions.send_reply(msg, tohex.documentation)
+		mattata.sendMessage(msg.chat.id, tohex.help, nil, true, false, msg.message_id, nil)
 		return
 	end
-	functions.send_reply(msg, '`' .. tohex:str(input) .. '`', true)
+	mattata.sendMessage(msg.chat.id, '`' .. tohex:str(input) .. '`', 'Markdown', true, false, msg.message_id, nil)
 end
+
 return tohex

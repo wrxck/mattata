@@ -1,16 +1,18 @@
 local qotd = {}
 local HTTP = require('dependencies.socket.http')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function qotd:init(configuration)
-	qotd.command = 'qotd'
-	qotd.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('qotd', true).table
-	qotd.documentation = configuration.command_prefix .. 'qotd - Sends the quote of the day.'
+	qotd.arguments = 'qotd'
+	qotd.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('qotd', true).table
+	qotd.help = configuration.commandPrefix .. 'qotd - Sends the quote of the day.'
 end
-function qotd:action(msg, configuration)
+
+function qotd:onMessageReceive(msg, configuration)
 	local jstr, res = HTTP.request(configuration.apis.qotd)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -19,6 +21,7 @@ function qotd:action(msg, configuration)
 	else
 		output = '_' .. jdat.contents.quotes[1].quote .. '_ - *' .. jdat.contents.quotes[1].author .. '*'
 	end
-	functions.send_reply(msg, output, true)
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 end
+
 return qotd

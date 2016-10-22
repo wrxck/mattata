@@ -1,26 +1,29 @@
 local bible = {}
 local HTTP = require('dependencies.socket.http')
 local URL = require('dependencies.socket.url')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function bible:init(configuration)
-	bible.command = 'bible <reference>'
-	bible.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('bible', true).table
-	bible.inline_triggers = bible.triggers
-	bible.documentation = configuration.command_prefix .. 'bible <reference> - Returns a verse from the American Standard Version of the Bible. Results from biblia.com.'
+	bible.arguments = 'bible <reference>'
+	bible.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('bible', true).table
+	bible.inlineCommands = bible.commands
+	bible.help = configuration.commandPrefix .. 'bible <reference> - Returns a verse from the American Standard Version of the Bible. Results from biblia.com.'
 end
-function bible:inline_callback(inline_query, configuration)
+
+function bible:onInlineCallback(inline_query, configuration)
 	local url = configuration.apis.bible .. configuration.keys.bible .. '&passage=' .. URL.escape(inline_query.query)
     local output = HTTP.request(url)
 	if output:len() > 4000 then
 		output = 'The requested passage is too long to post here. Please, try and be more specific.'
 	end
-	local results = '[{"type":"article","id":"50","title":"/bible","description":"' .. bible.documentation .. '","input_message_content":{"message_text":"' .. output .. '","parse_mode":"Markdown"}}]'
-	functions.answer_inline_query(inline_query, results, 50)
+	local results = '[{"type":"article","id":"1","title":"/bible","description":"' .. bible.help .. '","input_message_content":{"message_text":"' .. output .. '","parse_mode":"Markdown"}}]'
+	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
-function bible:action(msg, configuration)
-	local input = functions.input_from_msg(msg)
+
+function bible:onMessageReceive(msg, configuration)
+	local input = mattata.input_from_msg(msg)
 	if not input then
-		functions.send_reply(msg, bible.documentation)
+		mattata.sendMessage(msg.chat.id, bible.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local url = configuration.apis.bible .. configuration.keys.bible .. '&passage=' .. URL.escape(input)
@@ -31,6 +34,7 @@ function bible:action(msg, configuration)
 	if output:len() > 4000 then
 		output = 'The requested passage is too long to post here. Please, try and be more specific.'
 	end
-	functions.send_reply(msg, output)
+	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
 end
+
 return bible

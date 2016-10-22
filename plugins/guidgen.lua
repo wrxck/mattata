@@ -1,19 +1,22 @@
 local guidgen = {}
 local HTTP = require('dependencies.socket.http')
 local JSON = require('dependencies.dkjson')
-local functions = require('functions')
+local mattata = require('mattata')
+
 function guidgen:init(configuration)
-	guidgen.command = 'guidgen'
-	guidgen.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('guidgen', true).table
-	guidgen.documentation = configuration.command_prefix .. 'guidgen - Generates a random GUID.'
+	guidgen.arguments = 'guidgen'
+	guidgen.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('guidgen', true).table
+	guidgen.help = configuration.commandPrefix .. 'guidgen - Generates a random GUID.'
 end
-function guidgen:action(msg, configuration)
+
+function guidgen:onMessageReceive(msg, configuration)
 	local jstr, res = HTTP.request(configuration.apis.guidgen)
 	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
-	functions.send_reply(msg, jdat.char[1])
+	mattata.sendMessage(msg.chat.id, jdat.char[1], nil, true, false, msg.message_id, nil)
 end
+
 return guidgen
