@@ -73,7 +73,7 @@ function remind:cron(configuration)
 		for k, reminder in pairs(group) do
 			if time > reminder.time then
 				local output = 'Reminder: ' .. reminder.message
-				local res = mattata.sendMessage(chat_id, output, true, nil, true)
+				local res = mattata.sendMessage(chat_id, output, 'Markdown', true, false, msg.message_id, nil)
 				if res or not configuration.remind.persist then
 					group[k] = nil
 				end
