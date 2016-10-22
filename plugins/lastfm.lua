@@ -73,7 +73,7 @@ function lastfm:onMessageReceive(msg, configuration)
 	if jdat.artist then
 		artist = jdat.artist['#text']
 	end
-	output = output .. title .. ' - ' .. artist .. alert
+	output = output .. artist .. ' - ' .. title .. alert
 	local url = configuration.apis.itunes .. URL.escape(artist)
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
