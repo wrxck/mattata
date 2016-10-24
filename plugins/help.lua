@@ -99,7 +99,7 @@ function help:onMessageReceive(msg, configuration)
 				return
 			end
 		end
-		mattata.sendMessage(msg.chat.id, 'Sorry, there is no documented help for that arguments.', nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(msg.chat.id, 'Sorry, there is no documented help for that plugin.', nil, true, false, msg.message_id, nil)
 	else
 		mattata.sendMessage(msg.chat.id, configuration.aboutText, 'Markdown', true, false, nil, '{"inline_keyboard":[[{"text":"Links", "callback_data":"help_links"},{"text":"Statistics", "callback_data":"help_statistics"},{"text":"Commands", "callback_data":"help_commands"}]]}')
 	end

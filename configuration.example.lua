@@ -89,6 +89,7 @@ return { -- rename this file to 'configuration.lua' for mattata to work
 		'dns',
 		'tts',
 		'location',
+		'exec',
 		-- place all new plugins above this line
 		'help',
 		'faces',
