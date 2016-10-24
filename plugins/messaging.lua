@@ -30,14 +30,16 @@ function messaging:onMessageReceive(msg, configuration)
 	elseif string.match(msg.text_lower, '@appledog') then
 		mattata.sendPhoto(msg.chat.id, 'https://www.pixilart.net/images/art/d69775a2f30926e.gif', nil, false, msg.message_id, nil)
 		return
-	elseif msg.reply_to_message.from.id == self.info.id then
-		local jstr, res = HTTPS.request(configuration.messaging.url .. URL.escape(msg.text_lower))
-		if res ~= 200 then
-			return
+	elseif msg.reply_to_message then
+		if msg.reply_to_message.from.id == self.info.id then
+			local jstr, res = HTTPS.request(configuration.messaging.url .. URL.escape(msg.text_lower))
+			if res ~= 200 then
+				return
+			end
+			local jdat = JSON.decode(jstr)
+			mattata.sendChatAction(msg.chat.id, 'typing')
+			mattata.sendMessage(msg.chat.id, jdat.clever, nil, true, false, msg.message_id, nil)
 		end
-		local jdat = JSON.decode(jstr)
-		mattata.sendChatAction(msg.chat.id, 'typing')
-		mattata.sendMessage(msg.chat.id, jdat.clever, nil, true, false, msg.message_id, nil)
 	end
 end
 

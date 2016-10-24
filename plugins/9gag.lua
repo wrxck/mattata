@@ -27,7 +27,7 @@ function ninegag:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function ninegag:onQueryCallback(callback, msg, configuration)
+function ninegag:onQueryReceive(callback, msg, configuration)
 	if callback.data == 'new_ninegag' then
 		local url = configuration.apis.ninegag
 		local jstr, res = HTTP.request(url)

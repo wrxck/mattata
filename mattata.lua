@@ -106,16 +106,13 @@ function mattata:onMessageReceive(msg, configuration)
 	end
 end
 
-function mattata:onCallbackReceive(callback, msg, configuration)
-	print(JSON.encode(callback))
+function mattata:onQueryReceive(callback, msg, configuration)
 	for _, plugin in ipairs(self.plugins) do
-		if plugin.onQueryCallback then
+		if plugin.onQueryReceive then
 			local success, result = pcall(function()
-				plugin.onQueryCallback(self, callback, msg, configuration)
+				plugin.onQueryReceive(self, callback, msg, configuration)
 			end)
-			if not success then
-				return
-			elseif result ~= true then
+			if success ~= true then
 				return
 			end
 		end
@@ -150,7 +147,7 @@ function mattata:run(configuration)
 				if v.inline_query then
 					mattata.processInlineQuery(self, v.inline_query, configuration)
 				elseif v.callback_query then
-					mattata.onCallbackReceive(self, v.callback_query, v.callback_query.message, configuration)
+					mattata.onQueryReceive(self, v.callback_query, v.callback_query.message, configuration)
 				elseif v.message then
 					mattata.onMessageReceive(self, v.message, configuration)
 				elseif v.edited_message then
