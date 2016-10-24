@@ -1,4 +1,4 @@
-return {
+return { -- rename this file to 'configuration.lua' for mattata to work
 	botToken = '', -- insert the bot API token you received from @BotFather
 	owner = nil, -- the numerical ID of the owner, who is presumably you
 	language = 'en', -- two digit locale
