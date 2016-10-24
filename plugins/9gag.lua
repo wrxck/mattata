@@ -27,6 +27,23 @@ function ninegag:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
+function ninegag:onQueryCallback(callback, msg, configuration)
+	if callback.data == 'new_ninegag' then
+		local url = configuration.apis.ninegag
+		local jstr, res = HTTP.request(url)
+		if res ~= 200 then
+			return
+		end
+		local jdat = JSON.decode(jstr)
+		local jrnd = math.random(#jdat)
+		local link_image = jdat[jrnd].src
+		local title = jdat[jrnd].title
+		local post_url = jdat[jrnd].url
+		mattata.sendChatAction(msg.chat.id, 'upload_photo')
+		mattata.sendPhoto(msg.chat.id, link_image, title, false, nil, '{"inline_keyboard":[[{"text":"Send another", "callback_data":"new_ninegag"},{"text":"Read more", "url":"' .. post_url .. '"}]]}')
+	end	
+end
+
 function ninegag:onMessageReceive(msg, configuration)
 	local url = configuration.apis.ninegag
 	local jstr, res = HTTP.request(url)
@@ -40,7 +57,7 @@ function ninegag:onMessageReceive(msg, configuration)
 	local title = jdat[jrnd].title
 	local post_url = jdat[jrnd].url
 	mattata.sendChatAction(msg.chat.id, 'upload_photo')
-	mattata.sendPhoto(msg.chat.id, link_image, title, false, msg.message_id, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. post_url .. '"}]]}')
+	mattata.sendPhoto(msg.chat.id, link_image, title, false, msg.message_id, '{"inline_keyboard":[[{"text":"Send another", "callback_data":"new_ninegag"},{"text":"Read more", "url":"' .. post_url .. '"}]]}')
 end
 
 return ninegag

@@ -32,7 +32,7 @@ function bandersnatch:onMessageReceive(msg, configuration)
 	else
 		output = firstnames[math.random(#firstnames)] .. ' ' .. lastnames[math.random(#lastnames)]
 	end
-	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, '{"inline_keyboard":[[{"text":"Generate a new name!", "callback_data":"bandersnatch"}]]}')
+	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
 end
 
 return bandersnatch

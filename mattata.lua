@@ -1,4 +1,4 @@
--- Copyright (c) 2016 wrxck
+-- Copyright (c) 2016 Matthew Hesketh
 -- See LICENSE for details
 
 -- Load dependencies --
@@ -31,7 +31,7 @@ function mattata:init()
 	self.db.users = self.db.users or {}
 	self.db.userdata = self.db.userdata or {}
 	self.db.reminders = self.db.reminders or {}
-	self.db.version = '3.0'
+	self.db.version = '3'
 	self.db.users[tostring(self.info.id)] = self.info
 	self.plugins = {}
 	for k, v in pairs(configuration.plugins) do
@@ -58,7 +58,7 @@ function mattata:init()
 end
 
 function mattata:onMessageReceive(msg, configuration)
-	if msg.date < os.time() - 100 then
+	if msg.date < os.time() - 50 then
 		return
 	end
 	local plugincommands = self.plugins
@@ -107,10 +107,11 @@ function mattata:onMessageReceive(msg, configuration)
 end
 
 function mattata:onCallbackReceive(callback, msg, configuration)
+	print(JSON.encode(callback))
 	for _, plugin in ipairs(self.plugins) do
-		if plugin.query_callback then
+		if plugin.onQueryCallback then
 			local success, result = pcall(function()
-				plugin.query_callback(self, callback, msg, configuration)
+				plugin.onQueryCallback(self, callback, msg, configuration)
 			end)
 			if not success then
 				return
@@ -122,12 +123,12 @@ function mattata:onCallbackReceive(callback, msg, configuration)
 end
 
 function mattata:processInlineQuery(inline_query, configuration)
-	local plugincommands = self.plugins
-	for _, plugin in ipairs(plugincommands) do
+	local pluginCommands = self.plugins
+	for _, plugin in ipairs(pluginCommands) do
 		for _, commands in ipairs(plugin.inlineCommands) do
 			if string.match(inline_query.query, commands) then
 				local success, result = pcall(function()
-					plugin.inlineCallback(self, inline_query, configuration)
+					plugin.onInlineCallback(self, inline_query, configuration)
 				end)
 				if not success then
 					return
@@ -149,7 +150,7 @@ function mattata:run(configuration)
 				if v.inline_query then
 					mattata.processInlineQuery(self, v.inline_query, configuration)
 				elseif v.callback_query then
-					mattata.onCallbackReceive(self, v.callback_query, configuration)
+					mattata.onCallbackReceive(self, v.callback_query, v.callback_query.message, configuration)
 				elseif v.message then
 					mattata.onMessageReceive(self, v.message, configuration)
 				elseif v.edited_message then
@@ -268,18 +269,18 @@ end
 function mattata.sendPhoto(chat_id, photo, caption, disable_notification, reply_to_message_id, reply_markup)
 	return mattata.request('sendPhoto', {
 		chat_id = chat_id,
-		photo = photo,
 		caption = caption,
 		disable_notification = disable_notification,
 		reply_to_message_id = reply_to_message_id,
 		reply_markup = reply_markup
+	}, {
+		photo = photo
 	} )
 end
 
 function mattata.sendAudio(chat_id, audio, caption, duration, performer, title, disable_notification, reply_to_message_id, reply_markup)
 	return mattata.request('sendAudio', {
 		chat_id = chat_id,
-		audio = audio,
 		caption = caption,
 		duration = duration,
 		performer = performer,
@@ -287,34 +288,37 @@ function mattata.sendAudio(chat_id, audio, caption, duration, performer, title, 
 		disable_notification = disable_notification,
 		reply_to_message_id = reply_to_message_id,
 		reply_markup = reply_markup
+	}, {
+		audio = audio
 	} )
 end
 
 function mattata.sendDocument(chat_id, document, caption, disable_notification, reply_to_message_id, reply_markup)
 	return mattata.request('sendDocument', {
 		chat_id = chat_id,
-		document = document,
 		caption = caption,
 		disable_notification = disable_notification,
 		reply_to_message_id = reply_to_message_id,
 		reply_markup = reply_markup
+	}, {
+		document = document
 	} )
 end
 
 function mattata.sendSticker(chat_id, sticker, disable_notification, reply_to_message_id, reply_markup)
 	return mattata.request('sendSticker', {
 		chat_id = chat_id,
-		sticker = sticker,
 		disable_notification = disable_notification,
 		reply_to_message_id = reply_to_message_id,
 		reply_markup = reply_markup
+	}, {
+		sticker = sticker
 	} )
 end
 
 function mattata.sendVideo(chat_id, video, duration, width, height, caption, disable_notification, reply_to_message_id, reply_markup)
 	return mattata.request('sendVideo', {
 		chat_id = chat_id,
-		video = video,
 		duration = duration,
 		width = width,
 		height = height,
@@ -322,18 +326,21 @@ function mattata.sendVideo(chat_id, video, duration, width, height, caption, dis
 		disable_notification = disable_notification,
 		reply_to_message_id = reply_to_message_id,
 		reply_markup = reply_markup
+	}, {
+		video = video
 	} )
 end
 
 function mattata.sendVoice(chat_id, voice, caption, duration, disable_notification, reply_to_message_id, reply_markup)
 	return mattata.request('sendVoice', {
 		chat_id = chat_id,
-		voice = voice,
 		caption = caption,
 		duration = duration,
 		disable_notification = disable_notification,
 		reply_to_message_id = reply_to_message_id,
 		reply_markup = reply_markup
+	}, {
+		voice = voice
 	} )
 end
 
@@ -563,10 +570,10 @@ function mattata.get_name(msg)
 	return name
 end
 
-function mattata.download_to_file(url, file_name)
+function mattata.downloadToFile(url, file_name)
 	print('Downloading ' .. url)
 	if not file_name then
-		file_name = configuration.fileDownloadLocation .. os.time()
+		file_name = configuration.fileDownloadLocation .. url:match('.+/(.-)$') or configuration.fileDownloadLocation .. os.time()
 	else
 		file_name = configuration.fileDownloadLocation .. file_name
 	end
@@ -588,7 +595,7 @@ function mattata.download_to_file(url, file_name)
 	local file = io.open(file_name, 'w+')
 	file:write(table.concat(body))
 	file:close()
-	print('Saved to: '..file_name)
+	print('Saved to: ' .. file_name)
 	return file_name
 end
 

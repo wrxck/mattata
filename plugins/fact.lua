@@ -17,7 +17,7 @@ function fact:onMessageReceive(msg, configuration)
 	end
 	local jdat = JSON.decode(jstr)
 	local jrnd = math.random(#jdat)
-	mattata.sendMessage(msg.chat.id, jdat[jrnd].nid:gsub('&lt;', ''):gsub('<p>', ''):gsub('</p>', ''):gsub('<em>', ''):gsub('</em>', ''), nil, true, false, msg.message_id, '{"inline_keyboard":[[{"text":"Generate a new fact!", "callback_data":"fact"}]]}')
+	mattata.sendMessage(msg.chat.id, jdat[jrnd].nid:gsub('&lt;', ''):gsub('<p>', ''):gsub('</p>', ''):gsub('<em>', ''):gsub('</em>', ''), nil, true, false, msg.message_id, nil)
 end
 
 return fact

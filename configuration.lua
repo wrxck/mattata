@@ -87,6 +87,8 @@ return {
 		'isp',
 		'rss',
 		'dns',
+		'tts',
+		'location',
 		-- place all new plugins above this line
 		'help',
 		'faces',

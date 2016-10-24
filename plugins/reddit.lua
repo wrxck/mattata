@@ -44,15 +44,20 @@ function reddit:onMessageReceive(msg, configuration)
 	local input = mattata.input(text)
 	local source, url
 	if input then
-		if input:match('^r/.') then
-			input = mattata.getWord(input, 1)
-			url = reddit.subreddit_url:format(input) .. limit
-			source = '*/' .. mattata.markdownEscape(input):gsub('\\', '') .. '*\n'
+		if not string.match(input, '/random') then
+			if input:match('^r/.') then
+				input = mattata.getWord(input, 1)
+				url = reddit.subreddit_url:format(input) .. limit
+				source = '*/' .. mattata.markdownEscape(input):gsub('\\', '') .. '*\n'
+			else
+				input = mattata.input(msg.text)
+				source = '*Results for* _' .. mattata.markdownEscape(input) .. '_ *:*\n'
+				input = URL.escape(input)
+				url = reddit.search_url:format(input) .. limit
+			end
 		else
-			input = mattata.input(msg.text)
-			source = '*Results for* _' .. mattata.markdownEscape(input) .. '_ *:*\n'
-			input = URL.escape(input)
-			url = reddit.search_url:format(input) .. limit
+			mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+			return
 		end
 	else
 		url = reddit.rall_url .. limit

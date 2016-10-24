@@ -5,7 +5,7 @@ local JSON = require('dependencies.dkjson')
 local mattata = require('mattata')
 
 function messaging:init(configuration)
-	messaging.commands = { '^' .. 'mattata' .. '' }
+	messaging.commands = { '^' .. '' .. '' }
 	messaging.inlineCommands = { '^' .. '' .. '' }
 end
 
@@ -18,14 +18,27 @@ function messaging:onInlineCallback(inline_query, configuration)
 end
 
 function messaging:onMessageReceive(msg, configuration)
-	local input = msg.text_lower:gsub(self.info.first_name, ' ')
-	local jstr, res = HTTPS.request(configuration.messaging.url .. URL.escape(input))
-	if res ~= 200 then
+	if string.match(msg.text_lower, 'mattata') then
+		local jstr, res = HTTPS.request(configuration.messaging.url .. URL.escape(msg.text_lower))
+		if res ~= 200 then
+			return
+		end
+		local jdat = JSON.decode(jstr)
+		mattata.sendChatAction(msg.chat.id, 'typing')
+		mattata.sendMessage(msg.chat.id, jdat.clever, nil, true, false, msg.message_id, nil)
 		return
+	elseif string.match(msg.text_lower, '@appledog') then
+		mattata.sendPhoto(msg.chat.id, 'https://www.pixilart.net/images/art/d69775a2f30926e.gif', nil, false, msg.message_id, nil)
+		return
+	elseif msg.reply_to_message.from.id == self.info.id then
+		local jstr, res = HTTPS.request(configuration.messaging.url .. URL.escape(msg.text_lower))
+		if res ~= 200 then
+			return
+		end
+		local jdat = JSON.decode(jstr)
+		mattata.sendChatAction(msg.chat.id, 'typing')
+		mattata.sendMessage(msg.chat.id, jdat.clever, nil, true, false, msg.message_id, nil)
 	end
-	local jdat = JSON.decode(jstr)
-	mattata.sendChatAction(msg.chat.id, 'typing')
-	mattata.sendMessage(msg.chat.id, jdat.clever, nil, true, false, msg.message_id, nil)
 end
 
 return messaging

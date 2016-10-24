@@ -29,7 +29,7 @@ function preview:onMessageReceive(msg)
 		return
 	end
 	local output = '[​](' .. input .. ')'
-	mattata.sendMessage(msg.chat.id, output, 'Markdown', false, false, msg.message_id, nil)
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', false, false, nil, nil)
 end
 
 return preview

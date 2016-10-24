@@ -20,11 +20,11 @@ function hextorgb:onMessageReceive(msg, configuration)
 		r = tonumber('0x' .. input:sub(1, 2))
 		g = tonumber('0x' .. input:sub(3, 4))
 		b = tonumber('0x' .. input:sub(5, 6))
-		output = '`rgb(' .. r .. ', ' .. g .. ', ' .. b .. ')`'
+		output = 'rgb(' .. r .. ', ' .. g .. ', ' .. b .. ')'
 	else
 		output = hextorgb.help
 	end
-	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendPhoto(msg.chat.id, 'https://placeholdit.imgix.net/~text?txtsize=28&bg=' .. input .. '&w=150&h=200', output, false, msg.message_id, nil)
 end
 
 return hextorgb

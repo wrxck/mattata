@@ -4,8 +4,8 @@ local mattata = require('mattata')
 
 function rms:init(configuration)
 	rms.list = {}
-	rms.str = HTTPS.request(configuration.apis.rms)
-	for link in rms.str:gmatch('<a href=".-%.%a%a%a">(.-)</a>') do
+	rms.str = HTTPS.request('http://nosebleed.alienmelon.com/porn/FaciallyDistraughtDogs/')
+	for link in rms.str:gmatch('<a href=".-%.%a%a%a">(.-).gif</a>') do
 		table.insert(rms.list, link)
 	end
 	rms.arguments = 'rms'
@@ -16,7 +16,7 @@ end
 function rms:onMessageReceive(msg, configuration)
 	mattata.sendChatAction(msg.chat.id, 'upload_photo')
 	local choice = rms.list[math.random(#rms.list)]
-	mattata.sendPhoto(msg.chat.id, configuration.apis.rms .. choice, nil, false, msg.message_id, nil)
+	mattata.sendVideo(msg.chat.id, 'http://nosebleed.alienmelon.com/porn/FaciallyDistraughtDogs/dog' .. math.random(1, 62) .. '.gif')
 end
 
 return rms

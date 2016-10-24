@@ -11,7 +11,7 @@ function wikipedia:init(configuration)
 end
 
 local get_title = function(search)
-	for _,v in ipairs(search) do
+	for _, v in ipairs(search) do
 		if not v.snippet:match('may refer to:') then
 			return v.title
 		end
@@ -27,7 +27,7 @@ function wikipedia:onMessageReceive(msg, configuration)
 	else
 		input = input:gsub('#', ' sharp')
 	end
-	local search_url = 'http://' .. configuration.wikiLanguage .. '.wikipedia.org/w/api.php?onMessageReceive=query&list=search&format=json&srsearch='
+	local search_url = 'http://' .. configuration.wikiLanguage .. '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch='
 	local search_jstr, search_res = HTTPS.request(search_url .. URL.escape(input))
 	if search_res ~= 200 then
 		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
@@ -43,7 +43,7 @@ function wikipedia:onMessageReceive(msg, configuration)
 		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
 		return
 	end
-	local result_url = 'https://' .. configuration.wikiLanguage .. '.wikipedia.org/w/api.php?onMessageReceive=query&prop=extracts&format=json&exchars=4000&exsectionformat=plain&titles='
+	local result_url = 'https://' .. configuration.wikiLanguage .. '.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exchars=4000&exsectionformat=plain&titles='
 	local result_jstr, result_res = HTTPS.request(result_url .. URL.escape(title))
 	if result_res ~= 200 then
 		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
@@ -71,7 +71,7 @@ function wikipedia:onMessageReceive(msg, configuration)
 	else
 		output = '*' .. title:gsub('%(.+%)', '') .. '*\n' .. text:gsub('%[.+%]','')
 	end
-	mattata.sendMessage(msg.chat.id, output, 'Markdown', nil, true, false, msg.message_id, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. url:gsub('%)', '\\)') .. '"}]]}')
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. url:gsub('%)', '\\)') .. '"}]]}')
 end
 
 return wikipedia

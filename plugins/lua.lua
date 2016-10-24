@@ -27,8 +27,6 @@ function lua:onMessageReceive(msg, configuration)
 	end
 	local output, success = loadstring( [[
 		local mattata = require('mattata')
-		local mattata = require('mattata')
-		local mattata = require('mattata')
 		local JSON = require('dependencies.dkjson')
 		local URL = require('dependencies.socket.url')
 		local HTTP = require('dependencies.socket.http')
