@@ -61,7 +61,7 @@ return { -- rename this file to 'configuration.lua' for mattata to work
 		'apod',
 		'hackernews',
 		'coinflip',
-		'rms',
+		'doggo',
 		'patterns',
 		'xkcd',
 		'jsondump',
