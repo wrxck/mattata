@@ -1,4 +1,4 @@
-return { -- rename this file to 'configuration.lua' for mattata to work
+return { -- rename this file to configuration.lua for mattata to work
 	botToken = '', -- insert the bot API token you received from @BotFather
 	owner = nil, -- the numerical ID of the owner, who is presumably you
 	language = 'en', -- two digit locale
@@ -61,13 +61,12 @@ return { -- rename this file to 'configuration.lua' for mattata to work
 		'apod',
 		'hackernews',
 		'coinflip',
-		'rms',
+		'doggo',
 		'patterns',
 		'xkcd',
 		'jsondump',
 		'giphy',
 		'itunes',
-		'itunes_album_artwork',
 		'github',
 		'leavechat',
 		'identicon',
@@ -90,6 +89,7 @@ return { -- rename this file to 'configuration.lua' for mattata to work
 		'tts',
 		'location',
 		'exec',
+		'shorten',
 		-- place all new plugins above this line
 		'help',
 		'faces',
@@ -162,7 +162,8 @@ return { -- rename this file to 'configuration.lua' for mattata to work
 		pokedex = 'http://pokeapi.co/api/v1/pokemon/',
 		github = 'https://api.github.com/repos/',
 		rms = 'https://rms.sexy/img/',
-		spotify = 'https://api.spotify.com/v1'
+		spotify = 'https://api.spotify.com/v1',
+		shorten = 'http://hec.su/api?url='
 	},
 	errors = {
 		generic = 'WELP. I\'m afraid an error has occured!',

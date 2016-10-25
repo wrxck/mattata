@@ -1,7 +1,7 @@
 local ispwned = {}
-local HTTPS = require('dependencies.ssl.https')
-local URL = require('dependencies.socket.url')
-local JSON = require('dependencies.dkjson')
+local HTTPS = require('ssl.https')
+local URL = require('socket.url')
+local JSON = require('dkjson')
 local mattata = require('mattata')
 
 function ispwned:init(configuration)

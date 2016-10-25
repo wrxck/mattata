@@ -1,6 +1,6 @@
 local xkcd = {}
-local HTTP = require('dependencies.socket.http')
-local JSON = require('dependencies.dkjson')
+local HTTP = require('socket.http')
+local JSON = require('dkjson')
 local mattata = require('mattata')
 xkcd.base_url = 'https://xkcd.com/info.0.json'
 xkcd.strip_url = 'http://xkcd.com/%s/info.0.json'

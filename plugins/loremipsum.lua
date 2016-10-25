@@ -1,6 +1,6 @@
 local loremipsum = {}
 local mattata = require('mattata')
-local HTTP = require('dependencies.socket.http')
+local HTTP = require('socket.http')
 
 function loremipsum:init(configuration)
 	loremipsum.arguments = 'loremipsum'

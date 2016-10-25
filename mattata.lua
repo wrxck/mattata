@@ -4,13 +4,13 @@
 -- Load dependencies --
 
 local mattata = {}
-local HTTP = require('dependencies.socket.http')
-local HTTPS = require('dependencies.ssl.https')
-local JSON = require('dependencies.dkjson')
+local HTTP = require('socket.http')
+local HTTPS = require('ssl.https')
+local JSON = require('dkjson')
 local configuration = require('configuration')
-local ltn12 = require('dependencies.ltn12')
-local mp_encode = require('dependencies.multipart-post').encode
-local URL = require('dependencies.socket.url')
+local ltn12 = require('ltn12')
+local mp_encode = require('multipart-post').encode
+local URL = require('socket.url')
 
 -- mattata's framework --
 
@@ -58,10 +58,6 @@ function mattata:init()
 end
 
 function mattata:onMessageReceive(msg, configuration)
-	if msg.date < os.time() - 50 then
-		return
-	end
-	local plugincommands = self.plugins
 	local from_id_str = tostring(msg.from.id)
 	self.db.users[from_id_str] = msg.from
 	if msg then
@@ -70,7 +66,11 @@ function mattata:onMessageReceive(msg, configuration)
 		self.db.users[tostring(msg.new_chat_member.id)] = msg.new_chat_member
 	elseif msg.left_chat_member then
 		self.db.users[tostring(msg.left_chat_member.id)] = msg.left_chat_member
-	end 
+	elseif msg.forward_from then
+		self.db.users[tostring(msg.forward_from.id)] = msg.forward_from
+	elseif msg.reply_to_message then
+		self.db.users[tostring(msg.reply_to_message.id)] = msg.reply_to_message
+	end
 	msg.text = msg.text or msg.caption or ''
 	msg.text_lower = msg.text:lower()
 	if msg.reply_to_message then
@@ -83,7 +83,7 @@ function mattata:onMessageReceive(msg, configuration)
 	if is_service_msg(msg) then
 	  msg = service_modify_msg(msg)
 	end
-	for _, plugin in ipairs(plugincommands) do
+	for _, plugin in ipairs(self.plugins) do
 		for _, commands in ipairs(plugin.commands) do
 			if string.match(msg.text_lower, commands) then
 				local success, result = pcall(function()
@@ -95,11 +95,6 @@ function mattata:onMessageReceive(msg, configuration)
 					elseif plugin.error == nil then
 						print(configuration.errors.generic)
 					end
-					msg = nil
-					return
-				elseif result ~= true then
-					msg = nil
-					return
 				end
 			end
 		end

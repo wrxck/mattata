@@ -1,9 +1,9 @@
 local exec = {}
-local JSON = require('dependencies.dkjson')
+local JSON = require('dkjson')
 local mattata = require('mattata')
-local HTTP = require('dependencies.socket.http')
-local multipart = require('dependencies.multipart-post')
-local ltn12 = require('dependencies.ltn12')
+local HTTP = require('socket.http')
+local multipart = require('multipart-post')
+local ltn12 = require('ltn12')
 
 function exec:init(configuration)
 	exec.arguments = 'exec <language> \\n <code>'

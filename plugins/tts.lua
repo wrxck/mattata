@@ -1,7 +1,7 @@
 local tts = {}
 local mattata = require('mattata')
-local HTTP = require('dependencies.socket.http')
-local URL = require('dependencies.socket.url')
+local HTTP = require('socket.http')
+local URL = require('socket.url')
 
 function tts:init(configuration)
 	tts.arguments = 'tts <text to convert>'

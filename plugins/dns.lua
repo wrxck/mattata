@@ -1,7 +1,7 @@
 local dns = {}
 local mattata = require('mattata')
-local HTTP = require('dependencies.socket.http')
-local JSON = require('dependencies.dkjson')
+local HTTP = require('socket.http')
+local JSON = require('dkjson')
 
 function dns:init(configuration)
 	dns.arguments = 'dns <URL> <type>'

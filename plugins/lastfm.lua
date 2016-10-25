@@ -1,8 +1,8 @@
 local lastfm = {}
-local HTTP = require('dependencies.socket.http')
-local HTTPS = require('dependencies.ssl.https')
-local URL = require('dependencies.socket.url')
-local JSON = require('dependencies.dkjson')
+local HTTP = require('socket.http')
+local HTTPS = require('ssl.https')
+local URL = require('socket.url')
+local JSON = require('dkjson')
 local mattata = require('mattata')
 
 function lastfm:init(configuration)

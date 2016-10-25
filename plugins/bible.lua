@@ -1,6 +1,6 @@
 local bible = {}
-local HTTP = require('dependencies.socket.http')
-local URL = require('dependencies.socket.url')
+local HTTP = require('socket.http')
+local URL = require('socket.url')
 local mattata = require('mattata')
 
 function bible:init(configuration)

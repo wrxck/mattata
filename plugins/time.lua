@@ -1,6 +1,6 @@
 local time = {}
-local HTTP = require('dependencies.socket.http')
-local JSON = require('dependencies.dkjson')
+local HTTP = require('socket.http')
+local JSON = require('dkjson')
 local mattata = require('mattata')
 
 function time:init(configuration)

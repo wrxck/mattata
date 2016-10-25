@@ -1,13 +1,66 @@
 local itunes = {}
-local HTTPS = require('dependencies.ssl.https')
-local URL = require('dependencies.socket.url')
-local JSON = require('dependencies.dkjson')
+local HTTPS = require('ssl.https')
+local URL = require('socket.url')
+local JSON = require('dkjson')
 local mattata = require('mattata')
 
 function itunes:init(configuration)
 	itunes.arguments = 'itunes <song>'
 	itunes.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('itunes', true).table
 	itunes.help = configuration.commandPrefix .. 'itunes <song> - Returns information about the given song, from iTunes.'
+end
+
+function itunes:onQueryReceive(callback, msg, configuration)
+	if callback.data == 'itunes_send_artwork' then
+		local input = msg.reply_to_message.text:gsub(configuration.commandPrefix .. 'itunes ', '')
+		local url = configuration.apis.itunes .. URL.escape(input)
+		local jstr, res = HTTPS.request(url)
+		if res ~= 200 then
+			mattata.editMessageText(msg.chat.id, msg.message_id, configuration.errors.connection, nil, false, '{"inline_keyboard":[[{"text":"Try Again", "callback_data":"itunes_send_artwork"}]]}')
+			return
+		end
+		local jdat = JSON.decode(jstr)
+		if jdat.results[1] then
+			if jdat.results[1].artworkUrl100 then
+				local artworkUrl100 = jdat.results[1].artworkUrl100:gsub('/100x100bb.jpg', '/10000x10000bb.jpg')
+				local res = mattata.sendPhoto(msg.reply_to_message.from.id, artworkUrl100, nil, false, nil, nil)
+				if not res then
+					mattata.editMessageText(msg.chat.id, msg.message_id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=help) to get started.', 'Markdown', true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"itunes_back"}]]}')
+				elseif msg.chat.type ~= 'private' then
+					mattata.editMessageText(msg.chat.id, msg.message_id, 'I have sent you a private message containing the requested information.', nil, true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"itunes_back"}]]}')
+				end
+			end
+		end
+	end
+	if callback.data == 'itunes_back' then
+		local url = configuration.apis.itunes .. URL.escape(msg.text)
+		local jstr, res = HTTPS.request(url)
+		if res ~= 200 then
+			mattata.editMessageText(msg.chat.id, msg.message_id, configuration.errors.connection, nil, true, '{"inline_keyboard":[[{"text":"Try Again", "callback_data":"itunes_back"}]]}')
+			return
+		end
+		local track, artist, collection, trackNumber, discNumber = ''
+		local jdat = JSON.decode(jstr)
+		if jdat.results[1] then
+			if jdat.results[1].trackName and jdat.results[1].trackViewUrl then
+				trackOutput = '*Track Name:* [' .. jdat.results[1].trackName .. '](' .. jdat.results[1].trackViewUrl .. ')'
+			end
+			if jdat.results[1].artistName and jdat.results[1].artistViewUrl then
+				artistOutput = '\n*Artist:* [' .. jdat.results[1].artistName .. '](' .. jdat.results[1].artistViewUrl .. ')'
+			end
+			if jdat.results[1].collectionName and jdat.results[1].collectionViewUrl then
+				collectionOutput = '\n*Album:* [' .. jdat.results[1].collectionName .. '](' .. jdat.results[1].collectionViewUrl .. ')'
+			end
+			if jdat.results[1].trackNumber and jdat.results[1].trackCount then
+				trackNumberOutput = '\n*Track Number:* ' .. jdat.results[1].trackNumber .. '/' .. jdat.results[1].trackCount
+			end
+			if jdat.results[1].discNumber and jdat.results[1].discCount then
+				discNumberOutput = '\n*Disc Number:* ' .. jdat.results[1].discNumber .. '/' .. jdat.results[1].discCount
+			end
+		end
+		local output = trackOutput .. artistOutput .. collectionOutput .. trackNumberOutput .. discNumberOutput
+		mattata.editMessageText(msg.chat.id, msg.message_id, output, 'Markdown', true, '{"inline_keyboard":[[{"text":"Get Album Artwork", "callback_data":"itunes_send_artwork"}]]}')
+	end
 end
 
 function itunes:onMessageReceive(msg, configuration)
@@ -19,43 +72,31 @@ function itunes:onMessageReceive(msg, configuration)
 	local url = configuration.apis.itunes .. URL.escape(input)
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, '{"inline_keyboard":[[{"text":"Try Again", "callback_data":"itunes_back"}]]}')
 		return
-	else
-		local jdat = JSON.decode(jstr)
-		if jdat.results[1] then
-			if jdat.results[1].trackName then
-				local trackName = jdat.results[1].trackName
-				local trackViewUrl = jdat.results[1].trackViewUrl
-				output = '*Track Name:* [' .. trackName .. '](' .. trackViewUrl .. ')'
-				if jdat.results[1].artistName and jdat.results[1].artistViewUrl then
-					local artistName = jdat.results[1].artistName
-					local artistViewUrl = jdat.results[1].artistViewUrl
-					output = output .. '\n*Artist:* [' .. artistName .. '](' .. artistViewUrl .. ')'
-					if jdat.results[1].collectionName then
-						local collectionName = jdat.results[1].collectionName
-						local collectionViewUrl = jdat.results[1].collectionViewUrl
-						output = output .. '\n*Album:* [' .. collectionName .. '](' .. collectionViewUrl .. ')'
-						if jdat.results[1].trackNumber then
-							local trackNumber = jdat.results[1].trackNumber
-							local trackCount = jdat.results[1].trackCount
-							output = output .. '\n*Track Number:* ' .. trackNumber .. '/' .. trackCount
-							if jdat.results[1].discNumber then
-								local discNumber = jdat.results[1].discNumber
-								local discCount = jdat.results[1].discCount
-								output = output .. '\n*Disc Number:* ' .. discNumber .. '/' .. discCount
-							end
-						end
-					end
-				end
-			else
-				output = configuration.errors.results
-			end
-			mattata.sendChatAction(msg.chat.id, 'typing')
-			mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
-			return
+	end
+	mattata.sendChatAction(msg.chat.id, 'typing')
+	local track, artist, collection, trackNumber, discNumber = ''
+	local jdat = JSON.decode(jstr)
+	if jdat.results[1] then
+		if jdat.results[1].trackName and jdat.results[1].trackViewUrl then
+			trackOutput = '*Track Name:* [' .. jdat.results[1].trackName .. '](' .. jdat.results[1].trackViewUrl .. ')'
+		end
+		if jdat.results[1].artistName and jdat.results[1].artistViewUrl then
+			artistOutput = '\n*Artist:* [' .. jdat.results[1].artistName .. '](' .. jdat.results[1].artistViewUrl .. ')'
+		end
+		if jdat.results[1].collectionName and jdat.results[1].collectionViewUrl then
+			collectionOutput = '\n*Album:* [' .. jdat.results[1].collectionName .. '](' .. jdat.results[1].collectionViewUrl .. ')'
+		end
+		if jdat.results[1].trackNumber and jdat.results[1].trackCount then
+			trackNumberOutput = '\n*Track Number:* ' .. jdat.results[1].trackNumber .. '/' .. jdat.results[1].trackCount
+		end
+		if jdat.results[1].discNumber and jdat.results[1].discCount then
+			discNumberOutput = '\n*Disc Number:* ' .. jdat.results[1].discNumber .. '/' .. jdat.results[1].discCount
 		end
 	end
+	local output = trackOutput .. artistOutput .. collectionOutput .. trackNumberOutput .. discNumberOutput
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"Get Album Artwork", "callback_data":"itunes_send_artwork"}]]}')
 end
 
 return itunes

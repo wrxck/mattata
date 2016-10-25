@@ -1,8 +1,8 @@
 local isp = {}
 local mattata = require('mattata')
-local HTTP = require('dependencies.socket.http')
-local URL = require('dependencies.socket.url')
-local JSON = require('dependencies.dkjson')
+local HTTP = require('socket.http')
+local URL = require('socket.url')
+local JSON = require('dkjson')
 
 function isp:init(configuration)
 	isp.arguments = 'isp <URL>'

@@ -1,7 +1,7 @@
 local yomama = {}
 local mattata = require('mattata')
-local JSON = require('dependencies.dkjson')
-local HTTP = require('dependencies.socket.http')
+local JSON = require('dkjson')
+local HTTP = require('socket.http')
 
 function yomama:init(configuration)
 	yomama.arguments = 'yomama'

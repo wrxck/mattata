@@ -1,6 +1,6 @@
 local mcmigrated = {}
-local HTTPS = require('dependencies.ssl.https')
-local JSON = require('dependencies.dkjson')
+local HTTPS = require('ssl.https')
+local JSON = require('dkjson')
 local mattata = require('mattata')
 
 function mcmigrated:init(configuration)

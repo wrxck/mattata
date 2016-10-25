@@ -1,7 +1,7 @@
 local reddit = {}
-local HTTPS = require('dependencies.ssl.https')
-local URL = require('dependencies.socket.url')
-local JSON = require('dependencies.dkjson')
+local HTTPS = require('ssl.https')
+local URL = require('socket.url')
+local JSON = require('dkjson')
 local mattata = require('mattata')
 reddit.subreddit_url = 'https://www.reddit.com/%s/.json?limit='
 reddit.search_url = 'https://www.reddit.com/search.json?q=%s&limit='

@@ -1,7 +1,7 @@
 local lyrics = {}
 local mattata = require('mattata')
-local HTTPS = require('dependencies.ssl.https')
-local JSON = require('dependencies.dkjson')
+local HTTPS = require('ssl.https')
+local JSON = require('dkjson')
 
 function lyrics:init(configuration)
 	lyrics.arguments =  'lyrics <query>'

@@ -1,5 +1,5 @@
 local mcface = {}
-local HTTPS = require('dependencies.ssl.https')
+local HTTPS = require('ssl.https')
 local mattata = require('mattata')
 
 function mcface:init(configuration)

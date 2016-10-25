@@ -1,5 +1,5 @@
 local cats = {}
-local HTTP = require('dependencies.socket.http')
+local HTTP = require('socket.http')
 local mattata = require('mattata')
 
 function cats:init(configuration)

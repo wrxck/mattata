@@ -1,5 +1,5 @@
 local qrgen = {}
-local URL = require('dependencies.socket.url')
+local URL = require('socket.url')
 local mattata = require('mattata')
 
 function qrgen:init(configuration)

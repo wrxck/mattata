@@ -1,5 +1,5 @@
 local currency = {}
-local HTTPS = require('dependencies.ssl.https')
+local HTTPS = require('ssl.https')
 local mattata = require('mattata')
 
 function currency:init(configuration)

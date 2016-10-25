@@ -1,7 +1,7 @@
 local catfact = {}
-local JSON = require('dependencies.dkjson')
+local JSON = require('dkjson')
 local mattata = require('mattata')
-local HTTP = require('dependencies.socket.http')
+local HTTP = require('socket.http')
 
 function catfact:init(configuration)
 	catfact.arguments = 'catfact'

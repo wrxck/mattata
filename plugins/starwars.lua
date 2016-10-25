@@ -1,6 +1,6 @@
 local starwars = {}
-local HTTP = require('dependencies.socket.http')
-local JSON = require('dependencies.dkjson')
+local HTTP = require('socket.http')
+local JSON = require('dkjson')
 local mattata = require('mattata')
 
 function starwars:init(configuration)

@@ -1,7 +1,7 @@
 local isup = {}
 local mattata = require('mattata')
-local URL = require('dependencies.socket.url')
-local HTTP = require('dependencies.socket.http')
+local URL = require('socket.url')
+local HTTP = require('socket.http')
 
 function isup:init(configuration)
 	isup.arguments = 'isup <URL>'
