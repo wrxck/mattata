@@ -2,9 +2,9 @@ local slap = {}
 local mattata = require('mattata')
 
 function slap:init(configuration)
-	slap.arguments = 'slap (target)'
-	slap.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('slap', true).table
-	slap.help = configuration.commandPrefix .. 'slap (target) - Slap somebody (or something).'
+	slap.arguments = 'slap <target>'
+	slap.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('slap').table
+	slap.help = configuration.commandPrefix .. 'slap <target> - Slap somebody (or something).'
 end
 
 function slap:onMessageReceive(msg, configuration)
@@ -19,7 +19,7 @@ function slap:onMessageReceive(msg, configuration)
 			if tonumber(input) then
 				victim_id = tonumber(input)
 			elseif input:match('^@') then
-				local t = mattata.resUsername(self, input)
+				local t = mattata.resolveUsername(self, input)
 				if t then
 					victim_id = t.id
 				end
@@ -44,7 +44,7 @@ function slap:onMessageReceive(msg, configuration)
 		if self.db.userdata[victim_id_str] and self.db.userdata[victim_id_str].nickname then
 			victim_name = self.db.userdata[victim_id_str].nickname
 		elseif self.db.users[victim_id_str] then
-			victim_name = mattata.build_name(self.db.users[victim_id_str].first_name, self.db.users[victim_id_str].last_name)
+			victim_name = mattata.buildName(self.db.users[victim_id_str].first_name, self.db.users[victim_id_str].last_name)
 		else
 			victim_name = victim_id_str
 		end
@@ -53,11 +53,11 @@ function slap:onMessageReceive(msg, configuration)
 	if self.db.userdata[victor_id_str] and self.db.userdata[victor_id_str].nickname then
 		victor_name = self.db.userdata[victor_id_str].nickname
 	elseif self.db.users[victor_id_str] then
-		victor_name = mattata.build_name(self.db.users[victor_id_str].first_name, self.db.users[victor_id_str].last_name)
+		victor_name = mattata.buildName(self.db.users[victor_id_str].first_name, self.db.users[victor_id_str].last_name)
 	else
 		victor_name = self.info.first_name
 	end
-	mattata.sendMessage(msg.chat.id, mattata.char.zwnj .. slaps[math.random(#slaps)]:gsub('VICTIM', victim_name):gsub('VICTOR', victor_name), nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(msg.chat.id, slaps[math.random(#slaps)]:gsub('VICTIM', victim_name):gsub('VICTOR', victor_name), nil, true, false, msg.message_id, nil)
 end
 
 return slap

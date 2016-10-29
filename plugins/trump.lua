@@ -2,9 +2,9 @@ local trump = {}
 local mattata = require('mattata')
 
 function trump:init(configuration)
-	trump.arguments = 'trump (target)'
-	trump.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('trump', true).table
-	trump.help = configuration.commandPrefix .. 'trump (target) - trump somebody (or something).'
+	trump.arguments = 'trump <target>'
+	trump.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('trump').table
+	trump.help = configuration.commandPrefix .. 'trump <target> - Trump somebody (or something). If no target is given then, well, you ARE the target!'
 end
 
 function trump:onMessageReceive(msg, configuration)
@@ -18,7 +18,7 @@ function trump:onMessageReceive(msg, configuration)
 			if tonumber(input) then
 				victim_id = tonumber(input)
 			elseif input:match('^@') then
-				local t = mattata.resUsername(self, input)
+				local t = mattata.resolveUsername(self, input)
 				if t then
 					victim_id = t.id
 				end
@@ -43,7 +43,7 @@ function trump:onMessageReceive(msg, configuration)
 			victim_name = victim_id_str
 		end
 	end
-	mattata.sendMessage(msg.chat.id, mattata.char.zwnj .. trumps[math.random(#trumps)]:gsub('VICTIM', victim_name) .. ' - Donald J. Trump', nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(msg.chat.id, trumps[math.random(#trumps)]:gsub('VICTIM', victim_name) .. ' - Donald J. Trump', nil, true, false, msg.message_id, nil)
 end
 
 return trump

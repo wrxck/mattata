@@ -5,9 +5,9 @@ local mattata = require('mattata')
 
 function bible:init(configuration)
 	bible.arguments = 'bible <reference>'
-	bible.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('bible', true).table
+	bible.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('bible').table
 	bible.inlineCommands = bible.commands
-	bible.help = configuration.commandPrefix .. 'bible <reference> - Returns a verse from the American Standard Version of the Bible. Results from biblia.com.'
+	bible.help = configuration.commandPrefix .. 'bible <reference> - Recites the given verse from the Bible.'
 end
 
 function bible:onInlineCallback(inline_query, configuration)
@@ -21,20 +21,26 @@ function bible:onInlineCallback(inline_query, configuration)
 end
 
 function bible:onMessageReceive(msg, configuration)
-	local input = mattata.input_from_msg(msg)
+	local input = mattata.input(msg.text_lower)
 	if not input then
 		mattata.sendMessage(msg.chat.id, bible.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local url = configuration.apis.bible .. configuration.keys.bible .. '&passage=' .. URL.escape(input)
-	local output, res = HTTP.request(url)
-	if not output or res ~= 200 or output:len() == 0 then
-		output = configuration.errors.results
+	local str, res = HTTP.request(url)
+	if res ~= 200 then
+		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		return
 	end
-	if output:len() > 4000 then
-		output = 'The requested passage is too long to post here. Please, try and be more specific.'
+	if not str or str:len() == 0 then
+		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+		return
 	end
-	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
+	if str:len() > 4096 then
+		mattata.sendMessage(msg.chat.id, 'The requested passage is too long to post here. Please, try and be more specific.', nil, true, false, msg.message_id, nil)
+		return
+	end
+	mattata.sendMessage(msg.chat.id, str, nil, true, false, msg.message_id, nil)
 end
 
 return bible

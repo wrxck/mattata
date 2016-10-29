@@ -6,7 +6,7 @@ local mattata = require('mattata')
 
 function imdb:init(configuration)
 	imdb.arguments = 'imdb <query>'
-	imdb.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('imdb', true).table
+	imdb.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('imdb').table
 	imdb.help = configuration.commandPrefix .. 'imdb <query> - Returns an IMDb entry.'
 end
 

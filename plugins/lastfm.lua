@@ -7,7 +7,7 @@ local mattata = require('mattata')
 
 function lastfm:init(configuration)
 	lastfm.arguments = 'lastfm'
-	lastfm.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lastfm', true):c('np', true):c('fmset', true).table
+	lastfm.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lastfm'):c('np'):c('fmset').table
 	lastfm.help = configuration.commandPrefix .. 'np (username) - Returns what you are or were last listening to. If you specify a username, info will be returned for that username.' .. configuration.commandPrefix .. 'fmset <username> - Sets your last.fm username. Otherwise, ' .. configuration.commandPrefix .. 'np will use your Telegram username. Use ' .. configuration.commandPrefix .. 'fmset -del to delete it.'
 end
 

@@ -6,7 +6,7 @@ local JSON = require('dkjson')
 
 function location:init(configuration)
 	location.arguments = 'location <query>'
-	location.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('location', true).table
+	location.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('location').table
 	location.help = configuration.commandPrefix .. 'location <query> - Sends a location from Google Maps.'
 end
 

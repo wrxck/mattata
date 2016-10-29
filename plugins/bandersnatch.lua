@@ -3,7 +3,7 @@ local mattata = require('mattata')
 
 function bandersnatch:init(configuration)
 	bandersnatch.arguments = 'bandersnatch'
-	bandersnatch.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('bandersnatch', true).table
+	bandersnatch.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('bandersnatch').table
 	bandersnatch.inlineCommands = bandersnatch.commands
 	bandersnatch.help = configuration.commandPrefix .. 'bandersnatch - Shun the frumious Bandersnatch (whatever THAT means...) Alias: ' .. configuration.commandPrefix .. 'bs.'
 end

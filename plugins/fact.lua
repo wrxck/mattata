@@ -5,7 +5,7 @@ local HTTP = require('socket.http')
 
 function fact:init(configuration)
 	fact.arguments = 'fact'
-	fact.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('fact', true).table
+	fact.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('fact').table
 	fact.help = configuration.commandPrefix .. 'fact - Returns a random fact!'
 end
 

@@ -3,7 +3,7 @@ local mattata = require('mattata')
 
 function eightball:init(configuration)
 	eightball.arguments = 'eightball'
-	eightball.commands = mattata.commands(self.info.username, configuration.commandPrefix, {'[Yy]/[Nn]%p*$'}):c('eightball', true).table
+	eightball.commands = mattata.commands(self.info.username, configuration.commandPrefix, {'[Yy]/[Nn]%p*$'}):c('eightball').table
 	eightball.help = configuration.commandPrefix .. 'eightball - Returns your destined decision through mattata\'s sixth sense.'
 end
 

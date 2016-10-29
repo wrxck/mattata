@@ -2,13 +2,15 @@ local currency = {}
 local HTTPS = require('ssl.https')
 local mattata = require('mattata')
 
-function currency:init(configuration)
-	currency.arguments = 'currency (amount) <from> TO <to>'
-	currency.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('currency', true).table
-	currency.help = configuration.commandPrefix .. 'currency (amount) <from> TO <to> - Returns exchange rates for various currencies. Source: Google Finance.'
+function currency:init()
+	local configuration = require('configuration')
+	currency.arguments = 'currency <amount> <from> TO <to>'
+	currency.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('currency').table
+	currency.help = configuration.commandPrefix .. 'currency <amount> <from> TO <to> - Converts exchange rates for various currencies. Source: Google Finance.'
 end
 
-function currency:onMessageReceive(msg, configuration)
+function currency:onMessageReceive(msg)
+	local configuration = require('configuration')
 	local input = msg.text:upper()
 	if not input:match('%a%a%a TO %a%a%a') then
 		mattata.sendMessage(msg.chat.id, currency.help, nil, true, false, msg.message_id, nil)

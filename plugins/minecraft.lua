@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function minecraft:init(configuration)
 	minecraft.arguments = 'minecraft <server IP> <port>'
-	minecraft.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('minecraft', true).table
+	minecraft.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('minecraft').table
 	minecraft.help = configuration.commandPrefix .. 'minecraft <server IP> <port> - Sends information about the given Minecraft server IP.'
 end
 

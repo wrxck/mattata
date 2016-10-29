@@ -4,7 +4,7 @@ local mattata = require('mattata')
 
 function randomword:init(configuration)
 	randomword.arguments = 'randomword'
-	randomword.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('randomword', true):c('rw', true).table
+	randomword.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('randomword'):c('rw').table
 	randomword.help = configuration.commandPrefix .. 'randomword - Generates a random word. Alias: ' .. configuration.commandPrefix .. 'rw.'
 end
 

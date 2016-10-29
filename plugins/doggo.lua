@@ -3,7 +3,7 @@ local mattata = require('mattata')
 
 function doggo:init(configuration)
 	doggo.arguments = 'doggo'
-	doggo.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('doggo', true).table
+	doggo.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('doggo').table
 	doggo.help = configuration.commandPrefix .. 'doggo - Sends a cute lil\' doggo.'
 end
 

@@ -6,7 +6,7 @@ local mattata = require('mattata')
 
 function urbandictionary:init(configuration)
 	urbandictionary.arguments = 'urbandictionary <query>'
-	urbandictionary.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('urbandictionary', true):c('ud', true):c('urban', true).table
+	urbandictionary.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('urbandictionary'):c('ud'):c('urban').table
 	urbandictionary.help = configuration.commandPrefix .. 'urbandictionary <query> - Defines the given word. Urban style. Aliases: ' .. configuration.commandPrefix .. 'ud, ' .. configuration.commandPrefix .. 'urban.'
 end
 

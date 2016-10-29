@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function mcmigrated:init(configuration)
 	mcmigrated.arguments = 'mcmigrated <username>'
-	mcmigrated.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('mcmigrated', true).table
+	mcmigrated.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('mcmigrated').table
 	mcmigrated.help = configuration.commandPrefix .. 'mcmigrated <username> - Tells you if a Minecraft username has been migrated to a Mojang account.'
 end
 

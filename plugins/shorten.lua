@@ -1,12 +1,12 @@
 local shorten = {}
-local JSON = require('dkjson')
 local mattata = require('mattata')
 local HTTP = require('socket.http')
 local URL = require('socket.url')
+local JSON = require('dkjson')
 
 function shorten:init(configuration)
 	shorten.arguments = 'shorten <URL>'
-	shorten.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('shorten', true).table
+	shorten.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('shorten').table
 	shorten.help = configuration.commandPrefix .. 'shorten - Shortens the given URL.'
 end
 

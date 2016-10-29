@@ -6,7 +6,7 @@ local mattata = require('mattata')
 
 function wikipedia:init(configuration)
 	wikipedia.arguments = 'wikipedia <query>'
-	wikipedia.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('wikipedia', true):c('wiki', true):c('w', true).table
+	wikipedia.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('wikipedia'):c('wiki'):c('w').table
 	wikipedia.help = configuration.commandPrefix .. 'wikipedia <query> - Returns an article from Wikipedia. Aliases: ' .. configuration.commandPrefix .. 'w, ' .. configuration.commandPrefix .. 'wiki.'
 end
 

@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function qotd:init(configuration)
 	qotd.arguments = 'qotd'
-	qotd.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('qotd', true).table
+	qotd.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('qotd').table
 	qotd.help = configuration.commandPrefix .. 'qotd - Sends the quote of the day.'
 end
 

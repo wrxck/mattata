@@ -9,7 +9,7 @@ local HTTPS = require('ssl.https')
 local JSON = require('dkjson')
 local configuration = require('configuration')
 local ltn12 = require('ltn12')
-local mp_encode = require('multipart-post').encode
+local multipart = require('multipart-post')
 local URL = require('socket.url')
 
 -- mattata's framework --
@@ -24,14 +24,14 @@ function mattata:init()
 		self.info = mattata.getMe()
 	until self.info
 	self.info = self.info.result
-	self.db = mattata.load_data(self.info.username)
+	self.db = mattata.loadData(self.info.username)
 	if not self.db then
-		mattata.load_data(self.info.username)
+		mattata.loadData(self.info.username)
 	end
 	self.db.users = self.db.users or {}
 	self.db.userdata = self.db.userdata or {}
 	self.db.reminders = self.db.reminders or {}
-	self.db.version = '3'
+	self.db.version = '3.1'
 	self.db.users[tostring(self.info.id)] = self.info
 	self.plugins = {}
 	for k, v in pairs(configuration.plugins) do
@@ -61,6 +61,12 @@ function mattata:onMessageReceive(msg, configuration)
 	local from_id_str = tostring(msg.from.id)
 	self.db.users[from_id_str] = msg.from
 	if msg then
+		msg.text = msg.text or msg.caption or ''
+		msg.text_lower = msg.text:lower()
+		if msg.text:match('^' .. configuration.commandPrefix .. 'start .+') then
+			msg.text = configuration.commandPrefix .. mattata.input(msg.text)
+			msg.text_lower = msg.text:lower()
+		end
 		self.db.users[tostring(msg.from.id)] = msg.from
 	elseif msg.new_chat_member then
 		self.db.users[tostring(msg.new_chat_member.id)] = msg.new_chat_member
@@ -69,19 +75,11 @@ function mattata:onMessageReceive(msg, configuration)
 	elseif msg.forward_from then
 		self.db.users[tostring(msg.forward_from.id)] = msg.forward_from
 	elseif msg.reply_to_message then
+		msg.reply_to_message.text = msg.reply_to_message.text or msg.reply_to_message.caption or ''
 		self.db.users[tostring(msg.reply_to_message.id)] = msg.reply_to_message
 	end
-	msg.text = msg.text or msg.caption or ''
-	msg.text_lower = msg.text:lower()
-	if msg.reply_to_message then
-		msg.reply_to_message.text = msg.reply_to_message.text or msg.reply_to_message.caption or ''
-	end
-	if msg.text:match('^' .. configuration.commandPrefix .. 'start .+') then
-		msg.text = configuration.commandPrefix .. mattata.input(msg.text)
-		msg.text_lower = msg.text:lower()
-	end
-	if is_service_msg(msg) then
-	  msg = service_modify_msg(msg)
+	if isServiceMessage(msg) then
+	  msg = serviceModifyMessage(msg)
 	end
 	for _, plugin in ipairs(self.plugins) do
 		for _, commands in ipairs(plugin.commands) do
@@ -102,6 +100,9 @@ function mattata:onMessageReceive(msg, configuration)
 end
 
 function mattata:onQueryReceive(callback, msg, configuration)
+	if callback then
+		self.db.users[tostring(callback.from.id)] = callback.from
+	end
 	for _, plugin in ipairs(self.plugins) do
 		if plugin.onQueryReceive then
 			local success, result = pcall(function()
@@ -115,8 +116,10 @@ function mattata:onQueryReceive(callback, msg, configuration)
 end
 
 function mattata:processInlineQuery(inline_query, configuration)
-	local pluginCommands = self.plugins
-	for _, plugin in ipairs(pluginCommands) do
+	if inline_query then
+		self.db.users[tostring(inline_query.from.id)] = inline_query.from
+	end
+	for _, plugin in ipairs(self.plugins) do
 		for _, commands in ipairs(plugin.inlineCommands) do
 			if string.match(inline_query.query, commands) then
 				local success, result = pcall(function()
@@ -165,10 +168,10 @@ function mattata:run(configuration)
 		end
 		if self.last_db_save ~= os.date('%H') then
 			self.last_db_save = os.date('%H')
-			mattata.save_data(self.info.username, self.db)
+			mattata.saveData(self.info.username, self.db)
 		end
 	end
-	mattata.save_data(self.info.username, self.db)
+	mattata.saveData(self.info.username, self.db)
 	print('mattata is shutting down...')
 end
 
@@ -199,9 +202,64 @@ function mattata.request(method, parameters, file)
 		parameters = { '' }
 	end
 	local response = {}
-	local body, boundary = mp_encode(parameters)
+	local body, boundary = multipart.encode(parameters)
 	local success, res = HTTPS.request{
 		url = 'https://api.telegram.org/bot' .. configuration.botToken .. '/' .. method,
+		method = 'POST',
+		headers = {
+			['Content-Type'] = 'multipart/form-data; boundary=' .. boundary,
+			['Content-Length'] = #body,
+		},
+		source = ltn12.source.string(body),
+		sink = ltn12.sink.table(response)
+	}
+	local data = table.concat(response)
+	if not success then
+		print(method .. ': Connection error. [' .. res	.. ']')
+		return false, false
+	else
+		local result = JSON.decode(data)
+		if not result then
+			return false, false
+		elseif result.ok then
+			return result
+		else
+			print(JSON.encode(result))
+			return false
+		end
+	end
+end
+
+function mattata.pwrRequest(method, parameters, file)
+	parameters = parameters or {}
+	for k, v in pairs(parameters) do
+		parameters[k] = tostring(v)
+	end
+	if file and next(file) ~= nil then
+		local file_type, file_name = next(file)
+		if not file_name then
+			return false
+		end
+		if string.match(file_name, configuration.fileDownloadLocation) then
+			local file_result = io.open(file_name, 'r')
+			local file_data = {
+				filename = file_name,
+				data = file_result:read('*a')
+			}
+			file_result:close()
+			parameters[file_type] = file_data
+		else
+			local file_type, file_name = next(file)
+			parameters[file_type] = file_name
+		end
+	end
+	if next(parameters) == nil then
+		parameters = { '' }
+	end
+	local response = {}
+	local body, boundary = multipart.encode(parameters)
+	local success, res = HTTPS.request{
+		url = 'https://api.pwrtelegram.xyz/bot' .. configuration.botToken .. '/' .. method,
 		method = 'POST',
 		headers = {
 			['Content-Type'] = 'multipart/form-data; boundary=' .. boundary,
@@ -414,12 +472,6 @@ function mattata.unbanChatMember(chat_id, user_id)
 	} )
 end
 
-function mattata.getChat(chat_id)
-	return mattata.request('getChat', {
-		chat_id = chat_id
-	} )
-end
-
 function mattata.getChatAdministrators(chat_id)
 	return mattata.request('getChatAdministrators', {
 		chat_id = chat_id
@@ -439,11 +491,12 @@ function mattata.getChatMember(chat_id, user_id)
 	} )
 end
 
-function mattata.answerCallbackQuery(callback_query_id, text, show_alert)
+function mattata.answerCallbackQuery(callback_query_id, text, show_alert, url)
 	return mattata.request('answerCallbackQuery', {
 		callback_query_id = callback_query_id,
 		text = text,
-		show_alert = show_alert
+		show_alert = show_alert,
+		url = url
 	} )
 end
 
@@ -519,6 +572,21 @@ function mattata.getGameHighScores(user_id, chat_id, message_id, inline_message_
 	} )
 end
 
+-- PWRTelegram API methods --
+
+function mattata.getChat(chat_id)
+	return mattata.pwrRequest('getChat', {
+		chat_id = chat_id
+	} )
+end
+
+function mattata.deleteMessage(chat_id, message_id)
+	return mattata.pwrRequest('deleteMessage', {
+		chat_id = chat_id,
+		message_id = message_id
+	} )
+end
+
 -- General functions --
 
 function mattata.getWord(s, i)
@@ -541,15 +609,11 @@ function mattata.input(s)
 	return s:sub(s:find(' ') + 1)
 end
 
-function mattata.input_from_msg(msg)
-	return mattata.input(msg.text) or (msg.reply_to_message and #msg.reply_to_message.text > 0 and msg.reply_to_message.text) or false
-end
-
 function mattata.trim(str)
 	return str:gsub('^%s*(.-)%s*$', '%1')
 end
 
-function mattata.get_name(msg)
+function mattata.getName(msg)
 	local name = ''
 	if msg.from.last_name then
 		name = msg.from.first_name .. ' ' .. msg.from.last_name
@@ -562,12 +626,11 @@ function mattata.get_name(msg)
 	return name
 end
 
-function mattata.downloadToFile(url, file_name)
-	print('Downloading ' .. url)
-	if not file_name then
-		file_name = configuration.fileDownloadLocation .. url:match('.+/(.-)$') or configuration.fileDownloadLocation .. os.time()
+function mattata.downloadToFile(url, fileName)
+	if not fileName then
+		fileName = configuration.fileDownloadLocation .. url:match('.+/(.-)$') or configuration.fileDownloadLocation .. os.time()
 	else
-		file_name = configuration.fileDownloadLocation .. file_name
+		fileName = configuration.fileDownloadLocation .. fileName
 	end
 	local body = {}
 	local protocol = HTTP
@@ -587,12 +650,11 @@ function mattata.downloadToFile(url, file_name)
 	local file = io.open(file_name, 'w+')
 	file:write(table.concat(body))
 	file:close()
-	print('Saved to: ' .. file_name)
-	return file_name
+	return fileName
 end
 
-function mattata.load_data(filename)
-	local file = io.open(filename)
+function mattata.loadData(fileName)
+	local file = io.open(fileName)
 	if file then
 		local s = file:read('*all')
 		file:close()
@@ -602,14 +664,14 @@ function mattata.load_data(filename)
 	end
 end
 
-function mattata.save_data(filename, data)
+function mattata.saveData(fileName, data)
 	local s = JSON.encode(data)
-	local file = io.open(filename, 'w')
+	local file = io.open(fileName, 'w')
 	file:write(s)
 	file:close()
 end
 
-function mattata.build_name(first, last)
+function mattata.buildName(first, last)
 	if last then
 		return first .. ' ' .. last
 	else
@@ -625,7 +687,7 @@ function mattata.htmlEscape(text)
 	return text:gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;')
 end
 
-function mattata:resUsername(input)
+function mattata:resolveUsername(input)
 	input = input:gsub('^@', '')
 	for _, user in pairs(self.db.users) do
 		if user.username and user.username:lower() == input:lower() then
@@ -638,47 +700,42 @@ function mattata:resUsername(input)
 	end
 end
 
-mattata.commands_meta = {}
+mattata.commandsMeta = {}
 
-mattata.commands_meta.__index = mattata.commands_meta
+mattata.commandsMeta.__index = mattata.commandsMeta
 
-function mattata.commands_meta:c(pattern, has_args)
-	local username = self.username:lower()
-	table.insert(self.table, '^' .. self.commandPrefix .. pattern .. '$')
-	table.insert(self.table, '^' .. self.commandPrefix .. pattern .. '@' .. username .. '$')
-	if has_args then
-		table.insert(self.table, '^' .. self.commandPrefix .. pattern .. '%s+[^%s]*')
-		table.insert(self.table, '^' .. self.commandPrefix .. pattern .. '@' .. username .. '%s+[^%s]*')
-	end
+function mattata.commandsMeta:c(command)
+	table.insert(self.table, '^' .. self.commandPrefix .. command .. '$')
+	table.insert(self.table, '^' .. self.commandPrefix .. command .. '@' .. self.username:lower() .. '$')
+	table.insert(self.table, '^' .. self.commandPrefix .. command .. '%s+[^%s]*')
+	table.insert(self.table, '^' .. self.commandPrefix .. command .. '@' .. self.username:lower() .. '%s+[^%s]*')
 	return self
 end
 
-function mattata.commands(username, commandPrefix, commands_table)
-	local self = setmetatable({}, mattata.commands_meta)
+function mattata.commands(username, commandPrefix, commandsTable)
+	local self = setmetatable({}, mattata.commandsMeta)
 	self.username = username
 	self.commandPrefix = commandPrefix
-	self.table = commands_table or {}
+	self.table = commandsTable or {}
 	return self
 end
 
-function mattata.pretty_float(x)
-	if x % 1 == 0 then
-		return tostring(math.floor(x))
-	else
-		return tostring(x)
+function mattata.tableSize(t)
+	local i = 0
+	for _ in pairs(t) do
+		i = i + 1
 	end
+	return i
 end
 
-mattata.char = {
-	zwnj = '‌',
-	arabic = '[\216-\219][\128-\191]',
-	rtl_override = '‮',
-	rtl_mark = '‏',
-	em_dash = '—',
-	utf_8 = '[%z\1-\127\194-\244][\128-\191]',
-}
+function isServiceMessage(msg)
+	if msg.new_chat_member or msg.left_chat_member or msg.new_chat_title or msg.new_chat_photo or msg.group_chat_created or msg.supergroup_chat_created or msg.channel_chat_created or msg.migrate_to_chat_id or msg.migrate_from_chat_id then
+		return true
+	end
+	return false
+end
 
-function service_modify_msg(msg)
+function serviceModifyMessage(msg)
 	if msg.new_chat_member then
 		msg.text = '//tgservice new_chat_member'
 		msg.text_lower = msg.text
@@ -710,31 +767,7 @@ function service_modify_msg(msg)
 	return msg
 end
 
-function is_service_msg(msg)
-	local res = false
-	if msg.new_chat_member then
-		res = true
-	elseif msg.left_chat_member then
-		res = true
-	elseif msg.new_chat_title then
-		res = true
-	elseif msg.new_chat_photo then
-		res = true
-	elseif msg.group_chat_created then
-		res = true
-	elseif msg.supergroup_chat_created then
-		res = true
-	elseif msg.channel_chat_created then
-		res = true
-	elseif msg.migrate_to_chat_id then
-		res = true
-	elseif msg.migrate_from_chat_id then
-		res = true
-	end
-	return res
-end
-
-function mattata.utf8_len(s)
+function mattata.utf8Len(s)
 	local chars = 0
 	for i = 1, string.len(s) do
 		local b = string.byte(s, i)
@@ -743,42 +776,6 @@ function mattata.utf8_len(s)
 		end
 	end
 	return chars
-end
-
-mattata.set_meta = {}
-
-mattata.set_meta.__index = mattata.set_meta
-
-function mattata.new_set()
-	return setmetatable({__count = 0}, mattata.set_meta)
-end
-
-function mattata.set_meta:add(x)
-	if x == '__count' then
-		return false
-	else
-		if not self[x] then
-			self[x] = true
-			self.__count = self.__count + 1
-		end
-		return true
-	end
-end
-
-function mattata.set_meta:remove(x)
-	if x == '__count' then
-		return false
-	else
-		if self[x] then
-			self[x] = nil
-			self.__count = self.__count - 1
-		end
-		return true
-	end
-end
-
-function mattata.set_meta:__len()
-	return self.__count
 end
 
 return mattata

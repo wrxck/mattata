@@ -1,10 +1,14 @@
 local help = {}
 local mattata = require('mattata')
+local JSON = require('dkjson')
+local HTTPS = require('ssl.https')
+local URL = require('socket.url')
 local help_text, db, user_count, plugin_count, pun_count, trump_count
 
-function help:init(configuration)
+function help:init()
+	local configuration = require('configuration')
 	local arguments_list = {}
-	help_text = '*The commands I understand include the following:*\n	» ' .. configuration.commandPrefix
+	help_text = '» ' .. configuration.commandPrefix
 	for _, plugin in ipairs(self.plugins) do
 		if plugin.arguments then
 			table.insert(arguments_list, plugin.arguments)
@@ -15,13 +19,25 @@ function help:init(configuration)
 	end
 	table.insert(arguments_list, 'help <plugin>')
 	table.sort(arguments_list)
-	help_text = help_text .. table.concat(arguments_list, '\n	» ' .. configuration.commandPrefix) .. '\n\n*Arguments:* <required> (optional)'
-	help.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('help', true):c('h', true).table
-	help.help = configuration.commandPrefix .. '*help <plugin>* \nUsage information for the given plugin.'
+	help_text = help_text .. table.concat(arguments_list, '\n» ' .. configuration.commandPrefix)
+	help.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('help'):c('h').table
+	help.inlineCommands = { '^' .. '' .. '' }
+	help.help = configuration.commandPrefix .. 'help <plugin> - Usage information for the given plugin. Alias: ' .. configuration.commandPrefix .. 'h.'
 	db = self.db
 end
 
-function help:onQueryReceive(callback, msg, configuration)
+function help:onInlineCallback(inline_query)
+	local configuration = require('configuration')
+	local results = '[{"type":"article","id":"1","title":"/id","description":"@mattatabot /id <username/ID> - Get information about a user/group","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /id <username/ID>"}}'
+	results = results .. ',{"type":"article","id":"2","title":"/ai","description":"@mattatabot /ai <text> - Talk to mattata","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /ai <text>"}}'
+	results = results .. ',{"type":"article","id":"3","title":"/apod","description":"@mattatabot /apod - Get the astronomical photo of the day","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /apod"}}'
+	results = results .. ',{"type":"article","id":"4","title":"/gif","description":"@mattatabot /gif <query> - Search for GIFs","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /gif <query>"}}'
+	results = results .. ']'
+	mattata.answerInlineQuery(inline_query.id, results, 0, false, nil, 'More features')
+end
+
+function help:onQueryReceive(callback, msg)
+	local configuration = require('configuration')
 	if callback.data == 'help_statistics' then
 		user_count = 0
 		for _ in pairs(db.users) do
@@ -59,14 +75,11 @@ function help:onQueryReceive(callback, msg, configuration)
 		else
 			trump_count = trump_count .. ' trumps configured'
 		end
-		local help_statistics = '*Statistics*\n'
-		help_statistics = help_statistics .. user_count .. '\n'
+		local help_statistics = user_count .. '\n'
 		help_statistics = help_statistics .. plugin_count .. '\n'
 		help_statistics = help_statistics .. pun_count .. '\n'
 		help_statistics = help_statistics .. trump_count
-		local update_time = '\n\n`' .. os.time() .. '`'
-		help_statistics = help_statistics .. update_time
-		mattata.editMessageText(msg.chat.id, msg.message_id, help_statistics, 'Markdown', true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"},{"text":"Refresh", "callback_data":"help_statistics"}]]}')
+		mattata.answerCallbackQuery(callback.id, help_statistics, true, nil)
 	end
 	if callback.data == 'help_commands' then
 		if msg.chat.type ~= 'private' then
@@ -89,7 +102,8 @@ function help:onQueryReceive(callback, msg, configuration)
 	end
 end
 
-function help:onMessageReceive(msg, configuration)
+function help:onMessageReceive(msg)
+	local configuration = require('configuration')
 	local input = mattata.input(msg.text)
 	if input then
 		for _, plugin in ipairs(self.plugins) do

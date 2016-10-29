@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function ninegag:init(configuration)
 	ninegag.arguments = '9gag'
-	ninegag.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('9gag', true).table
+	ninegag.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('9gag').table
 	ninegag.inlineCommands = ninegag.commands
 	ninegag.help = configuration.commandPrefix .. '9gag - Returns a random result from the latest 9gag images.'
 end

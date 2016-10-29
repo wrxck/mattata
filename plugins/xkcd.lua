@@ -6,9 +6,9 @@ xkcd.base_url = 'https://xkcd.com/info.0.json'
 xkcd.strip_url = 'http://xkcd.com/%s/info.0.json'
 
 function xkcd:init(configuration)
-	xkcd.arguments = 'xkcd (i)'
-	xkcd.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('xkcd', true).table
-	xkcd.help = configuration.commandPrefix .. 'xkcd (i) - Returns the latest xkcd strip and its alt text. If a number is given, returns that number strip. If \'r\' is passed in place of a number, returns a random strip.'
+	xkcd.arguments = 'xkcd <i>'
+	xkcd.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('xkcd').table
+	xkcd.help = configuration.commandPrefix .. 'xkcd <i> - Returns the latest xkcd strip and its alt text. If a number is given, returns that number strip. If \'r\' is passed in place of a number, returns a random strip.'
 	local jstr = HTTP.request(xkcd.base_url)
 	if jstr then
 		local data = JSON.decode(jstr)

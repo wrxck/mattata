@@ -4,7 +4,7 @@ local URL = require('socket.url')
 local JSON = require('serpent')
 
 function lua:init(configuration)
-	lua.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lua', true):c('return', true).table
+	lua.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lua'):c('return').table
 	JSON = require('dkjson')
 	lua.serialise = function(t) return JSON.encode(t, {indent=true}) end
 	lua.loadstring = load or loadstring

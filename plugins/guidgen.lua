@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function guidgen:init(configuration)
 	guidgen.arguments = 'guidgen'
-	guidgen.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('guidgen', true).table
+	guidgen.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('guidgen').table
 	guidgen.help = configuration.commandPrefix .. 'guidgen - Generates a random GUID.'
 end
 

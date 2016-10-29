@@ -5,7 +5,7 @@ local HTTP = require('socket.http')
 
 function chuck:init(configuration)
 	chuck.arguments = 'chuck'
-	chuck.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('chuck', true).table
+	chuck.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('chuck').table
 	chuck.inlineCommands = chuck.commands
 	chuck.help = configuration.commandPrefix .. 'chuck - Generates a Chuck Norris joke!'
 end

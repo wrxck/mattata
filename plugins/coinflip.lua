@@ -2,9 +2,9 @@ local coinflip = {}
 local mattata = require('mattata')
 
 function coinflip:init(configuration)
-	coinflip.arguments = 'coinflip (guess)'
-	coinflip.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('coinflip', true):c('cf', true).table
-	coinflip.help = configuration.commandPrefix .. 'coinflip (guess) - Flips a coin and returns the result! If no arguments are given, the result of a random coin flip is returned; if, however, an argument is given, the result of the random coin flip tests against your guess and returns the result and whether your guess was correct. Alias: ' .. configuration.commandPrefix .. 'cf.'
+	coinflip.arguments = 'coinflip <guess>'
+	coinflip.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('coinflip'):c('cf').table
+	coinflip.help = configuration.commandPrefix .. 'coinflip <guess> - Flips a coin and returns the result! If no arguments are given, the result of a random coin flip is returned; if, however, an argument is given, the result of the random coin flip tests against your guess and returns the result and whether your guess was correct. Alias: ' .. configuration.commandPrefix .. 'cf.'
 end
 
 function coinflip:onMessageReceive(msg)

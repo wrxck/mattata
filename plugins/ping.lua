@@ -2,7 +2,7 @@ local ping = {}
 local mattata = require('mattata')
 
 function ping:init(configuration)
-	ping.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('ping', true):c('pong', true).table
+	ping.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('ping'):c('pong').table
 end
 
 function ping:onMessageReceive(msg, configuration)

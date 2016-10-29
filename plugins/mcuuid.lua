@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function mcuuid:init(configuration)
 	mcuuid.arguments = 'mcuuid <Minecraft username>'
-	mcuuid.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('mcuuid', true).table
+	mcuuid.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('mcuuid').table
 	mcuuid.help = configuration.commandPrefix .. 'mcuuid <Minecraft username> - Tells you the UUID of a Minecraft username.'
 end
 

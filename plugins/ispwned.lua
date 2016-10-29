@@ -6,7 +6,7 @@ local mattata = require('mattata')
 
 function ispwned:init(configuration)
 	ispwned.arguments = 'ispwned <username/email>'
-	ispwned.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('ispwned', true).table
+	ispwned.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('ispwned').table
 	ispwned.help = configuration.commandPrefix .. 'ispwned <username/email> - Tells you if the given username/email has been identified in any data leaks.'
 end
 

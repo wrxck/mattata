@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function github:init(configuration)
 	github.arguments = 'github <username> <repository>'
-	github.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('github', true).table
+	github.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('github').table
 	github.help = configuration.commandPrefix .. 'github <username> <repository> - Returns information about the specified GitHub repository.'
 end
 

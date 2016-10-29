@@ -4,7 +4,7 @@ local HTTP = require('socket.http')
 
 function loremipsum:init(configuration)
 	loremipsum.arguments = 'loremipsum'
-	loremipsum.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('loremipsum', true).table
+	loremipsum.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('loremipsum').table
 	loremipsum.help = configuration.commandPrefix .. 'loremipsum - Generates a few Lorem Ipsum sentences!'
 end
 

@@ -5,7 +5,7 @@ local HTTP = require('socket.http')
 
 function yomama:init(configuration)
 	yomama.arguments = 'yomama'
-	yomama.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('yomama', true).table
+	yomama.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('yomama').table
 	yomama.help = configuration.commandPrefix .. 'yomama - Tells a Yo\' Mama joke!'
 end
 

@@ -6,7 +6,7 @@ local mattata = require('mattata')
 
 function itunes:init(configuration)
 	itunes.arguments = 'itunes <song>'
-	itunes.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('itunes', true).table
+	itunes.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('itunes').table
 	itunes.help = configuration.commandPrefix .. 'itunes <song> - Returns information about the given song, from iTunes.'
 end
 

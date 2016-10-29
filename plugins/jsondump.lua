@@ -4,7 +4,7 @@ local JSON = require('serpent')
 
 function jsondump:init(configuration)
 	jsondump.arguments = 'jsondump'
-	jsondump.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('jsondump', true).table
+	jsondump.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('jsondump').table
 	JSON = require('dkjson')
 	jsondump.serialise = function(t)
 		return JSON.encode(t, { indent = true } )

@@ -3,7 +3,7 @@ local mattata = require('mattata')
 
 function dice:init(configuration)
 	dice.arguments = 'dice <number of dice> <range of numbers>'
-	dice.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('dice', true).table
+	dice.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('dice').table
 	dice.help = configuration.commandPrefix .. 'dice <number of dice to roll> <range of numbers on the dice> - Rolls a die a given amount of times, with a given range.'
 end
 

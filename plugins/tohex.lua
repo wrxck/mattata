@@ -2,7 +2,7 @@ local tohex = {}
 local mattata = require('mattata')
 function tohex:init(configuration)
 	tohex.arguments = 'tohex <string>'
-	tohex.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('tohex', true).table
+	tohex.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('tohex').table
 	tohex.help = configuration.commandPrefix .. 'tohex <string> - Converts the given string to hexadecimal.'
 end
 
@@ -37,7 +37,7 @@ function tohex:onMessageReceive(msg)
 		mattata.sendMessage(msg.chat.id, tohex.help, nil, true, false, msg.message_id, nil)
 		return
 	end
-	mattata.sendMessage(msg.chat.id, '`' .. tohex:str(input) .. '`', 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(msg.chat.id, '`' .. tohex:stringToHex(input) .. '`', 'Markdown', true, false, msg.message_id, nil)
 end
 
 return tohex

@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function starwars:init(configuration)
 	starwars.arguments = 'starwars <query>'
-	starwars.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('starwars', true):c('sw', true).table
+	starwars.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('starwars'):c('sw').table
 	starwars.help = configuration.commandPrefix .. 'starwars <query> - Returns the opening crawl from the specified Star Wars film. Alias: ' .. configuration.commandPrefix .. 'sw.'
 end
 

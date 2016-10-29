@@ -8,8 +8,8 @@ reddit.search_url = 'https://www.reddit.com/search.json?q=%s&limit='
 reddit.rall_url = 'https://www.reddit.com/.json?limit='
 
 function reddit:init(configuration)
-	reddit.arguments = 'reddit (r/subreddit | query)'
-	reddit.commands = mattata.commands(self.info.username, configuration.commandPrefix, {'^/r/'}):c('reddit', true):c('r', true):c('r/', true).table
+	reddit.arguments = 'reddit <r/subreddit | query>'
+	reddit.commands = mattata.commands(self.info.username, configuration.commandPrefix, {'^/r/'}):c('reddit'):c('r'):c('r/').table
 	reddit.help = configuration.commandPrefix .. 'reddit (r/subreddit | query) Returns the top posts or results for a given subreddit or query. If no argument is given, returns the top posts from r/all. Querying specific subreddits is not supported. Aliases: ' .. configuration.commandPrefix .. 'r, /r/subreddit.'
 end
 

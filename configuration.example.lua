@@ -9,7 +9,6 @@ return { -- rename this file to configuration.lua for mattata to work
 	fileDownloadLocation = '/tmp/', -- the location to save all downloaded media to
 	plugins = { -- the plugins which mattata will enable on launch
 		'control',
-		'about',
 		-- place all new plugins below this line
 		'nick',
 		'bandersnatch',
@@ -27,7 +26,6 @@ return { -- rename this file to configuration.lua for mattata to work
 		'preview',
 		'reddit',
 		'channel',
-		'pokego-calculator',
 		'commit',
 		'pun',
 		'cats',
@@ -57,12 +55,10 @@ return { -- rename this file to configuration.lua for mattata to work
 		'pwgen',
 		'canitrust',
 		'qotd',
-		'ass',
 		'apod',
 		'hackernews',
 		'coinflip',
 		'doggo',
-		'patterns',
 		'xkcd',
 		'jsondump',
 		'giphy',
@@ -73,7 +69,6 @@ return { -- rename this file to configuration.lua for mattata to work
 		'mcface',
 		'qrgen',
 		'bible',
-		'pokemon_go',
 		'echo',
 		'synonym',
 		'lastfm',
@@ -90,20 +85,30 @@ return { -- rename this file to configuration.lua for mattata to work
 		'location',
 		'exec',
 		'shorten',
+		'weather',
+		'youtube',
+		'kick',
+		'unban',
+		'ban',
+		'bing',
+		'inline_messaging',
 		-- place all new plugins above this line
 		'help',
 		'faces',
 		'messaging'
 	},
 	keys = {
-		cats = '',
-		translate = '',
-		lyrics = '',
-		canitrust = '',
-		apod = '',
-		bible = '',
-		synonym = '',
-		lastfm = ''
+		cats = '', -- http://thecatapi.com/api-key-registration.html
+		translate = '', -- https://tech.yandex.com/keys/get/?service=trnsl
+		lyrics = '', -- https://developer.musixmatch.com/admin/applications
+		canitrust = '', -- https://www.mywot.com/en/signup
+		apod = '', -- https://api.nasa.gov/index.html#apply-for-an-api-key
+		bible = '', -- https://api.biblia.com/v1/RegisteredApplications/Create
+		synonym = '', -- https://tech.yandex.com/keys/get/?service=dict
+		lastfm = '', -- http://www.last.fm/api/account/create
+		weather = '', -- https://openweathermap.org/api
+		google = '', -- https://console.developers.google.com/apis
+		bing = '' -- https://datamarket.azure.com/account/keys
 	},
 	apis = {
 		cats = 'http://thecatapi.com/api/images/get?format=html&type=jpg',
@@ -141,11 +146,6 @@ return { -- rename this file to configuration.lua for mattata to work
 		},
 		qrgen = 'http://chart.apis.google.com/chart?cht=qr&chs=500x500&chl=',
 		itunes = 'https://itunes.apple.com/search?term=',
-		ass = {
-			media = 'http://media.obutts.ru/',
-			get = 'http://api.obutts.ru/butts/get/',
-			noise = 'http://api.obutts.ru/noise/1'
-		},
 		bible = 'http://api.biblia.com/v1/bible/content/ASV.txt?key=',
 		synonym = 'https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=',
 		bing = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/Web?Query=\'%s\'&$format=json',
@@ -163,14 +163,16 @@ return { -- rename this file to configuration.lua for mattata to work
 		github = 'https://api.github.com/repos/',
 		rms = 'https://rms.sexy/img/',
 		spotify = 'https://api.spotify.com/v1',
-		shorten = 'http://hec.su/api?url='
+		shorten = 'http://hec.su/api?url=',
+		weather = 'http://api.openweathermap.org/data/2.5/weather?q=',
+		bing = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/Web?Query=\''
 	},
 	errors = {
-		generic = 'WELP. I\'m afraid an error has occured!',
+		generic = 'I\'m afraid an error has occured!',
 		connection = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
 		results = 'I\'m sorry, but I couldn\'t find any results for that.',
 		argument = 'I\'m sorry, but the arguments you gave were either invalid or non-existent. Please try again',
-		syntax = 'Syntax error. Please try again.'
+		syntax = 'Syntax error, please try again.'
 	},
 	messaging = {
 		url = 'https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=',
@@ -182,12 +184,72 @@ return { -- rename this file to configuration.lua for mattata to work
 		maximumCount = 200,
 		minimumRange = 2
 	},
+	bing = {
+		maximumResultsPrivate = 8,
+		maximumResultsGroup = 4
+	},
 	remind = {
 		persist = true,
 		maximumLength = 1000,
 		maximumDuration = 526000,
 		maximumGroupReminders = 10,
 		maximumPrivateReminders = 50
+	},
+	eightball = {
+		answers = {
+			'It is certain.',
+			'It has been confirmed.',
+			'Without any doubts.',
+			'Yes, definitely.',
+			'You may rely on it.',
+			'As I see it, yes.',
+			'Most likely.',
+			'Outlook: not so good.',
+			'Yes.',
+			'Signs point to yes.',
+			'The reply is very weak, try again.',
+			'Ask again later.',
+			'I can not tell you right now.',
+			'Cannot predict right now.',
+			'Concentrate, and then ask again.',
+			'Do not count on it.',
+			'My reply is no.',
+			'My sources say possibly.',
+			'Outlook: very good.',
+			'Very doubtful.',
+			'Rowan\'s voice echoes: There is a time and place for everything, but not now.'
+		},
+		yes_no_answers = {
+			'Absolutely.',
+			'In your dreams.',
+			'Yes.',
+			'No.',
+			'It is likely so.',
+			'Never!'
+		}
+	},
+	faces = {
+		['shrug'] = '¯\\_(ツ)_/¯',
+		['lenny'] = '( ͡° ͜ʖ ͡°)',
+		['flip'] = '(╯°□°）╯︵ ┻━┻',
+		['look'] = 'ಠ_ಠ',
+		['shots'] = 'SHOTS FIRED',
+		['facepalm'] = '(－‸ლ)',
+		['vibrator'] = 'ヽヽ༼༼ຈຈل͜ل͜ຈຈ༽༽ﾉﾉ TURN OFF THE VIBRATOR ヽヽ༼༼ຈຈل͜ل͜ຈຈ༽༽ﾉﾉ',
+		['africa'] = '( ͡° ͜ʖ ͡°) Every 60 seconds in Africa, a minute passes. Together we can stop this. Please spread the word ( ͡° ͜ʖ ͡°)',
+		['chocolate'] = '\n╔╦╦\n╠╬╬╬╣\n╠╬╬╬╣OK! WHO ATE MY\n╠╬╬╬╣CHOCOLATE!!\n╚╩╩╩╝',
+		['kirby'] = '(つ -‘ _ ‘- )つ',
+		['finger'] = '\n⁣               /´¯/)\n             ,/¯  /\n             /   /\n          /´¯/’  ’/´¯¯`·¸\n        /’/  /   /    /¨¯\\\n       (‘(   ´  ´   ¯~/’  ’)\n        \\          ’    /\n        \\   \\       _ ·´\n         \\          (\n          \\          \\,',
+		['rub'] = 'ヽ( ° ͜ʖ͡°)ﾉ ʀuʙ ᴍʏ ᴅᴏɴɢᴇʀ ヽ( ° ͜ʖ͡°)ﾉ',
+		['flo'] = '<b>:3</b>',
+		['eli'] = '<b>xDDD</b>',
+		['both'] = '<b>:3 xDDD</b>',
+		['hitler'] = '<b>HEIL HITLER?! 卐</b>',
+		['party'] = '୧༼ ͡◉ل͜ ͡◉༽୨ (ง ͠° ل͜ °)ง ヽ༼ຈل͜ຈ༽ﾉ ༼ ºل͟º ༽ Join da Party ୧༼ ͡◉ل͜ ͡◉༽୨ (ง ͠° ل͜ °)ง ヽ༼ຈل͜ຈ༽ﾉ ༼ ºل͟º ༽',
+		['copy'] = '(ノಠ益ಠ)ノ彡',
+		['matt'] = '<a href=\'https://github.com/matthewhesketh\'>Best coder ever!</a>',
+		['lift'] = '\n❚█══█❚\nDo you even lift?',
+		['specs'] = 'ᒡ◯ᵔ◯ᒢ'
 	},
 	bandersnatch = {
 		fullNames = {
@@ -1163,63 +1225,6 @@ return { -- rename this file to configuration.lua for mattata to work
 		'In democracy, it\'s your vote that counts. In feudalism, it\'s your count that votes.',
 		'A sea lion is nothing but an ionized seal.',
 		'The vegetables from my garden aren\'t that great. I guess you could say they\'re mediokra.'
-	},
-	eightball = {
-		answers = {
-			'It is certain.',
-			'It has been confirmed.',
-			'Without any doubts.',
-			'Yes, definitely.',
-			'You may rely on it.',
-			'As I see it, yes.',
-			'Most likely.',
-			'Outlook: not so good.',
-			'Yes.',
-			'Signs point to yes.',
-			'The reply is very weak, try again.',
-			'Ask again later.',
-			'I can not tell you right now.',
-			'Cannot predict right now.',
-			'Concentrate, and then ask again.',
-			'Do not count on it.',
-			'My reply is no.',
-			'My sources say possibly.',
-			'Outlook: very good.',
-			'Very doubtful.',
-			'Rowan\'s voice echoes: There is a time and place for everything, but not now.'
-		},
-		yes_no_answers = {
-			'Absolutely.',
-			'In your dreams.',
-			'Yes.',
-			'No.',
-			'It is likely so.',
-			'Never!'
-		}
-	},
-	faces = {
-		['shrug'] = '¯\\_(ツ)_/¯',
-		['lenny'] = '( ͡° ͜ʖ ͡°)',
-		['flip'] = '(╯°□°）╯︵ ┻━┻',
-		['look'] = 'ಠ_ಠ',
-		['shots'] = 'SHOTS FIRED',
-		['facepalm'] = '(－‸ლ)',
-		['vibrator'] = 'ヽヽ༼༼ຈຈل͜ل͜ຈຈ༽༽ﾉﾉ TURN OFF THE VIBRATOR ヽヽ༼༼ຈຈل͜ل͜ຈຈ༽༽ﾉﾉ',
-		['africa'] = '( ͡° ͜ʖ ͡°) Every 60 seconds in Africa, a minute passes. Together we can stop this. Please spread the word ( ͡° ͜ʖ ͡°)',
-		['chocolate'] = '\n╔╦╦\n╠╬╬╬╣\n╠╬╬╬╣OK! WHO ATE MY\n╠╬╬╬╣CHOCOLATE!!\n╚╩╩╩╝',
-		['kirby'] = '(つ -‘ _ ‘- )つ',
-		['finger'] = '\n⁣               /´¯/)\n             ,/¯  /\n             /   /\n          /´¯/’  ’/´¯¯`·¸\n        /’/  /   /    /¨¯\\\n       (‘(   ´  ´   ¯~/’  ’)\n        \\          ’    /\n        \\   \\       _ ·´\n         \\          (\n          \\          \\,',
-		['rub'] = 'ヽ( ° ͜ʖ͡°)ﾉ ʀuʙ ᴍʏ ᴅᴏɴɢᴇʀ ヽ( ° ͜ʖ͡°)ﾉ',
-		['flo'] = '<b>:3</b>',
-		['eli'] = '<b>xDDD</b>',
-		['both'] = '<b>:3 xDDD</b>',
-		['hitler'] = '<b>HEIL HITLER?! 卐</b>',
-		['party'] = '୧༼ ͡◉ل͜ ͡◉༽୨ (ง ͠° ل͜ °)ง ヽ༼ຈل͜ຈ༽ﾉ ༼ ºل͟º ༽ Join da Party ୧༼ ͡◉ل͜ ͡◉༽୨ (ง ͠° ل͜ °)ง ヽ༼ຈل͜ຈ༽ﾉ ༼ ºل͟º ༽',
-		['copy'] = '(ノಠ益ಠ)ノ彡',
-		['matt'] = '<a href=\'https://github.com/matthewhesketh\'>Best coder ever!</a>',
-		['dog'] = '',
-		['lift'] = '\n❚█══█❚\nDo you even lift?',
-		['specs'] = 'ᒡ◯ᵔ◯ᒢ'
 	},
 	commits = {
 		'One does not simply merge into master',

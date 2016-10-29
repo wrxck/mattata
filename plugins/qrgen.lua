@@ -4,7 +4,7 @@ local mattata = require('mattata')
 
 function qrgen:init(configuration)
 	qrgen.arguments = 'qrgen <string>'
-	qrgen.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('qrgen', true).table
+	qrgen.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('qrgen').table
 	qrgen.help = configuration.commandPrefix .. 'qrgen - Converts the given string to an QR code.'
 end
 

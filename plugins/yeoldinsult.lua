@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function yeoldinsult:init(configuration)
 	yeoldinsult.arguments = 'yeoldinsult'
-	yeoldinsult.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('yeoldinsult', true).table
+	yeoldinsult.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('yeoldinsult').table
 	yeoldinsult.help = configuration.commandPrefix .. 'yeoldinsult - Insults you, the old-school way.' 
 end
 

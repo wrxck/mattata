@@ -3,7 +3,7 @@ local mattata = require('mattata')
 
 function commit:init(configuration)
 	commit.arguments = 'commit'
-	commit.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('commit', true).table
+	commit.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('commit').table
 	commit.help = configuration.commandPrefix .. 'commit - Generates fun (and somewhat-relatable) commit message ideas.'
 end
 

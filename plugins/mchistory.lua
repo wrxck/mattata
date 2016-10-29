@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function mchistory:init(configuration)
 	mchistory.arguments = 'mchistory <Minecraft username>'
-	mchistory.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('mchistory', true).table
+	mchistory.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('mchistory').table
 	mchistory.help = configuration.commandPrefix .. 'mchistory <Minecraft username> - Returns the name history of a Minecraft username.'
 end
 

@@ -6,7 +6,7 @@ local JSON = require('dkjson')
 
 function rss:init(configuration)
 	rss.arguments = 'rss <feed URL>'
-	rss.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('rss', true).table
+	rss.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('rss').table
 	rss.help = configuration.commandPrefix .. 'rss <feed URL> - Sends the latest post from an RSS feed.'
 end
 

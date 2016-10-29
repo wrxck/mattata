@@ -6,7 +6,8 @@ local mattata = require('mattata')
 
 function spotify:init(configuration)
 	spotify.arguments = 'spotify <track ID>'
-	spotify.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('spotify', true).table
+	spotify.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('spotify').table
+	spotify.help = configuration.commandPrefix .. 'spotify <track ID> - Sends information about the given Spotify track ID.'
 end
 
 function spotify:onMessageReceive(msg, configuration)
@@ -20,7 +21,7 @@ function spotify:onMessageReceive(msg, configuration)
 	local url = configuration.apis.spotify .. '/tracks/' .. input
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -38,7 +39,7 @@ function spotify:onMessageReceive(msg, configuration)
 	else
 		output = '*\'' .. name .. '\'*, by *' .. artist .. '*, is track number ' .. track_number .. ' on the album *\'' .. album .. '\'*. The song lasts for ' .. duration .. ' seconds. ' .. name .. ' has a Spotify popularity of ' .. popularity .. '. Send `/albumart ' .. album .. '` for a hi-res version of the album artwork.'
 	end
-	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil, '{"inline_keyboard":[[{"text":"Album", "url":"' .. album_url .. '"},{"text":"Artist", "url":"' .. artist_url .. '"}]]}')
+	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"Album", "url":"' .. album_url .. '"},{"text":"Artist", "url":"' .. artist_url .. '"}]]}')
 end
 
 return spotify

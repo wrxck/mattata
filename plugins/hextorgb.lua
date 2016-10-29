@@ -3,7 +3,7 @@ local mattata = require('mattata')
 
 function hextorgb:init(configuration)
 	hextorgb.arguments = 'hextorgb <colour hex>'
-	hextorgb.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('hextorgb', true).table
+	hextorgb.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('hextorgb').table
 	hextorgb.help = configuration.commandPrefix .. 'hextorgb <colour hex> - Converts the given colour hex to its RGB format.'
 end
 
@@ -24,7 +24,7 @@ function hextorgb:onMessageReceive(msg, configuration)
 	else
 		output = hextorgb.help
 	end
-	mattata.sendPhoto(msg.chat.id, 'https://placeholdit.imgix.net/~text?txtsize=28&bg=' .. input .. '&w=150&h=200', output, false, msg.message_id, nil)
+	mattata.sendPhoto(msg.chat.id, 'https://placeholdit.imgix.net/~text?txtsize=1&bg=' .. input .. '&w=150&h=200', output, false, msg.message_id, nil)
 end
 
 return hextorgb

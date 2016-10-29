@@ -5,7 +5,7 @@ local HTTP = require('socket.http')
 
 function isup:init(configuration)
 	isup.arguments = 'isup <URL>'
-	isup.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('isup', true).table
+	isup.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('isup').table
 	isup.help = configuration.commandPrefix .. 'isup <URL> - Check if the specified URL is down for everyone or just you.'
 end
 

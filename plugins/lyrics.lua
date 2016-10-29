@@ -5,7 +5,7 @@ local JSON = require('dkjson')
 
 function lyrics:init(configuration)
 	lyrics.arguments =  'lyrics <query>'
-	lyrics.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lyrics', true).table
+	lyrics.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lyrics').table
 	lyrics.help = configuration.commandPrefix .. 'lyrics <query> - Find the lyrics to the specified song.'
 end
 

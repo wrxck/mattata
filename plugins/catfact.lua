@@ -5,7 +5,7 @@ local HTTP = require('socket.http')
 
 function catfact:init(configuration)
 	catfact.arguments = 'catfact'
-	catfact.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('catfact', true).table
+	catfact.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('catfact').table
 	catfact.inlineCommands = catfact.commands
 	catfact.help = configuration.commandPrefix .. 'catfact - A random cat-related fact!'
 end

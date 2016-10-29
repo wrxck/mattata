@@ -4,7 +4,7 @@ local mattata = require('mattata')
 function setandget:init(configuration)
 	self.db.setandget = self.db.setandget or {}
 	setandget.arguments = 'set <name> <value>'
-	setandget.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('set', true):c('get', true).table
+	setandget.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('set'):c('get').table
 	setandget.help = configuration.commandPrefix .. 'set <name> <value> - Stores a value with the given name. ' .. configuration.commandPrefix .. 'get (name) - Returns the stored value or a list of stored values.'
 end
 

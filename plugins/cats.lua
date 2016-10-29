@@ -10,14 +10,14 @@ end
 
 function cats:onMessageReceive(msg, configuration)
 	local api = configuration.apis.cats .. '&api_key=' .. configuration.keys.cats
-	local str, res = HTTP.request(api)
+	local cat, res = HTTP.request(api)
 	if res ~= 200 then
 		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
 		return
 	end
-	str = str:match('<img src="(.-)">')
+	cat = cat:match('<img src="(.-)">')
 	mattata.sendChatAction(msg.chat.id, 'upload_photo')
-	mattata.sendPhoto(msg.chat.id, str, 'Meow!', false, msg.message_id, nil)
+	mattata.sendPhoto(msg.chat.id, cat, 'Meow!', false, msg.message_id, nil)
 end
 
 return cats

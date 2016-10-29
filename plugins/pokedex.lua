@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function pokedex:init(configuration)
 	pokedex.arguments = 'pokedex <query>'
-	pokedex.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('pokedex', true):c('dex', true).table
+	pokedex.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('pokedex'):c('dex').table
 	pokedex.help = configuration.commandPrefix .. 'pokedex <query> - Returns a Pokedex entry from pokeapi.co. Alias: ' .. configuration.commandPrefix .. 'dex.'
 end
 

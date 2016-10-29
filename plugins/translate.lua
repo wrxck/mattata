@@ -5,10 +5,10 @@ local JSON = require('dkjson')
 local mattata = require('mattata')
 
 function translate:init(configuration)
-	translate.arguments = 'translate (text)'
-	translate.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('translate', true):c('tl', true).table
+	translate.arguments = 'translate <text>'
+	translate.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('translate'):c('tl').table
 	translate.inlineCommands = translate.commands
-	translate.help = configuration.commandPrefix .. 'translate (text) - Translates input or the replied-to message into ' .. self.info.first_name .. '\'s language. Alias: ' .. configuration.commandPrefix .. 'tl.'
+	translate.help = configuration.commandPrefix .. 'translate <text> - Translates input or the replied-to message into ' .. self.info.first_name .. '\'s language. Alias: ' .. configuration.commandPrefix .. 'tl.'
 end
 
 function translate:onInlineCallback(inline_query, configuration)

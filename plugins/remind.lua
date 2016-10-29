@@ -4,7 +4,7 @@ local mattata = require('mattata')
 function remind:init(configuration)
 	self.db.reminders = self.db.reminders or {}
 	remind.arguments = 'remind <duration> <message>'
-	remind.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('remind', true).table
+	remind.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('remind').table
 	remind.help = configuration.commandPrefix .. 'remind <duration> <message> - Repeats a message after a duration of time, in minutes. The maximum length of a reminder is %s characters. The maximum duration of a timer is %s minutes. The maximum number of reminders for a group is %s. The maximum number of reminders in private is %s.'
 	remind.help = remind.help:format(configuration.remind.maximumLength, configuration.remind.maximumDuration, configuration.remind.maximumGroupReminders, configuration.remind.maximumPrivateReminders)
 end
@@ -49,9 +49,9 @@ function remind:onMessageReceive(msg, configuration)
 	local chat_id_str = tostring(msg.chat.id)
 	local output
 	self.db.reminders[chat_id_str] = self.db.reminders[chat_id_str] or {}
-	if msg.chat.type == 'private' and mattata.table_size(self.db.reminders[chat_id_str]) >= configuration.remind.maximumPrivateReminders then
+	if msg.chat.type == 'private' and mattata.tableSize(self.db.reminders[chat_id_str]) >= configuration.remind.maximumPrivateReminders then
 		output = 'Sorry, you already have the maximum number of reminders.'
-	elseif msg.chat.type ~= 'private' and mattata.table_size(self.db.reminders[chat_id_str]) >= configuration.remind.maximumGroupReminders then
+	elseif msg.chat.type ~= 'private' and mattata.tableSize(self.db.reminders[chat_id_str]) >= configuration.remind.maximumGroupReminders then
 		output = 'Sorry, this group already has the maximum number of reminders.'
 	else
 		table.insert(self.db.reminders[chat_id_str], {
@@ -73,7 +73,7 @@ function remind:cron(configuration)
 		for k, reminder in pairs(group) do
 			if time > reminder.time then
 				local output = 'Reminder: ' .. reminder.message
-				local res = mattata.sendMessage(chat_id, output, 'Markdown', true, false, msg.message_id, nil)
+				local res = mattata.sendMessage(chat_id, output, 'Markdown', true, false, nil, nil)
 				if res or not configuration.remind.persist then
 					group[k] = nil
 				end

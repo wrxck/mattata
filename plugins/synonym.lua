@@ -6,7 +6,7 @@ local mattata = require('mattata')
 
 function synonym:init(configuration)
 	synonym.arguments = 'synonym <word>'
-	synonym.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('synonym', true).table
+	synonym.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('synonym').table
 	synonym.help = configuration.commandPrefix .. 'synonym <word> - Sends a synonym of the given word.'
 end
 

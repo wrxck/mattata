@@ -4,10 +4,10 @@ local JSON = require('dkjson')
 local mattata = require('mattata')
 
 function apod:init(configuration)
-	apod.arguments = 'apod (YYYY/MM/DD)'
-	apod.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('apod', true).table
+	apod.arguments = 'apod <YYYY/MM/DD>'
+	apod.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('apod').table
 	apod.inlineCommands = apod.commands
-	apod.help = configuration.commandPrefix .. 'apod (YYYY/MM/DD) - Sends the Astronomy Picture of the Day.'
+	apod.help = configuration.commandPrefix .. 'apod <YYYY/MM/DD> - Sends the Astronomy Picture of the Day.'
 end
 
 function apod:onInlineCallback(inline_query, configuration)
@@ -44,7 +44,7 @@ function apod:onMessageReceive(msg, configuration)
 	end
 	mattata.sendChatAction(msg.chat.id, 'upload_photo')
 	local jdat = JSON.decode(jstr)
-	local title = '"' .. jdat.title .. '" = ' .. jdat.date
+	local title = '\'' .. jdat.title .. '\' = ' .. jdat.date
 	mattata.sendPhoto(msg.chat.id, jdat.url, title:gsub('-', '/'):gsub('=', '-'), false, msg.message_id, nil)
 end
 

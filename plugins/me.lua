@@ -3,7 +3,7 @@ local mattata = require('mattata')
 
 function me:init(configuration)
 	me.arguments = 'me'
-	me.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('me', true).table
+	me.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('me').table
 	me.help = configuration.commandPrefix .. 'me - Returns user-data stored by mattata.'
 end
 
@@ -22,7 +22,7 @@ function me:onMessageReceive(msg, configuration)
 						return
 					end
 				elseif input:match('^@') then
-					user = mattata.resUsername(self, input)
+					user = mattata.resolveUsername(self, input)
 					if not user then
 						mattata.sendMessage(msg.chat.id, 'Unrecognised username.', nil, true, false, msg.message_id, nil)
 						return
@@ -37,7 +37,7 @@ function me:onMessageReceive(msg, configuration)
 	user = user or msg.from
 	local userdata = self.db.userdata[tostring(user.id)] or {}
 	local data = {}
-	for k,v in pairs(userdata) do
+	for k, v in pairs(userdata) do
 		table.insert(data, string.format(
 			'*%s:* `%s`\n',
 			mattata.markdownEscape(k),
@@ -50,7 +50,7 @@ function me:onMessageReceive(msg, configuration)
 	else
 		output = string.format(
 			'*%s* `[%s]`*:*\n',
-			mattata.markdownEscape(mattata.build_name(
+			mattata.markdownEscape(mattata.buildName(
 				user.first_name,
 				user.last_name
 			)),

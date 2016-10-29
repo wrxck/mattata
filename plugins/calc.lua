@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function calc:init(configuration)
 	calc.arguments = 'calc <expression>'
-	calc.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('calc', true).table
+	calc.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('calc').table
 	calc.inlineCommands = calc.commands
 	calc.help = configuration.commandPrefix .. 'calc <expression> - Calculates solutions to mathematical expressions. The results are provided by mathjs.org.'
 end

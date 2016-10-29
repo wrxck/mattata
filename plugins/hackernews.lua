@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function hackernews:init(configuration)
 	hackernews.arguments = 'hackernews'
-	hackernews.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('hackernews', true):c('hn', true).table
+	hackernews.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('hackernews'):c('hn').table
 	hackernews.help = configuration.commandPrefix .. 'hackernews - Sends the top stories from Hacker News. Alias: ' .. configuration.commandPrefix .. 'hn.'
 	hackernews.last_update = 0
 end

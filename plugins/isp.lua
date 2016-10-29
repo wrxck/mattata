@@ -6,7 +6,7 @@ local JSON = require('dkjson')
 
 function isp:init(configuration)
 	isp.arguments = 'isp <URL>'
-	isp.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('isp', true).table
+	isp.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('isp').table
 	isp.help = configuration.commandPrefix .. 'isp <URL> - Sends information about the given URL\'s ISP.'
 end
 

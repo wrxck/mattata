@@ -5,7 +5,7 @@ local JSON = require('dkjson')
 
 function dns:init(configuration)
 	dns.arguments = 'dns <URL> <type>'
-	dns.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('dns', true).table
+	dns.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('dns').table
 	dns.help = configuration.commandPrefix .. 'dns <URL> <type> - Sends DNS records of the given type for the given URL. The types currently supported are AAAA, A, CERT, CNAME, DLV, IPSECKEY, MX, NS, PTR, SIG, SRV and TXT. Returns a maximum of 5 records for the given type.'
 end
 

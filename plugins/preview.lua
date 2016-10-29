@@ -4,7 +4,7 @@ local mattata = require('mattata')
 
 function preview:init(configuration)
 	preview.arguments = 'preview <url>'
-	preview.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('preview', true).table
+	preview.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('preview').table
 	preview.help = configuration.commandPrefix .. 'preview <link> - Sends an "unlinked" preview of the given URL.'
 end
 

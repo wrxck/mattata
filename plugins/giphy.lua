@@ -4,7 +4,7 @@ local JSON = require('dkjson')
 local mattata = require('mattata')
 
 function giphy:init(configuration)
-	giphy.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('gif', true).table
+	giphy.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('gif').table
 	giphy.inlineCommands = giphy.commands
 end
 

@@ -4,7 +4,7 @@ local bit = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
 function tobase64:init(configuration)
 	tobase64.arguments = 'tobase64 <string>'
-	tobase64.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('tobase64', true).table
+	tobase64.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('tobase64').table
 	tobase64.help = configuration.commandPrefix .. 'tobase64 <string> - Converts the given string to bit64.'
 end
 

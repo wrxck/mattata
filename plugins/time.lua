@@ -5,7 +5,7 @@ local mattata = require('mattata')
 
 function time:init(configuration)
 	time.arguments = 'time'
-	time.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('time', true).table
+	time.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('time').table
 	time.help = configuration.commandPrefix .. 'time - Without any arguments, this will send the current date and time in UTC. Supports natural language queries as an argument, i.e. \'' .. configuration.commandPrefix .. 'time 5 hours before noon next friday\'. You can also say \'in PDT\', for example; and, if it\'s a supported time zone, it\'ll send the said information - adjusted to that time zone. The time zones which are currently supported are: GMT, MST, EST, AST, CST, MSK, EET and CET..'
 end
 

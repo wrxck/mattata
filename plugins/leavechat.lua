@@ -2,7 +2,7 @@ local leavechat = {}
 local mattata = require('mattata')
 
 function leavechat:init(configuration)
-	leavechat.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('leavechat', true).table
+	leavechat.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('leavechat').table
 end
 
 function leavechat:onMessageReceive(msg, configuration)

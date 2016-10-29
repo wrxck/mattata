@@ -4,7 +4,7 @@ local mattata = require('mattata')
 
 function istuesday:init(configuration)
 	istuesday.arguments = 'istuesday'
-	istuesday.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('istuesday', true):c('it', true).table
+	istuesday.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('istuesday'):c('it').table
 	istuesday.help = configuration.commandPrefix .. 'istuesday - Tells you if it\'s Tuesday or not. Alias: ' .. configuration.commandPrefix .. 'it.'
 end
 

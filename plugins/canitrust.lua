@@ -1,14 +1,16 @@
 local canitrust = {}
+local mattata = require('mattata')
 local HTTPS = require('ssl.https')
 local HTTP = require('socket.http')
 local URL = require('socket.url')
 local JSON = require('dkjson')
-local mattata = require('mattata')
+
 function canitrust:init(configuration)
 	canitrust.arguments = 'canitrust <URL>'
-	canitrust.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('canitrust', true).table
+	canitrust.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('canitrust').table
 	canitrust.help = configuration.commandPrefix .. 'canitrust <URL> - Tells you of any known security issues with a website.'
 end
+
 function canitrust.validate(url)
 	local parsed_url = URL.parse(url, { scheme = 'http', authority = '' })
 	if not parsed_url.host and parsed_url.path then
@@ -87,15 +89,16 @@ function canitrust:onMessageReceive(msg, configuration)
 			output = 'There are *no known issues* with this website.'
 		end
 		if output ~= 'Invalid URL.' then
-			mattata.sendMessage(msg.chat.id, output, true, '{"inline_keyboard":[[{"text":"' .. 'Proceed to site' .. '", "url":"' .. input .. '"}]]}')
+			mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"' .. 'Proceed to site' .. '", "url":"' .. input .. '"}]]}')
 			return
 		else
-			mattata.sendMessage(msg.chat.id, output, true)
+			mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 			return
 		end
 	else
-		mattata.sendMessage(msg.chat.id, canitrust.help)
+		mattata.sendMessage(msg.chat.id, canitrust.help, nil, true, false, msg.message_id, nil)
 		return
 	end
 end
+
 return canitrust
