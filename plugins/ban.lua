@@ -23,7 +23,7 @@ function ban:onMessageReceive(msg, configuration)
 					end
 				end
 				if msg.reply_to_message.from.id ~= self.info.id then
-					local res = mattata.banChatMember(msg.chat.id, msg.reply_to_message.from.id)
+					local res = mattata.kickChatMember(msg.chat.id, msg.reply_to_message.from.id)
 					if not res then
 						mattata.sendMessage(msg.chat.id, 'An error occured. Please ensure you have granted me administrative permissions and that the replied-to user is in this group, and isn\'t an administrator.', nil, true, false, msg.message_id, nil)
 						return
@@ -34,7 +34,7 @@ function ban:onMessageReceive(msg, configuration)
 				end
 				if msg.reply_to_message.forward_from then
 					if msg.reply_to_message.forward_from.id ~= self.info.id then
-						local res = mattata.banChatMember(msg.chat.id, msg.reply_to_message.forward_from.id)
+						local res = mattata.kickChatMember(msg.chat.id, msg.reply_to_message.forward_from.id)
 						if not res then
 							mattata.sendMessage(msg.chat.id, 'An error occured. Please ensure you have granted me administrative permissions and that the replied-to user is in this group, and isn\'t an administrator.', nil, true, false, msg.message_id, nil)
 							return
