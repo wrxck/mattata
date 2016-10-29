@@ -15,9 +15,7 @@ end
 
 function lua:onMessageReceive(msg, configuration)
 	if msg.from.id ~= configuration.owner then
-		if msg.from.id ~= 265945726 then
-			return true
-		end
+		return true
 	end
 	local input = mattata.input(msg.text)
 	if not input then
