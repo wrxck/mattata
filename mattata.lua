@@ -31,7 +31,7 @@ function mattata:init()
 	self.db.users = self.db.users or {}
 	self.db.userdata = self.db.userdata or {}
 	self.db.reminders = self.db.reminders or {}
-	self.db.version = '3.1'
+	self.db.version = '3.2'
 	self.db.users[tostring(self.info.id)] = self.info
 	self.plugins = {}
 	for k, v in pairs(configuration.plugins) do
