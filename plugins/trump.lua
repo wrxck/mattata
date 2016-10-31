@@ -38,7 +38,7 @@ function trump:onMessageReceive(msg, configuration)
 		if self.db.userdata[victim_id_str] and self.db.userdata[victim_id_str].nickname then
 			victim_name = self.db.userdata[victim_id_str].nickname
 		elseif self.db.users[victim_id_str] then
-			victim_name = mattata.build_name(self.db.users[victim_id_str].first_name, self.db.users[victim_id_str].last_name)
+			victim_name = mattata.buildName(self.db.users[victim_id_str].first_name, self.db.users[victim_id_str].last_name)
 		else
 			victim_name = victim_id_str
 		end
