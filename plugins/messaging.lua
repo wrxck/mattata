@@ -133,8 +133,16 @@ function messaging:onMessageReceive(msg, configuration)
 				if res == false then
 					mattata.sendMessage(msg.chat.id, 'Invalid pattern.', nil, true, false, msg.message_id, nil)
 				else
-					output = '*Uh... ' .. msg.reply_to_message.from.first_name .. '? Are you sure you didn\'t mean:*\n' .. mattata.trim(output)
-					mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+					local random = math.random(1, 3)
+					local message
+					if random == 1 then
+						message = '*Uh... ' .. msg.reply_to_message.from.first_name .. '? Are you sure you didn\'t mean:*\n' .. mattata.trim(output)
+					elseif random == 2 then
+						message = '*It appears I am going to have to quickly intervene!* ' .. msg.reply_to_message.from.first_name .. '? Hello? Are you there? ' .. msg.from.first_name .. ' seems to believe you made a mistake, are you SURE you didn\'t mean:\n' .. mattata.trim(output)
+					else
+						message = '*Ugh. ' .. msg.reply_to_message.from.first_name .. '?? I\'m pretty sure you\'re mistaken mate, are ya\' sure you weren\'t trying to say:*\n' .. mattata.trim(output)
+					end
+					mattata.sendMessage(msg.chat.id, message, 'Markdown', true, false, msg.message_id, nil)
 				end
 			end
 		end
