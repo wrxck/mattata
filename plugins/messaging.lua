@@ -26,7 +26,7 @@ function messaging:onMessageReceive(msg, configuration)
 				mattata.sendMessage(msg.chat.id, new .. msg.new_chat_member.first_name .. '!', nil, true, false, msg.message_id, nil)
 				return
 			else
-				mattata.sendMessage(msg.chat.id, 'Hello, world! Thanks for adding me, ' .. msg.from.first_name .. '!', nil, true, false, msg.message_id, nil)
+				mattata.sendMessage(msg.chat.id, 'Hello, World! Thanks for adding me, ' .. msg.from.first_name .. '!', nil, true, false, msg.message_id, nil)
 				return
 			end
 		end
