@@ -24,6 +24,6 @@ def getLyrics(link):
 	except Exception as e:
 		print(e)
 		return false
-song = getyrics(sys.argv[1])
+song = getLyrics(sys.argv[1])
 output = song['lyrics']['lyrics']['body'].replace('<br>', '\n')
 print(output)

@@ -10,6 +10,10 @@ function rss:init(configuration)
 	rss.help = configuration.commandPrefix .. 'rss <feed URL> - Sends the latest post from an RSS feed.'
 end
 
+function rss.dateEscape(date)
+	return date:gsub('%a+, ', ''):gsub(' %d%d:%d%d:%d%d %a+', ''):gsub(' Jan ', '/01/'):gsub(' Feb ', '/02/'):gsub(' Mar ', '/03/'):gsub(' Apr ', '/04/'):gsub(' May ', '/05/'):gsub(' Jun ', '/06/'):gsub(' Jul ', '/07/'):gsub(' Aug ', '/08/'):gsub(' Sep ', '/09/'):gsub(' Oct ', '/10/'):gsub(' Nov ', '/11/'):gsub(' Dec ', '/12/')
+end
+
 function rss:onMessageReceive(msg, configuration)
 	local input = mattata.input(msg.text)
 	if not input then
@@ -26,18 +30,18 @@ function rss:onMessageReceive(msg, configuration)
 		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
 		return
 	end
-	local output = '*' .. jdat.feed.title .. '*\n`[' .. jdat.items[1].pubDate:gsub('%a+, ', ''):gsub(' %d%d:%d%d:%d%d %a+', ''):gsub(' Jan ', '/01/'):gsub(' Feb ', '/02/'):gsub(' Mar ', '/03/'):gsub(' Apr ', '/04/'):gsub(' May ', '/05/'):gsub(' Jun ', '/06/'):gsub(' Jul ', '/07/'):gsub(' Aug ', '/08/'):gsub(' Sep ', '/09/'):gsub(' Oct ', '/10/'):gsub(' Nov ', '/11/'):gsub(' Dec ', '/12/') .. ']` [' .. jdat.items[1].title .. '](' .. jdat.items[1].link .. ')'
+	local output = '*' .. jdat.feed.title .. '*\n`[' .. rss.dateEscape(jdat.items[1].pubDate) .. ']` [' .. jdat.items[1].title .. '](' .. jdat.items[1].link .. ')'
 	if jdat.items[2] then
-		output = output .. '\n`[' .. jdat.items[2].pubDate:gsub('%a+, ', ''):gsub(' %d%d:%d%d:%d%d %a+', ''):gsub(' Jan ', '/01/'):gsub(' Feb ', '/02/'):gsub(' Mar ', '/03/'):gsub(' Apr ', '/04/'):gsub(' May ', '/05/'):gsub(' Jun ', '/06/'):gsub(' Jul ', '/07/'):gsub(' Aug ', '/08/'):gsub(' Sep ', '/09/'):gsub(' Oct ', '/10/'):gsub(' Nov ', '/11/'):gsub(' Dec ', '/12/') .. ']` [' .. jdat.items[2].title .. '](' .. jdat.items[2].link .. ')'
+		output = output .. '\n`[' .. rss.dateEscape(jdat.items[2].pubDate) .. ']` [' .. jdat.items[2].title .. '](' .. jdat.items[2].link .. ')'
 	end
 	if jdat.items[3] then
-		output = output .. '\n`[' .. jdat.items[3].pubDate:gsub('%a+, ', ''):gsub(' %d%d:%d%d:%d%d %a+', ''):gsub(' Jan ', '/01/'):gsub(' Feb ', '/02/'):gsub(' Mar ', '/03/'):gsub(' Apr ', '/04/'):gsub(' May ', '/05/'):gsub(' Jun ', '/06/'):gsub(' Jul ', '/07/'):gsub(' Aug ', '/08/'):gsub(' Sep ', '/09/'):gsub(' Oct ', '/10/'):gsub(' Nov ', '/11/'):gsub(' Dec ', '/12/') .. ']` [' .. jdat.items[3].title .. '](' .. jdat.items[3].link .. ')'
+		output = output .. '\n`[' .. rss.dateEscape(jdat.items[3].pubDate) .. ']` [' .. jdat.items[3].title .. '](' .. jdat.items[3].link .. ')'
 	end
 	if jdat.items[4] then
-		output = output .. '\n`[' .. jdat.items[4].pubDate:gsub('%a+, ', ''):gsub(' %d%d:%d%d:%d%d %a+', ''):gsub(' Jan ', '/01/'):gsub(' Feb ', '/02/'):gsub(' Mar ', '/03/'):gsub(' Apr ', '/04/'):gsub(' May ', '/05/'):gsub(' Jun ', '/06/'):gsub(' Jul ', '/07/'):gsub(' Aug ', '/08/'):gsub(' Sep ', '/09/'):gsub(' Oct ', '/10/'):gsub(' Nov ', '/11/'):gsub(' Dec ', '/12/') .. ']` [' .. jdat.items[4].title .. '](' .. jdat.items[4].link .. ')'
+		output = output .. '\n`[' .. rss.dateEscape(jdat.items[4].pubDate) .. ']` [' .. jdat.items[4].title .. '](' .. jdat.items[4].link .. ')'
 	end
 	if jdat.items[5] then
-		output = output .. '\n`[' .. jdat.items[5].pubDate:gsub('%a+, ', ''):gsub(' %d%d:%d%d:%d%d %a+', ''):gsub(' Jan ', '/01/'):gsub(' Feb ', '/02/'):gsub(' Mar ', '/03/'):gsub(' Apr ', '/04/'):gsub(' May ', '/05/'):gsub(' Jun ', '/06/'):gsub(' Jul ', '/07/'):gsub(' Aug ', '/08/'):gsub(' Sep ', '/09/'):gsub(' Oct ', '/10/'):gsub(' Nov ', '/11/'):gsub(' Dec ', '/12/') .. ']` [' .. jdat.items[5].title .. '](' .. jdat.items[5].link .. ')'
+		output = output .. '\n`[' .. rss.dateEscape(jdat.items[5].pubDate) .. ']` [' .. jdat.items[5].title .. '](' .. jdat.items[5].link .. ')'
 	end
 	local output_res = mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
 	if not output_res then

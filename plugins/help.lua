@@ -79,11 +79,11 @@ function help:onQueryReceive(callback, msg)
 		help_statistics = help_statistics .. plugin_count .. '\n'
 		help_statistics = help_statistics .. pun_count .. '\n'
 		help_statistics = help_statistics .. trump_count
-		mattata.answerCallbackQuery(callback.id, help_statistics, true, nil)
+		mattata.editMessageText(msg.chat.id, msg.message_id, help_statistics, nil, true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
 	end
 	if callback.data == 'help_commands' then
 		if msg.chat.type ~= 'private' then
-			local res = mattata.sendMessage(callback.from.id, configuration.aboutText, 'Markdown', true, false, nil, '{"inline_keyboard":[[{"text":"Links", "callback_data":"help_links"},{"text":"Statistics", "callback_data":"help_statistics"},{"text":"Commands", "callback_data":"help_commands"}]]}')
+			local res = mattata.sendMessage(callback.from.id, help_text, 'Markdown', true, false, nil, nil)
 			if not res then
 				mattata.editMessageText(msg.chat.id, msg.message_id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=help) to get started.', 'Markdown', true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
 			else

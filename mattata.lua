@@ -15,11 +15,10 @@ local URL = require('socket.url')
 -- mattata's framework --
 
 function mattata:init()
-	if not configuration.botToken then
-		print('You need to enter your bot API key in configuration.lua!')
-		return
-	end
 	print('mattata is initialising...')
+	if configuration.botToken == '' then
+		print('You need to enter your bot API key in configuration.lua!')
+	end
 	repeat
 		self.info = mattata.getMe()
 	until self.info
@@ -175,62 +174,13 @@ function mattata:run(configuration)
 	print('mattata is shutting down...')
 end
 
-function mattata.request(method, parameters, file)
-	parameters = parameters or {}
-	for k, v in pairs(parameters) do
-		parameters[k] = tostring(v)
-	end
-	if file and next(file) ~= nil then
-		local file_type, file_name = next(file)
-		if not file_name then
-			return false
-		end
-		if string.match(file_name, configuration.fileDownloadLocation) then
-			local file_result = io.open(file_name, 'r')
-			local file_data = {
-				filename = file_name,
-				data = file_result:read('*a')
-			}
-			file_result:close()
-			parameters[file_type] = file_data
-		else
-			local file_type, file_name = next(file)
-			parameters[file_type] = file_name
-		end
-	end
-	if next(parameters) == nil then
-		parameters = { '' }
-	end
-	local response = {}
-	local body, boundary = multipart.encode(parameters)
-	local success, res = HTTPS.request{
-		url = 'https://api.telegram.org/bot' .. configuration.botToken .. '/' .. method,
-		method = 'POST',
-		headers = {
-			['Content-Type'] = 'multipart/form-data; boundary=' .. boundary,
-			['Content-Length'] = #body,
-		},
-		source = ltn12.source.string(body),
-		sink = ltn12.sink.table(response)
-	}
-	local data = table.concat(response)
-	if not success then
-		print(method .. ': Connection error. [' .. res	.. ']')
-		return false, false
+function mattata.request(method, parameters, file, other_api)
+	local api
+	if other_api then
+		api = other_api
 	else
-		local result = JSON.decode(data)
-		if not result then
-			return false, false
-		elseif result.ok then
-			return result
-		else
-			print(JSON.encode(result))
-			return false
-		end
+		api = 'https://api.telegram.org/bot'
 	end
-end
-
-function mattata.pwrRequest(method, parameters, file)
 	parameters = parameters or {}
 	for k, v in pairs(parameters) do
 		parameters[k] = tostring(v)
@@ -259,7 +209,7 @@ function mattata.pwrRequest(method, parameters, file)
 	local response = {}
 	local body, boundary = multipart.encode(parameters)
 	local success, res = HTTPS.request{
-		url = 'https://api.pwrtelegram.xyz/bot' .. configuration.botToken .. '/' .. method,
+		url = api .. configuration.botToken .. '/' .. method,
 		method = 'POST',
 		headers = {
 			['Content-Type'] = 'multipart/form-data; boundary=' .. boundary,
@@ -575,16 +525,16 @@ end
 -- PWRTelegram API methods --
 
 function mattata.getChat(chat_id)
-	return mattata.pwrRequest('getChat', {
+	return mattata.request('getChat', {
 		chat_id = chat_id
-	} )
+	}, nil, 'https://api.pwrtelegram.xyz/bot' )
 end
 
 function mattata.deleteMessage(chat_id, message_id)
-	return mattata.pwrRequest('deleteMessage', {
+	return mattata.request('deleteMessage', {
 		chat_id = chat_id,
 		message_id = message_id
-	} )
+	}, nil, 'https://api.pwrtelegram.xyz/bot' )
 end
 
 -- General functions --
