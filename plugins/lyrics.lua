@@ -111,4 +111,5 @@ function lyrics:onMessageReceive(msg, configuration)
 		return
 	end
 end
+
 return lyrics
