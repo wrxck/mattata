@@ -1,10 +1,12 @@
 --[[
 
-This plugin requires you to have Python 3 installed and the the following Python dependencies:
-	- BeautifulSoup
-	- demjson
+	This plugin requires you to have Python 3 installed and the the following Python dependencies:
+		- BeautifulSoup
+		- demjson
 	
-	Copyright (c) wrxck 2016
+	These dependencies can be installed automatically by using the install-dependencies.sh script.
+	
+	Copyright (c) 2016 wrxck
 	Licensed under the terms of the MIT license
 	See LICENSE for more information
 	
@@ -31,6 +33,7 @@ function lyrics:onMessageReceive(msg, configuration)
 	else
 		input = input:gsub(' - ', ' ')
 	end
+	mattata.sendChatAction(msg.chat.id, 'typing')
 	local url_id = configuration.apis.lyrics .. 'track.search?apikey=' .. configuration.keys.lyrics .. '&q_track=' .. input:gsub(' ', '%%20')
 	local jstr_id, res_id = HTTPS.request(url_id)
 	if res_id ~= 200 then
@@ -63,7 +66,6 @@ function lyrics:onMessageReceive(msg, configuration)
 			local soundcloud_jstr, soundcloud_res = HTTPS.request('https://api.soundcloud.com/tracks/' .. jdat_id.message.body.track_list[1].track.track_soundcloud_id .. '.json?client_id=386b66fb8e6e68704b52ab59edcdccc6')
 			if soundcloud_res ~= 200 then
 				spotify_url = 'https://open.spotify.com/track/' .. jdat_id.message.body.track_list[1].track.track_spotify_id
-				mattata.sendChatAction(msg.chat.id, 'typing')
 				mattata.sendMessage(msg.chat.id, lyrics, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"musixmatch", "url":"' .. jdat_id.message.body.track_list[1].track.track_share_url .. '"},{"text":"Spotify", "url":"' .. spotify_url .. '"}]]}')
 				return
 			end
@@ -71,19 +73,16 @@ function lyrics:onMessageReceive(msg, configuration)
 			if soundcloud_jdat.permalink_url then
 				soundcloud_url = soundcloud_jdat.permalink_url
 				spotify_url = 'https://open.spotify.com/track/' .. jdat_id.message.body.track_list[1].track.track_spotify_id
-				mattata.sendChatAction(msg.chat.id, 'typing')
 				mattata.sendMessage(msg.chat.id, lyrics, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"musixmatch", "url":"' .. jdat_id.message.body.track_list[1].track.track_share_url .. '"},{"text":"SoundCloud", "url":"' .. soundcloud_url .. '"},{"text":"Spotify", "url":"' .. spotify_url .. '"}]]}')
 				return
 			else
 				spotify_url = 'https://open.spotify.com/track/' .. jdat_id.message.body.track_list[1].track.track_spotify_id
-				mattata.sendChatAction(msg.chat.id, 'typing')
 				mattata.sendMessage(msg.chat.id, lyrics, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"musixmatch", "url":"' .. jdat_id.message.body.track_list[1].track.track_share_url .. '"},{"text":"Spotify", "url":"' .. spotify_url .. '"}]]}')
 				return
 			end
 		else
 			local soundcloud_jstr, soundcloud_res = HTTPS.request('https://api.soundcloud.com/tracks/' .. jdat_id.message.body.track_list[1].track.track_soundcloud_id .. '.json?client_id=386b66fb8e6e68704b52ab59edcdccc6')
 			if soundcloud_res ~= 200 then
-				mattata.sendChatAction(msg.chat.id, 'typing')
 				mattata.sendMessage(msg.chat.id, lyrics, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"musixmatch", "url":"' .. jdat_id.message.body.track_list[1].track.track_share_url .. '"}]]}')
 				return
 			end
@@ -91,22 +90,18 @@ function lyrics:onMessageReceive(msg, configuration)
 			local soundcloud_url = ''
 			if soundcloud_jdat.permalink_url then
 				soundcloud_url = soundcloud_jdat.permalink_url
-				mattata.sendChatAction(msg.chat.id, 'typing')
 				mattata.sendMessage(msg.chat.id, lyrics, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"musixmatch", "url":"' .. jdat_id.message.body.track_list[1].track.track_share_url .. '"},{"text":"SoundCloud", "url":"' .. soundcloud_url .. '"}]]}')
 				return
 			else
-				mattata.sendChatAction(msg.chat.id, 'typing')
 				mattata.sendMessage(msg.chat.id, lyrics, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"musixmatch", "url":"' .. jdat_id.message.body.track_list[1].track.track_share_url .. '"}]]}')
 				return
 			end
 		end
 	elseif jdat_id.message.body.track_list[1].track.track_spotify_id ~= '' then
 		spotify_url = 'https://open.spotify.com/track/' .. jdat_id.message.body.track_list[1].track.track_spotify_id
-		mattata.sendChatAction(msg.chat.id, 'typing')
 		mattata.sendMessage(msg.chat.id, lyrics, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"musixmatch", "url":"' .. jdat_id.message.body.track_list[1].track.track_share_url .. '"},{"text":"Spotify", "url":"' .. spotify_url .. '"}]]}')
 		return
 	else
-		mattata.sendChatAction(msg.chat.id, 'typing')
 		mattata.sendMessage(msg.chat.id, lyrics, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"musixmatch", "url":"' .. jdat_id.message.body.track_list[1].track.track_share_url .. '"}]]}')
 		return
 	end
