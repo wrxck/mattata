@@ -19,6 +19,7 @@ sudo luarocks install multipart-post
 sudo luarocks install lpeg
 sudo luarocks install dkjson
 sudo luarocks install serpent
+# Install Python dependencies
 sudo python -m pip install BeautifulSoup
 sudo python -m pip install demjson
 sudo -k
