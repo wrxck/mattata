@@ -10,6 +10,7 @@ local configuration = require('configuration')
 local token = configuration.keys.github_feed
 
 function gh:init(configuration)
+	gh.arguments = 'gh <sub/del> <GitHub username> <GitHub repository name>'
 	gh.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('gh').table
 end
 
@@ -163,7 +164,7 @@ function gh:onMessageReceive(message, configuration, self)
 	end
 	if string.match(message.text, '^' .. configuration.commandPrefix .. 'gh sub') then
 		if message.text_lower ~= configuration.commandPrefix .. 'gh sub' then
-			mattata.sendMessage(message.chat.id, gh:subscribe(message.chat.id, message.text_lower:gsub(configuration.commandPrefix .. 'gh sub ', '')), 'Markdown')
+			mattata.sendMessage(message.chat.id, gh:subscribe(message.chat.id, message.text_lower:gsub(configuration.commandPrefix .. 'gh sub ', ''):gsub(' ', '/')), 'Markdown')
 			return
 		end
 	end
@@ -204,7 +205,7 @@ function gh:cron()
 					local author = data[n].commit.author.name
 					local message = data[n].commit.message
 					local link = data[n].html_url
-					text = text .. '*New commit at* [' .. repo .. '](' .. link .. ')!\n\n`' .. message .. '`\nBy ' .. mattata.markdownEscape(author)
+					text = text .. '*New commit at* [' .. repo .. '](' .. link .. ')!\n\n`' .. message .. '`\nBy ' .. mattata.markdownEscape(author) .. '\n\n'
 				end
 			end
 			if text ~= '' then
