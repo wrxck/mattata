@@ -1,15 +1,10 @@
 #!/bin/sh
-if [ $(lsb_release -r | cut -f 2) == "16.04" ]; then
-	luaver="5.3"
-else
-	luaver="5.2"
-fi
 sudo apt-get update
-sudo apt-get install -y lua$luaver liblua5-dev git python3 libssl-dev fortune-mod fortunes unzip make
+sudo apt-get install -y lua5.2 liblua5-dev git python3 libssl-dev fortune-mod fortunes unzip make
 # Install Lua dependencies
 git clone http://github.com/keplerproject/luarocks
 cd luarocks
-./configure --lua-version=$luaver --versioned-rocks-dir --lua-suffix=$luaver
+./configure --lua-version=5.2 --versioned-rocks-dir --lua-suffix=5.2
 make build
 sudo make install
 sudo luarocks install luasocket
@@ -19,9 +14,14 @@ sudo luarocks install multipart-post
 sudo luarocks install lpeg
 sudo luarocks install dkjson
 sudo luarocks install serpent
+sudo luarocks install redis-lua
+sudo luarocks install fakeredis
+sudo luarocks install feedparser
+sudo luarocks install luaexpat
 # Install Python dependencies
 sudo python -m pip install BeautifulSoup
 sudo python -m pip install demjson
+sudo python -m pip install youtube-dl
 sudo -k
 cd ..
 echo "Done!"
