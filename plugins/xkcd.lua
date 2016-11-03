@@ -20,8 +20,8 @@ function xkcd:init(configuration)
 	xkcd.latest = xkcd.latest
 end
 
-function xkcd:onMessageReceive(msg, configuration)
-	local input = mattata.getWord(msg.text, 2)
+function xkcd:onMessageReceive(message, configuration)
+	local input = mattata.getWord(message.text, 2)
 	if input == 'r' then
 		input = math.random(xkcd.latest)
 	elseif tonumber(input) then
@@ -32,12 +32,12 @@ function xkcd:onMessageReceive(msg, configuration)
 	local url = xkcd.strip_url:format(input)
 	local jstr, res = HTTP.request(url)
 	if res == 404 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
 	elseif res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 	else
 		local data = JSON.decode(jstr)
-		mattata.sendPhoto(msg.chat.id, data.img, data.num .. ' | ' .. data.safe_title .. ' | ' .. data.day .. '/' .. data.month .. '/' .. data.year, false, msg.message_id, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. 'https://xkcd.com/' .. data.num .. '"}]]}')
+		mattata.sendPhoto(message.chat.id, data.img, data.num .. ' | ' .. data.safe_title .. ' | ' .. data.day .. '/' .. data.month .. '/' .. data.year, false, message.message_id, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. 'https://xkcd.com/' .. data.num .. '"}]]}')
 	end
 end
 

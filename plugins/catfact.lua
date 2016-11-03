@@ -17,14 +17,14 @@ function catfact:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function catfact:onMessageReceive(msg, configuration)
+function catfact:onMessageReceive(message, configuration)
 	local jstr, res = HTTP.request(configuration.apis.catfact)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
-	mattata.sendMessage(msg.chat.id, jdat.facts[1]:gsub('â', ' '), nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, jdat.facts[1]:gsub('â', ' '), nil, true, false, message.message_id, nil)
 end
 
 return catfact

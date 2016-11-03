@@ -10,15 +10,15 @@ function ispwned:init(configuration)
 	ispwned.help = configuration.commandPrefix .. 'ispwned <username/email> - Tells you if the given username/email has been identified in any data leaks.'
 end
 
-function ispwned:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function ispwned:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, ispwned.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, ispwned.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jstr, res = HTTPS.request(configuration.apis.ispwned .. URL.escape(input))
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -35,7 +35,7 @@ function ispwned:onMessageReceive(msg, configuration)
 			output = output .. '\n'
 		end
 	end
-	mattata.sendMessage(msg.chat.id, summary .. '\n' .. output, 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, summary .. '\n' .. output, 'Markdown', true, false, message.message_id, nil)
 end
 
 return ispwned

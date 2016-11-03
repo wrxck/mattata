@@ -7,43 +7,20 @@ function trump:init(configuration)
 	trump.help = configuration.commandPrefix .. 'trump <target> - Trump somebody (or something). If no target is given then, well, you ARE the target!'
 end
 
-function trump:onMessageReceive(msg, configuration)
+function trump:onMessageReceive(message, configuration)
 	local trumps = configuration.trumps
-	local input = mattata.input(msg.text)
-	local victim_id
-	if msg.reply_to_message then
-		victim_id = msg.reply_to_message.from.id
+	local input = mattata.input(message.text)
+	local victim
+	if not input then
+		victim = message.from.first_name
 	else
-		if input then
-			if tonumber(input) then
-				victim_id = tonumber(input)
-			elseif input:match('^@') then
-				local t = mattata.resolveUsername(self, input)
-				if t then
-					victim_id = t.id
-				end
-			end
-		end
-	end
-	if not victim_id then
-		if not input then
-			victim_id = msg.from.id
-		end
-	end
-	local victim_name
-	if input and not victim_id then
-		victim_name = input
-	else
-		local victim_id_str = tostring(victim_id)
-		if self.db.userdata[victim_id_str] and self.db.userdata[victim_id_str].nickname then
-			victim_name = self.db.userdata[victim_id_str].nickname
-		elseif self.db.users[victim_id_str] then
-			victim_name = mattata.buildName(self.db.users[victim_id_str].first_name, self.db.users[victim_id_str].last_name)
+		if message.reply_to_message then
+			victim = message.reply_to_message.from.first_name
 		else
-			victim_name = victim_id_str
+			victim = input
 		end
 	end
-	mattata.sendMessage(msg.chat.id, trumps[math.random(#trumps)]:gsub('VICTIM', victim_name) .. ' - Donald J. Trump', nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, trumps[math.random(#trumps)]:gsub('VICTIM', victim) .. ' - Donald J. Trump', nil, true, false, message.message_id, nil)
 end
 
 return trump

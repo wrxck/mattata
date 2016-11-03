@@ -8,10 +8,10 @@ function preview:init(configuration)
 	preview.help = configuration.commandPrefix .. 'preview <link> - Sends an "unlinked" preview of the given URL.'
 end
 
-function preview:onMessageReceive(msg)
-	local input = mattata.input(msg.text)
+function preview:onMessageReceive(message)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, preview.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, preview.help, nil, true, false, message.message_id, nil)
 		return
 	else
 		input = mattata.getWord(input, 1)
@@ -21,15 +21,15 @@ function preview:onMessageReceive(msg)
 	end
 	local res = HTTP.request(input)
 	if not res then
-		mattata.sendMessage(msg.chat.id, 'Please provide a valid URL.', nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, 'Please provide a valid URL.', nil, true, false, message.message_id, nil)
 	return
 	end
 	if res:len() == 0 then
-		mattata.sendMessage(msg.chat.id, 'Sorry, the URL you provided is not letting me generate a preview. Please check it\'s valid.', nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, 'Sorry, the URL you provided is not letting me generate a preview. Please check it\'s valid.', nil, true, false, message.message_id, nil)
 		return
 	end
 	local output = '[​](' .. input .. ')'
-	mattata.sendMessage(msg.chat.id, output, 'Markdown', false, false, nil, nil)
+	mattata.sendMessage(message.chat.id, output, 'Markdown', false, false, nil, nil)
 end
 
 return preview

@@ -8,13 +8,13 @@ function doge:init(configuration)
 	doge.help = configuration.commandPrefix .. 'doge <text> - Doge-ifies the given text. It doesn\'t like emoji!'
 end
 
-function doge:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function doge:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, doge.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, doge.help, nil, true, false, message.message_id, nil)
 		return
 	end
-	mattata.sendPhoto(msg.chat.id, 'http://dogr.io/' .. input:gsub(' ', ''):gsub('\n', '/') .. '.png')
+	mattata.sendPhoto(message.chat.id, 'http://dogr.io/' .. input:gsub(' ', ''):gsub('\n', '/') .. '.png')
 end
 
 return doge

@@ -27,13 +27,13 @@ function tobase64:encode(str)
 	end) .. ({ '', '==', '=' })[#str%3 + 1])
 end
 
-function tobase64:onMessageReceive(msg)
-	local input = mattata.input(msg.text)
+function tobase64:onMessageReceive(message)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, tobase64.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, tobase64.help, nil, true, false, message.message_id, nil)
 		return
 	end
-	mattata.sendMessage(msg.chat.id, '`' .. tobase64:encode(input) .. '`', 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, '`' .. tobase64:encode(input) .. '`', 'Markdown', true, false, message.message_id, nil)
 end
 
 return tobase64

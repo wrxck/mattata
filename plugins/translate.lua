@@ -19,34 +19,34 @@ function translate:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function translate:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function translate:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	local url = configuration.apis.translate .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text='
-	if msg.reply_to_message then
+	if message.reply_to_message then
 		if not input then
-			url = url .. URL.escape(msg.reply_to_message.text)
+			url = url .. URL.escape(message.reply_to_message.text)
 			local jstr, res = HTTPS.request(url)
 			if res ~= 200 then
-				mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+				mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 				return
 			end
 			local jdat = JSON.decode(jstr)
-			mattata.sendMessage(msg.chat.id, '*Translation: *' .. mattata.markdownEscape(jdat.text[1]), 'Markdown', true, false, msg.message_id, nil)
+			mattata.sendMessage(message.chat.id, '*Translation: *' .. mattata.markdownEscape(jdat.text[1]), 'Markdown', true, false, message.message_id, nil)
 			return
 		end
 	else
 		if not input then
-			mattata.sendMessage(msg.chat.id, translate.help, nil, true, false, msg.message_id, nil)
+			mattata.sendMessage(message.chat.id, translate.help, nil, true, false, message.message_id, nil)
 			return
 		end
 		url = url .. URL.escape(input)
 		local jstr, res = HTTPS.request(url)
 		if res ~= 200 then
-			mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+			mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 			return
 		end
 		local jdat = JSON.decode(jstr)
-		mattata.sendMessage(msg.chat.id, '*Translation: *' .. mattata.markdownEscape(jdat.text[1]), 'Markdown', true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, '*Translation: *' .. mattata.markdownEscape(jdat.text[1]), 'Markdown', true, false, message.message_id, nil)
 		return
 	end
 end

@@ -13,20 +13,20 @@ function faces:init(configuration)
 	end
 end
 
-function faces:onMessageReceive(msg, configuration)
-	if string.match(msg.text_lower, configuration.commandPrefix .. 'faces') then
-		local res = mattata.sendMessage(msg.from.id, faces.help, 'HTML', true, false, nil, nil)
+function faces:onMessageReceive(message, configuration)
+	if string.match(message.text_lower, configuration.commandPrefix .. 'faces') then
+		local res = mattata.sendMessage(message.from.id, faces.help, 'HTML', true, false, nil, nil)
 		if not res then
-			mattata.sendMessage(msg.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=faces) so I can send you a list of the available faces.', 'Markdown', true, false, msg.message_id, nil)
+			mattata.sendMessage(message.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=faces) so I can send you a list of the available faces.', 'Markdown', true, false, message.message_id, nil)
 			return
-		elseif msg.chat.type ~= 'private' then
-			mattata.sendMessage(msg.chat.id, 'I have sent you a private message containing a list of the available faces!', nil, true, false, msg.message_id, nil)
+		elseif message.chat.type ~= 'private' then
+			mattata.sendMessage(message.chat.id, 'I have sent you a private message containing a list of the available faces!', nil, true, false, message.message_id, nil)
 			return
 		end
 	end
 	for commands, face in pairs(configuration.faces) do
-		if string.match(msg.text_lower, configuration.commandPrefix .. commands) then
-			mattata.sendMessage(msg.chat.id, face, 'HTML', true, false, msg.message_id, nil)
+		if string.match(message.text_lower, configuration.commandPrefix .. commands) then
+			mattata.sendMessage(message.chat.id, face, 'HTML', true, false, message.message_id, nil)
 			return
 		end
 	end

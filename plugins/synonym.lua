@@ -10,24 +10,24 @@ function synonym:init(configuration)
 	synonym.help = configuration.commandPrefix .. 'synonym <word> - Sends a synonym of the given word.'
 end
 
-function synonym:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function synonym:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, synonym.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, synonym.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local url = configuration.apis.synonym .. configuration.keys.synonym .. '&lang=' .. configuration.language .. '-' .. configuration.language .. '&text=' .. URL.escape(input)
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
 	if jstr == '{"head":{},"def":[]}' then
-		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
 		return
 	else
-		mattata.sendMessage(msg.chat.id, 'You could use the word *' .. jdat.def[1].tr[1].text .. '* instead.', 'Markdown', true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, 'You could use the word *' .. jdat.def[1].tr[1].text .. '* instead.', 'Markdown', true, false, message.message_id, nil)
 		return
 	end
 end

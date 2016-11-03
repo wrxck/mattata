@@ -32,14 +32,14 @@ local function format_results(posts)
 	return output
 end
 
-function reddit:onMessageReceive(msg, configuration)
+function reddit:onMessageReceive(message, configuration)
 	local limit = 4
-	if msg.chat.type == 'private' then
+	if message.chat.type == 'private' then
 		limit = 8
 	end
-	local text = msg.text_lower
+	local text = message.text_lower
 	if text:match('^/r/.') then
-		text = msg.text_lower:gsub('^/r/', configuration.commandPrefix .. 'r r/')
+		text = message.text_lower:gsub('^/r/', configuration.commandPrefix .. 'r r/')
 	end
 	local input = mattata.input(text)
 	local source, url
@@ -50,13 +50,13 @@ function reddit:onMessageReceive(msg, configuration)
 				url = reddit.subreddit_url:format(input) .. limit
 				source = '*/' .. mattata.markdownEscape(input):gsub('\\', '') .. '*\n'
 			else
-				input = mattata.input(msg.text)
+				input = mattata.input(message.text)
 				source = '*Results for* _' .. mattata.markdownEscape(input) .. '_ *:*\n'
 				input = URL.escape(input)
 				url = reddit.search_url:format(input) .. limit
 			end
 		else
-			mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+			mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
 			return
 		end
 	else
@@ -65,15 +65,15 @@ function reddit:onMessageReceive(msg, configuration)
 	end
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 	end
 	local jdat = JSON.decode(jstr)
 	if #jdat.data.children == 0 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
 	else
 		local output = format_results(jdat.data.children)
 		output = source .. output
-		mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 		return
 	end
 end

@@ -14,20 +14,20 @@ function rss.dateEscape(date)
 	return date:gsub('%a+, ', ''):gsub(' %d%d:%d%d:%d%d %a+', ''):gsub(' Jan ', '/01/'):gsub(' Feb ', '/02/'):gsub(' Mar ', '/03/'):gsub(' Apr ', '/04/'):gsub(' May ', '/05/'):gsub(' Jun ', '/06/'):gsub(' Jul ', '/07/'):gsub(' Aug ', '/08/'):gsub(' Sep ', '/09/'):gsub(' Oct ', '/10/'):gsub(' Nov ', '/11/'):gsub(' Dec ', '/12/')
 end
 
-function rss:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function rss:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, rss.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, rss.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jstr, res = HTTP.request('http://rss2json.com/api.json?rss_url=' .. URL.escape(input))
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
 	if not string.match(jdat.status, 'ok') then
-		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
 		return
 	end
 	local output = '*' .. jdat.feed.title .. '*\n`[' .. rss.dateEscape(jdat.items[1].pubDate) .. ']` [' .. jdat.items[1].title .. '](' .. jdat.items[1].link .. ')'
@@ -43,9 +43,9 @@ function rss:onMessageReceive(msg, configuration)
 	if jdat.items[5] then
 		output = output .. '\n`[' .. rss.dateEscape(jdat.items[5].pubDate) .. ']` [' .. jdat.items[5].title .. '](' .. jdat.items[5].link .. ')'
 	end
-	local output_res = mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+	local output_res = mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 	if not output_res then
-		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
 		return
 	end
 end

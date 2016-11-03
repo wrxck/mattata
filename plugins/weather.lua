@@ -10,30 +10,28 @@ function weather:init(configuration)
 	weather.help = configuration.commandPrefix .. 'weather <location> - Sends the current weather for the given location.'
 end
 
-function weather:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function weather:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, weather.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, weather.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local url = configuration.apis.weather .. URL.escape(input) .. '&units=metric&lang=' .. configuration.language .. '&apikey=' .. configuration.keys.weather
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	if jstr == '{"cod":"502","message":"Error: Not found city"}' then
-		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
 	local output = '*Weather in ' .. jdat.name .. ':*\n'
 	output = output .. 'Temparature: ' .. jdat.main.temp .. ' °C\n'
 	output = output .. 'Pressure: ' .. jdat.main.pressure .. '\n'
-	output = output .. 'Humidity: ' .. jdat.main.humidity .. '\n'
-	output = output .. 'Sea level: ' .. jdat.main.sea_level .. '\n'
-	output = output .. 'Ground level: ' .. jdat.main.grnd_level .. '\n'
-	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+	output = output .. 'Humidity: ' .. jdat.main.humidity
+	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 end
 
 return weather

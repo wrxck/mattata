@@ -13,16 +13,16 @@ function lua:init(configuration)
 	end
 end
 
-function lua:onMessageReceive(msg, configuration)
-	if msg.from.id ~= configuration.owner then
+function lua:onMessageReceive(message, configuration)
+	if message.from.id ~= configuration.owner then
 		return true
 	end
-	local input = mattata.input(msg.text)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, 'Please enter a string of lua to execute', nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, 'Please enter a string of lua to execute', nil, true, false, message.message_id, nil)
 		return
 	end
-	if msg.text_lower:match('^' .. configuration.commandPrefix .. 'return') then
+	if message.text_lower:match('^' .. configuration.commandPrefix .. 'return') then
 		input = 'return ' .. input
 	end
 	local output, success = loadstring( [[
@@ -31,12 +31,12 @@ function lua:onMessageReceive(msg, configuration)
 		local URL = require('socket.url')
 		local HTTP = require('socket.http')
 		local HTTPS = require('ssl.https')
-		return function (msg, configuration) ]] .. input .. [[ end
+		return function (message, configuration) ]] .. input .. [[ end
 	]] )
 	if output == nil then
 		output = success
 	else
-		success, output = xpcall(output(), lua.error_message, msg, configuration)
+		success, output = xpcall(output(), lua.error_message, message, configuration)
 	end
 	if output ~= nil then
 		if type(output) == 'table' then
@@ -45,7 +45,7 @@ function lua:onMessageReceive(msg, configuration)
 		end
 		output = '`' .. tostring(output) .. '`'
 	end
-	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 end
 
 return lua

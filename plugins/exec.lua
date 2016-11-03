@@ -33,14 +33,14 @@ function exec.getLangArgs(language)
 	end
 end
 
-function exec:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text_lower)
+function exec:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text_lower)
 	if not input then
-		mattata.sendMessage(msg.chat.id, exec.help, 'Markdown', true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, exec.help, 'Markdown', true, false, message.message_id, nil)
 		return
 	end
 	local language = mattata.getWord(input, 1)
-	local code = msg.text:gsub('\n', ' '):gsub(configuration.commandPrefix .. 'exec ' .. language .. ' ', ''):gsub(configuration.commandPrefix .. 'exec ' .. language, '')
+	local code = message.text:gsub('\n', ' '):gsub(configuration.commandPrefix .. 'exec ' .. language .. ' ', ''):gsub(configuration.commandPrefix .. 'exec ' .. language, '')
 	local args = exec.getLangArgs(language)
 	if not args then
 		args = ''
@@ -60,7 +60,7 @@ function exec:onMessageReceive(msg, configuration)
 		sink = ltn12.sink.table(response)
 	}
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(response[1])
@@ -86,7 +86,7 @@ function exec:onMessageReceive(msg, configuration)
 		stats = ''
 	end
 	local output = warnings .. errors .. result .. stats
-	res = mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+	res = mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 end
 
 return exec

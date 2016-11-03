@@ -7,10 +7,10 @@ function shout:init(configuration)
     shout.help = configuration.commandPrefix .. 'shout <text> - Shout something.'
 end
 
-function shout:onMessageReceive(msg)
-	local input = mattata.input(msg.text)
+function shout:onMessageReceive(message)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, shout.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, shout.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	input = mattata.trim(input)
@@ -38,7 +38,7 @@ function shout:onMessageReceive(msg)
 		end
 	end
 	output = '```\n' .. mattata.trim(output) .. '\n```'
-	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 end
 
 return shout

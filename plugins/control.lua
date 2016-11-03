@@ -6,9 +6,9 @@ function control:init()
 	control.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('reload').table
 end
 
-function control:onMessageReceive(msg)
+function control:onMessageReceive(message)
 	local configuration = require('configuration')
-	if msg.from.id ~= configuration.owner then
+	if message.from.id ~= configuration.owner then
 		return
 	end
 	for p, _ in pairs(package.loaded) do
@@ -18,14 +18,14 @@ function control:onMessageReceive(msg)
 	end
 	package.loaded['mattata'] = nil
 	package.loaded['configuration'] = nil
-	if not msg.text_lower:match('%-configuration') then
+	if not message.text_lower:match('%-configuration') then
 		for k, v in pairs(require('configuration')) do
 			configuration[k] = v
 		end
 	end
 	mattata.init(self, configuration)
 	print(self.info.first_name .. ' is reloading...')
-	local res = mattata.sendMessage(msg.chat.id, self.info.first_name .. ' is reloading...', nil, true, false, msg.message_id, nil)
+	local res = mattata.sendMessage(message.chat.id, self.info.first_name .. ' is reloading...', nil, true, false, message.message_id, nil)
 	if res then
 		print(self.info.first_name .. ' successfully reloaded!')
 	end

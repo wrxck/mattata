@@ -31,13 +31,13 @@ function tohex:stringToHex(str)
 	return hex
 end
 
-function tohex:onMessageReceive(msg)
-	local input = mattata.input(msg.text)
+function tohex:onMessageReceive(message)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, tohex.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, tohex.help, nil, true, false, message.message_id, nil)
 		return
 	end
-	mattata.sendMessage(msg.chat.id, '`' .. tohex:stringToHex(input) .. '`', 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, '`' .. tohex:stringToHex(input) .. '`', 'Markdown', true, false, message.message_id, nil)
 end
 
 return tohex

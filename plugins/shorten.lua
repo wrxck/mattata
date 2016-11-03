@@ -10,23 +10,23 @@ function shorten:init(configuration)
 	shorten.help = configuration.commandPrefix .. 'shorten - Shortens the given URL.'
 end
 
-function shorten:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function shorten:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, shorten.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, shorten.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jstr, res = HTTP.request(configuration.apis.shorten .. input)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	if string.match(jstr, 'Invalid URL') then
-		mattata.sendMessage(msg.chat.id, 'Invalid URL', nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, 'Invalid URL', nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
-	mattata.sendMessage(msg.chat.id, jdat.short, nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, jdat.short, nil, true, false, message.message_id, nil)
 end
 
 return shorten

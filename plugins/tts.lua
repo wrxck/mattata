@@ -9,13 +9,13 @@ function tts:init(configuration)
 	tts.help = configuration.commandPrefix .. 'tts <text to convert> - Converts text to speech.'
 end
 
-function tts:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text_lower)
+function tts:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text_lower)
 	if not input then
-		mattata.sendMessage(msg.chat.id, tts.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, tts.help, nil, true, false, message.message_id, nil)
 		return
 	end
-	mattata.sendVoice(msg.chat.id, mattata.downloadToFile('http://tts.baidu.com/text2audio?lan=' .. configuration.language .. '&ie=UTF-8&text=' .. URL.escape(input), os.time() .. '.mp3'))
+	mattata.sendVoice(message.chat.id, mattata.downloadToFile('http://tts.baidu.com/text2audio?lan=' .. configuration.language .. '&ie=UTF-8&text=' .. URL.escape(input), os.time() .. '.mp3'))
 end
 
 return tts

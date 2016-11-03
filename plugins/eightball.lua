@@ -7,16 +7,16 @@ function eightball:init(configuration)
 	eightball.help = configuration.commandPrefix .. 'eightball - Returns your destined decision through mattata\'s sixth sense.'
 end
 
-function eightball:onMessageReceive(msg, configuration)
+function eightball:onMessageReceive(message, configuration)
 	local answers = configuration.eightball.answers
 	local yes_no_answers = configuration.eightball.yes_no_answers
 	local output = ''
-	if msg.text_lower:match('y/n%p?$') then
+	if message.text_lower:match('y/n%p?$') then
 		output = yes_no_answers[math.random(#yes_no_answers)]
 	else
 		output = answers[math.random(#answers)]
 	end
-	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
 end
 
 return eightball

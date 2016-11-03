@@ -27,8 +27,8 @@ function apod:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function apod:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function apod:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	local url = configuration.apis.apod .. configuration.keys.apod
 	local date = os.date('%F')
 	if input then
@@ -39,13 +39,13 @@ function apod:onMessageReceive(msg, configuration)
 	end
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id)
 		return
 	end
-	mattata.sendChatAction(msg.chat.id, 'upload_photo')
 	local jdat = JSON.decode(jstr)
 	local title = '\'' .. jdat.title .. '\' = ' .. jdat.date
-	mattata.sendPhoto(msg.chat.id, jdat.url, title:gsub('-', '/'):gsub('=', '-'), false, msg.message_id, nil)
+	mattata.sendChatAction(message.chat.id, 'upload_photo')
+	mattata.sendPhoto(message.chat.id, jdat.url, title:gsub('-', '/'):gsub('=', '-'), false, message.message_id)
 end
 
 return apod

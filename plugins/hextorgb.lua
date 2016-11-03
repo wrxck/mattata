@@ -7,10 +7,10 @@ function hextorgb:init(configuration)
 	hextorgb.help = configuration.commandPrefix .. 'hextorgb <colour hex> - Converts the given colour hex to its RGB format.'
 end
 
-function hextorgb:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function hextorgb:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, hextorgb.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, hextorgb.help, nil, true, false, message.message_id, nil)
 		return
 	else
 		input = input:gsub('#', '')
@@ -24,7 +24,7 @@ function hextorgb:onMessageReceive(msg, configuration)
 	else
 		output = hextorgb.help
 	end
-	mattata.sendPhoto(msg.chat.id, 'https://placeholdit.imgix.net/~text?txtsize=1&bg=' .. input .. '&w=150&h=200', output, false, msg.message_id, nil)
+	mattata.sendPhoto(message.chat.id, 'https://placeholdit.imgix.net/~text?txtsize=1&bg=' .. input .. '&w=150&h=200', output, false, message.message_id, nil)
 end
 
 return hextorgb

@@ -10,21 +10,21 @@ function urbandictionary:init(configuration)
 	urbandictionary.help = configuration.commandPrefix .. 'urbandictionary <query> - Defines the given word. Urban style. Aliases: ' .. configuration.commandPrefix .. 'ud, ' .. configuration.commandPrefix .. 'urban.'
 end
 
-function urbandictionary:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function urbandictionary:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, urbandictionary.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, urbandictionary.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local url = configuration.apis.urbandictionary .. URL.escape(input)
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
 	if jdat.result_type == "no_results" then
-		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
 		return
 	end
 	local output = '*' .. jdat.list[1].word .. '*\n\n' .. mattata.trim(jdat.list[1].definition)
@@ -32,7 +32,7 @@ function urbandictionary:onMessageReceive(msg, configuration)
 		output = output .. '_\n\n' .. mattata.trim(jdat.list[1].example) .. '_'
 	end
 	output = output:gsub('%[', ''):gsub('%]', '')
-	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 end
 
 return urbandictionary

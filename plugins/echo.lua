@@ -7,13 +7,13 @@ function echo:init(configuration)
 	echo.help = configuration.commandPrefix .. 'echo <text> - Repeats a string of text.'
 end
 
-function echo:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function echo:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, echo.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, echo.help, nil, true, false, message.message_id, nil)
 		return
 	end
-	mattata.sendMessage(msg.chat.id, input, nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, input, nil, true, false, message.message_id, nil)
 end
 
 return echo

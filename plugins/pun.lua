@@ -7,9 +7,9 @@ function pun:init(configuration)
 	pun.help = configuration.commandPrefix .. 'pun - Generates a random pun.'
 end
 
-function pun:onMessageReceive(msg, configuration)
+function pun:onMessageReceive(message, configuration)
 	local puns = configuration.puns
-	mattata.sendMessage(msg.chat.id, puns[math.random(#puns)], 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, puns[math.random(#puns)], 'Markdown', true, false, message.message_id, nil)
 end
 
 return pun

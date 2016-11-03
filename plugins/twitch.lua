@@ -10,15 +10,15 @@ function twitch:init(configuration)
 	twitch.help = configuration.commandPrefix .. 'twitch <channel> - Sends information about the given Twitch channel.'
 end
 
-function twitch:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function twitch:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, twitch.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, twitch.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jstr, res = HTTPS.request('https://wind-bow.hyperdev.space/twitch-api/channels/' .. URL.escape(input))
 	if res == 404 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -37,7 +37,7 @@ function twitch:onMessageReceive(msg, configuration)
 		followers = jdat.followers .. ' followers'
 	end
 	local output = title .. '\n' .. status .. '\n\n' .. views .. ' *|* ' .. followers
-	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 end
 
 return twitch

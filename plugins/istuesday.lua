@@ -8,10 +8,10 @@ function istuesday:init(configuration)
 	istuesday.help = configuration.commandPrefix .. 'istuesday - Tells you if it\'s Tuesday or not. Alias: ' .. configuration.commandPrefix .. 'it.'
 end
 
-function istuesday:onMessageReceive(msg)
+function istuesday:onMessageReceive(message)
 	local str, res = HTTP.request('http://www.studentology.net/tuesday')
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local output = ''
@@ -20,7 +20,7 @@ function istuesday:onMessageReceive(msg)
 	else
 		output = 'No.'
 	end
-	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
 end
 
 return istuesday

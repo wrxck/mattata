@@ -17,7 +17,7 @@ function ninegag:onInlineCallback(inline_query, configuration)
 	local id = 1
 	for n in pairs(jdat) do
 		local title = jdat[n].title:gsub('"', '\\"')
-		results = results .. '{"type":"photo","id":"' .. id .. '","photo_url":"' .. jdat[n].src .. '","thumb_url":"' .. jdat[n].src .. '","caption":"' .. title .. '","reply_markup":{"inline_keyboard":[[{"text":"Read more", "url":"' .. jdat[n].url .. '"}]]}}'
+		results = results .. mattata.generateInlinePhoto(id, jdat[n].src, jdat[n].src, nil, nil, title, 'Read more', jdat[n].url)
 		id = id + 1
 		if n < #jdat then
 			results = results .. ','
@@ -27,11 +27,11 @@ function ninegag:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function ninegag:onMessageReceive(msg, configuration)
+function ninegag:onMessageReceive(message, configuration)
 	local url = configuration.apis.ninegag
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -39,8 +39,8 @@ function ninegag:onMessageReceive(msg, configuration)
 	local link_image = jdat[jrnd].src
 	local title = jdat[jrnd].title
 	local post_url = jdat[jrnd].url
-	mattata.sendChatAction(msg.chat.id, 'upload_photo')
-	mattata.sendPhoto(msg.chat.id, link_image, title, false, msg.message_id, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. post_url .. '"}]]}')
+	mattata.sendChatAction(message.chat.id, 'upload_photo')
+	mattata.sendPhoto(message.chat.id, link_image, title, false, message.message_id, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. post_url .. '"}]]}')
 end
 
 return ninegag

@@ -29,10 +29,10 @@ local corrected_numbers = {
 	7
 }
 
-function starwars:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function starwars:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, starwars.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, starwars.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local film
@@ -50,18 +50,18 @@ function starwars:onMessageReceive(msg, configuration)
 		end
 	end
 	if not film then
-		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jstr, res = HTTP.request(configuration.apis.starwars .. film)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
 	local output = jdat.opening_crawl
-	mattata.sendChatAction(msg.chat.id, 'typing')
-	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
+	mattata.sendChatAction(message.chat.id, 'typing')
+	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
 end
 
 return starwars

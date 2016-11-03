@@ -9,16 +9,16 @@ function mcmigrated:init(configuration)
 	mcmigrated.help = configuration.commandPrefix .. 'mcmigrated <username> - Tells you if a Minecraft username has been migrated to a Mojang account.'
 end
 
-function mcmigrated:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function mcmigrated:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, mcmigrated.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, mcmigrated.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local url = configuration.apis.mcmigrated .. input
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local output = ''
@@ -27,7 +27,7 @@ function mcmigrated:onMessageReceive(msg, configuration)
 	else
 		output = 'This username either does not exist, or it just hasn\'t been migrated to a Mojang account.'
 	end
-	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
 end
 
 return mcmigrated

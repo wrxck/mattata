@@ -7,9 +7,9 @@ function deadbaby:init(configuration)
 	deadbaby.help = configuration.commandPrefix .. 'deadbaby - Generates a random dead baby joke.'
 end
 
-function deadbaby:onMessageReceive(msg, configuration)
+function deadbaby:onMessageReceive(message, configuration)
 	local deadbabyjokes = configuration.deadbabyjokes
-	mattata.sendMessage(msg.chat.id, deadbabyjokes[math.random(#deadbabyjokes)], 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, deadbabyjokes[math.random(#deadbabyjokes)], 'Markdown', true, false, message.message_id, nil)
 end
 
 return deadbaby

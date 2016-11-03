@@ -7,9 +7,9 @@ function commit:init(configuration)
 	commit.help = configuration.commandPrefix .. 'commit - Generates fun (and somewhat-relatable) commit message ideas.'
 end
 
-function commit:onMessageReceive(msg, configuration)
+function commit:onMessageReceive(message, configuration)
 	local commits = configuration.commits
-	mattata.sendMessage(msg.chat.id, commits[math.random(#commits)], nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, commits[math.random(#commits)], nil, true, false, message.message_id, nil)
 end
 
 return commit

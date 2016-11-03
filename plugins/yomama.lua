@@ -9,10 +9,10 @@ function yomama:init(configuration)
 	yomama.help = configuration.commandPrefix .. 'yomama - Tells a Yo\' Mama joke!'
 end
 
-function yomama:onMessageReceive(msg, configuration)
+function yomama:onMessageReceive(message, configuration)
 	local jstr, res = HTTP.request(configuration.apis.yomama)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat, output
@@ -22,7 +22,7 @@ function yomama:onMessageReceive(msg, configuration)
 		jdat = JSON.decode(jstr)
 		output = jdat.joke
 	end
-	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
 end
 
 return yomama

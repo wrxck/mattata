@@ -9,16 +9,16 @@ function mcuuid:init(configuration)
 	mcuuid.help = configuration.commandPrefix .. 'mcuuid <Minecraft username> - Tells you the UUID of a Minecraft username.'
 end
 
-function mcuuid:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function mcuuid:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, mcuuid.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, mcuuid.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local url = configuration.apis.mcuuid .. input
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -28,7 +28,7 @@ function mcuuid:onMessageReceive(msg, configuration)
 	else
 		output = output
 	end
-	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
 end
 
 return mcuuid

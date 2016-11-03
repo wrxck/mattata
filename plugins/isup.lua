@@ -35,16 +35,16 @@ function isup.isWebsiteDown(url)
 	return true
 end
 
-function isup:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function isup:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, isup.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, isup.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	if isup.isWebsiteDown(input) then
-		mattata.sendMessage(msg.chat.id, 'This website is up, maybe it\'s just you?', nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, 'This website is up, maybe it\'s just you?', nil, true, false, message.message_id, nil)
 	else
-		mattata.sendMessage(msg.chat.id, 'It\'s not just you, this website is down!', nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, 'It\'s not just you, this website is down!', nil, true, false, message.message_id, nil)
 	end
 end
 

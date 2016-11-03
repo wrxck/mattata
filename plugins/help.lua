@@ -36,18 +36,9 @@ function help:onInlineCallback(inline_query)
 	mattata.answerInlineQuery(inline_query.id, results, 0, false, nil, 'More features')
 end
 
-function help:onQueryReceive(callback, msg)
+function help:onQueryReceive(callback, message)
 	local configuration = require('configuration')
 	if callback.data == 'help_statistics' then
-		user_count = 0
-		for _ in pairs(db.users) do
-			user_count = user_count + 1
-		end
-		if tonumber(user_count) == 1 then
-			user_count = user_count .. ' person is using mattata'
-		else
-			user_count = user_count .. ' people are using mattata'
-		end
 		plugin_count = 0
 		for _ in pairs(self.plugins) do
 			plugin_count = plugin_count + 1
@@ -75,47 +66,46 @@ function help:onQueryReceive(callback, msg)
 		else
 			trump_count = trump_count .. ' trumps configured'
 		end
-		local help_statistics = user_count .. '\n'
-		help_statistics = help_statistics .. plugin_count .. '\n'
+		local help_statistics = plugin_count .. '\n'
 		help_statistics = help_statistics .. pun_count .. '\n'
 		help_statistics = help_statistics .. trump_count
-		mattata.editMessageText(msg.chat.id, msg.message_id, help_statistics, nil, true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
+		mattata.editMessageText(message.chat.id, message.message_id, help_statistics, nil, true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
 	end
 	if callback.data == 'help_commands' then
-		if msg.chat.type ~= 'private' then
+		if message.chat.type ~= 'private' then
 			local res = mattata.sendMessage(callback.from.id, help_text, 'Markdown', true, false, nil, nil)
 			if not res then
-				mattata.editMessageText(msg.chat.id, msg.message_id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=help) to get started.', 'Markdown', true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
+				mattata.editMessageText(message.chat.id, message.message_id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=help) to get started.', 'Markdown', true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
 			else
-				mattata.editMessageText(msg.chat.id, msg.message_id, 'I have sent you a private message containing the requested information.', nil, true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
+				mattata.editMessageText(message.chat.id, message.message_id, 'I have sent you a private message containing the requested information.', nil, true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
 			end
 		else
-			mattata.editMessageText(msg.chat.id, msg.message_id, help_text, 'Markdown', true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
+			mattata.editMessageText(message.chat.id, message.message_id, help_text, 'Markdown', true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
 		end
 	end
 	if callback.data == 'help_links' then
 		local help_links = 'Here are some official links that you may find useful!'
-		mattata.editMessageText(msg.chat.id, msg.message_id, help_links, 'Markdown', true, '{"inline_keyboard":[[{"text":"Official Group", "url":"https://telegram.me/mattata"},{"text":"Source Code", "url":"https://github.com/matthewhesketh/mattata"},{"text":"Rate Me", "url":"https://telegram.me/storebot?start=mattatabot"}],[{"text":"Back", "callback_data":"help_back"}]]}')
+		mattata.editMessageText(message.chat.id, message.message_id, help_links, 'Markdown', true, '{"inline_keyboard":[[{"text":"Official Group", "url":"https://telegram.me/mattata"},{"text":"Source Code", "url":"https://github.com/matthewhesketh/mattata"},{"text":"Rate Me", "url":"https://telegram.me/storebot?start=mattatabot"}],[{"text":"Back", "callback_data":"help_back"}]]}')
 	end
 	if callback.data == 'help_back' then
-		mattata.editMessageText(msg.chat.id, msg.message_id, configuration.aboutText, 'Markdown', true, '{"inline_keyboard":[[{"text":"Links", "callback_data":"help_links"},{"text":"Statistics", "callback_data":"help_statistics"},{"text":"Commands", "callback_data":"help_commands"}]]}')
+		mattata.editMessageText(message.chat.id, message.message_id, configuration.aboutText .. '\n\n*I work well in groups, too!*\nYou can enable and disable plugins in your group(s) using ' .. configuration.commandPrefix .. 'plugins', 'Markdown', true, '{"inline_keyboard":[[{"text":"Links", "callback_data":"help_links"},{"text":"Statistics", "callback_data":"help_statistics"},{"text":"Commands", "callback_data":"help_commands"}]]}')
 	end
 end
 
-function help:onMessageReceive(msg)
+function help:onMessageReceive(message)
 	local configuration = require('configuration')
-	local input = mattata.input(msg.text)
+	local input = mattata.input(message.text)
 	if input then
 		for _, plugin in ipairs(self.plugins) do
 			if plugin.help_word == input:gsub('^/', '') then
 				local output = 'Help for *' .. plugin.help_word .. '*:\n' .. plugin.help
-				mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+				mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 				return
 			end
 		end
-		mattata.sendMessage(msg.chat.id, 'Sorry, there is no documented help for that plugin.', nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, 'Sorry, there is no documented help for that plugin.', nil, true, false, message.message_id, nil)
 	else
-		mattata.sendMessage(msg.chat.id, configuration.aboutText, 'Markdown', true, false, nil, '{"inline_keyboard":[[{"text":"Links", "callback_data":"help_links"},{"text":"Statistics", "callback_data":"help_statistics"},{"text":"Commands", "callback_data":"help_commands"}]]}')
+		mattata.sendMessage(message.chat.id, configuration.aboutText .. '\n\n*I work well in groups, too!*\nYou can enable and disable plugins in your group(s) using ' .. configuration.commandPrefix .. 'plugins', 'Markdown', true, false, nil, '{"inline_keyboard":[[{"text":"Links", "callback_data":"help_links"},{"text":"Statistics", "callback_data":"help_statistics"},{"text":"Commands", "callback_data":"help_commands"}]]}')
 	end
 end
 

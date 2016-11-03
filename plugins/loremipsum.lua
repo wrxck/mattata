@@ -8,13 +8,13 @@ function loremipsum:init(configuration)
 	loremipsum.help = configuration.commandPrefix .. 'loremipsum - Generates a few Lorem Ipsum sentences!'
 end
 
-function loremipsum:onMessageReceive(msg, configuration)
+function loremipsum:onMessageReceive(message, configuration)
 	local output, res = HTTP.request(configuration.apis.loremipsum)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
-	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
 end
 
 return loremipsum

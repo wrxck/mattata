@@ -7,12 +7,12 @@ function nick:init(configuration)
 	nick.help = configuration.commandPrefix .. 'nick <nickname> - Set your nickname. Use \'' .. configuration.commandPrefix .. 'nick -del\' to delete it.'
 end
 
-function nick:onMessageReceive(msg, configuration)
-	local id_str = tostring(msg.from.id)
-	local name = mattata.buildName(msg.from.first_name, msg.from.last_name)
+function nick:onMessageReceive(message, configuration)
+	local id_str = tostring(message.from.id)
+	local name = mattata.buildName(message.from.first_name, message.from.last_name)
 	self.db.userdata[id_str] = self.db.userdata[id_str] or {}
 	local output
-	local input = mattata.input(msg.text)
+	local input = mattata.input(message.text)
 	if not input then
 		if self.db.userdata[id_str].Nickname then
 			output = name .. '\'s nickname is \'' .. self.db.userdata[id_str].Nickname .. '\'.'
@@ -29,7 +29,7 @@ function nick:onMessageReceive(msg, configuration)
 		self.db.userdata[id_str].Nickname = input
 		output = name .. '\'s nickname has been set to \'' .. input .. '\'.'
 	end
-	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
 end
 
 return nick

@@ -34,8 +34,8 @@ function canitrust.validate(url)
 	end
 	return true
 end
-function canitrust:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function canitrust:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if input then
 		input = input:gsub('https', 'http'):gsub('HTTPS', 'https'):gsub('HTTP', 'http'):gsub('www.', '')
 		local jstr = HTTPS.request(configuration.apis.canitrust .. URL.escape(input) .. '/&callback=process&key=' .. configuration.keys.canitrust)
@@ -89,14 +89,14 @@ function canitrust:onMessageReceive(msg, configuration)
 			output = 'There are *no known issues* with this website.'
 		end
 		if output ~= 'Invalid URL.' then
-			mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, '{"inline_keyboard":[[{"text":"' .. 'Proceed to site' .. '", "url":"' .. input .. '"}]]}')
+			mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, '{"inline_keyboard":[[{"text":"' .. 'Proceed to site' .. '", "url":"' .. input .. '"}]]}')
 			return
 		else
-			mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+			mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 			return
 		end
 	else
-		mattata.sendMessage(msg.chat.id, canitrust.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, canitrust.help, nil, true, false, message.message_id, nil)
 		return
 	end
 end

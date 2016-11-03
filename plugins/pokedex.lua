@@ -9,17 +9,17 @@ function pokedex:init(configuration)
 	pokedex.help = configuration.commandPrefix .. 'pokedex <query> - Returns a Pokedex entry from pokeapi.co. Alias: ' .. configuration.commandPrefix .. 'dex.'
 end
 
-function pokedex:onMessageReceive(msg, configuration)
-	mattata.sendChatAction(msg.chat.id, 'upload_photo')
-	local input = mattata.input(msg.text)
+function pokedex:onMessageReceive(message, configuration)
+	mattata.sendChatAction(message.chat.id, 'upload_photo')
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, pokedex.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, pokedex.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local url = configuration.apis.pokedex .. input
 	local jstr, res = HTTP.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -28,7 +28,7 @@ function pokedex:onMessageReceive(msg, configuration)
 	local desc_url = 'http://pokeapi.co' .. jdat.descriptions[math.random(#jdat.descriptions)].resource_uri
 	local desc_jstr, desc_res = HTTP.request(desc_url)
 	if desc_res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local desc_jdat = JSON.decode(desc_jstr)
@@ -44,7 +44,7 @@ function pokedex:onMessageReceive(msg, configuration)
 	end
 	poke_type = poke_type .. ' type'
 	local output = 'Name: ' .. name .. '\nID: ' .. id .. '\nType: ' .. poke_type .. '\nDescription: ' .. description
-	mattata.sendPhoto(msg.chat.id, 'https://img.pokemondb.net/artwork/' .. name:gsub('^%u', string.lower) .. '.jpg', nil, false, msg.message_id, nil)
+	mattata.sendPhoto(message.chat.id, 'https://img.pokemondb.net/artwork/' .. name:gsub('^%u', string.lower) .. '.jpg', nil, false, message.message_id, nil)
 end
 
 return pokedex

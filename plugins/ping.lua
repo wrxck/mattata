@@ -5,8 +5,8 @@ function ping:init(configuration)
 	ping.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('ping'):c('pong').table
 end
 
-function ping:onMessageReceive(msg, configuration)
-	mattata.sendMessage(msg.chat.id, 'Pong!', nil, true, false, msg.message_id, nil)
+function ping:onMessageReceive(message, configuration)
+	mattata.sendMessage(message.chat.id, 'Pong!', nil, true, false, message.message_id, nil)
 end
 
 return ping

@@ -9,10 +9,10 @@ function github:init(configuration)
 	github.help = configuration.commandPrefix .. 'github <username> <repository> - Returns information about the specified GitHub repository.'
 end
 
-function github:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function github:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, github.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, github.help, nil, true, false, message.message_id, nil)
 		return
 	else
 		input = input:gsub(' ', '/')
@@ -20,7 +20,7 @@ function github:onMessageReceive(msg, configuration)
 	local jstr = HTTPS.request(configuration.apis.github .. input)
 	local jdat = JSON.decode(jstr)
 	if not jdat.id then
-		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
 		return
 	end
 	local title = '[' .. jdat.full_name .. '](' .. jdat.html_url .. ') *|* ' .. jdat.language
@@ -46,7 +46,7 @@ function github:onMessageReceive(msg, configuration)
 		subscribers = ' watchers'
 	end
 	local output = title .. description .. '[' .. jdat.forks_count .. forks .. '](' .. jdat.html_url .. '/network) *|* [' .. jdat.stargazers_count .. stargazers .. '](' .. jdat.html_url .. '/stargazers) *|* [' .. jdat.subscribers_count .. subscribers .. '](' .. jdat.html_url .. '/watchers) \nLast updated at ' .. jdat.updated_at:gsub('T', ' '):gsub('Z', '')
-	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 end
 
 return github

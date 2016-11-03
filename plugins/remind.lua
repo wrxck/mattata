@@ -9,15 +9,15 @@ function remind:init(configuration)
 	remind.help = remind.help:format(configuration.remind.maximumLength, configuration.remind.maximumDuration, configuration.remind.maximumGroupReminders, configuration.remind.maximumPrivateReminders)
 end
 
-function remind:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function remind:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, remind.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, remind.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local duration = tonumber(mattata.getWord(input, 1))
 	if not duration then
-		mattata.sendMessage(msg.chat.id, remind.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, remind.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	if duration < 1 then
@@ -26,32 +26,32 @@ function remind:onMessageReceive(msg, configuration)
 		duration = configuration.remind.maximumDuration
 	end
 	local message
-	if msg.reply_to_message and #msg.reply_to_message.text > 0 then
-		if msg.reply_to_message.from.username then
-			message = msg.reply_to_message.text .. ' @' .. msg.reply_to_message.from.username
+	if message.reply_to_message and #message.reply_to_message.text > 0 then
+		if message.reply_to_message.from.username then
+			message = message.reply_to_message.text .. ' @' .. message.reply_to_message.from.username
 		else
-			message = msg.reply_to_message.text
+			message = message.reply_to_message.text
 		end
 	elseif mattata.input(input) then
-		if msg.from.username then
-			message = mattata.input(input) .. ' @' .. msg.from.username
+		if message.from.username then
+			message = mattata.input(input) .. ' @' .. message.from.username
 		else
 			message = mattata.input(input)
 		end
 	else
-		mattata.sendMessage(msg.chat.id, remind.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, remind.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	if #message > configuration.remind.maximumLength then
-		mattata.sendMessage(msg.chat.id, 'The maximum length of reminders is ' .. configuration.remind.maximumLength .. '.', nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, 'The maximum length of reminders is ' .. configuration.remind.maximumLength .. '.', nil, true, false, message.message_id, nil)
 		return
 	end
-	local chat_id_str = tostring(msg.chat.id)
+	local chat_id_str = tostring(message.chat.id)
 	local output
 	self.db.reminders[chat_id_str] = self.db.reminders[chat_id_str] or {}
-	if msg.chat.type == 'private' and mattata.tableSize(self.db.reminders[chat_id_str]) >= configuration.remind.maximumPrivateReminders then
+	if message.chat.type == 'private' and mattata.tableSize(self.db.reminders[chat_id_str]) >= configuration.remind.maximumPrivateReminders then
 		output = 'Sorry, you already have the maximum number of reminders.'
-	elseif msg.chat.type ~= 'private' and mattata.tableSize(self.db.reminders[chat_id_str]) >= configuration.remind.maximumGroupReminders then
+	elseif message.chat.type ~= 'private' and mattata.tableSize(self.db.reminders[chat_id_str]) >= configuration.remind.maximumGroupReminders then
 		output = 'Sorry, this group already has the maximum number of reminders.'
 	else
 		table.insert(self.db.reminders[chat_id_str], {
@@ -64,7 +64,7 @@ function remind:onMessageReceive(msg, configuration)
 			duration == 1 and '' or 's'
 		)
 	end
-	mattata.sendMessage(msg.chat.id, output, 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 end
 
 function remind:cron(configuration)

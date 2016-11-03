@@ -20,27 +20,27 @@ function bible:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function bible:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text_lower)
+function bible:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text_lower)
 	if not input then
-		mattata.sendMessage(msg.chat.id, bible.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, bible.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local url = configuration.apis.bible .. configuration.keys.bible .. '&passage=' .. URL.escape(input)
 	local str, res = HTTP.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	if not str or str:len() == 0 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.results, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
 		return
 	end
 	if str:len() > 4096 then
-		mattata.sendMessage(msg.chat.id, 'The requested passage is too long to post here. Please, try and be more specific.', nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, 'The requested passage is too long to post here. Please, try and be more specific.', nil, true, false, message.message_id, nil)
 		return
 	end
-	mattata.sendMessage(msg.chat.id, str, nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, str, nil, true, false, message.message_id, nil)
 end
 
 return bible

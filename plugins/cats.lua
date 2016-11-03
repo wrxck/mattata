@@ -8,16 +8,16 @@ function cats:init(configuration)
 	cats.help = configuration.commandPrefix .. 'cat - A random picture of a cat!'
 end
 
-function cats:onMessageReceive(msg, configuration)
+function cats:onMessageReceive(message, configuration)
 	local api = configuration.apis.cats .. '&api_key=' .. configuration.keys.cats
 	local cat, res = HTTP.request(api)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	cat = cat:match('<img src="(.-)">')
-	mattata.sendChatAction(msg.chat.id, 'upload_photo')
-	mattata.sendPhoto(msg.chat.id, cat, 'Meow!', false, msg.message_id, nil)
+	mattata.sendChatAction(message.chat.id, 'upload_photo')
+	mattata.sendPhoto(message.chat.id, cat, 'Meow!', false, message.message_id, nil)
 end
 
 return cats

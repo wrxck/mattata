@@ -9,21 +9,21 @@ function mchistory:init(configuration)
 	mchistory.help = configuration.commandPrefix .. 'mchistory <Minecraft username> - Returns the name history of a Minecraft username.'
 end
 
-function mchistory:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function mchistory:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, mchistory.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, mchistory.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jstr_uuid, res_uuid = HTTPS.request(configuration.apis.mchistory.uuid .. input)
 	if res_uuid ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat_uuid = JSON.decode(jstr_uuid)
 	local jstr, res = HTTPS.request(configuration.apis.mchistory.history .. jdat_uuid.id .. '/names')
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
@@ -40,7 +40,7 @@ function mchistory:onMessageReceive(msg, configuration)
 			output = output .. ', '
 		end
 	end
-	mattata.sendMessage(msg.chat.id, summary .. output, 'Markdown', true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, summary .. output, 'Markdown', true, false, message.message_id, nil)
 end
 
 return mchistory

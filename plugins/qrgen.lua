@@ -8,19 +8,19 @@ function qrgen:init(configuration)
 	qrgen.help = configuration.commandPrefix .. 'qrgen - Converts the given string to an QR code.'
 end
 
-function qrgen:onMessageReceive(msg, configuration)
-	local input = mattata.input(msg.text)
+function qrgen:onMessageReceive(message, configuration)
+	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(msg.chat.id, qrgen.help, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, qrgen.help, nil, true, false, message.message_id, nil)
 		return
 	end
 	local str = configuration.apis.qrgen .. URL.escape(input) .. '&chld=H|0'
-	local res = mattata.sendPhoto(msg.from.id, str .. '.png', nil, false, msg.message_id, nil)
+	local res = mattata.sendPhoto(message.from.id, str .. '.png', nil, false, message.message_id, nil)
 	if not res then
-		mattata.sendMessage(msg.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. ') so I can send you the QR code.', 'Markdown', true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. ') so I can send you the QR code.', 'Markdown', true, false, message.message_id, nil)
 	else
-		mattata.sendChatAction(msg.from.id, 'upload_photo')
-		mattata.sendMessage(msg.chat.id, 'I have sent you your QR code via a private message.', nil, true, false, msg.message_id, nil)
+		mattata.sendChatAction(message.from.id, 'upload_photo')
+		mattata.sendMessage(message.chat.id, 'I have sent you your QR code via a private message.', nil, true, false, message.message_id, nil)
 	end
 end
 

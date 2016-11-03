@@ -50,42 +50,42 @@ function id:onInlineCallback(inline_query)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function id:onMessageReceive(msg)
+function id:onMessageReceive(message)
 	local name, id, username, title, members, output
-	local input = mattata.input(msg.text)
+	local input = mattata.input(message.text)
 	if not input then
-		if msg.reply_to_message then
-			name = msg.reply_to_message.from.first_name
-			id = msg.reply_to_message.from.id
-			if msg.reply_to_message.from.last_name then
-				name = name .. ' ' .. msg.reply_to_message.from.last_name
+		if message.reply_to_message then
+			name = message.reply_to_message.from.first_name
+			id = message.reply_to_message.from.id
+			if message.reply_to_message.from.last_name then
+				name = name .. ' ' .. message.reply_to_message.from.last_name
 			end
-			if msg.reply_to_message.from.username then
-				username = msg.reply_to_message.from.username
+			if message.reply_to_message.from.username then
+				username = message.reply_to_message.from.username
 				output = 'Name: ' .. name .. '\nID: ' .. id .. '\nUsername: @' .. username
 			else
 				output = 'Name: ' .. name .. '\nID: ' .. id
 			end
-			if msg.chat.type ~= 'private' then
-				output = output .. '\n\nTitle: ' .. msg.chat.title .. '\nChat type: ' .. msg.chat.type:gsub('^%l', string.upper) .. '\nID: ' .. msg.chat.id
-				if msg.chat.username then
-					output = output .. '\nUsername: @' .. msg.chat.username
+			if message.chat.type ~= 'private' then
+				output = output .. '\n\nTitle: ' .. message.chat.title .. '\nChat type: ' .. message.chat.type:gsub('^%l', string.upper) .. '\nID: ' .. message.chat.id
+				if message.chat.username then
+					output = output .. '\nUsername: @' .. message.chat.username
 				end
 			end
 		else
-			name = msg.from.first_name
-			if msg.from.last_name then
-				name = name .. ' ' .. msg.from.last_name
+			name = message.from.first_name
+			if message.from.last_name then
+				name = name .. ' ' .. message.from.last_name
 			end
-			if msg.from.username then
-				output = 'Name: ' .. name .. '\nID: ' .. msg.from.id .. '\nUsername: @' .. msg.from.username
+			if message.from.username then
+				output = 'Name: ' .. name .. '\nID: ' .. message.from.id .. '\nUsername: @' .. message.from.username
 			else
-				output = 'Name: ' .. name .. '\nID: ' .. msg.from.id
+				output = 'Name: ' .. name .. '\nID: ' .. message.from.id
 			end
-			if msg.chat.type ~= 'private' then
-				output = output .. '\n\nTitle: ' .. msg.chat.title .. '\nChat type: ' .. msg.chat.type:gsub('^%l', string.upper) .. '\nID: ' .. msg.chat.id
-				if msg.chat.username then
-					output = output .. '\nUsername: @' .. msg.chat.username
+			if message.chat.type ~= 'private' then
+				output = output .. '\n\nTitle: ' .. message.chat.title .. '\nChat type: ' .. message.chat.type:gsub('^%l', string.upper) .. '\nID: ' .. message.chat.id
+				if message.chat.username then
+					output = output .. '\nUsername: @' .. message.chat.username
 				end
 			end
 		end
@@ -105,7 +105,7 @@ function id:onMessageReceive(msg)
 				if res.result.username then
 					output = output .. '\nUsername: @' .. res.result.username
 				end
-				mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
+				mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
 				return
 			end
 			name = res.result.first_name
@@ -126,7 +126,7 @@ function id:onMessageReceive(msg)
 			output = 'I don\'t recognise that username/ID.'
 		end
 	end
-	mattata.sendMessage(msg.chat.id, output, nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
 end
 
 return id

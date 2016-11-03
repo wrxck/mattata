@@ -17,14 +17,14 @@ function chuck:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function chuck:onMessageReceive(msg, configuration)
+function chuck:onMessageReceive(message, configuration)
 	local jstr, res = HTTP.request(configuration.apis.chuck)
 	if res ~= 200 then
-		mattata.sendMessage(msg.chat.id, configuration.errors.connection, nil, true, false, msg.message_id, nil)
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
 		return
 	end
 	local jdat = JSON.decode(jstr)
-	mattata.sendMessage(msg.chat.id, mattata.htmlEscape(jdat.value.joke), nil, true, false, msg.message_id, nil)
+	mattata.sendMessage(message.chat.id, mattata.htmlEscape(jdat.value.joke), nil, true, false, message.message_id, nil)
 end
 
 return chuck

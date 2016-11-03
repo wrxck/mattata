@@ -10,16 +10,13 @@ return { -- rename this file to configuration.lua for mattata to work
 	plugins = { -- the plugins which mattata will enable on launch
 		'control',
 		-- place all new plugins below this line
-		'nick',
 		'bandersnatch',
 		'wikipedia',
-		'remind',
 		'ping',
 		'calc',
 		'urbandictionary',
 		'dice',
 		'imdb',
-		'me',
 		'slap',
 		'time',
 		'translate',
@@ -38,7 +35,6 @@ return { -- rename this file to configuration.lua for mattata to work
 		'id',
 		'loremipsum',
 		'starwars',
-		'setandget',
 		'lua',
 		'9gag',
 		'lyrics',
@@ -96,10 +92,23 @@ return { -- rename this file to configuration.lua for mattata to work
 		'yify',
 		'flickr',
 		'twitch',
+		'plugins',
+		'set',
+		'get',
+		'youtube-dl',
+		'github-feed',
 		-- place all new plugins above this line
 		'help',
 		'faces',
+		'sed',
 		'messaging'
+	},
+	redis = {
+		host = '127.0.0.1',
+		port = 6379,
+		use_socket = false,
+		password = nil,
+		database = 2
 	},
 	keys = {
 		cats = '', -- http://thecatapi.com/api-key-registration.html
@@ -114,6 +123,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		google = '', -- https://console.developers.google.com/apis
 		bing = '', -- https://datamarket.azure.com/account/keys
 		flickr = '', -- https://www.flickr.com/services/apps/create/noncommercial/?
+		github_feed = ''
 	},
 	apis = {
 		cats = 'http://thecatapi.com/api/images/get?format=html&type=jpg',
