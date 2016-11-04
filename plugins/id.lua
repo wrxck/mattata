@@ -1,16 +1,14 @@
 local id = {}
 local mattata = require('mattata')
 
-function id:init()
-	local configuration = require('configuration')
+function id:init(configuration)
 	id.arguments = 'id <user>'
 	id.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('id').table
 	id.inlineCommands = id.commands
 	id.help = configuration.commandPrefix .. 'id <user> - Sends the name, ID, and (if applicable) username for the given user. Input is also accepted via reply. If no input is given, info about you is sent. This command can also be used inline!'
 end
 
-function id:onInlineCallback(inline_query)
-	local configuration = require('configuration')
+function id:onInlineCallback(inline_query, configuration)
 	local name, id, username, title, members, output
 	local input = mattata.input(inline_query.query)
 	if tonumber(input) == nil then
@@ -105,7 +103,7 @@ function id:onMessageReceive(message)
 				if res.result.username then
 					output = output .. '\nUsername: @' .. res.result.username
 				end
-				mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
+				mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id)
 				return
 			end
 			name = res.result.first_name
@@ -126,7 +124,7 @@ function id:onMessageReceive(message)
 			output = 'I don\'t recognise that username/ID.'
 		end
 	end
-	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id)
 end
 
 return id
