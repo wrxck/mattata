@@ -12,7 +12,7 @@ function ban:onMessageReceive(message, configuration)
 		local admin_list = mattata.getChatAdministrators(message.chat.id)
 		for _, admin in ipairs(admin_list.result) do
 			if admin.user.id == message.from.id then
-				if not message.reply_to_message then
+				if not message.reply_to_message or message.reply_to_message.from.id == configuration.owner then
 					mattata.sendMessage(message.chat.id, ban.help, nil, true, false, message.message_id)
 					return
 				end
