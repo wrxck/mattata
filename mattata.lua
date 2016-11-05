@@ -65,6 +65,7 @@ function mattata:onMessageReceive(message, configuration)
 	message = mattata.processMessages(message)
 	if message then
 		message.system_date = os.time()
+		message.service_message = serviceModifyMessage(message) 
 		message.text = message.text or message.caption or ''
 		message.text_lower = message.text:lower()
 		message.text_upper = message.text:upper()
@@ -77,9 +78,6 @@ function mattata:onMessageReceive(message, configuration)
 		end
 	elseif message.reply_to_message then
 		message.reply_to_message.text = message.reply_to_message.text or message.reply_to_message.caption or ''
-	end
-	if isServiceMessage(message) then
-	  message = serviceModifyMessage(message)
 	end
 	for _, plugin in ipairs(self.plugins) do
 		mattata.processPlugins(self, message, configuration, plugin)
@@ -785,61 +783,35 @@ function mattata.tableSize(t)
 	return i
 end
 
-function isServiceMessage(message)
-	if message.new_chat_member or message.left_chat_member or message.new_chat_title or message.new_chat_photo or message.group_chat_created or message.supergroup_chat_created or message.channel_chat_created or message.migrate_to_chat_id or message.migrate_from_chat_id then
-		return true
-	end
-	return false
-end
-
 function serviceModifyMessage(message)
 	if message.new_chat_member then
-		message.text = '//tgservice new_chat_member'
-		message.text_lower = message.text
-		message.text_upper = message.text:upper()
-		message.text_trimmed = message.text:gsub(' ', '')
-	elseif message.left_chat_member then
-		message.text = '//tgservice left_chat_member'
-		message.text_lower = message.text
-		message.text_upper = message.text:upper()
-		message.text_trimmed = message.text:gsub(' ', '')
-	elseif message.new_chat_title then
-		message.text = '//tgservice new_chat_title'
-		message.text_lower = message.text
-		message.text_upper = message.text:upper()
-		message.text_trimmed = message.text:gsub(' ', '')
-	elseif message.new_chat_photo then
-		message.text = '//tgservice new_chat_photo'
-		message.text_lower = message.text
-		message.text_upper = message.text:upper()
-		message.text_trimmed = message.text:gsub(' ', '')
-	elseif message.group_chat_created then
-		message.text = '//tgservice group_chat_created'
-		message.text_lower = message.text
-		message.text_upper = message.text:upper()
-		message.text_trimmed = message.text:gsub(' ', '')
-	elseif message.supergroup_chat_created then
-		message.text = '//tgservice supergroup_chat_created'
-		message.text_lower = message.text
-		message.text_upper = message.text:upper()
-		message.text_trimmed = message.text:gsub(' ', '')
-	elseif message.channel_chat_created then
-		message.text = '//tgservice channel_chat_created'
-		message.text_lower = message.text
-		message.text_upper = message.text:upper()
-		message.text_trimmed = message.text:gsub(' ', '')
-	elseif message.migrate_to_chat_id then
-		message.text = '//tgservice migrate_to_chat_id'
-		message.text_lower = message.text
-		message.text_upper = message.text:upper()
-		message.text_trimmed = message.text:gsub(' ', '')
-	elseif message.migrate_from_chat_id then
-		message.text = '//tgservice migrate_from_chat_id'
-		message.text_lower = message.text
-		message.text_upper = message.text:upper()
-		message.text_trimmed = message.text:gsub(' ', '')
+		return 'new_chat_member'
 	end
-	return message
+	if message.left_chat_member then
+		return 'left_chat_member'
+	end
+	if message.new_chat_title then
+		return 'new_chat_title'
+	end
+	if message.new_chat_photo then
+		return 'new_chat_photo'
+	end
+	if message.group_chat_created then
+		return 'group_chat_created'
+	end
+	if message.supergroup_chat_created then
+		return 'supergroup_chat_created'
+	end
+	if message.channel_chat_created then
+		return 'channel_chat_created'
+	end
+	if message.migrate_to_chat_id then
+		return 'migrate_to_chat_id'
+	end
+	if message.migrate_from_chat_id then
+		return 'migrate_from_chat_id'
+	end
+	return ''
 end
 
 function mattata.utf8Len(s)
@@ -879,6 +851,7 @@ function mattata.processMessages(message)
 		message.text = message.caption or ''
 	end
 	message.system_date = os.time()
+	message.service_message = serviceModifyMessage(message)
 	message.text_lower = message.text:lower()
 	message.text_upper = message.text:upper()
 	message.text_trimmed = message.text:gsub(' ', '')
@@ -889,6 +862,7 @@ function mattata.processMessages(message)
 			message.reply_to_message.text = message.reply_to_message.caption or ''
 		end
 		message.reply_to_message.system_date = os.time()
+		message.reply_to_message.service_message = serviceModifyMessage(message.reply_to_message)
 		message.reply_to_message.text_lower = message.reply_to_message.text:lower()
 		message.reply_to_message.text_upper = message.reply_to_message.text:upper()
 		message.reply_to_message.text_trimmed = message.reply_to_message.text:gsub(' ', '')
