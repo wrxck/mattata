@@ -3,11 +3,63 @@ return { -- rename this file to configuration.lua for mattata to work
 	owner = nil, -- the numerical ID of the owner, who is presumably you
 	language = 'en', -- two digit locale
 	wikiLanguage = 'en', -- locale to use for wikipedia.lua, set to 'simple' for results from simple wikipedia
-	adminGroup = nil, -- the numerical ID of the chat you wish to log errors/private messages to, you can add https://telegram.me/matticatebot to your group and send /id@matticatebot to view this information, if necessary
+	adminGroup = nil, -- the numerical ID of the chat you wish to log errors/private messages to
 	aboutText = 'Hello, my name is mattata. I\'m a multi-purpose Telegram bot you can confidently rely on.\nTo get started, just send /help.\n',
  	commandPrefix = '/', -- the symbol bot commands will be executed with ('/' by default)
 	fileDownloadLocation = '/tmp/', -- the location to save all downloaded media to
+	processMessageEdits = true, -- change this to false to stop mattata from processing message edits
 	plugins = { -- the plugins which mattata will enable on launch
+		'control',
+		-- place all new plugins below this line
+		'bandersnatch',
+		'wikipedia',
+		'ping',
+		'calc',
+		'urbandictionary',
+		'dice',
+		'imdb',
+		'slap',
+		'time',
+		'translate',
+		'preview',
+		'reddit',
+		'channel',
+		'commit',
+		'pun',
+		'cats',
+		'catfact',
+		'currency',
+		'pokedex',
+		'eightball',
+		'isup',
+		'chuck',
+		'id',
+		'loremipsum',
+		'starwars',
+		'lua',
+		'9gag',
+		'lyrics',
+		'fact',
+		'minecraft',
+		'mcmigrated',
+		'mcuuid',
+		'mchistory',
+		'randomword',
+		'yeoldinsult',
+		'ispwned',
+		'yomama',
+		'guidgen',
+		'pwgen',
+		'canitrust',
+		'qotd',
+		'apod',
+		'hackernews',
+		'coinflip',
+		'doggo',
+		'xkcd',
+		'jsondump',
+		'giphy',
+		'itunes',
 		'control',
 		-- place all new plugins below this line
 		'bandersnatch',
@@ -103,7 +155,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'sed',
 		'messaging'
 	},
-	redis = {
+	redis = { -- do NOT edit this, unless you know what you are doing!
 		host = '127.0.0.1',
 		port = 6379,
 		use_socket = false,

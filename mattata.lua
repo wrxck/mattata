@@ -129,8 +129,11 @@ function mattata:run(configuration)
 					mattata.onQueryReceive(self, v.callback_query, v.callback_query.message, configuration)
 				elseif v.message then
 					mattata.onMessageReceive(self, v.message, configuration)
-				elseif v.edited_message then
-					mattata.onMessageReceive(self, v.edited_message, configuration)
+				end
+				if configuration.processMessageEdits then
+					if v.edited_message then
+						mattata.onMessageReceive(self, v.edited_message, configuration)
+					end
 				end
 			end
 		else
