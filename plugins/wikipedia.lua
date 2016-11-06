@@ -1,3 +1,10 @@
+--[[
+
+    Based on wikipedia.lua, Copyright 2016 topkecleon <drew@otou.to>
+    This code is licensed under the GNU AGPLv3.
+
+]]--
+
 local wikipedia = {}
 local HTTPS = require('ssl.https')
 local URL = require('socket.url')

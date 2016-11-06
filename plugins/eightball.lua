@@ -1,3 +1,10 @@
+--[[
+
+    Based on eightball.lua, Copyright 2016 topkecleon <drew@otou.to>
+    This code is licensed under the GNU AGPLv3.
+
+]]--
+
 local eightball = {}
 local mattata = require('mattata')
 

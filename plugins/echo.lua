@@ -1,3 +1,10 @@
+--[[
+
+    Based on echo.lua, Copyright 2016 topkecleon <drew@otou.to>
+    This code is licensed under the GNU AGPLv3.
+
+]]--
+
 local echo = {}
 local mattata = require('mattata')
 

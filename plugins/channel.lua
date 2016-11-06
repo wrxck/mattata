@@ -1,3 +1,10 @@
+--[[
+
+    Based on channel.lua, Copyright 2016 topkecleon <drew@otou.to>
+    This code is licensed under the GNU AGPLv3.
+
+]]--
+
 local channel = {}
 local mattata = require('mattata')
 

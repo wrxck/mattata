@@ -1,3 +1,10 @@
+--[[
+
+    Based on apod.lua, Copyright 2016 topkecleon <drew@otou.to>
+    This code is licensed under the GNU AGPLv3.
+
+]]--
+
 local apod = {}
 local HTTPS = require('ssl.https')
 local JSON = require('dkjson')

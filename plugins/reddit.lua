@@ -1,3 +1,10 @@
+--[[
+
+    Based on reddit.lua, Copyright 2016 topkecleon <drew@otou.to>
+    This code is licensed under the GNU AGPLv3.
+
+]]--
+
 local reddit = {}
 local HTTPS = require('ssl.https')
 local URL = require('socket.url')

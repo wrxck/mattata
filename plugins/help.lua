@@ -3,27 +3,27 @@ local mattata = require('mattata')
 local JSON = require('dkjson')
 local HTTPS = require('ssl.https')
 local URL = require('socket.url')
-local help_text, db, user_count, plugin_count, pun_count, trump_count
+local helpText, users, userCount, pluginCount, punCount, trumpCount
 
 function help:init()
 	local configuration = require('configuration')
 	local arguments_list = {}
-	help_text = '» ' .. configuration.commandPrefix
+	helpText = '» ' .. configuration.commandPrefix
 	for _, plugin in ipairs(self.plugins) do
 		if plugin.arguments then
 			table.insert(arguments_list, plugin.arguments)
 			if plugin.help then
-				plugin.help_word = mattata.getWord(plugin.arguments, 1)
+				plugin.helpWord = mattata.getWord(plugin.arguments, 1)
 			end
 		end
 	end
 	table.insert(arguments_list, 'help <plugin>')
 	table.sort(arguments_list)
-	help_text = help_text .. table.concat(arguments_list, '\n» ' .. configuration.commandPrefix)
+	helpText = helpText .. table.concat(arguments_list, '\n» ' .. configuration.commandPrefix)
 	help.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('help'):c('h').table
 	help.inlineCommands = { '^' .. '' .. '' }
 	help.help = configuration.commandPrefix .. 'help <plugin> - Usage information for the given plugin. Alias: ' .. configuration.commandPrefix .. 'h.'
-	db = self.db
+	users = self.users
 end
 
 function help:onInlineCallback(inline_query)
@@ -38,57 +38,67 @@ end
 
 function help:onQueryReceive(callback, message)
 	local configuration = require('configuration')
-	if callback.data == 'help_statistics' then
-		plugin_count = 0
+	if callback.data == 'helpStatistics' then
+		userCount = 0
+		for _ in pairs(users) do
+ 			userCount = userCount + 1
+ 		end
+ 		if tonumber(userCount) == 1 then
+ 			userCount = userCount .. ' person is using mattata'
+ 		else
+ 			userCount = userCount .. ' people are using mattata'
+ 		end
+		pluginCount = 0
 		for _ in pairs(self.plugins) do
-			plugin_count = plugin_count + 1
+			pluginCount = pluginCount + 1
 		end
-		if tonumber(plugin_count) == 1 then
-			plugin_count = plugin_count .. ' plugin is enabled'
+		if tonumber(pluginCount) == 1 then
+			pluginCount = pluginCount .. ' plugin is enabled'
 		else
-			plugin_count = plugin_count .. ' plugins are enabled'
+			pluginCount = pluginCount .. ' plugins are enabled'
 		end
-		pun_count = 0
+		punCount = 0
 		for _ in pairs(configuration.puns) do
-			pun_count = pun_count + 1
+			punCount = punCount + 1
 		end
-		if tonumber(pun_count) == 1 then
-			pun_count = pun_count .. ' pun configured'
+		if tonumber(punCount) == 1 then
+			punCount = punCount .. ' pun configured'
 		else
-			pun_count = pun_count .. ' puns configured'
+			punCount = punCount .. ' puns configured'
 		end
-		trump_count = 0
+		trumpCount = 0
 		for _ in pairs(configuration.trumps) do
-			trump_count = trump_count + 1
+			trumpCount = trumpCount + 1
 		end
-		if tonumber(trump_count) == 1 then
-			trump_count = trump_count .. ' trump configured'
+		if tonumber(trumpCount) == 1 then
+			trumpCount = trumpCount .. ' trump configured'
 		else
-			trump_count = trump_count .. ' trumps configured'
+			trumpCount = trumpCount .. ' trumps configured'
 		end
-		local help_statistics = plugin_count .. '\n'
-		help_statistics = help_statistics .. pun_count .. '\n'
-		help_statistics = help_statistics .. trump_count
-		mattata.editMessageText(message.chat.id, message.message_id, help_statistics, nil, true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
+		local helpStatistics = userCount .. '\n'
+		helpStatistics = helpStatistics .. pluginCount .. '\n'
+		helpStatistics = helpStatistics .. punCount .. '\n'
+		helpStatistics = helpStatistics .. trumpCount
+		mattata.editMessageText(message.chat.id, message.message_id, helpStatistics, nil, true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"helpBack"}]]}')
 	end
-	if callback.data == 'help_commands' then
+	if callback.data == 'helpCommands' then
 		if message.chat.type ~= 'private' then
-			local res = mattata.sendMessage(callback.from.id, help_text, 'Markdown', true, false, nil, nil)
+			local res = mattata.sendMessage(callback.from.id, helpText, 'Markdown', true, false, nil, nil)
 			if not res then
-				mattata.editMessageText(message.chat.id, message.message_id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=help) to get started.', 'Markdown', true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
+				mattata.editMessageText(message.chat.id, message.message_id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=help) to get started.', 'Markdown', true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"helpBack"}]]}')
 			else
-				mattata.editMessageText(message.chat.id, message.message_id, 'I have sent you a private message containing the requested information.', nil, true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
+				mattata.editMessageText(message.chat.id, message.message_id, 'I have sent you a private message containing the requested information.', nil, true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"helpBack"}]]}')
 			end
 		else
-			mattata.editMessageText(message.chat.id, message.message_id, help_text, 'Markdown', true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"help_back"}]]}')
+			mattata.editMessageText(message.chat.id, message.message_id, helpText, 'Markdown', true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"helpBack"}]]}')
 		end
 	end
-	if callback.data == 'help_links' then
-		local help_links = 'Here are some official links that you may find useful!'
-		mattata.editMessageText(message.chat.id, message.message_id, help_links, 'Markdown', true, '{"inline_keyboard":[[{"text":"Official Group", "url":"https://telegram.me/mattata"},{"text":"Source Code", "url":"https://github.com/matthewhesketh/mattata"},{"text":"Rate Me", "url":"https://telegram.me/storebot?start=mattatabot"}],[{"text":"Back", "callback_data":"help_back"}]]}')
+	if callback.data == 'helpLinks' then
+		local helpLinks = 'Here are some official links that you may find useful!'
+		mattata.editMessageText(message.chat.id, message.message_id, helpLinks, 'Markdown', true, '{"inline_keyboard":[[{"text":"Official Group", "url":"https://telegram.me/mattata"},{"text":"Source Code", "url":"https://github.com/matthewhesketh/mattata"},{"text":"Rate Me", "url":"https://telegram.me/storebot?start=mattatabot"}],[{"text":"Back", "callback_data":"helpBack"}]]}')
 	end
-	if callback.data == 'help_back' then
-		mattata.editMessageText(message.chat.id, message.message_id, configuration.aboutText .. '\n\n*I work well in groups, too!*\nYou can enable and disable plugins in your group(s) using ' .. configuration.commandPrefix .. 'plugins', 'Markdown', true, '{"inline_keyboard":[[{"text":"Links", "callback_data":"help_links"},{"text":"Statistics", "callback_data":"help_statistics"},{"text":"Commands", "callback_data":"help_commands"}]]}')
+	if callback.data == 'helpBack' then
+		mattata.editMessageText(message.chat.id, message.message_id, configuration.aboutText .. '\n\n*I work well in groups, too!*\nYou can enable and disable plugins in your group(s) using ' .. configuration.commandPrefix .. 'plugins', 'Markdown', true, '{"inline_keyboard":[[{"text":"Links", "callback_data":"helpLinks"},{"text":"Statistics", "callback_data":"helpStatistics"},{"text":"Commands", "callback_data":"helpCommands"}]]}')
 	end
 end
 
@@ -97,15 +107,15 @@ function help:onMessageReceive(message)
 	local input = mattata.input(message.text)
 	if input then
 		for _, plugin in ipairs(self.plugins) do
-			if plugin.help_word == input:gsub('^/', '') then
-				local output = 'Help for *' .. plugin.help_word .. '*:\n' .. plugin.help
+			if plugin.helpWord == input:gsub('^/', '') then
+				local output = 'Help for *' .. plugin.helpWord .. '*:\n' .. plugin.help
 				mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
 				return
 			end
 		end
 		mattata.sendMessage(message.chat.id, 'Sorry, there is no documented help for that plugin.', nil, true, false, message.message_id, nil)
 	else
-		mattata.sendMessage(message.chat.id, configuration.aboutText .. '\n\n*I work well in groups, too!*\nYou can enable and disable plugins in your group(s) using ' .. configuration.commandPrefix .. 'plugins', 'Markdown', true, false, nil, '{"inline_keyboard":[[{"text":"Links", "callback_data":"help_links"},{"text":"Statistics", "callback_data":"help_statistics"},{"text":"Commands", "callback_data":"help_commands"}]]}')
+		mattata.sendMessage(message.chat.id, configuration.aboutText .. '\n\n*I work well in groups, too!*\nYou can enable and disable plugins in your group(s) using ' .. configuration.commandPrefix .. 'plugins', 'Markdown', true, false, nil, '{"inline_keyboard":[[{"text":"Links", "callback_data":"helpLinks"},{"text":"Statistics", "callback_data":"helpStatistics"},{"text":"Commands", "callback_data":"helpCommands"}]]}')
 	end
 end
 

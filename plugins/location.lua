@@ -1,3 +1,10 @@
+--[[
+
+    Based on location.lua, Copyright 2016 topkecleon <drew@otou.to>
+    This code is licensed under the GNU AGPLv3.
+
+]]--
+
 local location = {}
 local mattata = require('mattata')
 local HTTP = require('socket.http')

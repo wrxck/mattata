@@ -24,14 +24,15 @@ function mattata:init()
 		self.info = mattata.getMe()
 	until self.info
 	self.info = self.info.result
+	self.users = mattata.loadData('users.json')
+ 	if not self.users then
+ 		mattata.loadData('users.json')
+ 	end
 	self.db = mattata.loadData('mattata.db')
-	self.userdata = mattata.loadData(self.info.username)
 	if not self.db then
 		mattata.loadData('mattata.db')
 	end
-	if not self.userdata then
-		mattata.loadData(self.info.username)
-	end
+	self.version = '4.1'
 	self.plugins = {}
 	enabledPlugins = mattata.loadPlugins()
 	for k, v in ipairs(enabledPlugins) do
@@ -62,10 +63,13 @@ function mattata:onMessageReceive(message, configuration)
 	if message.date < os.time() - 50 then
 		return
 	end
+	local from_id_str = tostring(message.from.id)
+  	self.users[from_id_str] = message.from
 	message = mattata.processMessages(message)
 	if message then
+		self.users[tostring(message.from.id)] = message.from
 		message.system_date = os.time()
-		message.service_message = serviceModifyMessage(message) 
+		message.service_message = serviceModifyMessage(message)
 		message.text = message.text or message.caption or ''
 		message.text_lower = message.text:lower()
 		message.text_upper = message.text:upper()
@@ -77,7 +81,8 @@ function mattata:onMessageReceive(message, configuration)
 			message.text_trimmed = message.text:gsub(' ', '')
 		end
 	elseif message.reply_to_message then
-		message.reply_to_message.text = message.reply_to_message.text or message.reply_to_message.caption or ''
+		self.users[tostring(message.reply_to_message.from.id)] = message.reply_to_message.from
+		message.reply_to_message.text = message.reply_to_message.text or message.reply_to_message.caption or ''	
 	end
 	for _, plugin in ipairs(self.plugins) do
 		mattata.processPlugins(self, message, configuration, plugin)
@@ -153,17 +158,21 @@ function mattata:run(configuration)
 		end
 		if self.last_database_save ~= os.date('%H') then
 			mattata.saveData('mattata.db', self.db)
-			mattata.saveData(self.info.username, self.userdata)
+			mattata.saveData('users.json', self.users)
 			self.last_database_save = os.date('%H')
 		end
 	end
 	mattata.saveData('mattata.db', self.db)
-	mattata.saveData(self.info.username, self.userdata)
+	mattata.saveData('users.json', self.users)
 	print('mattata is shutting down...')
 end
 
-function mattata.getRedisHash(message, var)
-	return 'chat:' .. message.chat.id .. ':' .. var
+function mattata.getRedisHash(message, variable)
+	return 'chat:' .. message.chat.id .. ':' .. variable
+end
+
+function mattata.getUserRedisHash(user, variable)
+	return 'user:' .. user.id .. ':' .. variable
 end
 
 function mattata.processPlugins(self, message, configuration, plugin)

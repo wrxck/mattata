@@ -1,46 +1,78 @@
+--[[
+
+    Based on lastfm.lua, Copyright 2016 topkecleon <drew@otou.to>
+    This code is licensed under the GNU AGPLv3.
+
+]]--
+
 local lastfm = {}
 local HTTP = require('socket.http')
 local HTTPS = require('ssl.https')
 local URL = require('socket.url')
 local JSON = require('dkjson')
 local mattata = require('mattata')
+local redis = require('mattata-redis')
 
 function lastfm:init(configuration)
 	lastfm.arguments = 'lastfm'
 	lastfm.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lastfm'):c('np'):c('fmset').table
-	lastfm.help = configuration.commandPrefix .. 'np (username) - Returns what you are or were last listening to. If you specify a username, info will be returned for that username.' .. configuration.commandPrefix .. 'fmset <username> - Sets your last.fm username. Otherwise, ' .. configuration.commandPrefix .. 'np will use your Telegram username. Use ' .. configuration.commandPrefix .. 'fmset -del to delete it.'
+	lastfm.help = configuration.commandPrefix .. 'np <username> - Returns what you are or were last listening to. If you specify a username, info will be returned for that username.' .. configuration.commandPrefix .. 'fmset <username> - Sets your last.fm username. Use ' .. configuration.commandPrefix .. 'fmset -del to delete your current username.'
+end
+
+function setLastfmUsername(user, name)
+	local hash = mattata.getUserRedisHash(user, 'lastfm')
+	if hash then
+		redis:hset(hash, 'lastfm', name)
+		return user.first_name .. '\'s last.fm username has been set to \'' .. name .. '\'.'
+	end
+end
+
+function delLastfmUsername(user)
+	local hash = mattata.getUserRedisHash(user, 'lastfm')
+	if redis:hexists(hash, 'lastfm') == true then
+		redis:hdel(hash, 'lastfm')
+		return 'Your last.fm username has been forgotten!'
+	else
+		return 'You don\'t currently have a last.fm username set!'
+	end
+end
+
+function getLastfmUsername(user)
+	local hash = mattata.getUserRedisHash(user, 'lastfm')
+	if hash then
+		local name = redis:hget(hash, 'lastfm')
+		if not name or name == 'false' then
+			return false
+		else
+			return name
+		end
+	end
 end
 
 function lastfm:onMessageReceive(message, configuration)
 	local input = mattata.input(message.text)
-	local from_id_str = tostring(message.from.id)
-	self.userdata[from_id_str] = self.userdata[from_id_str] or {}
 	if string.match(message.text, '^' .. configuration.commandPrefix .. 'lastfm') then
 		mattata.sendMessage(message.chat.id, lastfm.help, nil, true, false, message.message_id, nil)
 		return
 	elseif string.match(message.text, '^' .. configuration.commandPrefix .. 'fmset') then
 		if not input then
 			mattata.sendMessage(message.chat.id, lastfm.help, nil, true, false, message.message_id, nil)
+			return
 		elseif input == '-del' then
-			self.userdata[from_id_str].lastfm = nil
-			mattata.sendMessage(message.chat.id, 'Your last.fm username has been forgotten.', nil, true, false, message.message_id, nil)
+			mattata.sendMessage(message.chat.id, delLastfmUsername(message.from), nil, true, false, message.message_id, nil)
+			return
 		else
-			self.userdata[from_id_str].lastfm = input
-			mattata.sendMessage(message.chat.id, 'Your last.fm username has been set to "' .. input .. '".', nil, true, false, message.message_id, nil)
+			mattata.sendMessage(message.chat.id, setLastfmUsername(message.from, input), nil, true, false, message.message_id, nil)
+			return
 		end
-		return
 	end
 	local url = configuration.apis.lastfm .. configuration.keys.lastfm .. '&user='
 	local username
 	local alert = ''
 	if input then
 		username = input
-	elseif self.userdata[from_id_str].lastfm then
-		username = self.userdata[from_id_str].lastfm
-	elseif message.from.username then
-		username = message.from.username
-		alert = '\n\nYour username has been set to ' .. username .. '.\nTo change it, use ' .. configuration.commandPrefix .. 'fmset <username>.'
-		self.userdata[from_id_str].lastfm = username
+	elseif getLastfmUsername(message.from) then
+		username = getLastfmUsername(message.from)
 	else
 		mattata.sendMessage(message.chat.id, 'Please specify your last.fm username or set it with ' .. configuration.commandPrefix .. 'fmset.', nil, true, false, message.message_id, nil)
 		return

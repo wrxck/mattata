@@ -1,3 +1,10 @@
+--[[
+
+    Based on preview.lua, Copyright 2016 topkecleon <drew@otou.to>
+    This code is licensed under the GNU AGPLv3.
+
+]]--
+
 local preview = {}
 local HTTP = require('socket.http')
 local mattata = require('mattata')

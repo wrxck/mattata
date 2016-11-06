@@ -1,3 +1,10 @@
+--[[
+
+    Based on calc.lua, Copyright 2016 topkecleon <drew@otou.to>
+    This code is licensed under the GNU AGPLv3.
+
+]]--
+
 local calc = {}
 local URL = require('socket.url')
 local HTTP = require('socket.http')
