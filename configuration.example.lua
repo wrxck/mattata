@@ -99,17 +99,32 @@ return { -- rename this file to configuration.lua for mattata to work
 		'youtube-dl',
 		'github-feed',
 		'nick',
+		'groups',
+		'rules',
+		'shell',
+		'insult',
 		-- place all new plugins above this line
 		'help',
 		'faces',
 		'sed',
 		'messaging'
 	},
+	groups = {
+		['Memes'] = 'https://telegram.me/joinchat/D9oCfkExFv_O2b2HnppZsQ',
+		['Off-Topic Geeks'] = 'https://telegram.me/joinchat/DTcYUD8crPKua-yd0gL3bg',
+		['Programming'] = 'https://telegram.me/ProgrammingChat',
+		['mattata Development'] = 'https://telegram.me/mattata',
+		['Music'] = 'https://telegram.me/MusicChat',
+		['Cancer'] = 'https://telegram.me/CancerChat',
+		['Rextesters'] = 'https://telegram.me/Rextesters',
+		['TV/Films'] = 'https://telegram.me/joinchat/D9oCfkE6o5jW5WZAjg7BLQ',
+		['Web Design/Development'] = 'https://telegram.me/joinchat/D9oCfj_GgKRY0cc4IKws3w'
+	},
 	redis = { -- do NOT edit this, unless you know what you are doing!
 		host = '127.0.0.1',
 		port = 6379,
 		use_socket = false,
-		password = nil,
+		password = '',
 		database = 2
 	},
 	keys = {
@@ -262,7 +277,8 @@ return { -- rename this file to configuration.lua for mattata to work
 		['copy'] = '(ノಠ益ಠ)ノ彡',
 		['matt'] = '<a href=\'https://github.com/matthewhesketh\'>Best coder ever!</a>',
 		['lift'] = '\n❚█══█❚\nDo you even lift?',
-		['specs'] = 'ᒡ◯ᵔ◯ᒢ'
+		['specs'] = 'ᒡ◯ᵔ◯ᒢ',
+		['sarah'] = '❤️'
 	},
 	bandersnatch = {
 		fullNames = {

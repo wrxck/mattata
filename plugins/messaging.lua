@@ -1,6 +1,8 @@
 local messaging = {}
 local HTTPS = require('ssl.https')
+local HTTP = require('socket.http')
 local URL = require('socket.url')
+local ltn12 = require('ltn12')
 local JSON = require('dkjson')
 local mattata = require('mattata')
 
@@ -9,6 +11,53 @@ function messaging:init(configuration)
 end
 
 function messaging:onMessageReceive(message, configuration)
+	if message.reply_to_message then
+		if message.photo then
+			if message.reply_to_message.from.id == self.info.id then
+				mattata.sendChatAction(message.chat.id, 'typing')
+				local getFile = mattata.getFile(message.photo[1].file_id)
+				local url = 'https://api.telegram.org/file/bot' .. configuration.botToken .. '/' .. getFile.result.file_path
+				local filePath = configuration.fileDownloadLocation .. os.time() .. url:match('.+/(.-)$')
+				local body = {}
+				local protocol = HTTP
+				local redirect = true
+				if url:match('^https') then
+					protocol = HTTPS
+					redirect = false
+				end
+				local _, res = protocol.request {
+					url = url,
+					sink = ltn12.sink.table(body),
+					redirect = redirect
+				}
+				if res ~= 200 then
+					mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id)
+					return
+				end
+				local file = io.open(filePath, 'w+')
+				file:write(table.concat(body))
+				file:close()
+				local output = io.popen('./plugins/captionbotai.sh "' .. filePath .. '"'):read('*all')
+				os.remove(filePath)
+				mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id)
+				return
+			end
+		end
+		if message.text then
+			if not string.match(message.text, configuration.commandPrefix) then
+				if message.reply_to_message.from.id == self.info.id then
+					local jstr, res = HTTPS.request(configuration.messaging.url .. URL.escape(message.text_lower))
+					if res ~= 200 then
+						return
+					end
+					local jdat = JSON.decode(jstr)
+					mattata.sendChatAction(message.chat.id, 'typing')
+					mattata.sendMessage(message.chat.id, jdat.clever, nil, true, false, message.message_id, nil)
+					return
+				end
+			end
+		end
+	end
 	if message.chat.type ~= 'private' then
 		if message.new_chat_member then
 			if message.new_chat_member.id ~= self.info.id then
@@ -79,21 +128,6 @@ function messaging:onMessageReceive(message, configuration)
 			mattata.sendChatAction(message.chat.id, 'typing')
 			mattata.sendMessage(message.chat.id, jdat.clever, nil, true, false, message.message_id, nil)
 			return
-		end
-	end
-	if message.reply_to_message then
-		if message.text then
-			if not string.match(message.text, configuration.commandPrefix) then
-				if message.reply_to_message.from.id == self.info.id then
-					local jstr, res = HTTPS.request(configuration.messaging.url .. URL.escape(message.text_lower))
-					if res ~= 200 then
-						return
-					end
-					local jdat = JSON.decode(jstr)
-					mattata.sendChatAction(message.chat.id, 'typing')
-					mattata.sendMessage(message.chat.id, jdat.clever, nil, true, false, message.message_id, nil)
-				end
-			end
 		end
 	end
 end

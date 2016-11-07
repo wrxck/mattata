@@ -17,10 +17,10 @@ end
 function echo:onMessageReceive(message, configuration)
 	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(message.chat.id, echo.help, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(message.chat.id, echo.help, nil, true, false, message.message_id)
 		return
 	end
-	mattata.sendMessage(message.chat.id, input, nil, true, false, message.message_id, nil)
+	mattata.sendMessage(message.chat.id, input, nil, true, false, message.message_id)
 end
 
 return echo

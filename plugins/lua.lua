@@ -9,15 +9,17 @@ local lua = {}
 local mattata = require('mattata')
 local URL = require('socket.url')
 local JSON = require('serpent')
+local users
 
 function lua:init(configuration)
-	lua.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lua'):c('return').table
+	lua.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lua'):c('return'):c('broadcast').table
 	JSON = require('dkjson')
 	lua.serialise = function(t) return JSON.encode(t, {indent=true}) end
 	lua.loadstring = load or loadstring
 	lua.error_message = function(x)
 		return 'Error:\n' .. tostring(x)
 	end
+	users = self.users
 end
 
 function lua:onMessageReceive(message, configuration)
@@ -32,13 +34,21 @@ function lua:onMessageReceive(message, configuration)
 	if message.text_lower:match('^' .. configuration.commandPrefix .. 'return') then
 		input = 'return ' .. input
 	end
+	if message.text_lower:match('^' .. configuration.commandPrefix .. 'broadcast') then
+		local text = message.text_lower:gsub(configuration.commandPrefix .. 'broadcast ', '')
+		for k, v in pairs(users) do
+			mattata.sendMessage(v.id, text, 'Markdown', true, false)
+		end
+		mattata.sendMessage(message.from.id, 'Done!', nil, true, false, message.message_id)
+		return
+	end
 	local output, success = loadstring( [[
 		local mattata = require('mattata')
 		local JSON = require('dkjson')
 		local URL = require('socket.url')
 		local HTTP = require('socket.http')
 		local HTTPS = require('ssl.https')
-		return function (message, configuration) ]] .. input .. [[ end
+		return function (message, configuration, self) ]] .. input .. [[ end
 	]] )
 	if output == nil then
 		output = success

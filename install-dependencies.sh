@@ -11,7 +11,7 @@ echo "This script will request root privileges to install the required dependenc
 echo "Press enter to continue. Use Ctrl-C to exit."
 read
 sudo apt-get update
-sudo apt-get install -y lua$luaver liblua$luaver-dev git python3 redis-server libssl-dev fortune-mod fortunes unzip make
+sudo apt-get install -y lua$luaver liblua$luaver-dev git mediainfo python3 redis-server libssl-dev fortune-mod fortunes unzip make
 git clone http://github.com/keplerproject/luarocks
 cd luarocks
 ./configure --lua-version=$luaver --versioned-rocks-dir --lua-suffix=$luaver

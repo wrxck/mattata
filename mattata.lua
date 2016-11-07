@@ -32,7 +32,7 @@ function mattata:init()
 	if not self.db then
 		mattata.loadData('mattata.db')
 	end
-	self.version = '4.1'
+	self.version = '4.2'
 	self.plugins = {}
 	enabledPlugins = mattata.loadPlugins()
 	for k, v in ipairs(enabledPlugins) do
@@ -212,7 +212,7 @@ function mattata.request(method, parameters, file, other_api)
 	if other_api then
 		api = other_api
 	else
-		api = 'https://api.telegram.org/bot'
+		api = 'https://api.telegram.org/bot' .. configuration.botToken .. '/' .. method
 	end
 	parameters = parameters or {}
 	for k, v in pairs(parameters) do
@@ -242,7 +242,7 @@ function mattata.request(method, parameters, file, other_api)
 	local response = {}
 	local body, boundary = multipart.encode(parameters)
 	local success, res = HTTPS.request{
-		url = api .. configuration.botToken .. '/' .. method,
+		url = api,
 		method = 'POST',
 		headers = {
 			['Content-Type'] = 'multipart/form-data; boundary=' .. boundary,
@@ -732,8 +732,8 @@ function mattata.buildName(first, last)
 end
 
 function mattata.isGroupAdmin(chat, user)
-	local admin_list = mattata.getChatAdministrators(chat)
-	for _, admin in ipairs(admin_list.result) do
+	local admins = mattata.getChatAdministrators(chat)
+	for _, admin in ipairs(admins.result) do
 		if admin.user.id == user then
 			return true
 		end
