@@ -125,7 +125,7 @@ function plugins:onMessageReceive(message, configuration)
 				mattata.sendMessage(message.chat.id, output, nil)
 				return
 			end
-			if string.match(message.text_lower, '^' .. configuration.commandPrefix .. 'plugins disable %a+') then
+			if string.match(message.text_lower, '^' .. configuration.commandPrefix .. 'plugins disable %a+') and not string.match(message.text_lower, 'plugins$') and not string.match(message.text_lower, 'lua$') and not string.match(message.text_lower, 'help$') and not string.match(message.text_lower, 'control$') then
 				local plugin = message.text_lower:gsub(configuration.commandPrefix .. 'plugins disable ', '')
 				local output = plugins:disablePluginInChat(message, plugin)
 				mattata.sendMessage(message.chat.id, output, nil)
