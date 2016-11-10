@@ -28,11 +28,11 @@ function mattata:init()
  	if not self.users then
  		mattata.loadData('users.json')
  	end
-	self.db = mattata.loadData('mattata.db')
-	if not self.db then
-		mattata.loadData('mattata.db')
-	end
-	self.version = '4.2'
+ 	self.groups = mattata.loadData('groups.json')
+ 	if not self.groups then
+ 		mattata.loadData('groups.json')
+ 	end
+	self.version = '4.3'
 	self.plugins = {}
 	enabledPlugins = mattata.loadPlugins()
 	for k, v in ipairs(enabledPlugins) do
@@ -60,14 +60,15 @@ function mattata:init()
 end
 
 function mattata:onMessageReceive(message, configuration)
-	if message.date < os.time() - 50 then
+	if message.date < os.time() - 100 then
 		return
 	end
-	local from_id_str = tostring(message.from.id)
-  	self.users[from_id_str] = message.from
 	message = mattata.processMessages(message)
 	if message then
 		self.users[tostring(message.from.id)] = message.from
+		if message.chat.type ~= 'private' then
+			self.groups[tostring(message.chat.id)] = message.chat
+		end
 		message.system_date = os.time()
 		message.service_message = serviceModifyMessage(message)
 		message.text = message.text or message.caption or ''
@@ -82,6 +83,9 @@ function mattata:onMessageReceive(message, configuration)
 		end
 	elseif message.reply_to_message then
 		self.users[tostring(message.reply_to_message.from.id)] = message.reply_to_message.from
+		if message.reply_to_message.chat.type ~= 'private' then
+			self.groups[tostring(message.reply_to_message.chat.id)] = message.reply_to_message.chat
+		end
 		message.reply_to_message.text = message.reply_to_message.text or message.reply_to_message.caption or ''	
 	end
 	for _, plugin in ipairs(self.plugins) do
@@ -157,13 +161,13 @@ function mattata:run(configuration)
 			end
 		end
 		if self.last_database_save ~= os.date('%H') then
-			mattata.saveData('mattata.db', self.db)
 			mattata.saveData('users.json', self.users)
+			mattata.saveData('groups.json', self.groups)
 			self.last_database_save = os.date('%H')
 		end
 	end
-	mattata.saveData('mattata.db', self.db)
 	mattata.saveData('users.json', self.users)
+	mattata.saveData('groups.json', self.groups)
 	print('mattata is shutting down...')
 end
 

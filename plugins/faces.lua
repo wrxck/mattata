@@ -15,18 +15,18 @@ end
 
 function faces:onMessageReceive(message, configuration)
 	if string.match(message.text_lower, configuration.commandPrefix .. 'faces') then
-		local res = mattata.sendMessage(message.from.id, faces.help, 'HTML', true, false, nil, nil)
+		local res = mattata.sendMessage(message.from.id, faces.help, 'HTML', true, false)
 		if not res then
-			mattata.sendMessage(message.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=faces) so I can send you a list of the available faces.', 'Markdown', true, false, message.message_id, nil)
+			mattata.sendMessage(message.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=faces) so I can send you a list of the available faces.', 'Markdown', true, false, message.message_id)
 			return
 		elseif message.chat.type ~= 'private' then
-			mattata.sendMessage(message.chat.id, 'I have sent you a private message containing a list of the available faces!', nil, true, false, message.message_id, nil)
+			mattata.sendMessage(message.chat.id, 'I have sent you a private message containing a list of the available faces!', nil, true, false, message.message_id)
 			return
 		end
 	end
 	for commands, face in pairs(configuration.faces) do
 		if string.match(message.text_lower, configuration.commandPrefix .. commands) then
-			mattata.sendMessage(message.chat.id, face, 'HTML', true, false, message.message_id, nil)
+			mattata.sendMessage(message.chat.id, face, 'HTML', true, false, message.message_id)
 			return
 		end
 	end

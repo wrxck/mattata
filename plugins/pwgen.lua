@@ -12,24 +12,22 @@ end
 function pwgen:onMessageReceive(message, configuration)
 	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(message.chat.id, pwgen.help, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(message.chat.id, pwgen.help, nil, true, false, message.message_id)
 		return
 	end
-	if tonumber(input) == nil then
-		mattata.sendMessage(message.chat.id, 'Please enter a numeric value.', nil, true, false, message.message_id, nil)
-		return
+	if message.chat.type == 'private' then
+		if tonumber(input) == nil or tonumber(input) > 4096 or tonumber(input) < 8 then
+			mattata.sendMessage(message.chat.id, 'Please enter a value between 8 and 4096.', nil, true, false, message.message_id)
+			return
+		end
+	else
+		if tonumber(input) == nil or tonumber(input) > 4096 or tonumber(input) < 8 then
+			mattata.sendMessage(message.chat.id, 'Please enter a value between 8 and 128.', nil, true, false, message.message_id)
+			return
+		end
 	end
-	if tonumber(input) > 24 or tonumber(input) < 8 then
-		mattata.sendMessage(message.chat.id, 'Please enter a value lower than 24 but greater than 8.', nil, true, false, message.message_id, nil)
-		return
-	end
-	local jstr, res = HTTP.request(configuration.apis.pwgen .. input)
-	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
-		return
-	end
-	local jdat = JSON.decode(jstr)
-	mattata.sendMessage(message.chat.id, '*Password:* ' .. mattata.markdownEscape(jdat[1].password) .. '\n*Phonetic:* ' .. mattata.markdownEscape(jdat[1].phonetic), 'Markdown', true, false, message.message_id, nil)
+	local output = io.popen('python3 plugins/pwgen.py ' .. input):read('*all')
+	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id)
 	return
 end
 

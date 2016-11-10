@@ -103,6 +103,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'rules',
 		'shell',
 		'insult',
+		'news',
 		-- place all new plugins above this line
 		'help',
 		'faces',
@@ -118,13 +119,15 @@ return { -- rename this file to configuration.lua for mattata to work
 		['Cancer'] = 'https://telegram.me/CancerChat',
 		['Rextesters'] = 'https://telegram.me/Rextesters',
 		['TV/Films'] = 'https://telegram.me/joinchat/D9oCfkE6o5jW5WZAjg7BLQ',
-		['Web Design/Development'] = 'https://telegram.me/joinchat/D9oCfj_GgKRY0cc4IKws3w'
+		['Web Design/Development'] = 'https://telegram.me/joinchat/D9oCfj_GgKRY0cc4IKws3w',
+		['Android'] = 'https://telegram.me/joinchat/DTcYUEFZwMkqVYuInGCm3g',
+		['Post-Elections Discussion'] = 'https://telegram.me/joinchat/D9oCfkDJS6XhsMBt9RRLYQ'
 	},
 	redis = { -- do NOT edit this, unless you know what you are doing!
 		host = '127.0.0.1',
 		port = 6379,
 		use_socket = false,
-		password = '',
+		password = 'password',
 		database = 2
 	},
 	keys = {
@@ -140,7 +143,8 @@ return { -- rename this file to configuration.lua for mattata to work
 		google = '', -- https://console.developers.google.com/apis
 		bing = '', -- https://datamarket.azure.com/account/keys
 		flickr = '', -- https://www.flickr.com/services/apps/create/noncommercial/?
-		github_feed = ''
+		github_feed = '',
+		news = ''
 	},
 	apis = {
 		cats = 'http://thecatapi.com/api/images/get?format=html&type=jpg',
@@ -278,7 +282,8 @@ return { -- rename this file to configuration.lua for mattata to work
 		['matt'] = '<a href=\'https://github.com/matthewhesketh\'>Best coder ever!</a>',
 		['lift'] = '\n❚█══█❚\nDo you even lift?',
 		['specs'] = 'ᒡ◯ᵔ◯ᒢ',
-		['sarah'] = '❤️'
+		['sarah'] = '❤️',
+		['oneday'] = '<b>TOBS IS A SEXY FUCKER AYYYYY LMAOOOOOOO</b>'
 	},
 	bandersnatch = {
 		fullNames = {

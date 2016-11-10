@@ -39,26 +39,25 @@ function itunes:onQueryReceive(callback, message, configuration)
 			mattata.editMessageText(message.chat.id, message.message_id, configuration.errors.connection, nil, true, '{"inline_keyboard":[[{"text":"Try Again", "callback_data":"itunes_back"}]]}')
 			return
 		end
-		local track, artist, collection, trackNumber, discNumber = ''
 		local jdat = JSON.decode(jstr)
+		local output = ''
 		if jdat.results[1] then
 			if jdat.results[1].trackName and jdat.results[1].trackViewUrl then
-				trackOutput = '*Track Name:* [' .. jdat.results[1].trackName .. '](' .. jdat.results[1].trackViewUrl .. ')'
+				output = output .. '*Track Name:* [' .. jdat.results[1].trackName .. '](' .. jdat.results[1].trackViewUrl .. ')'
 			end
 			if jdat.results[1].artistName and jdat.results[1].artistViewUrl then
-				artistOutput = '\n*Artist:* [' .. jdat.results[1].artistName .. '](' .. jdat.results[1].artistViewUrl .. ')'
+				output = output .. '\n*Artist:* [' .. jdat.results[1].artistName .. '](' .. jdat.results[1].artistViewUrl .. ')'
 			end
 			if jdat.results[1].collectionName and jdat.results[1].collectionViewUrl then
-				collectionOutput = '\n*Album:* [' .. jdat.results[1].collectionName .. '](' .. jdat.results[1].collectionViewUrl .. ')'
+				output = output .. '\n*Album:* [' .. jdat.results[1].collectionName .. '](' .. jdat.results[1].collectionViewUrl .. ')'
 			end
 			if jdat.results[1].trackNumber and jdat.results[1].trackCount then
-				trackNumberOutput = '\n*Track Number:* ' .. jdat.results[1].trackNumber .. '/' .. jdat.results[1].trackCount
+				output = output .. '\n*Track Number:* ' .. jdat.results[1].trackNumber .. '/' .. jdat.results[1].trackCount
 			end
 			if jdat.results[1].discNumber and jdat.results[1].discCount then
-				discNumberOutput = '\n*Disc Number:* ' .. jdat.results[1].discNumber .. '/' .. jdat.results[1].discCount
+				output = output .. '\n*Disc Number:* ' .. jdat.results[1].discNumber .. '/' .. jdat.results[1].discCount
 			end
 		end
-		local output = trackOutput .. artistOutput .. collectionOutput .. trackNumberOutput .. discNumberOutput
 		mattata.editMessageText(message.chat.id, message.message_id, output, 'Markdown', true, '{"inline_keyboard":[[{"text":"Get Album Artwork", "callback_data":"itunes_send_artwork"}]]}')
 	end
 end
@@ -72,30 +71,33 @@ function itunes:onMessageReceive(message, configuration)
 	local url = configuration.apis.itunes .. URL.escape(input)
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, '{"inline_keyboard":[[{"text":"Try Again", "callback_data":"itunes_back"}]]}')
+		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id)
 		return
 	end
 	mattata.sendChatAction(message.chat.id, 'typing')
-	local track, artist, collection, trackNumber, discNumber = ''
 	local jdat = JSON.decode(jstr)
+	local output = ''
 	if jdat.results[1] then
 		if jdat.results[1].trackName and jdat.results[1].trackViewUrl then
-			trackOutput = '*Track Name:* [' .. jdat.results[1].trackName .. '](' .. jdat.results[1].trackViewUrl .. ')'
+			output = output .. '*Track Name:* [' .. jdat.results[1].trackName .. '](' .. jdat.results[1].trackViewUrl .. ')'
 		end
 		if jdat.results[1].artistName and jdat.results[1].artistViewUrl then
-			artistOutput = '\n*Artist:* [' .. jdat.results[1].artistName .. '](' .. jdat.results[1].artistViewUrl .. ')'
+			output = output .. '\n*Artist:* [' .. jdat.results[1].artistName .. '](' .. jdat.results[1].artistViewUrl .. ')'
 		end
 		if jdat.results[1].collectionName and jdat.results[1].collectionViewUrl then
-			collectionOutput = '\n*Album:* [' .. jdat.results[1].collectionName .. '](' .. jdat.results[1].collectionViewUrl .. ')'
+			output = output .. '\n*Album:* [' .. jdat.results[1].collectionName .. '](' .. jdat.results[1].collectionViewUrl .. ')'
 		end
 		if jdat.results[1].trackNumber and jdat.results[1].trackCount then
-			trackNumberOutput = '\n*Track Number:* ' .. jdat.results[1].trackNumber .. '/' .. jdat.results[1].trackCount
+			output = output .. '\n*Track Number:* ' .. jdat.results[1].trackNumber .. '/' .. jdat.results[1].trackCount
 		end
 		if jdat.results[1].discNumber and jdat.results[1].discCount then
-			discNumberOutput = '\n*Disc Number:* ' .. jdat.results[1].discNumber .. '/' .. jdat.results[1].discCount
+			output = output .. '\n*Disc Number:* ' .. jdat.results[1].discNumber .. '/' .. jdat.results[1].discCount
 		end
 	end
-	local output = trackOutput .. artistOutput .. collectionOutput .. trackNumberOutput .. discNumberOutput
+	if output == '' then
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, '{"inline_keyboard":[[{"text":"Try Again", "callback_data":"itunes_back"}]]}')
+		return
+	end
 	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, '{"inline_keyboard":[[{"text":"Get Album Artwork", "callback_data":"itunes_send_artwork"}]]}')
 end
 

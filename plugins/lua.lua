@@ -34,8 +34,8 @@ function lua:onMessageReceive(message, configuration)
 	if message.text_lower:match('^' .. configuration.commandPrefix .. 'return') then
 		input = 'return ' .. input
 	end
-	if message.text_lower:match('^' .. configuration.commandPrefix .. 'broadcast') then
-		local text = message.text_lower:gsub(configuration.commandPrefix .. 'broadcast ', '')
+	if message.text:match('^' .. configuration.commandPrefix .. 'broadcast') then
+		local text = message.text:gsub(configuration.commandPrefix .. 'broadcast ', '')
 		for k, v in pairs(users) do
 			mattata.sendMessage(v.id, text, 'Markdown', true, false)
 		end
