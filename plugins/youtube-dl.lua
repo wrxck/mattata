@@ -1,11 +1,11 @@
-local youtube_to_mp3 = {}
+local youtube_dl = {}
 local mattata = require('mattata')
 local configuration = require('configuration')
 
-function youtube_to_mp3:init(configuration)
-	youtube_to_mp3.arguments = 'mp3 <YouTube URL>'
-	youtube_to_mp3.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('mp3').table
-	youtube_to_mp3.help = configuration.commandPrefix .. 'mp3 <YouTube URL> - Sends a YouTube video in mp3 format.'
+function youtube_dl:init(configuration)
+	youtube_dl.arguments = 'mp3 <YouTube URL>'
+	youtube_dl.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('mp3').table
+	youtube_dl.help = configuration.commandPrefix .. 'mp3 <YouTube URL> - Sends a YouTube video in mp3 format.'
 end
 
 function convertAudio(id)
@@ -25,10 +25,10 @@ function extractIdFromUrl(url)
 	return url:gsub('https?://w?w?w?m?%.?youtube.com/watch%?v=', ''):gsub('https?://w?w?w?m?%.?youtube.com/embed/', ''):gsub('https?://w?w?w?m?%.?youtu.be/', '')
 end
 
-function youtube_to_mp3:onMessageReceive(message, configuration)
+function youtube_dl:onMessageReceive(message, configuration)
 	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(message.chat.id, youtube_to_mp3.help, nil, true, false, message.message_id)
+		mattata.sendMessage(message.chat.id, youtube_dl.help, nil, true, false, message.message_id)
 		return
 	end
 	local output = mattata.sendMessage(message.chat.id, 'Retrieving audio information...', nil, true, false, message.message_id)
@@ -41,9 +41,8 @@ function youtube_to_mp3:onMessageReceive(message, configuration)
 	local res = mattata.sendAudio(message.chat.id, file)
 	if res then
 		mattata.editMessageText(message.chat.id, output.result.message_id, 'You should find the requested file below.', nil, nil)
-		io.popen('rm ' .. file:gsub(' ', '\\ '))
 		return
 	end
 end
 
-return youtube_to_mp3
+return youtube_dl

@@ -11,7 +11,7 @@ function exec:init(configuration)
 	exec.help = configuration.commandPrefix .. 'exec <language> \\n <code> - Executes the specified code in the given language and returns the output. The code must be on a new line. Example: \n`' .. configuration.commandPrefix .. 'exec python3`\n`print(\'Hello, World!\')`'
 end
 
-function exec.getLangArgs(language)
+function getLangArgs(language)
 	if language == 'c_gcc' or language == 'gcc' or language == 'c' or language == 'c_clang' or language == 'clang' then
 		return '-Wall -std=gnu99 -O2 -o a.out source_file.c'
 	elseif language == 'cpp' or language == 'cplusplus_clang' or language == 'cpp_clang' or language == 'clangplusplus' or language == 'clang++' then
@@ -40,13 +40,12 @@ function exec:onMessageReceive(message, configuration)
 		return
 	end
 	local language = mattata.getWord(input, 1)
-	local code = message.text:gsub('\n', ' '):gsub(configuration.commandPrefix .. 'exec ' .. language .. ' ', ''):gsub(configuration.commandPrefix .. 'exec ' .. language, '')
-	local args = exec.getLangArgs(language)
+	local code = message.text:gsub('\n', ' '):gsub(configuration.commandPrefix .. 'exec ' .. language, '')
+	local args = getLangArgs(language)
 	if not args then
 		args = ''
 	end
 	local parameters = { LanguageChoice = language, Program = code, Input = 'stdin', CompilerArgs = args }
-	print(code)
 	local response = {}
 	local body, boundary = multipart.encode(parameters)
 	local jstr, res = HTTP.request{
