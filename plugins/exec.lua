@@ -39,6 +39,7 @@ function exec:onMessageReceive(message, configuration)
 		mattata.sendMessage(message.chat.id, exec.help, 'Markdown', true, false, message.message_id, nil)
 		return
 	end
+	mattata.sendChatAction(message.chat.id, 'typing')
 	local language = mattata.getWord(input, 1)
 	local code = message.text:gsub('\n', ' '):gsub(configuration.commandPrefix .. 'exec ' .. language, '')
 	local args = getLangArgs(language)
