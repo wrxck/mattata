@@ -205,7 +205,7 @@ function gh:cron()
 					local author = data[n].commit.author.name
 					local message = data[n].commit.message
 					local link = data[n].html_url
-					text = text .. '*New commit at* [' .. repo .. '](' .. link .. ')!\n\n`' .. message .. '`\nBy ' .. mattata.markdownEscape(author) .. '\n\n'
+					text = text .. '*New commit on* [' .. repo .. '](' .. link .. ')!\n\n`' .. message .. '`\nBy ' .. mattata.markdownEscape(author) .. '\n\n'
 				end
 			end
 			if text ~= '' then
