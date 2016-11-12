@@ -12,7 +12,7 @@ local JSON = require('serpent')
 local users
 
 function lua:init(configuration)
-	lua.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lua'):c('return'):c('broadcast').table
+	lua.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lua'):c('return'):c('broadcast'):c('gbroadcast').table
 	JSON = require('dkjson')
 	lua.serialise = function(t) return JSON.encode(t, {indent=true}) end
 	lua.loadstring = load or loadstring
@@ -20,6 +20,7 @@ function lua:init(configuration)
 		return 'Error:\n' .. tostring(x)
 	end
 	users = self.users
+	groups = self.groups
 end
 
 function lua:onMessageReceive(message, configuration)
@@ -37,6 +38,14 @@ function lua:onMessageReceive(message, configuration)
 	if message.text:match('^' .. configuration.commandPrefix .. 'broadcast') then
 		local text = message.text:gsub(configuration.commandPrefix .. 'broadcast ', '')
 		for k, v in pairs(users) do
+			mattata.sendMessage(v.id, text, 'Markdown', true, false)
+		end
+		mattata.sendMessage(message.from.id, 'Done!', nil, true, false, message.message_id)
+		return
+	end
+	if message.text:match('^' .. configuration.commandPrefix .. 'gbroadcast') then
+		local text = message.text:gsub(configuration.commandPrefix .. 'gbroadcast ', '')
+		for k, v in pairs(groups) do
 			mattata.sendMessage(v.id, text, 'Markdown', true, false)
 		end
 		mattata.sendMessage(message.from.id, 'Done!', nil, true, false, message.message_id)

@@ -32,7 +32,7 @@ function mattata:init()
  	if not self.groups then
  		mattata.loadData('groups.json')
  	end
-	self.version = '4.3'
+	self.version = '4.4'
 	self.plugins = {}
 	enabledPlugins = mattata.loadPlugins()
 	for k, v in ipairs(enabledPlugins) do
@@ -60,7 +60,7 @@ function mattata:init()
 end
 
 function mattata:onMessageReceive(message, configuration)
-	if message.date < os.time() - 100 then
+	if message.date < os.time() - 50 then
 		return
 	end
 	message = mattata.processMessages(message)
@@ -136,9 +136,8 @@ function mattata:run(configuration)
 					mattata.onQueryReceive(self, v.callback_query, v.callback_query.message, configuration)
 				elseif v.message then
 					mattata.onMessageReceive(self, v.message, configuration)
-				end
-				if configuration.processMessageEdits then
-					if v.edited_message then
+				elseif v.edited_message then
+					if configuration.processMessageEdits then
 						mattata.onMessageReceive(self, v.edited_message, configuration)
 					end
 				end
@@ -187,6 +186,12 @@ function mattata.processPlugins(self, message, configuration, plugin)
 			if mattata.isPluginDisabledInChat(plugin.name, message) then
 				return
 			else
+				if plugin.processMessage and message then
+					message = plugin:processMessage(message, configuration)
+					if not message then
+						return
+					end
+				end
 				local success, result = pcall(function()
 					return plugin.onMessageReceive(self, message, configuration)
 				end)
@@ -211,10 +216,10 @@ function mattata.isPluginDisabledInChat(plugin, message)
 	end
 end
 
-function mattata.request(method, parameters, file, other_api)
+function mattata.request(method, parameters, file, otherApi)
 	local api
-	if other_api then
-		api = other_api
+	if otherApi then
+		api = otherApi .. configuration.botToken .. '/' .. method
 	else
 		api = 'https://api.telegram.org/bot' .. configuration.botToken .. '/' .. method
 	end

@@ -16,6 +16,7 @@ local redis = require('mattata-redis')
 function lastfm:init(configuration)
 	lastfm.arguments = 'lastfm'
 	lastfm.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lastfm'):c('np'):c('fmset').table
+	lastfm.inlineCommands = lastfm.commands
 	lastfm.help = configuration.commandPrefix .. 'np <username> - Returns what you are or were last listening to. If you specify a username, info will be returned for that username.' .. configuration.commandPrefix .. 'fmset <username> - Sets your last.fm username. Use ' .. configuration.commandPrefix .. 'fmset -del to delete your current username.'
 end
 
@@ -49,6 +50,48 @@ function getLastfmUsername(user)
 	end
 end
 
+function lastfm:onInlineCallback(inline_query, configuration)
+	local input = inline_query.query:gsub('^' .. configuration.commandPrefix .. 'np ', '')
+	local url = configuration.apis.lastfm .. configuration.keys.lastfm .. '&user='
+	local username, results, output
+	if inline_query.query == configuration.commandPrefix .. 'np' then
+		if not getLastfmUsername(inline_query.from) then
+			results = '[{"type":"article","id":"1","title":"Please send /fmset <username> to me via private chat!","input_message_content":{"message_text":"Please send /fmset <username> to me via private chat!"}}]'
+			mattata.answerInlineQuery(inline_query.id, results, 0)
+		else
+			username = getLastfmUsername(inline_query.from)
+		end
+	else
+		username = input
+	end
+	url = url .. URL.escape(username)
+	local jstr, res = HTTP.request(url)
+	local jdat = JSON.decode(jstr)
+	jdat = jdat.recenttracks.track[1] or jdat.recenttracks.track
+	if inline_query.query == configuration.commandPrefix .. 'np' then
+		output = '🎵 ' .. inline_query.from.first_name .. ' (last.fm/user/' .. username .. ')'
+	else
+		output = '🎵 ' .. username
+	end
+	if jdat['@attr'] and jdat['@attr'].nowplaying then
+		output = output .. ' is currently listening to:\n'
+	else
+		output = output .. ' last listened to:\n'
+	end
+	local title = jdat.name or 'Unknown'
+	local artist = 'Unknown'
+	if jdat.artist then
+		artist = jdat.artist['#text']
+	end
+	output = output .. artist .. ' - ' .. title
+	if jdat.image[4]['#text'] == "" then
+		results = '[{"type":"article","id":"1","title":"'..artist..' - ' ..title..'","input_message_content":{"message_text":"'..output..'"}}]'
+	else
+		results = '[{"type":"photo","id":"1","photo_url":"' .. jdat.image[4]['#text'] .. '","thumb_url":"' .. jdat.image[2]['#text'] .. '","caption":"' .. output .. '"}]'
+	end
+	mattata.answerInlineQuery(inline_query.id, results, 0)
+end
+
 function lastfm:onMessageReceive(message, configuration)
 	local input = mattata.input(message.text)
 	if string.match(message.text, '^' .. configuration.commandPrefix .. 'lastfm') then
@@ -67,7 +110,7 @@ function lastfm:onMessageReceive(message, configuration)
 		end
 	end
 	local url = configuration.apis.lastfm .. configuration.keys.lastfm .. '&user='
-	local username
+	local username, output
 	local alert = ''
 	if input then
 		username = input
@@ -93,8 +136,11 @@ function lastfm:onMessageReceive(message, configuration)
 		mattata.sendMessage(message.chat.id, 'No history for this user.' .. alert, nil, true, false, message.message_id, nil)
 		return
 	end
-	local output = input or message.from.first_name
-	output = '🎵  ' .. output
+	if not input then
+		output = '🎵 ' .. message.from.first_name .. '(last.fm/user/' .. username .. ')'
+	else
+		output = '🎵 ' .. input
+	end
 	if jdat['@attr'] and jdat['@attr'].nowplaying then
 		output = output .. ' is currently listening to:\n'
 	else
@@ -106,31 +152,17 @@ function lastfm:onMessageReceive(message, configuration)
 		artist = jdat.artist['#text']
 	end
 	output = output .. artist .. ' - ' .. title .. alert
-	local url = configuration.apis.itunes .. URL.escape(artist)
-	local jstr, res = HTTPS.request(url)
-	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
+	if artist and title == 'Unknown' then
+		mattata.sendChatAction(message.chat.id, 'typing')
+		mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
 		return
 	else
-		local jdat = JSON.decode(jstr)
-		if tonumber(jdat.resultCount) > 0 then
-			if artist and title == 'Unknown' then
-				mattata.sendChatAction(message.chat.id, 'typing')
-				mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
-				return
-			else
-				if jdat.results[1].artworkUrl100 then
-					local artworkUrl100 = jdat.results[1].artworkUrl100:gsub('/100x100bb.jpg', '/10000x10000bb.jpg')
-					mattata.sendChatAction(message.chat.id, 'upload_photo')
-					mattata.sendPhoto(message.chat.id, artworkUrl100, output, false, message.message_id, nil)
-					return
-				else
-					mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
-					return
-				end
-			end
-		else
+		if jdat.image[1]['#text'] == "" then
 			mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
+			return
+		else
+			mattata.sendChatAction(message.chat.id, 'upload_photo')
+			mattata.sendPhoto(message.chat.id, jdat.image[4]['#text'], output, false, message.message_id, nil)
 			return
 		end
 	end

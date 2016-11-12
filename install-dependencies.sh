@@ -21,8 +21,8 @@ for rock in $rocklist; do
     sudo luarocks-$luaver install $rock
 done
 piplist="BeautifulSoup demjson youtube-dl"
-for pip in $piplist; do
-    sudo python -m pip install $pip
+for pip in $piplist do
+	sudo python -m pip install $pip
 done
 sudo -k
 cd ..

@@ -1,5 +1,5 @@
-# Yay, Python with Lua!
-
+#!/usr/bin/env python3
+# Credit to @imandaneshi for helping with this script
 import os
 import sys
 from bs4 import BeautifulSoup

@@ -104,6 +104,10 @@ return { -- rename this file to configuration.lua for mattata to work
 		'shell',
 		'insult',
 		'news',
+		'copypasta',
+		'report',
+		'link',
+		'warn',
 		-- place all new plugins above this line
 		'help',
 		'faces',
@@ -121,7 +125,8 @@ return { -- rename this file to configuration.lua for mattata to work
 		['TV/Films'] = 'https://telegram.me/joinchat/D9oCfkE6o5jW5WZAjg7BLQ',
 		['Web Design/Development'] = 'https://telegram.me/joinchat/D9oCfj_GgKRY0cc4IKws3w',
 		['Android'] = 'https://telegram.me/joinchat/DTcYUEFZwMkqVYuInGCm3g',
-		['Post-Elections Discussion'] = 'https://telegram.me/joinchat/D9oCfkDJS6XhsMBt9RRLYQ'
+		['Post-Elections Discussion'] = 'https://telegram.me/joinchat/D9oCfkDJS6XhsMBt9RRLYQ',
+		['Arch Linux'] = 'https://telegram.me/joinchat/D9oCfj_vyorPUa2npKHazg'
 	},
 	redis = { -- do NOT edit this, unless you know what you are doing!
 		host = '127.0.0.1',
@@ -278,12 +283,10 @@ return { -- rename this file to configuration.lua for mattata to work
 		['both'] = '<b>:3 xDDD</b>',
 		['hitler'] = '<b>HEIL HITLER?! 卐</b>',
 		['party'] = '୧༼ ͡◉ل͜ ͡◉༽୨ (ง ͠° ل͜ °)ง ヽ༼ຈل͜ຈ༽ﾉ ༼ ºل͟º ༽ Join da Party ୧༼ ͡◉ل͜ ͡◉༽୨ (ง ͠° ل͜ °)ง ヽ༼ຈل͜ຈ༽ﾉ ༼ ºل͟º ༽',
-		['copy'] = '(ノಠ益ಠ)ノ彡',
-		['matt'] = '<a href=\'https://github.com/matthewhesketh\'>Best coder ever!</a>',
 		['lift'] = '\n❚█══█❚\nDo you even lift?',
 		['specs'] = 'ᒡ◯ᵔ◯ᒢ',
 		['sarah'] = '❤️',
-		['oneday'] = '<b>TOBS IS A SEXY FUCKER AYYYYY LMAOOOOOOO</b>'
+		['tobs'] = '<b>TOBS IS A SEXY FUCKER AYYYYY LMAOOOOOOO</b>'
 	},
 	bandersnatch = {
 		fullNames = {

@@ -20,7 +20,7 @@ function help:init()
 	table.insert(arguments_list, 'help <plugin>')
 	table.sort(arguments_list)
 	helpText = helpText .. table.concat(arguments_list, '\n» ' .. configuration.commandPrefix)
-	help.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('help'):c('h').table
+	help.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('help'):c('h'):c('start').table
 	help.inlineCommands = { '^' .. '' .. '' }
 	help.help = configuration.commandPrefix .. 'help <plugin> - Usage information for the given plugin. Alias: ' .. configuration.commandPrefix .. 'h.'
 	users = self.users
@@ -32,6 +32,7 @@ function help:onInlineCallback(inline_query)
 	results = results .. ',{"type":"article","id":"2","title":"/ai","description":"@mattatabot /ai <text> - Talk to mattata","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /ai <text>"}}'
 	results = results .. ',{"type":"article","id":"3","title":"/apod","description":"@mattatabot /apod - Get the astronomical photo of the day","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /apod"}}'
 	results = results .. ',{"type":"article","id":"4","title":"/gif","description":"@mattatabot /gif <query> - Search for GIFs","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /gif <query>"}}'
+	results = results .. ',{"type":"article","id":"5","title":"/np","description":"@mattatabot /np <username> - Returns what you last listened to on last.fm","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /lastfm <username>"}}'
 	results = results .. ']'
 	mattata.answerInlineQuery(inline_query.id, results, 0, false, nil, 'More features')
 end

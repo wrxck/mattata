@@ -5,9 +5,113 @@ local URL = require('socket.url')
 local ltn12 = require('ltn12')
 local JSON = require('dkjson')
 local mattata = require('mattata')
+local redis = require('mattata-redis')
 
 function messaging:init(configuration)
+	messaging.arguments = 'statistics'
 	messaging.commands = { '' }
+end
+
+function getUserName(user)
+	if user.name then
+		return user.name
+	end
+	local text = ''
+	if user.first_name then
+		text = user.first_name .. ' '
+	end
+	if user.last_name then
+		text = text .. user.last_name
+	end
+	return text
+end
+
+function getUserMessages(userId, chatId)
+	local userInfo = {}
+	local userHash = 'user:'..userId
+	local user = redis:hgetall(userHash)
+	local userMessagesHash = 'messages:'..userId..':'..chatId
+	userInfo.messages = tonumber(redis:get(userMessagesHash) or 0)
+	userInfo.name = getUserName(user)
+	return userInfo
+end
+
+function commaValue(amount)
+	local formatted = amount
+	while true do  
+		formatted, k = string.gsub(formatted, '^(-?%d+)(%d%d%d)', '%1,%2')
+		if (k==0) then
+			break
+		end
+	end
+	return formatted
+end
+
+function round(num, idp)
+	local mult = 10^(idp or 0)
+	return math.floor(num * mult + 0.5) / mult
+end
+
+function isempty(s)
+	return s == nil or s == ''
+end
+
+function chatStatistics(chatId)
+	local hash = 'chat:' .. chatId .. ':users'
+	local users = redis:smembers(hash)
+	local chatUserInfo = {}
+	for i = 1, #users do
+		local userId = users[i]
+		local userInfo = getUserMessages(userId, chatId)
+		table.insert(chatUserInfo, userInfo)
+	end
+	local totalMessages = 0
+	for n, user in pairs(chatUserInfo) do
+		local messageCount = chatUserInfo[n].messages
+		totalMessages = totalMessages + messageCount
+	end
+	table.sort(chatUserInfo, function(a, b) 
+		if a.messages and b.messages then
+			return a.messages > b.messages
+		end
+	end)
+	local text = ''
+	for k, v in pairs(chatUserInfo) do
+    	local messageCount = v.messages
+		local percent = tostring(round(messageCount / totalMessages * 100, 1))
+    	text = text .. v.name .. ': ' .. commaValue(messageCount) .. ' `(' .. percent .. '%)`\n'
+	end
+	if isempty(text) then
+		return 'No messages have been sent in this group!'
+	end
+	local text = text .. '\n*Total*: ' .. commaValue(totalMessages)
+	return text
+end
+
+function messaging:processMessage(message)
+	if message.left_chat_member then
+		local hash = 'chat:' .. message.chat.id .. ':users'
+		local userIdLeft = message.left_chat_member.id
+		redis:srem(hash, userIdLeft)
+		return message
+	end
+	local hash = 'user:' .. message.from.id
+	if message.from.name then
+		redis:hset(hash, 'name', message.from.name)
+	end
+	if message.from.first_name then
+		redis:hset(hash, 'first_name', message.from.first_name)
+	end
+	if message.from.last_name then
+		redis:hset(hash, 'last_name', message.from.last_name)
+	end
+	if message.chat.type ~= 'private' then
+		local hash = 'chat:' .. message.chat.id .. ':users'
+		redis:sadd(hash, message.from.id)
+	end
+	local hash = 'messages:' .. message.from.id .. ':' .. message.chat.id
+	redis:incr(hash)
+	return message
 end
 
 function messaging:onMessageReceive(message, configuration)
@@ -59,6 +163,11 @@ function messaging:onMessageReceive(message, configuration)
 		end
 	end
 	if message.chat.type ~= 'private' then
+		if message.text_lower == configuration.commandPrefix .. 'statistics' or string.match(message.text_lower, 'how many messages have been sent') then
+			local chatId = message.chat.id
+			mattata.sendMessage(message.chat.id, chatStatistics(chatId), 'Markdown', true, false, message.message_id)
+			return
+		end
 		if message.new_chat_member then
 			if message.new_chat_member.id ~= self.info.id then
 				local randomNew = math.random(5)
@@ -113,8 +222,12 @@ function messaging:onMessageReceive(message, configuration)
 				mattata.sendMessage(message.chat.id, '*WEEDOW, WEEDOW!*\n_A random, Iranian spammer has been detected!_', 'Markdown', true, false, message.message_id, nil)
 				return
 			end
-			if string.match(message.text_lower, 'how many messages have been sent') then
-				mattata.sendMessage(message.chat.id, message.message_id .. ' messages have been sent in this chat!', nil, true, false, nil, nil)
+			if string.match(message.text_lower, 'mhmm') then
+				mattata.sendSticker(message.chat.id, 'BQADBAADFwEAAqZepgF2oHWaS5IT1QI', message.message_id)
+				return
+			end
+			if string.match(message.text, 'WHAT THE FUCK?') then
+				mattata.sendMessage(message.chat.id, 'YEAH, WTF??', nil, true, false, message.message_id)
 				return
 			end
 		end

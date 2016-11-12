@@ -15,7 +15,7 @@ function translate:init(configuration)
 	translate.arguments = 'translate <text>'
 	translate.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('translate'):c('tl').table
 	translate.inlineCommands = translate.commands
-	translate.help = configuration.commandPrefix .. 'translate <text> - Translates input or the replied-to message into ' .. self.info.first_name .. '\'s language. Alias: ' .. configuration.commandPrefix .. 'tl.'
+	translate.help = configuration.commandPrefix .. 'translate <language> <text> - Translates input or the replied-to message into ' .. self.info.first_name .. '\'s language. Alias: ' .. configuration.commandPrefix .. 'tl.'
 end
 
 function translate:onInlineCallback(inline_query, configuration)
@@ -28,10 +28,10 @@ end
 
 function translate:onMessageReceive(message, configuration)
 	local input = mattata.input(message.text)
-	local url = configuration.apis.translate .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text='
+	local url
 	if message.reply_to_message then
 		if not input then
-			url = url .. URL.escape(message.reply_to_message.text)
+			url = configuration.apis.translate .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text=' .. URL.escape(message.reply_to_message.text)
 			local jstr, res = HTTPS.request(url)
 			if res ~= 200 then
 				mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
@@ -46,7 +46,7 @@ function translate:onMessageReceive(message, configuration)
 			mattata.sendMessage(message.chat.id, translate.help, nil, true, false, message.message_id, nil)
 			return
 		end
-		url = url .. URL.escape(input)
+		url = configuration.apis.translate .. configuration.keys.translate .. '&lang=' .. mattata.getWord(input, 1) .. '&text=' .. URL.escape(input:gsub(mattata.getWord(input, 1) .. ' ', ''))
 		local jstr, res = HTTPS.request(url)
 		if res ~= 200 then
 			mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
