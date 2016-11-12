@@ -12,7 +12,7 @@ function copypasta:onMessageReceive(message, configuration)
 		mattata.sendMessage(message.chat.id, copypasta.help, nil, true, false, message.message_id)
 		return
 	end
-	local output = io.popen('python3 plugins/copypasta.py ' .. message.reply_to_message.text_upper:gsub('\n', ' '):gsub('\'', '')):read('*all')
+	local output = io.popen('python3 plugins/copypasta.py ' .. message.reply_to_message.text_upper:gsub('\n', ' '):gsub('\'', ''):gsub('"', ''):gsub('(', ' '):gsub(')', ' ')):read('*all')
 	local res = mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id)
 	if not res then
 		mattata.sendMessage(message.chat.id, 'The replied-to message must contain alpha-numeric characters!', nil, true, false, message.message_id)
