@@ -108,6 +108,8 @@ return { -- rename this file to configuration.lua for mattata to work
 		'report',
 		'link',
 		'warn',
+		'tobin',
+		'frombin',
 		-- place all new plugins above this line
 		'help',
 		'faces',

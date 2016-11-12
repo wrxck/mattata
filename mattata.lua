@@ -674,14 +674,13 @@ end
 function mattata:handleException(error, message, adminGroup)
 	local output = string.format(
 		'[%s]\n%s: %s\n%s\n',
-		os.date('%F %T'),
-		self.info.username,
-		error or '',
-		message
+		os.date('%X'),
+		mattata.markdownEscape(self.info.username),
+		mattata.markdownEscape(error) or '',
+		mattata.markdownEscape(message)
 	)
 	if adminGroup then
-		output = '`' .. mattata.markdownEscape(output) .. '`'
-		return mattata.sendMessage(adminGroup, output, 'Markdown', true, false)
+		return mattata.sendMessage(adminGroup, '`' .. output .. '`', 'Markdown', true, false)
 	else
 		print(output)
 	end
