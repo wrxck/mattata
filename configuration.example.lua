@@ -112,7 +112,8 @@ return { -- rename this file to configuration.lua for mattata to work
 		'help',
 		'faces',
 		'sed',
-		'messaging'
+		'messaging',
+		'tobin'
 	},
 	groups = {
 		['Memes'] = 'https://telegram.me/joinchat/D9oCfkExFv_O2b2HnppZsQ',
