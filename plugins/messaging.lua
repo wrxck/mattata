@@ -79,7 +79,7 @@ function chatStatistics(chat)
 	for k, v in pairs(chatUserInfo) do
     	local messageCount = v.messages
 		local percent = tostring(round(messageCount / totalMessages * 100, 1))
-    	text = text .. '*' .. mattata.markdownEscape(v.name) .. ':* ' .. commaValue(messageCount) .. ' `[`' .. percent .. '%`]`\n'
+    	text = text .. '*' .. v.name:gsub('%*', '\\*') .. ':* ' .. commaValue(messageCount) .. ' `[`' .. percent .. '%`]`\n'
 	end
 	if isempty(text) then
 		return 'No messages have been sent in this group!'
