@@ -26,14 +26,14 @@ function getUserName(user)
 	return text
 end
 
-function getUserMessages(userId, chatId)
-	local userInfo = {}
-	local userHash = 'user:'..userId
+function getUserMessages(id, chat)
+	local info = {}
+	local userHash = 'user:' .. id
 	local user = redis:hgetall(userHash)
-	local userMessagesHash = 'messages:'..userId..':'..chatId
-	userInfo.messages = tonumber(redis:get(userMessagesHash) or 0)
-	userInfo.name = getUserName(user)
-	return userInfo
+	local userMessagesHash = 'messages:' .. id .. ':' .. chat
+	info.messages = tonumber(redis:get(userMessagesHash) or 0)
+	info.name = getUserName(user)
+	return info
 end
 
 function commaValue(amount)
@@ -56,14 +56,14 @@ function isempty(s)
 	return s == nil or s == ''
 end
 
-function chatStatistics(chatId)
-	local hash = 'chat:' .. chatId .. ':users'
+function chatStatistics(chat)
+	local hash = 'chat:' .. chat .. ':users'
 	local users = redis:smembers(hash)
 	local chatUserInfo = {}
 	for i = 1, #users do
-		local userId = users[i]
-		local userInfo = getUserMessages(userId, chatId)
-		table.insert(chatUserInfo, userInfo)
+		local id = users[i]
+		local user = getUserMessages(id, chat)
+		table.insert(chatUserInfo, user)
 	end
 	local totalMessages = 0
 	for n, user in pairs(chatUserInfo) do
@@ -79,12 +79,12 @@ function chatStatistics(chatId)
 	for k, v in pairs(chatUserInfo) do
     	local messageCount = v.messages
 		local percent = tostring(round(messageCount / totalMessages * 100, 1))
-    	text = text .. v.name .. ': ' .. commaValue(messageCount) .. ' `(' .. percent .. '%)`\n'
+    	text = text .. '*' .. mattata.markdownEscape(v.name) .. ':* ' .. commaValue(messageCount) .. ' `[`' .. percent .. '%`]`\n'
 	end
 	if isempty(text) then
 		return 'No messages have been sent in this group!'
 	end
-	local text = text .. '\n*Total*: ' .. commaValue(totalMessages)
+	local text = '*Message Statistics*\n\n' .. text .. '\n*Total messages sent*: ' .. commaValue(totalMessages)
 	return text
 end
 
