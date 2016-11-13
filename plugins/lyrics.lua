@@ -23,7 +23,39 @@ local JSON = require('dkjson')
 function lyrics:init(configuration)
 	lyrics.arguments =  'lyrics <query>'
 	lyrics.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('lyrics').table
+	lyrics.inlineCommands = lyrics.commands
 	lyrics.help = configuration.commandPrefix .. 'lyrics <query> - Find the lyrics to the specified song.'
+end
+
+function lyrics:onInlineCallback(inline_query, configuration)
+	local input = inline_query.query:gsub('^' .. configuration.commandPrefix .. 'lyrics', ''):gsub(' - ', ' ')
+	local jstrSearch, resSearch = HTTPS.request(configuration.apis.lyrics .. 'track.search?apikey=' .. configuration.keys.lyrics .. '&q_track=' .. input:gsub(' ', '%%20'))
+	if resSearch ~= 200 then
+		results = '[{"type":"article","id":"1","title":"' .. configuration.errors.connection .. '","input_message_content":{"message_text":"' .. configuration.errors.connection .. '"}}]'
+		mattata.answerInlineQuery(inline_query.id, results, 0)
+	end
+	local jdatSearch = JSON.decode(jstrSearch)
+	if jdatSearch.message.header.available == 0 then
+		results = '[{"type":"article","id":"1","title":"' .. configuration.errors.results .. '","input_message_content":{"message_text":"' .. configuration.errors.results .. '"}}]'
+		mattata.answerInlineQuery(inline_query.id, results, 0)
+	end
+	local lyrics = '*' .. jdatSearch.message.body.track_list[1].track.track_name .. ' - ' .. jdatSearch.message.body.track_list[1].track.artist_name .. '*\n\n' .. mattata.markdownEscape(io.popen('python3 plugins/lyrics.py ' .. jdatSearch.message.body.track_list[1].track.track_share_url):read('*all'))
+	if io.popen('python3 plugins/lyrics.py ' .. jdatSearch.message.body.track_list[1].track.track_share_url):read('*all') == '' then
+		results = '[{"type":"article","id":"1","title":"' .. configuration.errors.results .. '","input_message_content":{"message_text":"' .. configuration.errors.results .. '"}}]'
+		mattata.answerInlineQuery(inline_query.id, results, 0)
+	end
+	local jstrSpotify, resSpotify = HTTPS.request('https://api.spotify.com/v1/search?q=' .. URL.escape(input) .. '&type=track')
+	if resSpotify ~= 200 then
+		results = '[{"type":"article","id":"1","title":"' .. jdatSearch.message.body.track_list[1].track.track_name .. '","description":"' .. jdatSearch.message.body.track_list[1].track.artist_name .. '","input_message_content":{"message_text":"' .. lyrics .. '","parse_mode":"Markdown"},"reply_markup":{"inline_keyboard":[[{"text":"musixmatch", "url":"' .. jdatSearch.message.body.track_list[1].track.track_share_url .. '"}]]}}]'
+		mattata.answerInlineQuery(inline_query.id, results, 0)
+	end
+	local jdatSpotify = JSON.decode(jstrSpotify)
+	if jdatSpotify.tracks.total == 0 then
+		results = '[{"type":"article","id":"1","title":"' .. jdatSearch.message.body.track_list[1].track.track_name .. '","description":"' .. jdatSearch.message.body.track_list[1].track.artist_name .. '","input_message_content":{"message_text":"' .. lyrics .. '","parse_mode":"Markdown"},"reply_markup":{"inline_keyboard":[[{"text":"musixmatch", "url":"' .. jdatSearch.message.body.track_list[1].track.track_share_url .. '"}]]}}]'
+		mattata.answerInlineQuery(inline_query.id, results, 0)
+	end
+	results = '[{"type":"article","id":"1","title":"' .. jdatSearch.message.body.track_list[1].track.track_name .. '","description":"' .. jdatSearch.message.body.track_list[1].track.artist_name .. '","input_message_content":{"message_text":"' .. lyrics .. '","parse_mode":"Markdown"},"reply_markup":{"inline_keyboard":[[{"text":"musixmatch", "url":"' .. jdatSearch.message.body.track_list[1].track.track_share_url .. '"},{"text":"Spotify", "url":"https://open.spotify.com/track/' .. jdatSpotify.tracks.items[1].id .. '"}]]}}]'
+	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
 function lyrics:onMessageReceive(message, configuration)

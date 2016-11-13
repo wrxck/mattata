@@ -1,5 +1,6 @@
 local help = {}
 local mattata = require('mattata')
+local redis = require('mattata-redis')
 local JSON = require('dkjson')
 local HTTPS = require('ssl.https')
 local URL = require('socket.url')
@@ -28,11 +29,12 @@ end
 
 function help:onInlineCallback(inline_query)
 	local configuration = require('configuration')
-	local results = '[{"type":"article","id":"1","title":"/id","description":"@mattatabot /id <username/ID> - Get information about a user/group","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /id <username/ID>"}}'
-	results = results .. ',{"type":"article","id":"2","title":"/ai","description":"@mattatabot /ai <text> - Talk to mattata","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /ai <text>"}}'
-	results = results .. ',{"type":"article","id":"3","title":"/apod","description":"@mattatabot /apod - Get the astronomical photo of the day","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /apod"}}'
-	results = results .. ',{"type":"article","id":"4","title":"/gif","description":"@mattatabot /gif <query> - Search for GIFs","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /gif <query>"}}'
-	results = results .. ',{"type":"article","id":"5","title":"/np","description":"@mattatabot /np <username> - Returns what you last listened to on last.fm","input_message_content":{"message_text":"Invalid syntax. Use @mattatabot /lastfm <username>"}}'
+	local results = '[{"type":"article","id":"1","title":"' .. configuration.commandPrefix .. 'id","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'id <username/ID> - Get information about a user/group","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'id <username/ID>"}}'
+	results = results .. ',{"type":"article","id":"2","title":"' .. configuration.commandPrefix .. 'ai","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'ai <text> - Talk to mattata","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'ai <text>"}}'
+	results = results .. ',{"type":"article","id":"3","title":"' .. configuration.commandPrefix .. 'apod","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'apod - Get the astronomical photo of the day","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'apod"}}'
+	results = results .. ',{"type":"article","id":"4","title":"' .. configuration.commandPrefix .. 'gif","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'gif <query> - Search for GIFs","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'gif <query>"}}'
+	results = results .. ',{"type":"article","id":"5","title":"' .. configuration.commandPrefix .. 'np","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'np <username> - Returns what you last listened to on last.fm","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'np <username>"}}'
+	results = results .. ',{"type":"article","id":"6","title":"' .. configuration.commandPrefix .. 'lyrics","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'lyrics <query> - Search for lyrics","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'lyrics <query>"}}'
 	results = results .. ']'
 	mattata.answerInlineQuery(inline_query.id, results, 0, false, nil, 'More features')
 end
