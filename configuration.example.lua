@@ -110,6 +110,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'warn',
 		'tobin',
 		'frombin',
+		'blacklist',
 		-- place all new plugins above this line
 		'help',
 		'faces',
