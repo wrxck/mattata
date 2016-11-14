@@ -12,6 +12,7 @@ local ltn12 = require('ltn12')
 local multipart = require('multipart-post')
 local URL = require('socket.url')
 local redis = require('mattata-redis')
+local threads = require('threads')
 
 -- mattata's framework --
 
@@ -32,7 +33,7 @@ function mattata:init()
  	if not self.groups then
  		mattata.loadData('groups.json')
  	end
-	self.version = '4.4'
+	self.version = '4.5'
 	self.plugins = {}
 	enabledPlugins = mattata.loadPlugins()
 	for k, v in ipairs(enabledPlugins) do
