@@ -6,7 +6,7 @@ function tohex:init(configuration)
 	tohex.help = configuration.commandPrefix .. 'tohex <string> - Converts the given string to hexadecimal.'
 end
 
-function tohex:numberToHex(int)
+function numberToHex(int)
 	local hexString = '0123456789abcdef'
 	local s = ''
 	while int > 0 do
@@ -20,10 +20,10 @@ function tohex:numberToHex(int)
 	return s
 end
 
-function tohex:stringToHex(str)
+function stringToHex(str)
 	local hex = ''
 	while #str > 0 do
-		local hb = tohex:numberToHex(string.byte(str, 1, 1))
+		local hb = numberToHex(string.byte(str, 1, 1))
 		if #hb < 2 then hb = '0' .. hb end
 		hex = hex .. hb
 		str = string.sub(str, 2)
@@ -37,7 +37,7 @@ function tohex:onMessageReceive(message)
 		mattata.sendMessage(message.chat.id, tohex.help, nil, true, false, message.message_id, nil)
 		return
 	end
-	mattata.sendMessage(message.chat.id, '`' .. tohex:stringToHex(input) .. '`', 'Markdown', true, false, message.message_id, nil)
+	mattata.sendMessage(message.chat.id, '`' .. stringToHex(input) .. '`', 'Markdown', true, false, message.message_id, nil)
 end
 
 return tohex
