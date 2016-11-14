@@ -64,6 +64,9 @@ function mattata:onMessageReceive(message, configuration)
 	if message.date < os.time() - 50 then
 		return
 	end
+	if redis:get('blacklist:' .. message.from.id) then
+		return
+	end
 	message = mattata.processMessages(message)
 	if message then
 		self.users[tostring(message.from.id)] = message.from
@@ -95,6 +98,10 @@ function mattata:onMessageReceive(message, configuration)
 end
 
 function mattata:onQueryReceive(callback, message, configuration)
+	if redis:get('blacklist:' .. callback.from.id) then
+		mattata.answerCallbackQuery(callback.id, 'You\'re not allowed to use me!', true)
+		return
+	end
 	for _, plugin in ipairs(self.plugins) do
 		if plugin.onQueryReceive then
 			local success, result = pcall(function()
@@ -108,6 +115,10 @@ function mattata:onQueryReceive(callback, message, configuration)
 end
 
 function mattata:processInlineQuery(inline_query, configuration)
+	if redis:get('blacklist:' .. inline_query.from.id) then
+		mattata.answerInlineQuery(inline_query.id, nil, '5', true)
+		return
+	end
 	for _, plugin in ipairs(self.plugins) do
 		for _, commands in ipairs(plugin.inlineCommands) do
 			if string.match(inline_query.query, commands) then
