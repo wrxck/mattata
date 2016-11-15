@@ -17,25 +17,25 @@ end
 
 function bandersnatch:onInlineCallback(inline_query, configuration)
 	local output
-	local fullnames = configuration.bandersnatch.fullNames
-	local firstnames = configuration.bandersnatch.firstNames
-	local lastnames = configuration.bandersnatch.lastNames
+	local fullNames = configuration.bandersnatch.fullNames
+	local firstNames = configuration.bandersnatch.firstNames
+	local lastNames = configuration.bandersnatch.lastNames
 	if math.random(10) == 10 then
-		output = fullnames[math.random(#fullnames)]
+		output = fullNames[math.random(#fullNames)]
 	else
-		output = firstnames[math.random(#firstnames)] .. ' ' .. lastnames[math.random(#lastnames)]
+		output = firstNames[math.random(#firstNames)] .. ' ' .. lastNames[math.random(#lastNames)]
 	end
-	mattata.answerInlineQuery(inline_query.id, '[' .. mattata.generateInlineArticle(1, output, output, 'Markdown', false, 'bandersnatch') .. ']', 0)
+	mattata.answerInlineQuery(inline_query.id, '[' .. mattata.generateInlineArticle(1, output, output, 'Markdown', false, 'Click to send your new name!') .. ']', 0)
 end
 
 function bandersnatch:onMessageReceive(message, configuration)
-	local fullnames = configuration.bandersnatch.fullNames
-	local firstnames = configuration.bandersnatch.firstNames
-	local lastnames = configuration.bandersnatch.lastNames
+	local fullNames = configuration.bandersnatch.fullNames
+	local firstNames = configuration.bandersnatch.firstNames
+	local lastNames = configuration.bandersnatch.lastNames
 	if math.random(10) == 10 then
-		local output = fullnames[math.random(#fullnames)]
+		local output = fullNames[math.random(#fullNames)]
 	else
-		local output = firstnames[math.random(#firstnames)] .. ' ' .. lastnames[math.random(#lastnames)]
+		local output = firstNames[math.random(#firstNames)] .. ' ' .. lastNames[math.random(#lastNames)]
 	end
 	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id)
 end
