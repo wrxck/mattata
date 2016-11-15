@@ -8,7 +8,7 @@ local ltn12 = require('ltn12')
 function exec:init(configuration)
 	exec.arguments = 'exec <language> \\n <code>'
 	exec.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('exec').table
-	exec.help = configuration.commandPrefix .. 'exec <language> \\n <code> - Executes the specified code in the given language and returns the output. The code must be on a new line. Example: \n`' .. configuration.commandPrefix .. 'exec python3`\n`print(\'Hello, World!\')`'
+	exec.help = configuration.commandPrefix .. 'exec <language> \\n <code> - Executes the specified code in the given language and returns the output. The code must be on a new line. Example: \n```' .. configuration.commandPrefix .. 'exec python`\n`print \'Hello, World!\'```'
 end
 
 function getLangArgs(language)
@@ -41,7 +41,7 @@ function exec:onMessageReceive(message, configuration)
 	end
 	mattata.sendChatAction(message.chat.id, 'typing')
 	local language = mattata.getWord(input, 1)
-	local code = message.text:gsub('\n', ' '):gsub(configuration.commandPrefix .. 'exec ' .. language, '')
+	local code = message.text:gsub(configuration.commandPrefix .. 'exec ' .. language .. ' ', ''):gsub(configuration.commandPrefix .. 'exec ' .. language, '')
 	local args = getLangArgs(language)
 	if not args then
 		args = ''
