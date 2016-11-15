@@ -33,7 +33,7 @@ function mattata:init()
  	if not self.groups then
  		mattata.loadData('groups.json')
  	end
-	self.version = '5.0'
+	self.version = '4.5'
 	self.plugins = {}
 	enabledPlugins = mattata.loadPlugins()
 	for k, v in ipairs(enabledPlugins) do
@@ -121,6 +121,14 @@ function mattata:onMessageReceive(message, configuration)
 			self.groups[tostring(message.reply_to_message.chat.id)] = message.reply_to_message.chat
 		end
 		message.reply_to_message.text = message.reply_to_message.text or message.reply_to_message.caption or ''	
+	end
+	if not mattata.isPluginDisabledInChat('telegram', message) then
+		local telegram = require('plugins/telegram')
+		if message.new_chat_member then 
+			telegram.onNewChatMember(self, message, configuration)
+		elseif message.left_chat_member then
+			telegram.onLeftChatMember(self, message, configuration)
+		end
 	end
 	for _, plugin in ipairs(self.plugins) do
 		mattata.processPlugins(self, message, configuration, plugin)
@@ -238,11 +246,9 @@ function mattata.processPlugins(self, message, configuration, plugin)
 	for i = 1, #plugins do
 		local command = plugin.commands[i]
 		if string.match(message.text_lower, command) then
-			if mattata.isPluginDisabledInChat(plugin.name, message) then
-				return
-			else
+			if not mattata.isPluginDisabledInChat(plugin.name, message) then
 				if plugin.processMessage and message then
-					message = plugin:processMessage(message, configuration)
+					plugin.processMessage(message, configuration)
 					if not message then
 						return
 					end
@@ -256,19 +262,15 @@ function mattata.processPlugins(self, message, configuration, plugin)
 					return
 				end
 			end
-			return
 		end
 	end
 end
 
 function mattata.isPluginDisabledInChat(plugin, message)
-	local hash = mattata.getRedisHash(message, 'disabledPlugins')
-	local disabled = redis:hget(hash, plugin)
-	if disabled == 'true' then
+	if redis:hget(mattata.getRedisHash(message, 'disabledPlugins'), plugin) == 'true' then
 		return true
-	else
-		return false
 	end
+	return false
 end
 
 function mattata.request(method, parameters, file, otherApi)
@@ -290,7 +292,7 @@ function mattata.request(method, parameters, file, otherApi)
 		if string.match(fileName, configuration.fileDownloadLocation) then
 			local fileResult = io.open(fileName, 'r')
 			local fileData = {
-				filename = fileName,
+				fileName = fileName,
 				data = fileResult:read('*a')
 			}
 			fileResult:close()
@@ -972,6 +974,10 @@ function mattata.loadPlugins()
 		mattata.loadDefaultPlugins()
 	end
 	return enabledPlugins
+end
+
+function mattata.deletePlugin(plugin)
+	return redis:srem('mattata:enabledPlugins', plugin)
 end
 
 function mattata.loadDefaultPlugins()
