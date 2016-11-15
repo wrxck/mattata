@@ -171,44 +171,9 @@ function messaging:onMessageReceive(message, configuration)
 			mattata.sendMessage(message.chat.id, chatStatistics(chatId), 'Markdown', true, false, message.message_id)
 			return
 		end
-		if message.new_chat_member then
-			if message.new_chat_member.id ~= self.info.id then
-				local randomNew = math.random(5)
-				local new
-				if randomNew < 2 then
-					new = 'Welcome, '
-				elseif randomNew == 3 then
-					new = 'Hello, '
-				elseif randomNew == 4 then
-					new = 'Howdy, '
-				else
-					new = 'Hi, '
-				end 
-				mattata.sendMessage(message.chat.id, new .. message.new_chat_member.first_name .. '!', nil, true, false, message.message_id, nil)
-				return
-			else
-				mattata.sendMessage(message.chat.id, 'Hello, World! Thanks for adding me, ' .. message.from.first_name .. '!', nil, true, false, message.message_id, nil)
-				return
-			end
-		end
-		if message.left_chat_member then
-			local randomLeft = math.random(5)
-			local left
-			if randomLeft < 2 then
-				left = 'RIP, '
-			elseif randomLeft == 3 then
-				left = 'Farewell, '
-			elseif randomLeft == 4 then
-				left = 'So long, '
-			else
-				left = 'Goodbye, '
-			end
-			mattata.sendMessage(message.chat.id, left .. message.left_chat_member.first_name .. '.', nil, true, false, message.message_id, nil)
-			return
-		end
 		if configuration.announceMigration then
 			if message.migrate_from_chat_id then
-				mattata.sendMessage(message.chat.id, message.chat.title .. ' was upgraded to a supergroup. The old ID was ' .. message.migrate_from_chat_id .. ', and the new ID is ' .. message.chat.id .. '.', nil, true, false, message.message_id, nil)
+				mattata.sendMessage(message.chat.id, message.chat.title .. ' was upgraded to a supergroup. The old ID was ' .. message.migrate_from_chat_id .. ', and the new ID is ' .. message.chat.id .. '.', nil, true, false, message.message_id)
 				return
 			end
 		end
@@ -220,7 +185,7 @@ function messaging:onMessageReceive(message, configuration)
 				end
 				local jdat = JSON.decode(jstr)
 				mattata.sendChatAction(message.chat.id, 'typing')
-				mattata.sendMessage(message.chat.id, jdat.clever, nil, true, false, message.message_id, nil)
+				mattata.sendMessage(message.chat.id, jdat.clever, nil, true, false, message.message_id)
 				return
 			end
 			if string.match(message.text, '^WHAT THE FUCK%?$') then
@@ -236,7 +201,7 @@ function messaging:onMessageReceive(message, configuration)
 			end
 			local jdat = JSON.decode(jstr)
 			mattata.sendChatAction(message.chat.id, 'typing')
-			mattata.sendMessage(message.chat.id, jdat.clever, nil, true, false, message.message_id, nil)
+			mattata.sendMessage(message.chat.id, jdat.clever, nil, true, false, message.message_id)
 			return
 		end
 	end
