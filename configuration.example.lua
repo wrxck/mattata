@@ -8,6 +8,7 @@ return { -- rename this file to configuration.lua for mattata to work
  	commandPrefix = '/', -- the symbol bot commands will be executed with ('/' by default)
 	fileDownloadLocation = '/tmp/', -- the location to save all downloaded media to
 	processMessageEdits = true, -- change this to false to stop mattata from processing message edits
+	announceMigration = true, -- change this to false to stop mattata from announcing chat migration information
 	plugins = { -- the plugins which mattata will enable on launch
 		'control',
 		-- place all new plugins below this line
