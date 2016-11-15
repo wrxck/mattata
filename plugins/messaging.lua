@@ -95,23 +95,26 @@ function messaging:processMessage(message)
 		redis:srem(hash, userIdLeft)
 		return message
 	end
-	local hash = 'user:' .. message.from.id
-	if message.from.name then
-		redis:hset(hash, 'name', message.from.name)
+	if message.from then
+		local hash = 'user:' .. message.from.id
+		if message.from.name then
+			redis:hset(hash, 'name', message.from.name)
+		end
+		if message.from.first_name then
+			redis:hset(hash, 'first_name', message.from.first_name)
+		end
+		if message.from.last_name then
+			redis:hset(hash, 'last_name', message.from.last_name)
+		end
+		if message.chat.type ~= 'private' then
+			local hash = 'chat:' .. message.chat.id .. ':users'
+			redis:sadd(hash, message.from.id)
+		end
+		local hash = 'messages:' .. message.from.id .. ':' .. message.chat.id
+		redis:incr(hash)
+		return message
 	end
-	if message.from.first_name then
-		redis:hset(hash, 'first_name', message.from.first_name)
-	end
-	if message.from.last_name then
-		redis:hset(hash, 'last_name', message.from.last_name)
-	end
-	if message.chat.type ~= 'private' then
-		local hash = 'chat:' .. message.chat.id .. ':users'
-		redis:sadd(hash, message.from.id)
-	end
-	local hash = 'messages:' .. message.from.id .. ':' .. message.chat.id
-	redis:incr(hash)
-	return message
+	return
 end
 
 function messaging:onMessageReceive(message, configuration)
@@ -203,9 +206,11 @@ function messaging:onMessageReceive(message, configuration)
 			mattata.sendMessage(message.chat.id, left .. message.left_chat_member.first_name .. '.', nil, true, false, message.message_id, nil)
 			return
 		end
-		if message.migrate_from_chat_id then
-			mattata.sendMessage(message.chat.id, message.chat.title .. ' was migrated to a supergroup. The old ID was ' .. message.migrate_from_chat_id .. ', and the new ID is ' .. message.chat.id .. '.', nil, true, false, message.message_id, nil)
-			return
+		if configuration.announceMigration then
+			if message.migrate_from_chat_id then
+				mattata.sendMessage(message.chat.id, message.chat.title .. ' was upgraded to a supergroup. The old ID was ' .. message.migrate_from_chat_id .. ', and the new ID is ' .. message.chat.id .. '.', nil, true, false, message.message_id, nil)
+				return
+			end
 		end
 		if message.text then
 			if string.match(message.text_lower, self.info.first_name .. ' ') and not string.match(message.text, configuration.commandPrefix) then
@@ -218,15 +223,7 @@ function messaging:onMessageReceive(message, configuration)
 				mattata.sendMessage(message.chat.id, jdat.clever, nil, true, false, message.message_id, nil)
 				return
 			end
-			if string.match(message.text, '😐😐😐') or string.match(message.text, ':|:|:|') or string.match(message.text, '🌹🌹🌹') or string.match(message.text, '😭😭😭') then -- Credit to @aRandomStranger for this idea.
-				mattata.sendMessage(message.chat.id, '*WEEDOW, WEEDOW!*\n_A random, Iranian spammer has been detected!_', 'Markdown', true, false, message.message_id, nil)
-				return
-			end
-			if string.match(message.text_lower, 'mhmm') then
-				mattata.sendSticker(message.chat.id, 'BQADBAADFwEAAqZepgF2oHWaS5IT1QI', message.message_id)
-				return
-			end
-			if string.match(message.text, 'WHAT THE FUCK?') then
+			if string.match(message.text, '^WHAT THE FUCK%?$') then
 				mattata.sendMessage(message.chat.id, 'YEAH, WTF??', nil, true, false, message.message_id)
 				return
 			end
