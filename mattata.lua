@@ -12,7 +12,6 @@ local ltn12 = require('ltn12')
 local multipart = require('multipart-post')
 local URL = require('socket.url')
 local redis = require('mattata-redis')
-local threads = require('threads')
 
 -- mattata's framework --
 
