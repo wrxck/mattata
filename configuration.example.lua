@@ -106,7 +106,8 @@ return { -- rename this file to configuration.lua for mattata to work
 		'help',
 		'faces',
 		'sed',
-		'messaging'
+		'messaging',
+		'telegram'
 	},
 	inlinePlugins = {
 		'id',
