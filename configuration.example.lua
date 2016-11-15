@@ -221,6 +221,28 @@ return { -- rename this file to configuration.lua for mattata to work
 		weather = 'http://api.openweathermap.org/data/2.5/weather?q=',
 		bing = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/Web?Query=\''
 	},
+	joinChatMessages = {
+		'Welcome, NAME!',
+		'Hello, NAME!',
+		'Enjoy your stay, NAME!',
+		'I\'m glad you joined, NAME!',
+		'Howdy, NAME!',
+		'Hi, NAME!',
+		'Bonjour, NAME!'
+	},
+	leftChatMessages = {
+		'RIP NAME.',
+		'Rest in peace, NAME!',
+		'Boy, I sure hope NAME enjoyed their stay!',
+		'Was it something I said, NAME?',
+		'But we were just getting to know each other, NAME...',
+		'Gosh, NAME - am I really THAT bad?',
+		'It\'s your loss, NAME.',
+		'Come again soon, NAME!',
+		'Bye, NAME!',
+		'Goodbye, NAME.',
+		'Farewell, NAME.'
+	},
 	errors = {
 		generic = 'I\'m afraid an error has occured!',
 		connection = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
