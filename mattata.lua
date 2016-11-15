@@ -33,7 +33,7 @@ function mattata:init()
  	if not self.groups then
  		mattata.loadData('groups.json')
  	end
-	self.version = '4.5'
+	self.version = '5.0'
 	self.plugins = {}
 	enabledPlugins = mattata.loadPlugins()
 	for k, v in ipairs(enabledPlugins) do
@@ -49,8 +49,35 @@ function mattata:init()
 		if not plugin.commands then
 			plugin.commands = {}
 		end
-		if not plugin.inlineCommands then
-			plugin.inlineCommands = {}
+	end
+	self.inlinePlugins = {}
+	for k, v in ipairs(configuration.inlinePlugins) do
+		local inlinePlugin = require('plugins.' .. v)
+		self.inlinePlugins[k] = inlinePlugin
+		self.inlinePlugins[k].name = v
+		if inlinePlugin.init then
+			inlinePlugin.init(self, configuration)
+		end
+		if inlinePlugin.help then
+			inlinePlugin.help = '\n' .. inlinePlugin.help .. '\n'
+		end
+		if not inlinePlugin.inlineCommands then
+			inlinePlugin.commands = {}
+		end
+	end
+	self.administrationPlugins = {}
+	for k, v in ipairs(configuration.administrationPlugins) do
+		local administrationPlugin = require('plugins.' .. v)
+		self.administrationPlugins[k] = administrationPlugin
+		self.administrationPlugins[k].name = v
+		if administrationPlugin.init then
+			administrationPlugin.init(self, configuration)
+		end
+		if administrationPlugin.help then
+			administrationPlugin.help = '\n' .. administrationPlugin.help .. '\n'
+		end
+		if not administrationPlugin.commands then
+			administrationPlugin.commands = {}
 		end
 	end
 	print('Successfully started @' .. self.info.username .. '!')
@@ -67,6 +94,11 @@ function mattata:onMessageReceive(message, configuration)
 	if redis:get('blacklist:' .. message.from.id) then
 		return
 	end
+	if message.forward_from then
+		if redis.get('blacklist:' .. message.forward_from.id) then
+			return
+		end
+	end
 	message = mattata.processMessages(message)
 	if message then
 		self.users[tostring(message.from.id)] = message.from
@@ -78,12 +110,10 @@ function mattata:onMessageReceive(message, configuration)
 		message.text = message.text or message.caption or ''
 		message.text_lower = message.text:lower()
 		message.text_upper = message.text:upper()
-		message.text_trimmed = message.text:gsub(' ', '')
 		if message.text:match('^' .. configuration.commandPrefix .. 'start .+') then
 			message.text = configuration.commandPrefix .. mattata.input(message.text)
 			message.text_lower = message.text:lower()
 			message.text_upper = message.text:upper()
-			message.text_trimmed = message.text:gsub(' ', '')
 		end
 	elseif message.reply_to_message then
 		self.users[tostring(message.reply_to_message.from.id)] = message.reply_to_message.from
@@ -94,6 +124,9 @@ function mattata:onMessageReceive(message, configuration)
 	end
 	for _, plugin in ipairs(self.plugins) do
 		mattata.processPlugins(self, message, configuration, plugin)
+	end
+	for _, administrationPlugin in ipairs(self.administrationPlugins) do
+		mattata.processPlugins(self, message, configuration, administrationPlugin)
 	end
 end
 
@@ -112,6 +145,16 @@ function mattata:onQueryReceive(callback, message, configuration)
 			end
 		end
 	end
+	for _, administrationPlugin in ipairs(self.administrationPlugins) do
+		if administrationPlugin.onQueryReceive then
+			local success, result = pcall(function()
+				administrationPlugin.onQueryReceive(self, callback, message, configuration)
+			end)
+			if success ~= true then
+				return
+			end
+		end
+	end
 end
 
 function mattata:processInlineQuery(inline_query, configuration)
@@ -119,11 +162,11 @@ function mattata:processInlineQuery(inline_query, configuration)
 		mattata.answerInlineQuery(inline_query.id, nil, '5', true)
 		return
 	end
-	for _, plugin in ipairs(self.plugins) do
-		for _, commands in ipairs(plugin.inlineCommands) do
+	for _, inlinePlugin in ipairs(self.inlinePlugins) do
+		for _, commands in ipairs(inlinePlugin.inlineCommands) do
 			if string.match(inline_query.query, commands) then
 				local success, result = pcall(function()
-					plugin.onInlineCallback(self, inline_query, configuration)
+					inlinePlugin.onInlineCallback(self, inline_query, configuration)
 				end)
 				if not success then
 					return
@@ -593,8 +636,32 @@ end
 
 -- Custom Telegram API orientated functions
 
-function mattata.generateInlineArticle(id, title, message_text, parse_mode, disable_web_page_preview, description, text, url)
-	return JSON.encode( {
+function mattata.generateInlineArticle(id, title, message_text, parse_mode, disable_web_page_preview, description, keyboard_type, buttonText, buttonValue)
+	local keyboard
+	if keyboard_type == 'url' then
+		keyboard = {
+			inline_keyboard = {
+				{
+					{	
+						text = buttonText,
+						url = buttonValue
+					}
+				}
+			}
+		}
+	else
+		keyboard = {
+			inline_keyboard = {
+				{
+					{
+						text = buttonText,
+						callback_data = buttonValue
+					}
+				}
+			}
+		}
+	end
+	local parameters = {
 		type = 'article',
 		id = tostring(id),
 		title = title,
@@ -603,18 +670,41 @@ function mattata.generateInlineArticle(id, title, message_text, parse_mode, disa
 			parse_mode = parse_mode,
 			disable_web_page_preview = disable_web_page_preview
 		},
-		description = description,
-		reply_markup = {
-			inline_keyboard = {
-				text = text,
-				url = url,
-				callback_data = callback_data
-			}
+		description = description
+	}
+	if keyboard_type then
+		parameters = parameters .. ',' .. {
+			reply_markup = keyboard
 		}
-	} )
+	end
+	return JSON.encode(parameters)
 end
 
-function mattata.generateInlinePhoto(id, photo_url, thumb_url, photo_width, photo_height, title, description, caption, text, url, message_text, parse_mode, disable_web_page_preview)
+function mattata.generateInlinePhoto(id, photo_url, thumb_url, photo_width, photo_height, title, description, caption, keyboard_type, buttonText, buttonValue, message_text, parse_mode, disable_web_page_preview)
+	local keyboard
+	if keyboard_type == 'url' then
+		keyboard = {
+			inline_keyboard = {
+				{
+					{	
+						text = buttonText,
+						url = buttonValue
+					}
+				}
+			}
+		}
+	else
+		keyboard = {
+			inline_keyboard = {
+				{
+					{
+						text = buttonText,
+						callback_data = buttonValue
+					}
+				}
+			}
+		}
+	end
 	local parameters = {
 		type = 'photo',
 		id = tostring(id),
@@ -624,15 +714,13 @@ function mattata.generateInlinePhoto(id, photo_url, thumb_url, photo_width, phot
 		photo_height = photo_height,
 		title = title,
 		description = description,
-		caption = caption,
-		reply_markup = {
-			inline_keyboard = {
-				text = text,
-				url = url
-			}
-		}
+		caption = caption
 	}
-	if message_text then
+	if keyboard_type then
+		parameters = parameters .. ',' .. {
+			reply_markup = keyboard
+		}
+	elseif message_text then
 		parameters = parameters .. ',' .. {
 			input_message_content = {
 				message_text = message_text,
@@ -644,7 +732,31 @@ function mattata.generateInlinePhoto(id, photo_url, thumb_url, photo_width, phot
 	return JSON.encode(parameters)
 end
 
--- General functions --
+function mattata.generateCallbackButton(text, callback_data)
+	return JSON.encode( {
+		inline_keyboard = {
+			{
+				{
+					text = text,
+					callback_data = callback_data
+				}
+			}
+		}
+	} )
+end
+
+function mattata.generateUrlButton(text, url)
+	return JSON.encode( {
+		inline_keyboard = {
+			{
+				{
+					text = text,
+					url = url
+				}
+			}
+		}
+	} )
+end
 
 function mattata.getWord(s, i)
 	s = s or ''
@@ -883,7 +995,6 @@ function mattata.processMessages(message)
 	message.service_message = serviceModifyMessage(message)
 	message.text_lower = message.text:lower()
 	message.text_upper = message.text:upper()
-	message.text_trimmed = message.text:gsub(' ', '')
 	message.from = mattata.processUsers(message.from)
 	message.chat.id_str = tostring(message.chat.id)
 	if message.reply_to_message then
@@ -894,7 +1005,6 @@ function mattata.processMessages(message)
 		message.reply_to_message.service_message = serviceModifyMessage(message.reply_to_message)
 		message.reply_to_message.text_lower = message.reply_to_message.text:lower()
 		message.reply_to_message.text_upper = message.reply_to_message.text:upper()
-		message.reply_to_message.text_trimmed = message.reply_to_message.text:gsub(' ', '')
 		message.reply_to_message.from = mattata.processUsers(message.reply_to_message.from)
 		message.reply_to_message.chat.id_str = tostring(message.reply_to_message.chat.id)
 	end
