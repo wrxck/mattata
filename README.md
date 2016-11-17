@@ -8,4 +8,5 @@ I am eternally grateful for donations of any sum. This helps motivate me to cont
 
 In no particular order, I would like to personally recognise the following person(s) for their kind, and greatly-appreciated, act of support:
 * Joshua ([@j0shu4](https://telegram.me/j0shu4))
+* Para ([@para949](https://telegram.me/para949))
 * Flo ([@aRandomStranger](https://telegram.me/aRandomStranger))
