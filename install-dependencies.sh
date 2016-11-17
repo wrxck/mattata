@@ -22,7 +22,7 @@ for rock in $rocklist; do
 done
 piplist="BeautifulSoup demjson youtube-dl"
 for pip in $piplist; do
-	sudo pip install $pip
+	sudo pip3 install $pip
 done
 sudo -k
 cd ..
