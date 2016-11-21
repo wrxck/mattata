@@ -1,7 +1,7 @@
 local fact = {}
-local JSON = require('dkjson')
 local mattata = require('mattata')
 local HTTP = require('socket.http')
+local JSON = require('dkjson')
 
 function fact:init(configuration)
 	fact.arguments = 'fact'
@@ -9,28 +9,66 @@ function fact:init(configuration)
 	fact.help = configuration.commandPrefix .. 'fact - Returns a random fact!'
 end
 
-function fact:onQueryReceive(callback, message, configuration)
-	if callback.data == 'new_fact' then
-		local jstr, res = HTTP.request(configuration.apis.fact)
+function fact:onQueryReceive(callback, message, language)
+	if callback.data == 'fact' then
+		local jstr, res = HTTP.request('http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000')
 		if res ~= 200 then
-			mattata.editMessageText(message.chat.id, message.message_id, configuration.errors.connection, nil, true, '{"inline_keyboard":[[{"text":"Try again", "callback_data":"new_fact"}]]}')
+			mattata.editMessageText(message.chat.id, message.message_id, language.errors.connection, nil, true)
 			return
 		end
 		local jdat = JSON.decode(jstr)
 		local jrnd = math.random(#jdat)
-		mattata.editMessageText(message.chat.id, message.message_id, jdat[jrnd].nid:gsub('&lt;', ''):gsub('<p>', ''):gsub('</p>', ''):gsub('<em>', ''):gsub('</em>', ''), nil, true, '{"inline_keyboard":[[{"text":"Generate another", "callback_data":"new_fact"}]]}')
+		local keyboard = {}
+		keyboard.inline_keyboard = {
+			{
+				{
+					text = 'Generate another',
+					callback_data = 'fact'
+				}
+			}
+		}
+		mattata.editMessageText(message.chat.id, message.message_id, jdat[jrnd].nid:gsub('&lt;', ''):gsub('<p>', ''):gsub('</p>', ''):gsub('<em>', ''):gsub('</em>', ''), nil, true, JSON.encode(keyboard))
 	end
 end
 
-function fact:onMessageReceive(message, configuration)
-	local jstr, res = HTTP.request(configuration.apis.fact)
+function fact:onChannelPostReceive(channel_post, configuration)
+	local jstr, res = HTTP.request('http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000')
 	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
 		return
 	end
 	local jdat = JSON.decode(jstr)
 	local jrnd = math.random(#jdat)
-	mattata.sendMessage(message.chat.id, jdat[jrnd].nid:gsub('&lt;', ''):gsub('<p>', ''):gsub('</p>', ''):gsub('<em>', ''):gsub('</em>', ''), nil, true, false, message.message_id, '{"inline_keyboard":[[{"text":"Generate another", "callback_data":"new_fact"}]]}')
+	local keyboard = {}
+	keyboard.inline_keyboard = {
+		{
+			{
+				text = 'Generate another',
+				callback_data = 'fact'
+			}
+		}
+	}
+	mattata.sendMessage(channel_post.chat.id, jdat[jrnd].nid:gsub('&lt;', ''):gsub('<p>', ''):gsub('</p>', ''):gsub('<em>', ''):gsub('</em>', ''), nil, true, false, channel_post.message_id, JSON.encode(keyboard))
+end
+
+function fact:onMessageReceive(message, language)
+	local jstr, res = HTTP.request('http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000')
+	if res ~= 200 then
+		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
+		return
+	end
+	local jdat = JSON.decode(jstr)
+	local jrnd = math.random(#jdat)
+	local keyboard = {}
+	keyboard.inline_keyboard = {
+		{
+			{
+				text = 'Generate another',
+				callback_data = 'fact'
+			}
+		}
+	}
+	mattata.sendMessage(message.chat.id, jdat[jrnd].nid:gsub('&lt;', ''):gsub('<p>', ''):gsub('</p>', ''):gsub('<em>', ''):gsub('</em>', ''), nil, true, false, message.message_id, JSON.encode(keyboard))
 end
 
 return fact

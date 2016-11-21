@@ -7,38 +7,72 @@ function shout:init(configuration)
     shout.help = configuration.commandPrefix .. 'shout <text> - Shout something.'
 end
 
-function shout:onMessageReceive(message)
-	local input = mattata.input(message.text)
+function shout:onChannelPostReceive(channel_post)
+	local input = mattata.input(channel_post.text)
 	if not input then
-		mattata.sendMessage(message.chat.id, shout.help, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, shout.help, nil, true, false, channel_post.message_id)
 		return
 	end
 	input = mattata.trim(input)
 	input = input:upper()
 	local output = ''
-	local inc = 0
-	local len = 0
+	local increment = 0
+	local length = 0
 	for match in input:gmatch('([%z\1-\127\194-\244][\128-\191]*)') do
-		if len < 20 then
-			len = len + 1
+		if length < 20 then
+			length = length + 1
 			output = output .. match .. ' '
 		end
 	end
-	len = 0
+	length = 0
 	output = output .. '\n'
 	for match in input:sub(2):gmatch('([%z\1-\127\194-\244][\128-\191]*)') do
-		if len < 19 then
+		if length < 19 then
 			local space = ''
-			for _ = 1, inc do
+			for _ = 1, increment do
 				space = space .. '  '
 			end
-			inc = inc + 1
-			len = len + 1
+			increment = increment + 1
+			length = length + 1
 			output = output .. match .. ' ' .. space .. match .. '\n'
 		end
 	end
 	output = '```\n' .. mattata.trim(output) .. '\n```'
-	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
+	mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id)
+end
+
+function shout:onMessageReceive(message)
+	local input = mattata.input(message.text)
+	if not input then
+		mattata.sendMessage(message.chat.id, shout.help, nil, true, false, message.message_id)
+		return
+	end
+	input = mattata.trim(input)
+	input = input:upper()
+	local output = ''
+	local increment = 0
+	local length = 0
+	for match in input:gmatch('([%z\1-\127\194-\244][\128-\191]*)') do
+		if length < 20 then
+			length = length + 1
+			output = output .. match .. ' '
+		end
+	end
+	length = 0
+	output = output .. '\n'
+	for match in input:sub(2):gmatch('([%z\1-\127\194-\244][\128-\191]*)') do
+		if length < 19 then
+			local space = ''
+			for _ = 1, increment do
+				space = space .. '  '
+			end
+			increment = increment + 1
+			length = length + 1
+			output = output .. match .. ' ' .. space .. match .. '\n'
+		end
+	end
+	output = '```\n' .. mattata.trim(output) .. '\n```'
+	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id)
 end
 
 return shout

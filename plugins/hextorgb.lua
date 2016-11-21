@@ -7,24 +7,38 @@ function hextorgb:init(configuration)
 	hextorgb.help = configuration.commandPrefix .. 'hextorgb <colour hex> - Converts the given colour hex to its RGB format.'
 end
 
-function hextorgb:onMessageReceive(message, configuration)
+function hextorgb:onChannelPostReceive(channel_post)
+	local input = mattata.input(channel_post.text)
+	if not input then
+		mattata.sendMessage(channel_post.chat.id, hextorgb.help, nil, true, false, channel_post.message_id)
+		return
+	end
+	input = input:gsub('#', '')
+	if tonumber('0x' .. input:sub(1, 2)) == nil and tonumber('0x' .. input:sub(3, 4)) == nil and tonumber('0x' .. input:sub(5, 6)) == nil then
+		mattata.sendMessage(channel_post.chat.id, hextorgb.help, nil, true, false, channel_post.message_id)
+		return
+	end
+	local r = tonumber('0x' .. input:sub(1, 2))
+	local g = tonumber('0x' .. input:sub(3, 4))
+	local b = tonumber('0x' .. input:sub(5, 6))
+	mattata.sendPhoto(channel_post.chat.id, 'https://placeholdit.imgix.net/~text?txtsize=1&bg=' .. input .. '&w=150&h=200', 'rgb(' .. r .. ', ' .. g .. ', ' .. b .. ')', false, channel_post.message_id)
+end
+
+function hextorgb:onMessageReceive(message)
 	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(message.chat.id, hextorgb.help, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(message.chat.id, hextorgb.help, nil, true, false, message.message_id)
 		return
-	else
-		input = input:gsub('#', '')
 	end
-	local r, g, b, output
-	if tonumber('0x' .. input:sub(1, 2)) ~= nil and tonumber('0x' .. input:sub(3, 4)) ~= nil and tonumber('0x' .. input:sub(5, 6)) ~= nil then
-		r = tonumber('0x' .. input:sub(1, 2))
-		g = tonumber('0x' .. input:sub(3, 4))
-		b = tonumber('0x' .. input:sub(5, 6))
-		output = 'rgb(' .. r .. ', ' .. g .. ', ' .. b .. ')'
-	else
-		output = hextorgb.help
+	input = input:gsub('#', '')
+	if tonumber('0x' .. input:sub(1, 2)) == nil and tonumber('0x' .. input:sub(3, 4)) == nil and tonumber('0x' .. input:sub(5, 6)) == nil then
+		mattata.sendMessage(message.chat.id, hextorgb.help, nil, true, false, message.message_id)
+		return
 	end
-	mattata.sendPhoto(message.chat.id, 'https://placeholdit.imgix.net/~text?txtsize=1&bg=' .. input .. '&w=150&h=200', output, false, message.message_id, nil)
+	local r = tonumber('0x' .. input:sub(1, 2))
+	local g = tonumber('0x' .. input:sub(3, 4))
+	local b = tonumber('0x' .. input:sub(5, 6))
+	mattata.sendPhoto(message.chat.id, 'https://placeholdit.imgix.net/~text?txtsize=1&bg=' .. input .. '&w=150&h=200', 'rgb(' .. r .. ', ' .. g .. ', ' .. b .. ')', false, message.message_id)
 end
 
 return hextorgb

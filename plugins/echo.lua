@@ -14,7 +14,16 @@ function echo:init(configuration)
 	echo.help = configuration.commandPrefix .. 'echo <text> - Repeats a string of text.'
 end
 
-function echo:onMessageReceive(message, configuration)
+function echo:onChannelPostReceive(channel_post)
+	local input = mattata.input(channel_post.text)
+	if not input then
+		mattata.sendMessage(channel_post.chat.id, echo.help, nil, true, false, channel_post.message_id)
+		return
+	end
+	mattata.sendMessage(channel_post.chat.id, input, nil, true, false, channel_post.message_id)
+end
+
+function echo:onMessageReceive(message)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, echo.help, nil, true, false, message.message_id)

@@ -79,7 +79,11 @@ local jokes = {
 	'*What is the worst part about killing a baby?*\nGetting blood on your clown outfit.'
 }
 
-function deadbaby:onMessageReceive(message, configuration)
+function deadbaby:onChannelPostReceive(channel_post)
+	mattata.sendMessage(channel_post.chat.id, jokes[math.random(#jokes)], 'Markdown', true, false, channel_post.message_id)
+end
+
+function deadbaby:onMessageReceive(message)
 	mattata.sendMessage(message.chat.id, jokes[math.random(#jokes)], 'Markdown', true, false, message.message_id)
 end
 

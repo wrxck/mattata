@@ -4,7 +4,7 @@ local mattata = require('mattata')
 function copypasta:init(configuration)
 	copypasta.arguments = 'copypasta'
 	copypasta.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('copypasta'):c('😂').table
-	copypasta.help = configuration.commandPrefix .. 'copypasta - Riddles the replied-to message with cancerous emoji. Alias: ' .. configuration.commandPrefix .. 'ðŸ˜‚.'
+	copypasta.help = configuration.commandPrefix .. 'copypasta - Riddles the replied-to message with cancerous emoji. Alias: ' .. configuration.commandPrefix .. '😂.'
 end
 
 function copypasta:onMessageReceive(message, configuration, language)

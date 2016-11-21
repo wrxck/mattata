@@ -55,7 +55,7 @@ function cats:onChannelPostReceive(channel_post, configuration)
 	mattata.sendPhoto(channel_post.chat.id, str:match('<img src="(.-)">'), 'Meow!', false, channel_post.message_id)
 end
 
-function cats:onMessageReceive(message, language)
+function cats:onMessageReceive(message, configuration, language)
 	local str, res = HTTP.request('http://thecatapi.com/api/images/get?format=html&type=jpg&api_key=' .. configuration.keys.cats)
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)

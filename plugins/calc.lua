@@ -18,7 +18,7 @@ function calc:init(configuration)
 end
 
 function calc:onInlineCallback(inline_query, configuration, language)
-	local input = inline_query.query:gsub('รท', '/'):gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*')
+	local input = inline_query.query:gsub('÷', '/'):gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*')
     local str, res = HTTP.request('https://api.mathjs.org/v1/?expr=' .. URL.escape(input))
 	if res ~= 200 then
 		local results = JSON.encode({
@@ -55,7 +55,7 @@ function calc:onChannelPostReceive(channel_post, configuration)
 		mattata.sendMessage(channel_post.chat.id, calc.help, 'Markdown', true, false, channel_post.message_id)
 		return
 	end
-	input = input:gsub('รท', '/'):gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*')
+	input = input:gsub('÷', '/'):gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*')
 	local str, res = HTTP.request('https://api.mathjs.org/v1/?expr=' .. URL.escape(input))
 	if res ~= 200 then
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
@@ -70,7 +70,7 @@ function calc:onMessageReceive(message, configuration, language)
 		mattata.sendMessage(message.chat.id, calc.help, 'Markdown', true, false, message.message_id)
 		return
 	end
-	input = input:gsub('รท', '/'):gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*')
+	input = input:gsub('÷', '/'):gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*')
 	local str, res = HTTP.request('https://api.mathjs.org/v1/?expr=' .. URL.escape(input))
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)

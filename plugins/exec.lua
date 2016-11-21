@@ -1,14 +1,14 @@
 local exec = {}
-local JSON = require('dkjson')
 local mattata = require('mattata')
 local HTTP = require('socket.http')
 local multipart = require('multipart-post')
 local ltn12 = require('ltn12')
+local JSON = require('dkjson')
 
 function exec:init(configuration)
-	exec.arguments = 'exec <language> \\n <code>'
+	exec.arguments = 'exec <language> <code>'
 	exec.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('exec').table
-	exec.help = configuration.commandPrefix .. 'exec <language> \\n <code> - Executes the specified code in the given language and returns the output. The code must be on a new line. Example: \n```' .. configuration.commandPrefix .. 'exec python`\n`print \'Hello, World!\'```'
+	exec.help = configuration.commandPrefix .. 'exec <language> <code> - Executes the specified code in the given language and returns the output.'
 end
 
 function getLangArgs(language)
@@ -33,10 +33,10 @@ function getLangArgs(language)
 	end
 end
 
-function exec:onMessageReceive(message, configuration)
+function exec:onMessageReceive(message, configuration, language)
 	local input = mattata.input(message.text_lower)
 	if not input then
-		mattata.sendMessage(message.chat.id, exec.help, 'Markdown', true, false, message.message_id, nil)
+		mattata.sendMessage(message.chat.id, exec.help, 'Markdown', true, false, message.message_id)
 		return
 	end
 	mattata.sendChatAction(message.chat.id, 'typing')
@@ -60,7 +60,7 @@ function exec:onMessageReceive(message, configuration)
 		sink = ltn12.sink.table(response)
 	}
 	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return
 	end
 	local jdat = JSON.decode(response[1])
@@ -86,7 +86,7 @@ function exec:onMessageReceive(message, configuration)
 		stats = ''
 	end
 	local output = warnings .. errors .. result .. stats
-	res = mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
+	res = mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id)
 end
 
 return exec

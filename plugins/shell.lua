@@ -12,20 +12,18 @@ function shell:init(configuration)
 	shell.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('bash').table
 end
 
-function shell:onMessageReceive(message, configuration)
-	if message.from.id ~= configuration.owner then
+function shell:onMessageReceive(message)
+	if not mattata.isConfiguredAdmin(message.from.id) then
 		return
 	end
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, 'Please specify a command to run.', nil, true, false, message.message_id)
 		return
-	else
-		input = input:gsub('—', '--')
 	end
-	local commands = io.popen(input)
-	local output = commands:read('*all')
-	commands:close()
+	input = input:gsub('—', '--')
+	local output = io.popen(input):read('*all')
+	io.popen(input):close()
 	if output:len() == 0 then
 		output = 'Success!'
 	else

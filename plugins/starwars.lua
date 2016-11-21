@@ -1,7 +1,7 @@
 local starwars = {}
+local mattata = require('mattata')
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
-local mattata = require('mattata')
 
 function starwars:init(configuration)
 	starwars.arguments = 'starwars <query>'
@@ -9,7 +9,7 @@ function starwars:init(configuration)
 	starwars.help = configuration.commandPrefix .. 'starwars <query> - Returns the opening crawl from the specified Star Wars film. Alias: ' .. configuration.commandPrefix .. 'sw.'
 end
 
-local films_by_number = {
+local filmsByNumber = {
 	['phantom menace'] = 4,
 	['attack of the clones'] = 5,
 	['revenge of the sith'] = 6,
@@ -19,49 +19,69 @@ local films_by_number = {
 	['force awakens'] = 7
 }
 
-local corrected_numbers = {
-	4,
-	5,
-	6,
-	1,
-	2,
-	3,
-	7
-}
+local correctedNumbers = { 4, 5, 6, 1, 2, 3, 7 }
 
-function starwars:onMessageReceive(message, configuration)
-	local input = mattata.input(message.text)
+function starwars:onChannelPostReceive(channel_post, configuration)
+	local input = mattata.input(channel_post.text)
 	if not input then
-		mattata.sendMessage(message.chat.id, starwars.help, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, starwars.help, nil, true, false, channel_post.message_id)
 		return
 	end
 	local film
 	if tonumber(input) then
 		input = tonumber(input)
-		film = corrected_numbers[input] or input
+		film = correctedNumbers[input] or input
 	else
-		for title, number in pairs(films_by_number) do
-			print(string.match(input, title))
+		for title, number in pairs(filmsByNumber) do
 			if string.match(input, title) then
-				print(number)
 				film = number
 				break
 			end
 		end
 	end
 	if not film then
-		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
 		return
 	end
-	local jstr, res = HTTP.request(configuration.apis.starwars .. film)
+	local jstr, res = HTTP.request('http://swapi.co/api/films/' .. film)
 	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
 		return
 	end
 	local jdat = JSON.decode(jstr)
-	local output = jdat.opening_crawl
+	mattata.sendMessage(channel_post.chat.id, jdat.opening_crawl, nil, true, false, channel_post.message_id)
+end
+
+function starwars:onMessageReceive(message, language)
 	mattata.sendChatAction(message.chat.id, 'typing')
-	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id, nil)
+	local input = mattata.input(message.text)
+	if not input then
+		mattata.sendMessage(message.chat.id, starwars.help, nil, true, false, message.message_id)
+		return
+	end
+	local film
+	if tonumber(input) then
+		input = tonumber(input)
+		film = correctedNumbers[input] or input
+	else
+		for title, number in pairs(filmsByNumber) do
+			if string.match(input, title) then
+				film = number
+				break
+			end
+		end
+	end
+	if not film then
+		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
+		return
+	end
+	local jstr, res = HTTP.request('http://swapi.co/api/films/' .. film)
+	if res ~= 200 then
+		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
+		return
+	end
+	local jdat = JSON.decode(jstr)
+	mattata.sendMessage(message.chat.id, jdat.opening_crawl, nil, true, false, message.message_id)
 end
 
 return starwars

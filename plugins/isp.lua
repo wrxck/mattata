@@ -10,42 +10,34 @@ function isp:init(configuration)
 	isp.help = configuration.commandPrefix .. 'isp <URL> - Sends information about the given URL\'s ISP.'
 end
 
-function isp:onMessageReceive(message, configuration)
+function isp:onMessageReceive(message, language)
 	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(message.chat.id, isp.help, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(message.chat.id, isp.help, nil, true, false, message.message_id)
 		return
 	end
-	local jstr, res = HTTP.request('http://ip-api.com/json/' .. input .. '?lang=' .. configuration.language .. '&fields=country,regionName,city,zip,isp,org,as,status,message,query')
+	local jstr, res = HTTP.request('http://ip-api.com/json/' .. input .. '?lang=' .. language.locale .. '&fields=country,regionName,city,zip,isp,org,as,status,message,query')
 	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return
 	end
 	local jdat = JSON.decode(jstr)
 	if jdat.status == 'fail' then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
-		return
-	else
-		local isp, zip, city, regionName, country
-		if jdat.isp ~= '' then
-			output = '*' .. jdat.isp .. '*\n'
-		end
-		if jdat.zip ~= '' then
-			output = output .. jdat.zip .. '\n'
-		end
-		if jdat.city ~= '' then
-			output = output .. jdat.city .. '\n'
-		end
-		if jdat.regionName ~= '' then
-			output = output .. jdat.regionName .. '\n'
-		end
-		if jdat.country ~= '' then
-			output = output .. jdat.country .. '\n'
-		end
-		local output = '`' .. input .. ':`\n' .. output
-		mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
+		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
 		return
 	end
+	if jdat.isp ~= '' then
+		output = '*' .. jdat.isp .. '*\n'
+	elseif jdat.zip ~= '' then
+		output = output .. jdat.zip .. '\n'
+	elseif jdat.city ~= '' then
+		output = output .. jdat.city .. '\n'
+	elseif jdat.regionName ~= '' then
+		output = output .. jdat.regionName .. '\n'
+	elseif jdat.country ~= '' then
+		output = output .. jdat.country .. '\n'
+	end
+	mattata.sendMessage(message.chat.id, '`' .. input:gsub('`', '\\`') .. ':`\n' .. output, 'Markdown', true, false, message.message_id)
 end
 
 return isp

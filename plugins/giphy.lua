@@ -1,19 +1,19 @@
 local giphy = {}
+local mattata = require('mattata')
 local HTTPS = require('ssl.https')
 local URL = require('socket.url')
 local JSON = require('dkjson')
-local mattata = require('mattata')
 
 function giphy:init(configuration)
 	giphy.arguments = 'gif <query>'
-	giphy.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('gif').table
+	giphy.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('gif'):c('giphy').table
 	giphy.inlineCommands = giphy.commands
-	giphy.help = configuration.commandPrefix .. 'gif <query> - Searches Giphy for the given query and returns a random result.'
+	giphy.help = configuration.commandPrefix .. 'gif <query> - Searches Giphy for the given query and returns a random result. Alias: ' .. configuration.commandPrefix .. 'giphy.'
 end
 
-function giphy:onInlineCallback(inline_query, configuration)
-	local input = inline_query.query:gsub('/gif ', '')
-	local jstr = HTTPS.request(configuration.apis.giphy .. URL.escape(input) .. '&api_key=dc6zaTOxFJmzC')
+function giphy:onInlineCallback(inline_query, language)
+	local input = mattata.input(inline_query.query)
+	local jstr = HTTPS.request('https://api.giphy.com/v1/gifs/search?q=' .. URL.escape(input) .. '&api_key=dc6zaTOxFJmzC')
 	local jdat = JSON.decode(jstr)
 	local results = '['
 	local id = 1
@@ -28,25 +28,43 @@ function giphy:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function giphy:onMessageReceive(message, configuration)
+function giphy:onChannelPostReceive(channel_post, configuration)
+	local input = mattata.input(channel_post.text)
+	if not input then
+		mattata.sendMessage(channel_post.chat.id, giphy.help, nil, true, false, channel_post.message_id)
+		return
+	end
+	local jstr, res = HTTPS.request('https://api.giphy.com/v1/gifs/search?q=' .. URL.escape(input) .. '&api_key=dc6zaTOxFJmzC')
+	if res ~= 200 then
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
+		return
+	end
+	local jdat = JSON.decode(jstr)
+	if not jdat.data[1] then
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
+		return
+	end
+	mattata.sendDocument(channel_post.chat.id, jdat.data[math.random(#jdat.data)].images.original.mp4)
+end
+
+function giphy:onMessageReceive(message, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, giphy.help, nil, true, false, message.message_id)
 		return
 	end
-	local jstr, res = HTTPS.request(configuration.apis.giphy .. URL.escape(input) .. '&api_key=dc6zaTOxFJmzC')
+	local jstr, res = HTTPS.request('https://api.giphy.com/v1/gifs/search?q=' .. URL.escape(input) .. '&api_key=dc6zaTOxFJmzC')
 	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id)
+		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return
 	end
 	local jdat = JSON.decode(jstr)
 	if not jdat.data[1] then
-		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id)
+		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
 		return
 	end
-	local random = math.random(1, #jdat.data)
 	mattata.sendChatAction(message.chat.id, 'upload_photo')
-	mattata.sendDocument(message.chat.id, jdat.data[1].images.original.mp4)
+	mattata.sendDocument(message.chat.id, jdat.data[math.random(#jdat.data)].images.original.mp4)
 end
 
 return giphy

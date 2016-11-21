@@ -1,133 +1,397 @@
 local help = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
-local JSON = require('dkjson')
 local HTTPS = require('ssl.https')
 local URL = require('socket.url')
-local helpText, users, userCount, pluginCount, punCount, trumpCount
+local redis = require('mattata-redis')
+local JSON = require('dkjson')
+local helpText, administrationHelpText, users
 
-function help:init()
-	local configuration = require('configuration')
-	local arguments_list = {}
+function help:init(configuration)
+	local argumentsList = {}
 	helpText = '• ' .. configuration.commandPrefix
 	for _, plugin in ipairs(self.plugins) do
 		if plugin.arguments then
-			table.insert(arguments_list, plugin.arguments)
+			table.insert(argumentsList, plugin.arguments)
 			if plugin.help then
 				plugin.helpWord = mattata.getWord(plugin.arguments, 1)
 			end
 		end
 	end
-	table.insert(arguments_list, 'help <plugin>')
-	table.sort(arguments_list)
-	helpText = helpText .. table.concat(arguments_list, '\n• ' .. configuration.commandPrefix)
-	help.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('help'):c('h'):c('start').table
-	help.inlineCommands = { '^' .. '' .. '' }
-	help.help = configuration.commandPrefix .. 'help <plugin> - Usage information for the given plugin. Alias: ' .. configuration.commandPrefix .. 'h.'
+	table.insert(argumentsList, 'help <plugin>')
+	table.sort(argumentsList)
+	helpText = helpText .. table.concat(argumentsList, '\n• ' .. configuration.commandPrefix)
+	local administrationArgumentsList = {}
+	administrationHelpText = 'I utilise the administration methods the Telegram bot API supports, feel free to set me as an administrator in your group to gain access to the following commands:\n\n• ' .. configuration.commandPrefix
+	for _, administrationPlugin in ipairs(self.administrationPlugins) do
+		if administrationPlugin.arguments then
+			table.insert(administrationArgumentsList, administrationPlugin.arguments)
+			if administrationPlugin.help then
+				administrationPlugin.helpWord = mattata.getWord(administrationPlugin.arguments, 1)
+			end
+		end
+	end
+	table.sort(administrationArgumentsList)
+	administrationHelpText = administrationHelpText .. table.concat(administrationArgumentsList, '\n• ' .. configuration.commandPrefix)
+	help.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('help'):c('start').table
+	help.help = configuration.commandPrefix .. 'help <plugin> - Usage information for the given plugin.'
 	users = self.users
 end
 
-function help:onInlineCallback(inline_query)
-	local configuration = require('configuration')
-	local results = '[{"type":"article","id":"1","title":"' .. configuration.commandPrefix .. 'id","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'id <username/ID> - Get information about a user/group","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'id <username/ID>"}}'
-	results = results .. ',{"type":"article","id":"2","title":"' .. configuration.commandPrefix .. 'ai","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'ai <text> - Talk to mattata","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'ai <text>"}}'
-	results = results .. ',{"type":"article","id":"3","title":"' .. configuration.commandPrefix .. 'apod","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'apod - Get the astronomical photo of the day","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'apod"}}'
-	results = results .. ',{"type":"article","id":"4","title":"' .. configuration.commandPrefix .. 'gif","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'gif <query> - Search for GIFs","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'gif <query>"}}'
-	results = results .. ',{"type":"article","id":"5","title":"' .. configuration.commandPrefix .. 'np","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'np <username> - Returns what you last listened to on last.fm","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'np <username>"}}'
-	results = results .. ',{"type":"article","id":"6","title":"' .. configuration.commandPrefix .. 'lyrics","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'lyrics <query> - Search for lyrics","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'lyrics <query>"}}'
-	results = results .. ',{"type":"article","id":"7","title":"' .. configuration.commandPrefix .. 'translate","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'translate <locale> <text> - Translate text","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'translate <locale> <text>"}}'
-	results = results .. ',{"type":"article","id":"8","title":"' .. configuration.commandPrefix .. 'bandersnatch","description":"@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'bandersnatch - Generate a weird name","input_message_content":{"message_text":"Invalid syntax. Use @' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'bandersnatch"}}'
-	results = results .. ']'
-	mattata.answerInlineQuery(inline_query.id, results, 0, false, nil, 'More features')
+function help:onInlineCallback(inline_query, configuration)
+	local results = JSON.encode({
+		{
+			type = 'article',
+			id = '1',
+			title = 'Begin typing to speak with ' .. self.info.first_name .. '!',
+			description = '@' .. self.info.username .. ' <text> - Speak with ' .. self.info.first_name .. '!',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' <text> - Speak with ' .. self.info.first_name .. '!'
+			},
+			thumb_url = 'http://matthewhesketh.com/images/mattata.png'
+		},
+		{
+			type = 'article',
+			id = '2',
+			title = configuration.commandPrefix .. 'id',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'id <user/group> - Get information about a user/group.',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'id <user/group> - Get information about a user/group.'
+			},
+			thumb_url = 'http://matthewhesketh.com/images/id.png'
+		},
+		{
+			type = 'article',
+			id = '3',
+			title = configuration.commandPrefix .. 'apod',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'apod - Astronomical photo of the day, from NASA.',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'apod - Astronomical photo of the day, from NASA.'
+			},
+			thumb_url = 'http://matthewhesketh.com/images/apod.jpg'
+		},
+		{
+			type = 'article',
+			id = '4',
+			title = configuration.commandPrefix .. 'gif',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'gif <query> - Search for a gif on GIPHY.',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'gif <query> - Search for a gif on GIPHY.'
+			},
+			thumb_url = 'http://matthewhesketh.com/images/giphy.png'
+		},
+		{
+			type = 'article',
+			id = '5',
+			title = configuration.commandPrefix .. 'np',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'np - See what you last listened to on last.fm.',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'np - See what you last listened to on last.fm.'
+			},
+			thumb_url = 'http://matthewhesketh.com/images/lastfm.png'
+		},
+		{
+			type = 'article',
+			id = '6',
+			title = configuration.commandPrefix .. 'translate',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'translate <language> <text> - Translate text between different languages.',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'translate <language> <text> - Translate text between different languages.'
+			},
+			thumb_url = 'http://matthewhesketh.com/images/translate.jpg'
+		},
+		{
+			type = 'article',
+			id = '7',
+			title = configuration.commandPrefix .. 'lyrics',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'lyrics <song> - Get the lyrics to a song.',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'lyrics <song> - Get the lyrics to a song.'
+			},
+			thumb_url = 'http://matthewhesketh.com/images/lyrics.png'
+		},
+		{
+			type = 'article',
+			id = '8',
+			title = configuration.commandPrefix .. 'bandersnatch',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'bandersnatch - Generate a new, weird and wacky name!',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'bandersnatch - Generate a new, weird and wacky name!'
+			},
+			thumb_url = 'http://matthewhesketh.com/images/bandersnatch.jpg'
+		},
+		{
+			type = 'article',
+			id = '9',
+			title = configuration.commandPrefix .. 'catfact',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'catfact - Discover something new about cats.',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'catfact - Discover something new about cats.'
+			},
+			thumb_url = 'http://matthewhesketh.com/images/catfact.jpg'
+		},
+		{
+			type = 'article',
+			id = '10',
+			title = configuration.commandPrefix .. '9gag',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. '9gag - View the latest images on 9gag.',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. '9gag - View the latest images on 9gag.'
+			},
+			thumb_url = 'http://matthewhesketh.com/images/9gag.png'
+		},
+		{
+			type = 'article',
+			id = '11',
+			title = configuration.commandPrefix .. 'urban',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'urban <query> - Search the urban dictionary.',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'urban <query> - Search the urban dictionary.'
+			},
+			thumb_url = 'http://matthewhesketh.com/images/urbandictionary.jpg'
+		},
+		{
+			type = 'article',
+			id = '12',
+			title = configuration.commandPrefix .. 'cat',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'cat - Get a random photo of a cat. Meow!',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'cat - Get a random photo of a cat. Meow!',
+			},
+			thumb_url = 'http://matthewhesketh.com/images/cats.png'
+		},
+		{
+			type = 'article',
+			id = '13',
+			title = configuration.commandPrefix .. 'flickr <query>',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'flickr <query> - Search for an image on Flickr.',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'flickr <query> - Search for an image on Flickr.',
+			},
+			thumb_url = 'http://matthewhesketh.com/images/flickr.png'
+		}
+	})
+	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function help:onQueryReceive(callback, message)
-	local configuration = require('configuration')
-	if callback.data == 'helpStatistics' then
-		userCount = 0
-		for _ in pairs(users) do
- 			userCount = userCount + 1
- 		end
- 		if tonumber(userCount) == 1 then
- 			userCount = userCount .. ' person is using mattata'
- 		else
- 			userCount = userCount .. ' people are using mattata'
- 		end
-		pluginCount = 0
-		for _ in pairs(self.plugins) do
-			pluginCount = pluginCount + 1
-		end
-		if tonumber(pluginCount) == 1 then
-			pluginCount = pluginCount .. ' plugin is enabled'
-		else
-			pluginCount = pluginCount .. ' plugins are enabled'
-		end
-		punCount = 0
-		for _ in pairs(configuration.puns) do
-			punCount = punCount + 1
-		end
-		if tonumber(punCount) == 1 then
-			punCount = punCount .. ' pun configured'
-		else
-			punCount = punCount .. ' puns configured'
-		end
-		trumpCount = 0
-		for _ in pairs(configuration.trumps) do
-			trumpCount = trumpCount + 1
-		end
-		if tonumber(trumpCount) == 1 then
-			trumpCount = trumpCount .. ' trump configured'
-		else
-			trumpCount = trumpCount .. ' trumps configured'
-		end
-		local helpStatistics = userCount .. '\n'
-		helpStatistics = helpStatistics .. pluginCount .. '\n'
-		helpStatistics = helpStatistics .. punCount .. '\n'
-		helpStatistics = helpStatistics .. trumpCount
-		mattata.editMessageText(message.chat.id, message.message_id, helpStatistics .. '\n\nYou can view message statistics in groups I\'m part of, using ' .. configuration.commandPrefix .. 'statistics.', nil, true, '{"inline_keyboard":[[{"text":"Back", "callback_data":"helpBack"}]]}')
-	end
+function help:onQueryReceive(callback, message, configuration, language)
 	if callback.data == 'helpCommands' then
+		local keyboard = {}
+		keyboard.inline_keyboard = {
+			{
+				{
+					text = 'Back',
+					callback_data = 'helpBack'
+				}
+			}
+		}
 		if message.chat.type ~= 'private' then
 			local res = mattata.sendMessage(callback.from.id, helpText, 'Markdown', true, false)
 			if not res then
-				mattata.editMessageText(message.chat.id, message.message_id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=help) to get started.', 'Markdown', true, mattata.generateCallbackButton('Back', 'helpBack'))
+				mattata.editMessageText(message.chat.id, message.message_id, language.pleaseMessageMe:gsub('MATTATA', self.info.username), 'Markdown', true, JSON.encode(keyboard))
 			else
-				mattata.editMessageText(message.chat.id, message.message_id, 'I have sent you a private message containing the requested information.', nil, true, mattata.generateCallbackButton('Back', 'helpBack'))
+				mattata.editMessageText(message.chat.id, message.message_id, language.sentPrivateMessage, nil, true, JSON.encode(keyboard))
 			end
 		else
-			mattata.editMessageText(message.chat.id, message.message_id, helpText, 'Markdown', true, mattata.generateCallbackButton('Back', 'helpBack'))
+			mattata.editMessageText(message.chat.id, message.message_id, helpText, 'Markdown', true, JSON.encode(keyboard))
+		end
+	end
+	if callback.data == 'helpAdministration' then
+		local keyboard = {}
+		keyboard.inline_keyboard = {
+			{
+				{
+					text = 'Back',
+					callback_data = 'helpBack'
+				}
+			}
+		}
+		if message.chat.type ~= 'private' then
+			local res = mattata.sendMessage(callback.from.id, administrationHelpText, 'Markdown', true, false)
+			if not res then
+				mattata.editMessageText(message.chat.id, message.message_id, language.pleaseMessageMe:gsub('MATTATA', self.info.username), 'Markdown', true, JSON.encode(keyboard))
+			else
+				mattata.editMessageText(message.chat.id, message.message_id, language.sentPrivateMessage, nil, true, JSON.encode(keyboard))
+			end
+		else
+			mattata.editMessageText(message.chat.id, message.message_id, administrationHelpText, 'Markdown', true, JSON.encode(keyboard))
 		end
 	end
 	if callback.data == 'helpLinks' then
-		local helpLinks = 'Here are some official links that you may find useful!'
-		mattata.editMessageText(message.chat.id, message.message_id, helpLinks, 'Markdown', true, '{"inline_keyboard":[[{"text":"Official Group", "url":"https://telegram.me/mattata"},{"text":"Source Code", "url":"https://github.com/matthewhesketh/mattata"},{"text":"Rate Me", "url":"https://telegram.me/storebot?start=mattatabot"}],[{"text":"Back", "callback_data":"helpBack"}]]}')
+		local helpLinks = language.officialLinks
+		local keyboard = {}
+		keyboard.inline_keyboard = {
+			{
+				{
+					text = 'Group',
+					url = 'https://telegram.me/mattata'
+				},
+				{
+					text = 'Channel',
+					url = 'https://telegram.me/mattataofficial'
+				},
+				{
+					text = 'GitHub',
+					url = 'https://github.com/matthewhesketh/mattata'
+				}
+			},
+			{
+				{
+					text = 'Donate',
+					url = 'https://paypal.me/wrxck'
+				},
+				{
+					text = 'Rate',
+					url = 'https://telegram.me/storebot?start=mattatabot'
+				}
+			},
+			{
+				{
+					text = 'Back',
+					callback_data = 'helpBack'
+				}
+			}
+		}
+		mattata.editMessageText(message.chat.id, message.message_id, helpLinks, 'Markdown', true, JSON.encode(keyboard))
 	end
 	if callback.data == 'helpBack' then
-		mattata.editMessageText(message.chat.id, message.message_id, '*Hello, ' .. mattata.markdownEscape(callback.from.first_name) .. '!*\nMy name is ' .. self.info.first_name .. ' and I\'m an intelligent bot written with precision. There are many things I can do - try clicking the \'Commands\' button below to see what I can do for you.\n\n*Oh, and I work well in groups, too!*\nYou can enable and disable plugins in your group(s) using ' .. configuration.commandPrefix .. 'plugins.', 'Markdown', true, '{"inline_keyboard":[[{"text":"Links", "callback_data":"helpLinks"},{"text":"Statistics", "callback_data":"helpStatistics"},{"text":"Commands", "callback_data":"helpCommands"}],[{"text":"Help", "callback_data":"helpHelp"},{"text":"About", "callback_data":"helpAbout"}]]}')
+		local keyboard = {}
+		keyboard.inline_keyboard = {
+			{
+				{
+					text = 'Links',
+					callback_data = 'helpLinks'
+				},
+				{
+					text = 'Administration',
+					callback_data = 'helpAdministration'
+				},
+				{
+					text = 'Commands',
+					callback_data = 'helpCommands'
+				}
+			},
+			{
+				{
+					text = 'Help',
+					callback_data = 'helpHelp'
+				},
+				{
+					text = 'About',
+					callback_data = 'helpAbout'
+				}
+			}
+		}
+		mattata.editMessageText(message.chat.id, message.message_id, language.helpIntroduction:gsub('NAME', '*' .. mattata.markdownEscape(callback.from.first_name) .. '*'):gsub('MATTATA', self.info.first_name):gsub('COMMANDPREFIX', configuration.commandPrefix), 'Markdown', true, JSON.encode(keyboard))
 	end
 	if callback.data == 'helpHelp' then
-		local a, b = mattata.editMessageText(message.chat.id, message.message_id, '*Confused?*\nDon\'t worry, I was programmed to help! Try using ' .. configuration.commandPrefix .. 'help <command> to get help with a specific plugin and its usage.\n\nI\'m also an innovative example of artificial intelligence - yes, that\'s right; I can learn from you! Try speaking to me right here, or mention me by my name in a group. I can also describe images sent in response to messages I send.\n\nYou can also use me inline, try mentioning my username from any group and discover what else I can do!', 'Markdown', true, mattata.generateCallbackButton('Back', 'helpBack'))
+		local keyboard = {}
+		keyboard.inline_keyboard = {
+			{
+				{
+					text = 'Back',
+					callback_data = 'helpBack'
+				}
+			}
+		}
+		mattata.editMessageText(message.chat.id, message.message_id, language.helpConfused:gsub('COMMANDPREFIX', configuration.commandPrefix), 'Markdown', true, JSON.encode(keyboard))
 	end
 	if callback.data == 'helpAbout' then
-		mattata.editMessageText(message.chat.id, message.message_id, 'I\'m a bot written in Lua, and built to take advantage of the brilliant Bot API which Telegram offers.\n\nMy creator (and primary maintainer) is @wrxck.\nHe believes that anybody who enjoys programming should be able to work with the code of which I was compiled from, so I\'m proud to say that I am an open source project, which you can discover more about on [GitHub](https://github.com/matthewhesketh/mattata).', 'Markdown', true, mattata.generateCallbackButton('Back', 'helpBack'))
+		local keyboard = {}
+		keyboard.inline_keyboard = {
+			{
+				{
+					text = 'Back',
+					callback_data = 'helpBack'
+				}
+			}
+		}
+		mattata.editMessageText(message.chat.id, message.message_id, language.helpAbout, 'Markdown', true, JSON.encode(keyboard))
 	end
 end
 
-function help:onMessageReceive(message)
-	local configuration = require('configuration')
+function help:onChannelPostReceive(channel_post, configuration)
+	local language = require('languages/en')
+	local input = mattata.input(channel_post.text)
+	if input then
+		for _, plugin in ipairs(self.plugins) do
+			if plugin.helpWord == input:gsub('^/', '') then
+				mattata.sendMessage(channel_post.chat.id, '*Help for* ' .. mattata.markdownEscape(plugin.helpWord) .. '*:*\n' .. plugin.help, 'Markdown', true, false, channel_post.message_id)
+				return
+			end
+		end
+		mattata.sendMessage(channel_post.chat.id, language.noDocumentedHelp, nil, true, false, channel_post.message_id)
+		return
+	end
+	local keyboard = {}
+	keyboard.inline_keyboard = {
+		{
+			{
+				text = 'Links',
+				callback_data = 'helpLinks'
+			},
+			{
+				text = 'Administration',
+				callback_data = 'helpAdministration'
+			},
+			{
+				text = 'Commands',
+				callback_data = 'helpCommands'
+			}
+		},
+		{
+			{
+				text = 'Help',
+				callback_data = 'helpHelp'
+			},
+			{
+				text = 'About',
+				callback_data = 'helpAbout'
+			}
+		}
+	}
+	mattata.sendMessage(channel_post.chat.id, language.helpIntroduction:gsub('NAME', '*friend*'):gsub('MATTATA', self.info.first_name):gsub('COMMANDPREFIX', configuration.commandPrefix), 'Markdown', true, false, nil, JSON.encode(keyboard))
+end
+
+function help:onMessageReceive(message, configuration, language)
 	local input = mattata.input(message.text)
 	if input then
 		for _, plugin in ipairs(self.plugins) do
 			if plugin.helpWord == input:gsub('^/', '') then
-				local output = 'Help for *' .. plugin.helpWord .. '*:\n' .. plugin.help
-				mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id)
+				mattata.sendMessage(message.chat.id, '*Help for* ' .. mattata.markdownEscape(plugin.helpWord) .. '*:*\n' .. plugin.help, 'Markdown', true, false, message.message_id)
 				return
 			end
 		end
-		mattata.sendMessage(message.chat.id, 'I\'m sorry, but I\'m afraid there is no help documented for that plugin at this moment in time. If you believe this is a mistake, please don\'t hesitate to contact [my developer](https://telegram.me/wrxck).', nil, true, false, message.message_id)
+		mattata.sendMessage(message.chat.id, language.noDocumentedHelp, nil, true, false, message.message_id)
 		return
 	end
-	mattata.sendMessage(message.chat.id, '*Hello, ' .. mattata.markdownEscape(message.from.first_name) .. '!*\nMy name is ' .. self.info.first_name .. ' and I\'m an intelligent bot written with precision. There are many things I can do - try clicking the \'Commands\' button below to see what I can do for you.\n\n*Oh, and I work well in groups, too!*\nYou can enable and disable plugins in your group(s) using ' .. configuration.commandPrefix .. 'plugins.', 'Markdown', true, false, nil, '{"inline_keyboard":[[{"text":"Links", "callback_data":"helpLinks"},{"text":"Statistics", "callback_data":"helpStatistics"},{"text":"Commands", "callback_data":"helpCommands"}],[{"text":"Help", "callback_data":"helpHelp"},{"text":"About", "callback_data":"helpAbout"}]]}')
+	local keyboard = {}
+	keyboard.inline_keyboard = {
+		{
+			{
+				text = 'Links',
+				callback_data = 'helpLinks'
+			},
+			{
+				text = 'Administration',
+				callback_data = 'helpAdministration'
+			},
+			{
+				text = 'Commands',
+				callback_data = 'helpCommands'
+			}
+		},
+		{
+			{
+				text = 'Help',
+				callback_data = 'helpHelp'
+			},
+			{
+				text = 'About',
+				callback_data = 'helpAbout'
+			}
+		}
+	}
+	mattata.sendMessage(message.chat.id, language.helpIntroduction:gsub('NAME', '*' .. mattata.markdownEscape(message.from.first_name) .. '*'):gsub('MATTATA', self.info.first_name):gsub('COMMANDPREFIX', configuration.commandPrefix), 'Markdown', true, false, nil, JSON.encode(keyboard))
 end
 
 return help

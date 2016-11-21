@@ -44,19 +44,7 @@ function plugins:reloadPlugins(self, configuration, plugin, status)
 	end
 end
 
-function plugins:enablePlugin(self, configuration, plugin)
-	if plugins:isPluginEnabled(plugin) then
-		return 'The plugin \'' .. plugin .. '\' is already enabled in this chat!'
-	end
-	if plugins:pluginExists(plugin) then
-		redis:sadd('mattata:enabledPlugins', plugin)
-		return plugins:reloadPlugins(self, configuration, plugin, 'enabled.')
-	else
-		return 'The plugin \'' .. plugin .. '\' doesn\'t exist!'
-	end
-end
-
-function plugins:enablePluginInChat(message, plugin)
+function plugins:enablePlugin(message, plugin)
 	if not plugins:pluginExists(plugin) then
 		return 'The plugin \'' .. plugin .. '\' doesn\'t exist!'
 	end
@@ -71,19 +59,7 @@ function plugins:enablePluginInChat(message, plugin)
 	end
 end
 
-function plugins:disablePlugin(self, configuration, plugin)
-	if not plugins:pluginExists(plugin) then
-		return 'The plugin \'' .. plugin .. '\' doesn\'t exist!'
-	end
-	local k = plugins:isPluginEnabled(plugin)
-	if not k then
-		return 'The plugin \'' .. plugin .. '\' is already disabled in this chat!'
-	end
-	redis:srem('mattata:enabledPlugins', plugin)
-	return plugins:reloadPlugins(self, configuration, plugin, 'disabled.')
-end
-
-function plugins:disablePluginInChat(message, plugin)
+function plugins:disablePlugin(message, plugin)
 	if not plugins:pluginExists(plugin) then
 		return 'The plugin \'' .. plugin .. '\' doesn\'t exist!'
 	end
@@ -98,7 +74,7 @@ function plugins:disablePluginInChat(message, plugin)
 	end
 end
 
-function plugins:disableAllPluginsInChat(message)
+function plugins:disableAllPlugins(message)
 	for k, v in pairs(configuration.plugins) do
 		if v ~= 'lua' and v ~= 'shell' and v ~= 'plugins' and v ~= 'control' and v ~= 'help' then
 			local hash = 'chat:' .. message.chat.id .. ':disabledPlugins'
@@ -112,7 +88,7 @@ function plugins:disableAllPluginsInChat(message)
 	return 'Success! Use ' .. configuration.commandPrefix .. 'plugins enableall to enable all plugins, or use ' .. configuration.commandPrefix .. 'plugins enable <plugin> to enable plugins individually.'
 end
 
-function plugins:enableAllPluginsInChat(message)
+function plugins:enableAllPlugins(message)
 	for k, v in pairs(configuration.plugins) do
 		local hash = 'chat:' .. message.chat.id .. ':disabledPlugins'
 		local disabled = redis:hget(hash, v)
@@ -125,38 +101,26 @@ function plugins:enableAllPluginsInChat(message)
 end
 
 function plugins:onMessageReceive(message, configuration)
-	if message.from.id == configuration.owner then
-		if string.match(message.text_lower, '^' .. configuration.commandPrefix .. 'plugins globalenable %a+') then
-			local plugin = message.text_lower:gsub(configuration.commandPrefix .. 'plugins globalenable ', '')
-			mattata.sendMessage(message.chat.id, enablePlugin(self, configuration, plugin), nil, true, false, message.message_id)
-			return
-		end
-		if string.match(message.text_lower, '^' .. configuration.commandPrefix .. 'plugins globaldisable %a+') then
-			local plugin = message.text_lower:gsub(configuration.commandPrefix .. 'plugins globaldisable ', '')
-			mattata.sendMessage(message.chat.id, disablePlugin(self, configuration, plugin), nil, true, false, message.message_id)
-			return
-		end
-	end
 	if message.chat.type ~= 'private' then
-		if mattata.isGroupAdmin(message.chat.id, message.from.id) or message.from.id == configuration.owner then
+		if not mattata.isGroupAdmin(message.chat.id, message.from.id) or not mattata.isConfiguredAdmin(message.from.id) then
 			if not mattata.input(message.text) then
 				mattata.sendMessage(message.chat.id, plugins.help, nil, true, false, message.message_id)
 				return
 			end
 			if string.match(message.text_lower, '^' .. configuration.commandPrefix .. 'plugins enable %a+') then
-				mattata.sendMessage(message.chat.id, plugins:enablePluginInChat(message, message.text_lower:gsub(configuration.commandPrefix .. 'plugins enable ', '')), nil, true, false, message.message_id)
+				mattata.sendMessage(message.chat.id, plugins:enablePlugin(message, message.text_lower:gsub(configuration.commandPrefix .. 'plugins enable ', '')), nil, true, false, message.message_id)
 				return
 			end
 			if string.match(message.text_lower, '^' .. configuration.commandPrefix .. 'plugins disable %a+') and not string.match(message.text_lower, 'plugins$') and not string.match(message.text_lower, 'lua$') and not string.match(message.text_lower, 'help$') and not string.match(message.text_lower, 'control$') then
-				mattata.sendMessage(message.chat.id, plugins:disablePluginInChat(message, message.text_lower:gsub(configuration.commandPrefix .. 'plugins disable ', '')), nil)
+				mattata.sendMessage(message.chat.id, plugins:disablePlugin(message, message.text_lower:gsub(configuration.commandPrefix .. 'plugins disable ', '')), nil)
 				return
 			end
 			if string.match(message.text_lower, '^' .. configuration.commandPrefix .. 'plugins disableall') then
-				mattata.sendMessage(message.chat.id, plugins:disableAllPluginsInChat(message), nil, true, false, message.message_id)
+				mattata.sendMessage(message.chat.id, plugins:disableAllPlugins(message), nil, true, false, message.message_id)
 				return
 			end
 			if string.match(message.text_lower, '^' .. configuration.commandPrefix .. 'plugins enableall') then
-				mattata.sendMessage(message.chat.id, plugins:enableAllPluginsInChat(message), nil, true, false, message.message_id)
+				mattata.sendMessage(message.chat.id, plugins:enableAllPlugins(message), nil, true, false, message.message_id)
 				return
 			end
 			if string.match(message.text_lower, '^' .. configuration.commandPrefix .. 'plugins list') then

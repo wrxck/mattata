@@ -1,5 +1,6 @@
 local id = {}
 local mattata = require('mattata')
+local JSON = require('dkjson')
 
 function id:init(configuration)
 	id.arguments = 'id <user>'
@@ -9,8 +10,12 @@ function id:init(configuration)
 end
 
 function id:onInlineCallback(inline_query, configuration)
-	local name, id, username, title, members, output
-	local input = mattata.input(inline_query.query)
+	local name, id, username, title, members, output, input
+	if not mattata.input(inline_query.query) then
+		input = (inline_query.from.username or inline_query.from.id)
+	else
+		input = mattata.input(inline_query.query)
+	end
 	if tonumber(input) == nil then
 		if not string.match(input, '@') then
 			input = '@' .. input
@@ -44,8 +49,19 @@ function id:onInlineCallback(inline_query, configuration)
 	else
 		output = '*I don\'t recognise that username/ID.*'
 	end
-	local results = '[{"type":"article","id":"1","title":"/id","description":"' .. input .. '","input_message_content":{"message_text":"' .. output .. '","parse_mode":"Markdown"}}]'
-	mattata.answerInlineQuery(inline_query.id, '[' .. mattata.generateInlineArticle(1, configuration.commandPrefix .. 'id', output, 'Markdown', false, input) .. ']', 0)
+	local results = JSON.encode({
+		{
+			type = 'article',
+			id = '1',
+			title = input,
+			description = 'Click to send the information about the chat above',
+			input_message_content = {
+				message_text = output,
+				parse_mode = 'Markdown'
+			}
+		}
+	})
+	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
 function id:onMessageReceive(message)

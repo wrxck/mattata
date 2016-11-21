@@ -40,7 +40,7 @@ function unban:onMessageReceive(message, configuration)
 							end
 						end
 						if not validateUser(input) then
-							mattata.sendMessage(message.chat.id, 'Invalid username or ID.', nil, true, false, message.message_id)
+							mattata.sendMessage(message.chat.id, 'Invalid username or ID - or the API is down, try using it via reply.', nil, true, false, message.message_id)
 							return
 						else
 							local res = mattata.unbanChatMember(message.chat.id, tonumber(getUserId(input)))

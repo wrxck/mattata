@@ -10,17 +10,17 @@ end
 function report:onMessageReceive(message, configuration)
 	if message.chat.type == 'supergroup' then
 		local input = mattata.input(message.text)
-		local adminlist = {}
+		local adminList = {}
 		local admins = mattata.getChatAdministrators(message.chat.id)
 		for n in pairs(admins.result) do
 			if admins.result[n].user.username then
-				table.insert(adminlist, '@' .. mattata.markdownEscape(admins.result[n].user.username))
+				table.insert(adminList, '@' .. mattata.markdownEscape(admins.result[n].user.username))
 			end
 		end
-		table.sort(adminlist)
-		local output = '*' .. message.from.first_name .. ' needs help!*\n' .. table.concat(adminlist, ', ')
+		table.sort(adminList)
+		local output = '*' .. message.from.first_name .. ' needs help!*\n' .. table.concat(adminList, ', ')
 		if input then
-			output = output .. '\nArguments: `' .. mattata.markdownEscape(input) .. '`'
+			output = output .. '\nArguments: `' .. input:gsub('`', '\\`') .. '`'
 		end
 		mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id)
 		return

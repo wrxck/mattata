@@ -15,7 +15,7 @@ end
 
 function control:onMessageReceive(message)
 	local configuration = require('configuration')
-	if message.from.id ~= configuration.owner then
+	if not mattata.isConfiguredAdmin(message.from.id) then
 		return
 	end
 	for p, _ in pairs(package.loaded) do
@@ -32,7 +32,7 @@ function control:onMessageReceive(message)
 	end
 	mattata.init(self, configuration)
 	print(self.info.first_name .. ' is reloading...')
-	local res = mattata.sendMessage(message.chat.id, self.info.first_name .. ' is reloading...', nil, true, false, message.message_id, nil)
+	local res = mattata.sendMessage(message.chat.id, self.info.first_name .. ' is reloading...', nil, true, false, message.message_id)
 	if res then
 		print(self.info.first_name .. ' successfully reloaded!')
 	end

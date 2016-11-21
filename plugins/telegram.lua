@@ -1,19 +1,19 @@
 local telegram = {}
 local mattata = require('mattata')
 
-function telegram:onNewChatMember(message, configuration)
+function telegram:onNewChatMember(message, configuration, language)
 	if message.new_chat_member.id ~= self.info.id then
-		local joinChatMessages = configuration.joinChatMessages
+		local joinChatMessages = language.joinChatMessages
 		local output = joinChatMessages[math.random(#joinChatMessages)]
 		mattata.sendMessage(message.chat.id, output:gsub('NAME', message.new_chat_member.first_name), nil, true, false, message.message_id)
 		return
 	end
-	mattata.sendMessage(message.chat.id, 'Hello, World! Thanks for adding me, ' .. message.from.first_name .. '!', nil, true, false, message.message_id)
+	mattata.sendMessage(message.chat.id, language.userAddedBot:gsub('NAME', message.from.first_name), nil, true, false, message.message_id)
 end
 
-function telegram:onLeftChatMember(message, configuration)
+function telegram:onLeftChatMember(message, configuration, language)
 	if message.left_chat_member.id ~= self.info.id then
-		local leftChatMessages = configuration.leftChatMessages
+		local leftChatMessages = language.leftChatMessages
 		local output = leftChatMessages[math.random(#leftChatMessages)]
 		mattata.sendMessage(message.chat.id, output:gsub('NAME', message.left_chat_member.first_name), nil, true, false, message.message_id)
 		return

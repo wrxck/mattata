@@ -14,7 +14,7 @@ function channel:init(configuration)
 	channel.help = configuration.commandPrefix .. 'ch <channel> <message> - Sends a message to a Telegram channel/group. The channel/group can be specified via ID or username. Messages can be formatted with Markdown. Users can only send messages to channels/groups they own and/or administrate.'
 end
 
-function channel:onMessageReceive(message, configuration)
+function channel:onMessageReceive(message, configuration, language)
 	local input = mattata.input(message.text)
 	local output
 	if input then
@@ -32,18 +32,18 @@ function channel:onMessageReceive(message, configuration)
 				if text then
 					local success = mattata.sendMessage(chat_id, text, 'Markdown', true, false, nil, nil)
 					if success then
-						output = 'Your message has been sent!'
+						output = language.messageSentToChannel
 					else
-						output = 'Sorry, I was unable to send your message.'
+						output = language.unableToSendToChannel
 					end
 				else
-					output = 'Please enter a message to send. Markdown formatting is supported.'
+					output = language.enterMessageToSendToChannel
 				end
 			else
-				output = 'Sorry, you do not appear to be an administrator for that group/channel.'
+				output = language.notChannelAdmin
 			end
 		else
-			output = 'Sorry, I was unable to retrieve a list of administrators for that group/channel.\n' .. t.description
+			output = language.unableToRetrieveChannelAdmins .. t.description
 		end
 	else
 		output = channel.help

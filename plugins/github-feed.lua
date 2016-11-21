@@ -1,11 +1,11 @@
 local gh = {}
+local mattata = require('mattata')
 local HTTP = require('socket.http')
 local HTTPS = require('ssl.https')
 local URL = require('socket.url')
 local ltn12 = require('ltn12')
 local JSON = require('dkjson')
 local redis = require('mattata-redis')
-local mattata = require('mattata')
 local configuration = require('configuration')
 local token = configuration.keys.github_feed
 
@@ -154,22 +154,36 @@ function gh:getSubs(id, chatName)
 	return text, keyboard
 end
 
-function gh:onMessageReceive(message, configuration, self)
-	if message.chat.type ~= 'private' then
-		if not mattata.isGroupAdmin(message.chat.id, message.from.id) then
-			if message.from.id ~= configuration.owner then
-				return
-			end
+function gh:onChannelPostReceive(channel_post, configuration)
+	if channel_post.text_lower:match('^' .. configuration.commandPrefix .. 'gh sub') then
+		if not channel_post.text_lower:match('^' .. configuration.commandPrefix .. 'gh sub$') then
+			mattata.sendMessage(channel_post.chat.id, gh:subscribe(channel_post.chat.id, channel_post.text_lower:gsub(configuration.commandPrefix .. 'gh sub ', ''):gsub(' ', '/')), 'Markdown', true, false, channel_post.message_id)
+			return
 		end
 	end
-	if string.match(message.text, '^' .. configuration.commandPrefix .. 'gh sub') then
-		if message.text_lower ~= configuration.commandPrefix .. 'gh sub' then
-			mattata.sendMessage(message.chat.id, gh:subscribe(message.chat.id, message.text_lower:gsub(configuration.commandPrefix .. 'gh sub ', ''):gsub(' ', '/')), 'Markdown')
+	if string.match(channel_post.text_lower, '^' .. configuration.commandPrefix .. 'gh del') then
+		mattata.sendMessage(channel_post.chat.id, gh:unsubscribe(channel_post.chat.id, channel_post.text_lower:gsub(configuration.commandPrefix .. 'gh del ', ''):gsub(' ', '')), 'Markdown', true, false, channel_post.message_id)
+		return
+	end
+	if channel_post.text_lower == configuration.commandPrefix .. 'gh' then
+		local output, keyboard = gh:getSubs(channel_post.chat.id, channel_post.chat.title)
+		mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id, keyboard)
+		return
+	end
+end
+
+function gh:onMessageReceive(message, configuration, self)
+	if message.chat.type ~= 'private' or (not mattata.isGroupAdmin(message.chat.id, message.from.id)) or (not mattata.isConfiguredAdmin(message.from.id)) then
+		return
+	end
+	if message.text_lower:match('^' .. configuration.commandPrefix .. 'gh sub') then
+		if not message.text_lower:match('^' .. configuration.commandPrefix .. 'gh sub$') then
+			mattata.sendMessage(message.chat.id, gh:subscribe(message.chat.id, message.text_lower:gsub(configuration.commandPrefix .. 'gh sub ', ''):gsub(' ', '/')), 'Markdown', true, false, message.message_id)
 			return
 		end
 	end
 	if string.match(message.text, '^' .. configuration.commandPrefix .. 'gh del') then
-		mattata.sendMessage(message.chat.id, gh:unsubscribe(message.chat.id, message.text_lower:gsub(configuration.commandPrefix .. 'gh del ', ''):gsub(' ', '')), 'Markdown')
+		mattata.sendMessage(message.chat.id, gh:unsubscribe(message.chat.id, message.text_lower:gsub(configuration.commandPrefix .. 'gh del ', ''):gsub(' ', '')), 'Markdown', true, false, message.message_id)
 		return
 	end
 	if message.text_lower == configuration.commandPrefix .. 'gh' then

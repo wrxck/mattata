@@ -1,5 +1,6 @@
 local tohex = {}
 local mattata = require('mattata')
+
 function tohex:init(configuration)
 	tohex.arguments = 'tohex <string>'
 	tohex.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('tohex').table
@@ -31,13 +32,22 @@ function stringToHex(str)
 	return hex
 end
 
+function tohex:onChannelPostReceive(channel_post)
+	local input = mattata.input(channel_post.text)
+	if not input then
+		mattata.sendMessage(channel_post.chat.id, tohex.help, nil, true, false, channel_post.message_id)
+		return
+	end
+	mattata.sendMessage(channel_post.chat.id, '```\n' .. stringToHex(input) .. '\n```', 'Markdown', true, false, channel_post.message_id)
+end
+
 function tohex:onMessageReceive(message)
 	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(message.chat.id, tohex.help, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(message.chat.id, tohex.help, nil, true, false, message.message_id)
 		return
 	end
-	mattata.sendMessage(message.chat.id, '`' .. stringToHex(input) .. '`', 'Markdown', true, false, message.message_id, nil)
+	mattata.sendMessage(message.chat.id, '```\n' .. stringToHex(input) .. '\n```', 'Markdown', true, false, message.message_id)
 end
 
 return tohex

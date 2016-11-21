@@ -24,7 +24,7 @@ function lua:init(configuration)
 end
 
 function lua:onMessageReceive(message, configuration)
-	if message.from.id ~= configuration.owner then
+	if not mattata.isConfiguredAdmin(message.from.id) then
 		return true
 	end
 	local input = mattata.input(message.text)
