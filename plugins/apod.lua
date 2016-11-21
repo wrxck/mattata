@@ -6,9 +6,9 @@
 ]]--
 
 local apod = {}
+local mattata = require('mattata')
 local HTTPS = require('ssl.https')
 local JSON = require('dkjson')
-local mattata = require('mattata')
 
 function apod:init(configuration)
 	apod.arguments = 'apod <YYYY/MM/DD>'
@@ -18,26 +18,39 @@ function apod:init(configuration)
 end
 
 function apod:onInlineCallback(inline_query, configuration)
-	local jstr = '[' .. HTTPS.request(configuration.apis.apod .. configuration.keys.apod) .. ']'
-	local jdat = JSON.decode(jstr)
-	local results = '['
-	local id = 1
-	for n in pairs(jdat) do
-		local title = jdat[n].title:gsub('"', '\\"')
-		results = results .. '{"type":"photo","id":"' .. id .. '","photo_url":"' .. jdat[n].url .. '","thumb_url":"' .. jdat[n].url .. '","caption":"' .. title .. '","reply_markup":{"inline_keyboard":[[{"text":"Read more", "url":"' .. jdat[n].url .. '"}]]}}'
-		id = id + 1
-		if n < #jdat then
-			results = results .. ','
-		end
+	local jstr, res =  HTTPS.request('https://api.nasa.gov/planetary/apod?api_key=' .. configuration.keys.apod)
+	if res ~= 200 then
+		local results = JSON.encode({
+			{
+				type = 'article',
+				id = '1',
+				title = 'An error occured!',
+				description = language.errors.connection,
+				input_message_content = {
+					message_text = language.errors.connection
+				}
+			}
+		})
+		mattata.answerInlineQuery(inline_query.id, results, 0)
+		return
 	end
-	local results = results .. ']'
+	local jdat = JSON.decode('[' .. jstr .. ']')
+	local results = JSON.encode({
+		{
+			type = 'photo',
+			id = '1',
+			photo_url = jdat[1].url,
+			thumb_url = jdat[1].url,
+			caption = jdat[1].title:gsub('"', '\\"')
+		}
+	})
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function apod:onMessageReceive(message, configuration)
-	local input = mattata.input(message.text)
-	local url = configuration.apis.apod .. configuration.keys.apod
-	local date = os.date('%F')
+function apod:onChannelPostReceive(channel_post, configuration)
+	local input = mattata.input(channel_post.text)
+	local url = 'https://api.nasa.gov/planetary/apod?api_key=' .. configuration.keys.apod
+	local date = os.date('%Y-%m-%d')
 	if input then
 		if input:match('^(%d%d%d%d)%/(%d%d)%/(%d%d)$') then
 			url = url .. input:gsub('/', '-')
@@ -46,7 +59,27 @@ function apod:onMessageReceive(message, configuration)
 	end
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
+		return
+	end
+	local jdat = JSON.decode(jstr)
+	local title = '\'' .. jdat.title .. '\' = ' .. jdat.date
+	mattata.sendPhoto(channel_post.chat.id, jdat.url, title:gsub('-', '/'):gsub('=', '-'), false, channel_post.message_id)
+end
+
+function apod:onMessageReceive(message, configuration, language)
+	local input = mattata.input(message.text)
+	local url = 'https://api.nasa.gov/planetary/apod?api_key=' .. configuration.keys.apod
+	local date = os.date('%Y-%m-%d')
+	if input then
+		if input:match('^(%d%d%d%d)%/(%d%d)%/(%d%d)$') then
+			url = url .. input:gsub('/', '-')
+			date = input
+		end
+	end
+	local jstr, res = HTTPS.request(url)
+	if res ~= 200 then
+		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return
 	end
 	local jdat = JSON.decode(jstr)
