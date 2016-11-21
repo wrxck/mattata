@@ -46,6 +46,26 @@ function ninegag:onInlineCallback(inline_query, language)
 	mattata.answerInlineQuery(inline_query.id, JSON.encode(resultsList), 0)
 end
 
+function ninegag:onChannelPostReceive(channel_post, configuration)
+	local jstr, res = HTTP.request('http://api-9gag.herokuapp.com/')
+	if res ~= 200 then
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
+		return
+	end
+	local jdat = JSON.decode(jstr)
+	local jrnd = math.random(#jdat)
+	local keyboard = {}
+	keyboard.inline_keyboard = {
+		{
+			{
+				text = 'Read more',
+				url = jdat[jrnd].url
+			}
+		}
+	}
+	mattata.sendPhoto(channel_post.chat.id, jdat[jrnd].src, jdat[jrnd].title, false, channel_post.message_id, JSON.encode(keyboard))
+end
+
 function ninegag:onMessageReceive(message, language)
 	local jstr, res = HTTP.request('http://api-9gag.herokuapp.com/')
 	if res ~= 200 then
