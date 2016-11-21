@@ -1,7 +1,7 @@
 local yeoldinsult = {}
+local mattata = require('mattata')
 local HTTP = require('socket.http')
 local JSON = require('dkjson')
-local mattata = require('mattata')
 
 function yeoldinsult:init(configuration)
 	yeoldinsult.arguments = 'yeoldinsult'
@@ -9,14 +9,24 @@ function yeoldinsult:init(configuration)
 	yeoldinsult.help = configuration.commandPrefix .. 'yeoldinsult - Insults you, the old-school way.' 
 end
 
-function yeoldinsult:onMessageReceive(message, configuration)
-	local jstr, res = HTTP.request(configuration.apis.yeoldinsult)
+function yeoldinsult:onChannelPostReceive(channel_post, configuration)
+	local jstr, res = HTTP.request('http://quandyfactory.com/insult/json')
 	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
 		return
 	end
 	local jdat = JSON.decode(jstr)
-	mattata.sendMessage(message.chat.id, jdat.insult, nil, true, false, message.message_id, nil)
+	mattata.sendMessage(channel_post.chat.id, jdat.insult, nil, true, false, channel_post.message_id)
+end
+
+function yeoldinsult:onMessageReceive(message, language)
+	local jstr, res = HTTP.request('http://quandyfactory.com/insult/json')
+	if res ~= 200 then
+		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
+		return
+	end
+	local jdat = JSON.decode(jstr)
+	mattata.sendMessage(message.chat.id, jdat.insult, nil, true, false, message.message_id)
 end
 
 return yeoldinsult

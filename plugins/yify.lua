@@ -11,32 +11,78 @@ function yify:init(configuration)
 	yify.help = configuration.commandPrefix .. 'yify <query> - Searches Yify torrents for the given query.'
 end
 
-function yify:onMessageReceive(message, configuration)
-	local input = mattata.input(message.text)
+function yify:onChannelPostReceive(channel_post, configuration)
+	local input = mattata.input(channel_post.text)
 	if not input then
-		mattata.sendMessage(message.chat.id, yify.help, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, yify.help, nil, true, false, channel_post.message_id)
 		return
 	end
 	local jstr, res = HTTPS.request('https://yts.ag/api/v2/list_movies.json?limit=1&query_term=' .. URL.escape(input))
+    if res ~= 200 then
+    	mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
+    	return
+    end
     local jdat = JSON.decode(jstr)
 	if not jdat.data.movies then
-		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
 		return
     end
-	local movie = jdat.data.movies[1]
-	local torrent = movie.torrents
-	local keyboard_buttons = ''
-	for n = 1, #torrent do
-		local quality = torrent[n].quality
-		keyboard_buttons = keyboard_buttons .. '{"text":"' .. quality .. '", "url":"' .. torrent[n].url .. '"}'
-		if n < #torrent then
-			keyboard_buttons = keyboard_buttons .. ','
+	local buttons = ''
+	for n = 1, #jdat.data.movies[1].torrents do
+		local quality = jdat.data.movies[1].torrents[n].quality
+		local button = {
+			text = quality,
+			url = jdat.data.movies[1].torrents[n].url
+		}
+		buttons = buttons .. button
+		if n < #jdat.data.movies[1].torrents then
+			buttons = buttons .. ','
 		end
 	end
-	keyboard = '{"inline_keyboard":[[' .. keyboard_buttons .. ']]}'
-	local title = '[' .. mattata.markdownEscape(movie.title_long) .. '](' .. movie.large_cover_image .. ')'
-	local output = title .. '\n*' .. movie.year .. ' | ' .. movie.rating .. '/10 | ' .. movie.runtime .. ' min*\n\n_' .. mattata.markdownEscape(movie.synopsis) .. '_'
-	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, keyboard)
+	local keyboard = {}
+	keyboard.inline_keyboard = {
+		{
+			buttons
+		}
+	}
+	mattata.sendMessage(channel_post.chat.id, '[' .. mattata.markdownEscape(jdat.data.movies[1].title_long) .. '](' .. jdat.data.movies[1].large_cover_image .. ')' .. '\n*' .. jdat.data.movies[1].year .. ' | ' .. jdat.data.movies[1].rating .. '/10 | ' .. jdat.data.movies[1].runtime .. ' min*\n\n_' .. mattata.markdownEscape(jdat.data.movies[1].synopsis) .. '_', 'Markdown', true, false, channel_post.message_id, JSON.encode(keyboard))
+end
+
+function yify:onMessageReceive(message, language)
+	local input = mattata.input(message.text)
+	if not input then
+		mattata.sendMessage(message.chat.id, yify.help, nil, true, false, message.message_id)
+		return
+	end
+	local jstr, res = HTTPS.request('https://yts.ag/api/v2/list_movies.json?limit=1&query_term=' .. URL.escape(input))
+    if res ~= 200 then
+    	mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
+    	return
+    end
+    local jdat = JSON.decode(jstr)
+	if not jdat.data.movies then
+		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
+		return
+    end
+	local buttons = ''
+	for n = 1, #jdat.data.movies[1].torrents do
+		local quality = jdat.data.movies[1].torrents[n].quality
+		local button = {
+			text = quality,
+			url = jdat.data.movies[1].torrents[n].url
+		}
+		buttons = buttons .. button
+		if n < #jdat.data.movies[1].torrents then
+			buttons = buttons .. ','
+		end
+	end
+	local keyboard = {}
+	keyboard.inline_keyboard = {
+		{
+			buttons
+		}
+	}
+	mattata.sendMessage(message.chat.id, '[' .. mattata.markdownEscape(jdat.data.movies[1].title_long) .. '](' .. jdat.data.movies[1].large_cover_image .. ')' .. '\n*' .. jdat.data.movies[1].year .. ' | ' .. jdat.data.movies[1].rating .. '/10 | ' .. jdat.data.movies[1].runtime .. ' min*\n\n_' .. mattata.markdownEscape(jdat.data.movies[1].synopsis) .. '_', 'Markdown', true, false, message.message_id, JSON.encode(keyboard))
 end
 
 return yify

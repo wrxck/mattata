@@ -1,6 +1,7 @@
+-- Credit to @MazenK for the original idea
+
 local youtube_dl = {}
 local mattata = require('mattata')
-local configuration = require('configuration')
 
 function youtube_dl:init(configuration)
 	youtube_dl.arguments = 'mp3 <YouTube URL>'
@@ -9,6 +10,7 @@ function youtube_dl:init(configuration)
 end
 
 function convertAudio(id)
+	local configuration = require('configuration')
 	local fileDownloadLocation = configuration.fileDownloadLocation .. '%(title)s.%(ext)s'
 	local output = io.popen('youtube-dl --max-filesize 49m -o "' .. fileDownloadLocation:gsub(' ', '_') .. '" --extract-audio --audio-format mp3 https://www.youtube.com/watch/?v=' .. extractIdFromUrl(id)):read('*all')
 	if string.match(output, '.* File is larger .*') then
@@ -25,7 +27,26 @@ function extractIdFromUrl(url)
 	return url:gsub('https?://w?w?w?m?%.?youtube.com/watch%?v=', ''):gsub('https?://w?w?w?m?%.?youtube.com/embed/', ''):gsub('https?://w?w?w?m?%.?youtu.be/', '')
 end
 
-function youtube_dl:onMessageReceive(message, configuration)
+function youtube_dl:onChannelPostReceive(channel_post)
+	local input = mattata.input(channel_post.text)
+	if not input then
+		mattata.sendMessage(channel_post.chat.id, youtube_dl.help, nil, true, false, channel_post.message_id)
+		return
+	end
+	local output = mattata.sendMessage(channel_post.chat.id, 'Retrieving audio information...', nil, true, false, channel_post.message_id)
+	local file = convertAudio(input)
+	if not file then
+		mattata.editMessageText(channel_post.chat.id, output.result.message_id, 'An error occured! Either that video is too long, or it doesn\'t exist!', nil, nil)
+		return
+	end
+	local res = mattata.sendAudio(channel_post.chat.id, file)
+	if res then
+		mattata.editMessageText(channel_post.chat.id, output.result.message_id, 'You should find the requested file below.', nil, nil)
+		return
+	end
+end
+
+function youtube_dl:onMessageReceive(message)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, youtube_dl.help, nil, true, false, message.message_id)

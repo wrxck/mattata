@@ -62,9 +62,27 @@ function warn:onMessageReceive(message, configuration)
 				return
 			end
 			local difference = maximum - amount
-			text = '%s has been warned (%d/%d)'
-			text = text:format(name, amount, maximum)
-			mattata.sendMessage(message.chat.id, text, nil, true, false, message.message_id, '{"inline_keyboard":[[{"text":"Remove Warning", "callback_data":"removeWarning' .. message.reply_to_message.from.id .. '"},{"text":"Reset Warnings", "callback_data":"resetWarnings' .. message.reply_to_message.from.id .. '"}]]}')
+			text = '*%s* has been warned `[`%d/%d`]`'
+			if message.text_lower ~= configuration.commandPrefix .. 'warn' then
+				text = text .. '\n*Reason:* ' .. mattata.markdownEscape(message.text_lower:gsub('^' .. configuration.commandPrefix .. 'warn ', ''))
+			end
+			text = text:format(mattata.markdownEscape(name), amount, maximum)
+			local keyboard = {}
+			keyboard.inline_keyboard = {
+				{
+					{
+						{
+							text = 'Remove Warning',
+							callback_data = 'removeWarning' .. message.reply_to_message.from.id
+						},
+						{
+							text = 'Reset Warnings',
+							callback_data = 'resetWarnings' .. message.reply_to_message.from.id
+						}
+					}
+				}
+			}
+			mattata.sendMessage(message.chat.id, text, 'Markdown', true, false, message.message_id, JSON.encode(keyboard))
 			return
 		end
     end

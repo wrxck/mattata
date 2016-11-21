@@ -6,10 +6,10 @@
 ]]--
 
 local wikipedia = {}
+local mattata = require('mattata')
 local HTTPS = require('ssl.https')
 local URL = require('socket.url')
 local JSON = require('dkjson')
-local mattata = require('mattata')
 
 function wikipedia:init(configuration)
 	wikipedia.arguments = 'wikipedia <query>'
@@ -26,41 +26,41 @@ local get_title = function(search)
  	return false
 end
 
-function wikipedia:onMessageReceive(message, configuration)
-	local input = mattata.input(message.text)
+function wikipedia:onChannelPostReceive(channel_post, configuration)
+	local input = mattata.input(channel_post.text)
 	if not input then
-		mattata.sendMessage(message.chat.id, wikipedia.help, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, wikipedia.help, nil, true, false, channel_post.message_id)
 		return
 	else
 		input = input:gsub('#', ' sharp')
 	end
-	local search_url = 'http://' .. configuration.wikiLanguage .. '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch='
+	local search_url = 'http://' .. configuration.language .. '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch='
 	local search_jstr, search_res = HTTPS.request(search_url .. URL.escape(input))
 	if search_res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
 		return
 	end
 	local search_jdat = JSON.decode(search_jstr)
 	if search_jdat.query.searchinfo.totalhits == 0 then
-		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
 		return
 	end
 	local title = get_title(search_jdat.query.search)
 	if not title then
-		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
 		return
 	end
-	local result_url = 'https://' .. configuration.wikiLanguage .. '.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exchars=4000&exsectionformat=plain&titles='
+	local result_url = 'https://' .. configuration.language .. '.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exchars=4000&exsectionformat=plain&titles='
 	local result_jstr, result_res = HTTPS.request(result_url .. URL.escape(title))
 	if result_res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
 		return
 	end
 	local _
 	local text = JSON.decode(result_jstr).query.pages
 	_, text = next(text)
 	if not text then
-		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
 		return
 	else
 		text = text.extract
@@ -70,7 +70,7 @@ function wikipedia:onMessageReceive(message, configuration)
 	if l then
 		text = text:sub(1, l-1)
 	end
-	local url = 'https://' .. configuration.wikiLanguage .. '.wikipedia.org/wiki/' .. URL.escape(title)
+	local url = 'https://' .. configuration.language .. '.wikipedia.org/wiki/' .. URL.escape(title)
 	title = title:gsub('%(.+%)', '')
 	local output
 	if string.match(text:sub(1, title:len()), title) then
@@ -78,7 +78,80 @@ function wikipedia:onMessageReceive(message, configuration)
 	else
 		output = '*' .. title:gsub('%(.+%)', '') .. '*\n' .. text:gsub('%[.+%]','')
 	end
-	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, '{"inline_keyboard":[[{"text":"Read more", "url":"' .. url:gsub('%)', '\\)') .. '"}]]}')
+	local keyboard = {}
+	keyboard.inline_keyboard = {
+		{
+			{
+				text = 'Read more',
+				url = url:gsub('%)', '\\)')
+			}
+		}
+	}
+	mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id, JSON.encode(keyboard))
+end
+
+function wikipedia:onMessageReceive(message, language)
+	local input = mattata.input(message.text)
+	if not input then
+		mattata.sendMessage(message.chat.id, wikipedia.help, nil, true, false, message.message_id)
+		return
+	else
+		input = input:gsub('#', ' sharp')
+	end
+	local search_url = 'http://' .. language.locale .. '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch='
+	local search_jstr, search_res = HTTPS.request(search_url .. URL.escape(input))
+	if search_res ~= 200 then
+		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
+		return
+	end
+	local search_jdat = JSON.decode(search_jstr)
+	if search_jdat.query.searchinfo.totalhits == 0 then
+		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
+		return
+	end
+	local title = get_title(search_jdat.query.search)
+	if not title then
+		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
+		return
+	end
+	local result_url = 'https://' .. language.locale .. '.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exchars=4000&exsectionformat=plain&titles='
+	local result_jstr, result_res = HTTPS.request(result_url .. URL.escape(title))
+	if result_res ~= 200 then
+		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
+		return
+	end
+	local _
+	local text = JSON.decode(result_jstr).query.pages
+	_, text = next(text)
+	if not text then
+		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
+		return
+	else
+		text = text.extract
+	end
+	text = text:gsub('</?.->', '')
+	local l = text:find('\n')
+	if l then
+		text = text:sub(1, l-1)
+	end
+	local url = 'https://' .. language.locale .. '.wikipedia.org/wiki/' .. URL.escape(title)
+	title = title:gsub('%(.+%)', '')
+	local output
+	if string.match(text:sub(1, title:len()), title) then
+		output = '*' .. title .. '*' .. text:sub(title:len()+1)
+	else
+		output = '*' .. title:gsub('%(.+%)', '') .. '*\n' .. text:gsub('%[.+%]','')
+	end
+	local keyboard = {}
+	keyboard.inline_keyboard = {
+		{
+			{
+				text = 'Read more',
+				url = url:gsub('%)', '\\)')
+			}
+		}
+	}
+	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, JSON.encode(keyboard))
 end
 
 return wikipedia
