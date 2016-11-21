@@ -18,7 +18,7 @@ function bible:init(configuration)
 end
 
 function bible:onInlineCallback(inline_query, configuration)
-	local url = configuration.apis.bible .. configuration.keys.bible .. '&passage=' .. URL.escape(inline_query.query)
+	local url = 'http://api.biblia.com/v1/bible/content/ASV.txt?key=' .. configuration.keys.bible .. '&passage=' .. URL.escape(inline_query.query)
     local output = HTTP.request(url)
 	if output:len() > 4000 then
 		output = 'The requested passage is too long to post here. Please, try and be more specific.'
@@ -27,27 +27,48 @@ function bible:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function bible:onMessageReceive(message, configuration)
-	local input = mattata.input(message.text_lower)
+function bible:onChannelPostReceive(channel_post, configuration)
+	local input = mattata.input(channel_post.text_lower)
 	if not input then
-		mattata.sendMessage(message.chat.id, bible.help, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, bible.help, nil, true, false, channel_post.message_id)
 		return
 	end
-	local url = configuration.apis.bible .. configuration.keys.bible .. '&passage=' .. URL.escape(input)
-	local str, res = HTTP.request(url)
+	local str, res = HTTP.request('http://api.biblia.com/v1/bible/content/ASV.txt?key=' .. configuration.keys.bible .. '&passage=' .. URL.escape(input))
 	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
 		return
 	end
 	if not str or str:len() == 0 then
-		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
 		return
 	end
 	if str:len() > 4096 then
-		mattata.sendMessage(message.chat.id, 'The requested passage is too long to post here. Please, try and be more specific.', nil, true, false, message.message_id, nil)
+		mattata.sendMessage(channel_post.chat.id, 'The result was too long. Please, try and be more specific.', nil, true, false, channel_post.message_id)
 		return
 	end
-	mattata.sendMessage(message.chat.id, str, nil, true, false, message.message_id, nil)
+	mattata.sendMessage(channel_post.chat.id, str, nil, true, false, channel_post.message_id)
+end
+
+function bible:onMessageReceive(message, configuration, language)
+	local input = mattata.input(message.text_lower)
+	if not input then
+		mattata.sendMessage(message.chat.id, bible.help, nil, true, false, message.message_id)
+		return
+	end
+	local str, res = HTTP.request('http://api.biblia.com/v1/bible/content/ASV.txt?key=' .. configuration.keys.bible .. '&passage=' .. URL.escape(input))
+	if res ~= 200 then
+		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
+		return
+	end
+	if not str or str:len() == 0 then
+		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
+		return
+	end
+	if str:len() > 4096 then
+		mattata.sendMessage(message.chat.id, language.errors.bibleLength, nil, true, false, message.message_id)
+		return
+	end
+	mattata.sendMessage(message.chat.id, str, nil, true, false, message.message_id)
 end
 
 return bible
