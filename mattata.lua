@@ -24,18 +24,32 @@ function mattata:init()
 		self.info = mattata.getMe()
 	until self.info
 	self.info = self.info.result
-	self.users = mattata.loadData('users.json')
+	self.users = mattata.loadData('data/users.json')
  	if not self.users then
- 		mattata.loadData('users.json')
+ 		mattata.loadData('data/users.json')
  	end
- 	self.groups = mattata.loadData('groups.json')
+ 	self.groups = mattata.loadData('data/groups.json')
  	if not self.groups then
- 		mattata.loadData('groups.json')
+ 		mattata.loadData('data/groups.json')
  	end
-	self.version = '4.5'
+	self.version = '5.0'
+	self.administrationPlugins = {}
+	for k, v in ipairs(configuration.administrationPlugins) do
+		local administrationPlugin = require('plugins.' .. v)
+		self.administrationPlugins[k] = administrationPlugin
+		self.administrationPlugins[k].name = v
+		if administrationPlugin.init then
+			administrationPlugin.init(self, configuration)
+		end
+		if administrationPlugin.help then
+			administrationPlugin.help = '\n' .. administrationPlugin.help .. '\n'
+		end
+		if not administrationPlugin.commands then
+			administrationPlugin.commands = {}
+		end
+	end
 	self.plugins = {}
-	enabledPlugins = mattata.loadPlugins()
-	for k, v in ipairs(enabledPlugins) do
+	for k, v in ipairs(configuration.plugins) do
 		local plugin = require('plugins.' .. v)
 		self.plugins[k] = plugin
 		self.plugins[k].name = v
@@ -47,6 +61,21 @@ function mattata:init()
 		end
 		if not plugin.commands then
 			plugin.commands = {}
+		end
+	end
+	self.channelPlugins = {}
+	for k, v in ipairs(configuration.channelPlugins) do
+		local channelPlugin = require('plugins.' .. v)
+		self.channelPlugins[k] = channelPlugin
+		self.channelPlugins[k].name = v
+		if channelPlugin.init then
+			channelPlugin.init(self, configuration)
+		end
+		if channelPlugin.help then
+			channelPlugin.help = '\n' .. channelPlugin.help .. '\n'
+		end
+		if not channelPlugin.commands then
+			channelPlugin.commands = {}
 		end
 	end
 	self.inlinePlugins = {}
@@ -64,21 +93,6 @@ function mattata:init()
 			inlinePlugin.commands = {}
 		end
 	end
-	self.administrationPlugins = {}
-	for k, v in ipairs(configuration.administrationPlugins) do
-		local administrationPlugin = require('plugins.' .. v)
-		self.administrationPlugins[k] = administrationPlugin
-		self.administrationPlugins[k].name = v
-		if administrationPlugin.init then
-			administrationPlugin.init(self, configuration)
-		end
-		if administrationPlugin.help then
-			administrationPlugin.help = '\n' .. administrationPlugin.help .. '\n'
-		end
-		if not administrationPlugin.commands then
-			administrationPlugin.commands = {}
-		end
-	end
 	print('Successfully started @' .. self.info.username .. '!')
 	self.lastUpdate = self.lastUpdate or 0
 	self.lastCron = self.lastCron or os.date('%M')
@@ -87,17 +101,10 @@ function mattata:init()
 end
 
 function mattata:onMessageReceive(message, configuration)
-	if message.date < os.time() - 50 then
+	if (message.date < os.time() - 50) or redis:get('blacklist:' .. message.from.id) then
 		return
 	end
-	if redis:get('blacklist:' .. message.from.id) then
-		return
-	end
-	if message.forward_from then
-		if redis.get('blacklist:' .. message.forward_from.id) then
-			return
-		end
-	end
+	local language = require('languages/' .. mattata.getUserLanguage(message.from.id))
 	message = mattata.processMessages(message)
 	if message then
 		self.users[tostring(message.from.id)] = message.from
@@ -121,19 +128,89 @@ function mattata:onMessageReceive(message, configuration)
 		end
 		message.reply_to_message.text = message.reply_to_message.text or message.reply_to_message.caption or ''	
 	end
+	for _, plugin in ipairs(self.plugins) do
+		mattata.processPlugins(self, message, configuration, plugin, language)
+	end
+	for _, administrationPlugin in ipairs(self.administrationPlugins) do
+		mattata.processAdministrationPlugins(self, message, configuration, administrationPlugin, language)
+	end
 	if not mattata.isPluginDisabledInChat('telegram', message) then
 		local telegram = require('plugins/telegram')
 		if message.new_chat_member then 
-			telegram.onNewChatMember(self, message, configuration)
+			telegram.onNewChatMember(self, message, configuration, language)
 		elseif message.left_chat_member then
-			telegram.onLeftChatMember(self, message, configuration)
+			telegram.onLeftChatMember(self, message, configuration, language)
 		end
 	end
-	for _, plugin in ipairs(self.plugins) do
-		mattata.processPlugins(self, message, configuration, plugin)
+	if not mattata.isPluginDisabledInChat('captionbotai', message) then
+		local captionbotai = require('plugins/captionbotai')
+		if message.photo then 
+			captionbotai.onPhotoReceive(self, message, configuration, language)
+		end
 	end
-	for _, administrationPlugin in ipairs(self.administrationPlugins) do
-		mattata.processPlugins(self, message, configuration, administrationPlugin)
+	if not mattata.isPluginDisabledInChat('statistics', message) then
+		local statistics = require('plugins/statistics')
+		statistics.processMessage(self, message, configuration)
+		if message.text_lower:match('^' .. configuration.commandPrefix .. 'statistics') then 
+			statistics.onMessageReceive(self, message, configuration, language)
+		end
+	end
+	if not mattata.isPluginDisabledInChat('ai', message) then
+		local ai = require('plugins/ai')
+		if message.chat.type == 'private' then
+			if message.text_lower ~= '' then
+				ai.onMessageReceive(self, message, configuration, language)
+			end
+		elseif message.text_lower:match('^' .. self.info.first_name) or message.text_lower:match(self.info.first_name .. '$') or message.text_lower:match('^@' .. self.info.username) or message.text_lower:match('@' .. self.info.username .. '$') then
+			message.text_lower = message.text_lower:gsub(self.info.first_name, ''):gsub(self.info.username, '')
+			ai.onMessageReceive(self, message, configuration, language)
+		end
+	end
+	if configuration.respondToMemes then
+		if message.text_lower:match('^what the fuck did you just fucking say about me%??$') then
+			mattata.sendChatAction(message.chat.id, 'typing')
+			mattata.sendMessage(message.chat.id, 'What the fuck did you just fucking say about me, you little bitch? I\'ll have you know I graduated top of my class in the Navy Seals, and I\'ve been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I\'m the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You\'re fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that\'s just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little "clever" comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn\'t, you didn\'t, and now you\'re paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You\'re fucking dead, kiddo.', nil, true, false, message.message_id)
+		end
+		if message.text_lower:match('^gr8 b8,? m8$') then
+			mattata.sendChatAction(message.chat.id, 'typing')
+			mattata.sendMessage(message.chat.id, 'Gr8 b8, m8. I rel8, str8 appreci8, and congratul8. I r8 this b8 an 8/8. Plz no h8, I\'m str8 ir8. Cre8 more, can\'t w8. We should convers8, I won\'t ber8, my number is 8888888, ask for N8. No calls l8 or out of st8. If on a d8, ask K8 to loc8. Even with a full pl8, I always have time to communic8 so don\'t hesit8.', nil, true, false, message.message_id)
+		end
+	end
+	if configuration.respondToLyrics then
+		if message.text_lower:match('^do you have the time,? to listen to me whine%??$') then
+			mattata.sendChatAction(message.chat.id, 'typing')
+			mattata.sendMessage(message.chat.id, 'About nothing and everything, all at once?', nil, true, false, message.message_id)
+		end
+	end
+end
+
+function mattata:onChannelPostReceive(channel_post, configuration)
+	if channel_post.date < os.time() - 50 then
+		return
+	end
+	channel_post = mattata.processChannelPosts(channel_post)
+	if channel_post then
+		self.groups[tostring(channel_post.chat.id)] = channel_post.chat
+		channel_post.system_date = os.time()
+		channel_post.text = channel_post.text or channel_post.caption or ''
+		channel_post.text_lower = channel_post.text:lower()
+		channel_post.text_upper = channel_post.text:upper()
+		if channel_post.text:match('^' .. configuration.commandPrefix .. 'start .+') then
+			channel_post.text = configuration.commandPrefix .. mattata.input(channel_post.text)
+			channel_post.text_lower = channel_post.text:lower()
+			channel_post.text_upper = channel_post.text:upper()
+		end
+	elseif channel_post.reply_to_message then
+		self.groups[tostring(channel_post.reply_to_message.chat.id)] = channel_post.reply_to_message.chat
+		channel_post.reply_to_message.text = channel_post.reply_to_message.text or channel_post.reply_to_message.caption or ''	
+	end
+	for _, channelPlugin in ipairs(self.channelPlugins) do
+		mattata.processChannelPlugins(self, channel_post, configuration, channelPlugin)
+	end
+	local ai = require('plugins/ai')
+	if channel_post.text_lower:match('^' .. self.info.first_name) or channel_post.text_lower:match(self.info.first_name .. '$') or channel_post.text_lower:match('^@' .. self.info.username) or channel_post.text_lower:match('@' .. self.info.username .. '$') then
+		channel_post.text_lower = channel_post.text_lower:gsub(self.info.first_name, ''):gsub(self.info.username, '')
+		ai.onChannelPostReceive(self, channel_post, configuration)
 	end
 end
 
@@ -142,10 +219,11 @@ function mattata:onQueryReceive(callback, message, configuration)
 		mattata.answerCallbackQuery(callback.id, 'You\'re not allowed to use me!', true)
 		return
 	end
+	local language = require('languages/' .. mattata.getUserLanguage(callback.from.id))
 	for _, plugin in ipairs(self.plugins) do
 		if plugin.onQueryReceive then
 			local success, result = pcall(function()
-				plugin.onQueryReceive(self, callback, message, configuration)
+				plugin.onQueryReceive(self, callback, message, configuration, language)
 			end)
 			if success ~= true then
 				return
@@ -155,7 +233,7 @@ function mattata:onQueryReceive(callback, message, configuration)
 	for _, administrationPlugin in ipairs(self.administrationPlugins) do
 		if administrationPlugin.onQueryReceive then
 			local success, result = pcall(function()
-				administrationPlugin.onQueryReceive(self, callback, message, configuration)
+				administrationPlugin.onQueryReceive(self, callback, message, configuration, language)
 			end)
 			if success ~= true then
 				return
@@ -169,19 +247,28 @@ function mattata:processInlineQuery(inline_query, configuration)
 		mattata.answerInlineQuery(inline_query.id, nil, '5', true)
 		return
 	end
-	for _, inlinePlugin in ipairs(self.inlinePlugins) do
-		for _, commands in ipairs(inlinePlugin.inlineCommands) do
-			if string.match(inline_query.query, commands) then
-				local success, result = pcall(function()
-					inlinePlugin.onInlineCallback(self, inline_query, configuration)
-				end)
-				if not success then
-					return
-				elseif result ~= true then
-					return
+	local language = require('languages/' .. mattata.getUserLanguage(inline_query.from.id))
+	if inline_query.query:match('^' .. configuration.commandPrefix) then
+		for _, inlinePlugin in ipairs(self.inlinePlugins) do
+			for _, commands in ipairs(inlinePlugin.inlineCommands) do
+				if inline_query.query:match(commands) then
+					local success, result = pcall(function()
+						inlinePlugin.onInlineCallback(self, inline_query, configuration, language)
+					end)
+					if not success then
+						return
+					elseif result ~= true then
+						return
+					end
 				end
 			end
 		end
+	elseif inline_query.query:gsub(' ', '') ~= '' then
+		local ai = require('plugins/ai')
+		ai.onInlineCallback(self, inline_query, configuration, language)
+	else
+		local help = require('plugins/help')
+		help.onInlineCallback(self, inline_query, configuration, language)
 	end
 end
 
@@ -202,6 +289,8 @@ function mattata:run(configuration)
 					if configuration.processMessageEdits then
 						mattata.onMessageReceive(self, v.edited_message, configuration)
 					end
+				elseif v.channel_post then
+					mattata.onChannelPostReceive(self, v.channel_post, configuration)
 				end
 			end
 		else
@@ -222,13 +311,13 @@ function mattata:run(configuration)
 			end
 		end
 		if self.last_database_save ~= os.date('%H') then
-			mattata.saveData('users.json', self.users)
-			mattata.saveData('groups.json', self.groups)
+			mattata.saveData('data/users.json', self.users)
+			mattata.saveData('data/groups.json', self.groups)
 			self.last_database_save = os.date('%H')
 		end
 	end
-	mattata.saveData('users.json', self.users)
-	mattata.saveData('groups.json', self.groups)
+	mattata.saveData('data/users.json', self.users)
+	mattata.saveData('data/groups.json', self.groups)
 	print('mattata is shutting down...')
 end
 
@@ -240,26 +329,54 @@ function mattata.getUserRedisHash(user, variable)
 	return 'user:' .. user.id .. ':' .. variable
 end
 
-function mattata.processPlugins(self, message, configuration, plugin)
+function mattata.processPlugins(self, message, configuration, plugin, language)
 	local plugins = plugin.commands or {}
 	for i = 1, #plugins do
 		local command = plugin.commands[i]
 		if string.match(message.text_lower, command) then
 			if not mattata.isPluginDisabledInChat(plugin.name, message) then
-				if plugin.processMessage and message then
-					plugin.processMessage(message, configuration)
-					if not message then
-						return
-					end
-				end
 				local success, result = pcall(function()
-					return plugin.onMessageReceive(self, message, configuration)
+					return plugin.onMessageReceive(self, message, configuration, language)
 				end)
 				if not success then
 					mattata.handleException(self, result, message.from.id .. ': ' .. message.text, configuration.adminGroup)
 					message = nil
 					return
 				end
+			end
+		end
+	end
+end
+
+function mattata.processChannelPlugins(self, channel_post, configuration, channelPlugin)
+	local channelPlugins = channelPlugin.commands or {}
+	for i = 1, #channelPlugins do
+		local command = channelPlugin.commands[i]
+		if string.match(channel_post.text_lower, command) then
+			local success, result = pcall(function()
+				return channelPlugin.onChannelPostReceive(self, channel_post, configuration)
+			end)
+			if not success then
+				mattata.handleException(self, result, channel_post.chat.id .. ': ' .. channel_post.text, configuration.adminGroup)
+				channel_post = nil
+				return
+			end
+		end
+	end
+end
+
+function mattata.processAdministrationPlugins(self, message, configuration, administrationPlugin, language)
+	local administrationPlugins = administrationPlugin.commands or {}
+	for i = 1, #administrationPlugins do
+		local command = administrationPlugin.commands[i]
+		if string.match(message.text_lower, command) then
+			local success, result = pcall(function()
+				return administrationPlugin.onMessageReceive(self, message, configuration, language)
+			end)
+			if not success then
+				mattata.handleException(self, result, message.from.id .. ': ' .. message.text, configuration.adminGroup)
+				message = nil
+				return
 			end
 		end
 	end
@@ -327,7 +444,6 @@ function mattata.request(method, parameters, file, otherApi)
 		elseif result.ok then
 			return result
 		else
-			print(JSON.encode(result))
 			return false
 		end
 	end
@@ -635,129 +751,7 @@ function mattata.deleteMessage(chat_id, message_id)
 	}, nil, 'https://api.pwrtelegram.xyz/bot' )
 end
 
--- Custom Telegram API orientated functions
-
-function mattata.generateInlineArticle(id, title, message_text, parse_mode, disable_web_page_preview, description, keyboard_type, buttonText, buttonValue)
-	local keyboard
-	if keyboard_type == 'url' then
-		keyboard = {
-			inline_keyboard = {
-				{
-					{	
-						text = buttonText,
-						url = buttonValue
-					}
-				}
-			}
-		}
-	else
-		keyboard = {
-			inline_keyboard = {
-				{
-					{
-						text = buttonText,
-						callback_data = buttonValue
-					}
-				}
-			}
-		}
-	end
-	local parameters = {
-		type = 'article',
-		id = tostring(id),
-		title = title,
-		input_message_content = {
-			message_text = message_text,
-			parse_mode = parse_mode,
-			disable_web_page_preview = disable_web_page_preview
-		},
-		description = description
-	}
-	if keyboard_type then
-		parameters = parameters .. ',' .. {
-			reply_markup = keyboard
-		}
-	end
-	return JSON.encode(parameters)
-end
-
-function mattata.generateInlinePhoto(id, photo_url, thumb_url, photo_width, photo_height, title, description, caption, keyboard_type, buttonText, buttonValue, message_text, parse_mode, disable_web_page_preview)
-	local keyboard
-	if keyboard_type == 'url' then
-		keyboard = {
-			inline_keyboard = {
-				{
-					{	
-						text = buttonText,
-						url = buttonValue
-					}
-				}
-			}
-		}
-	else
-		keyboard = {
-			inline_keyboard = {
-				{
-					{
-						text = buttonText,
-						callback_data = buttonValue
-					}
-				}
-			}
-		}
-	end
-	local parameters = {
-		type = 'photo',
-		id = tostring(id),
-		photo_url = photo_url,
-		thumb_url = thumb_url,
-		photo_width = photo_width,
-		photo_height = photo_height,
-		title = title,
-		description = description,
-		caption = caption
-	}
-	if keyboard_type then
-		parameters = parameters .. ',' .. {
-			reply_markup = keyboard
-		}
-	elseif message_text then
-		parameters = parameters .. ',' .. {
-			input_message_content = {
-				message_text = message_text,
-				parse_mode = parse_mode,
-				disable_web_page_preview = disable_web_page_preview
-			}
-		}
-	end
-	return JSON.encode(parameters)
-end
-
-function mattata.generateCallbackButton(text, callback_data)
-	return JSON.encode( {
-		inline_keyboard = {
-			{
-				{
-					text = text,
-					callback_data = callback_data
-				}
-			}
-		}
-	} )
-end
-
-function mattata.generateUrlButton(text, url)
-	return JSON.encode( {
-		inline_keyboard = {
-			{
-				{
-					text = text,
-					url = url
-				}
-			}
-		}
-	} )
-end
+-- General functions --
 
 function mattata.getWord(s, i)
 	s = s or ''
@@ -967,25 +961,6 @@ function mattata.utf8Len(s)
 	return chars
 end
 
-function mattata.loadPlugins()
-	enabledPlugins = redis:smembers('mattata:enabledPlugins')
-	if enabledPlugins[1] == nil then
-		mattata.loadDefaultPlugins()
-	end
-	return enabledPlugins
-end
-
-function mattata.deletePlugin(plugin)
-	return redis:srem('mattata:enabledPlugins', plugin)
-end
-
-function mattata.loadDefaultPlugins()
-	enabledPlugins = configuration.plugins
-	for _, plugin in pairs(enabledPlugins) do
-		redis:sadd('mattata:enabledPlugins', plugin)
-	end
-end
-
 function mattata.processUsers(user)
 	user.id_str = tostring(user.id)
 	user.name = mattata.buildName(user.first_name, user.last_name)
@@ -1023,6 +998,50 @@ function mattata.processMessages(message)
 		message.left_chat_member = mattata.processUsers(message.left_chat_member)
 	end
 	return message
+end
+
+function mattata.processChannelPosts(channel_post)
+	if not channel_post.text then
+		channel_post.text = channel_post.caption or ''
+	end
+	channel_post.system_date = os.time()
+	channel_post.text_lower = channel_post.text:lower()
+	channel_post.text_upper = channel_post.text:upper()
+	channel_post.chat.id_str = tostring(channel_post.chat.id)
+	if channel_post.reply_to_message then
+		if not channel_post.reply_to_message.text then
+			channel_post.reply_to_message.text = channel_post.reply_to_message.caption or ''
+		end
+		channel_post.reply_to_message.system_date = os.time()
+		channel_post.reply_to_message.text_lower = channel_post.reply_to_message.text:lower()
+		channel_post.reply_to_message.text_upper = channel_post.reply_to_message.text:upper()
+		channel_post.reply_to_message.chat.id_str = tostring(channel_post.reply_to_message.chat.id)
+	end
+	if channel_post.forward_from then
+		channel_post.forward_from = mattata.processUsers(channel_post.forward_from)
+	end
+	return channel_post
+end
+
+function mattata.isConfiguredAdmin(id)
+	for k, v in pairs(configuration.admins) do
+		if id == v then
+			return true
+		end
+	end
+	return false
+end
+
+function mattata.getUserLanguage(user)
+	local hash = 'user:' .. user .. ':language'
+	if hash then
+		local language = redis:hget(hash, 'language')
+		if not language or language == 'false' then
+			return 'en'
+		else
+			return language
+		end
+	end
 end
 
 return mattata
