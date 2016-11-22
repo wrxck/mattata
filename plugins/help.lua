@@ -47,7 +47,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' <text> - Speak with ' .. self.info.first_name .. '!'
 			},
-			thumb_url = 'http://matthewhesketh.com/images/mattata.png'
+			thumb_url = 'http://matthewhesketh.com/mattata/mattata.png'
 		},
 		{
 			type = 'article',
@@ -57,7 +57,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'id <user/group> - Get information about a user/group.'
 			},
-			thumb_url = 'http://matthewhesketh.com/images/id.png'
+			thumb_url = 'http://matthewhesketh.com/mattata/id.png'
 		},
 		{
 			type = 'article',
@@ -67,7 +67,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'apod - Astronomical photo of the day, from NASA.'
 			},
-			thumb_url = 'http://matthewhesketh.com/images/apod.jpg'
+			thumb_url = 'http://matthewhesketh.com/mattata/apod.jpg'
 		},
 		{
 			type = 'article',
@@ -77,7 +77,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'gif <query> - Search for a gif on GIPHY.'
 			},
-			thumb_url = 'http://matthewhesketh.com/images/giphy.png'
+			thumb_url = 'http://matthewhesketh.com/mattata/giphy.png'
 		},
 		{
 			type = 'article',
@@ -87,7 +87,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'np - See what you last listened to on last.fm.'
 			},
-			thumb_url = 'http://matthewhesketh.com/images/lastfm.png'
+			thumb_url = 'http://matthewhesketh.com/mattata/lastfm.png'
 		},
 		{
 			type = 'article',
@@ -97,7 +97,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'translate <language> <text> - Translate text between different languages.'
 			},
-			thumb_url = 'http://matthewhesketh.com/images/translate.jpg'
+			thumb_url = 'http://matthewhesketh.com/mattata/translate.jpg'
 		},
 		{
 			type = 'article',
@@ -107,7 +107,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'lyrics <song> - Get the lyrics to a song.'
 			},
-			thumb_url = 'http://matthewhesketh.com/images/lyrics.png'
+			thumb_url = 'http://matthewhesketh.com/mattata/lyrics.png'
 		},
 		{
 			type = 'article',
@@ -117,7 +117,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'bandersnatch - Generate a new, weird and wacky name!'
 			},
-			thumb_url = 'http://matthewhesketh.com/images/bandersnatch.jpg'
+			thumb_url = 'http://matthewhesketh.com/mattata/bandersnatch.jpg'
 		},
 		{
 			type = 'article',
@@ -127,7 +127,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'catfact - Discover something new about cats.'
 			},
-			thumb_url = 'http://matthewhesketh.com/images/catfact.jpg'
+			thumb_url = 'http://matthewhesketh.com/mattata/catfact.jpg'
 		},
 		{
 			type = 'article',
@@ -137,7 +137,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. '9gag - View the latest images on 9gag.'
 			},
-			thumb_url = 'http://matthewhesketh.com/images/9gag.png'
+			thumb_url = 'http://matthewhesketh.com/mattata/9gag.png'
 		},
 		{
 			type = 'article',
@@ -147,7 +147,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'urban <query> - Search the urban dictionary.'
 			},
-			thumb_url = 'http://matthewhesketh.com/images/urbandictionary.jpg'
+			thumb_url = 'http://matthewhesketh.com/mattata/urbandictionary.jpg'
 		},
 		{
 			type = 'article',
@@ -157,7 +157,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'cat - Get a random photo of a cat. Meow!',
 			},
-			thumb_url = 'http://matthewhesketh.com/images/cats.png'
+			thumb_url = 'http://matthewhesketh.com/mattata/cats.png'
 		},
 		{
 			type = 'article',
@@ -167,7 +167,7 @@ function help:onInlineQuery(inline_query, configuration)
 			input_message_content = {
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'flickr <query> - Search for an image on Flickr.',
 			},
-			thumb_url = 'http://matthewhesketh.com/images/flickr.png'
+			thumb_url = 'http://matthewhesketh.com/mattata/flickr.png'
 		}
 	})
 	mattata.answerInlineQuery(inline_query.id, results, 0)
