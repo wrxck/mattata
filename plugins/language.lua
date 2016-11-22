@@ -50,7 +50,7 @@ local languages = {
 	'pl'
 }
 
-function language:onMessageReceive(message, configuration)
+function language:onMessage(message, configuration)
 	local input = mattata.input(message.text_lower)
 	if not input then
 		mattata.sendMessage(message.chat.id, getLanguage(message.from), nil, true, false, message.message_id)

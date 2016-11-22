@@ -7,7 +7,7 @@ function groups:init(configuration)
 	groups.help = configuration.commandPrefix .. 'groups <search query> - If no arguments are given, a list of configured groups is sent; otherwise, a list of groups matching the given search query is sent instead.'
 end
 
-function groups:onChannelPostReceive(channel_post, configuration)
+function groups:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	local groups = {}
 	local results = {}
@@ -33,7 +33,7 @@ function groups:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id)
 end
 
-function groups:onMessageReceive(message, configuration, language)
+function groups:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	local groups = {}
 	local results = {}

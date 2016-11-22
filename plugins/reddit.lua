@@ -36,7 +36,7 @@ function formatResults(posts)
 	return output
 end
 
-function reddit:onChannelPostReceive(channel_post, configuration)
+function reddit:onChannelPost(channel_post, configuration)
 	local text = channel_post.text_lower
 	if text:match('^/r/.') then
 		text = channel_post.text_lower:gsub('^/r/', configuration.commandPrefix .. 'r r/')
@@ -78,7 +78,7 @@ function reddit:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, source .. formatResults(jdat.data.children), 'Markdown', true, false, channel_post.message_id)
 end
 
-function reddit:onMessageReceive(message, configuration, language)
+function reddit:onMessage(message, configuration, language)
 	local limit = 4
 	if message.chat.type == 'private' then
 		limit = 8

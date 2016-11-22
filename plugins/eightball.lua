@@ -14,7 +14,7 @@ function eightball:init(configuration)
 	eightball.help = configuration.commandPrefix .. 'eightball - Returns your destined decision through mattata\'s sixth sense.'
 end
 
-function eightball:onChannelPostReceive(channel_post, configuration)
+function eightball:onChannelPost(channel_post, configuration)
 	local answers = configuration.eightball.answers
 	local yes_no_answers = configuration.eightball.yes_no_answers
 	local output = ''
@@ -26,7 +26,7 @@ function eightball:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, output, nil, true, false, channel_post.message_id)
 end
 
-function eightball:onMessageReceive(message, configuration)
+function eightball:onMessage(message, configuration)
 	local answers = configuration.eightball.answers
 	local yes_no_answers = configuration.eightball.yes_no_answers
 	local output = ''

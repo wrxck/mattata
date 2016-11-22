@@ -110,7 +110,7 @@ local slaps = {
 	'VICTOR checkmated VICTIM in two moves.'
 }
 
-function slap:onMessageReceive(message)
+function slap:onMessage(message)
 	local input = mattata.input(message.text)
 	local victor = message.from.first_name
 	local victim

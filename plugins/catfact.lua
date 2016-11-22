@@ -10,7 +10,7 @@ function catfact:init(configuration)
 	catfact.help = configuration.commandPrefix .. 'catfact - A random cat-related fact!'
 end
 
-function catfact:onInlineCallback(inline_query, language)
+function catfact:onInlineQuery(inline_query, language)
 	local jstr, res = HTTP.request('http://catfacts-api.appspot.com/api/facts')
 	if res ~= 200 then
 		local results = JSON.encode({
@@ -42,7 +42,7 @@ function catfact:onInlineCallback(inline_query, language)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function catfact:onChannelPostReceive(channel_post, configuration)
+function catfact:onChannelPost(channel_post, configuration)
 	local jstr, res = HTTP.request('http://catfacts-api.appspot.com/api/facts')
 	if res ~= 200 then
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
@@ -52,7 +52,7 @@ function catfact:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, jdat.facts[1]:gsub('â', ' '), nil, true, false, channel_post.message_id)
 end
 
-function catfact:onMessageReceive(message, language)
+function catfact:onMessage(message, language)
 	local jstr, res = HTTP.request('http://catfacts-api.appspot.com/api/facts')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)

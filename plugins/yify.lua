@@ -11,7 +11,7 @@ function yify:init(configuration)
 	yify.help = configuration.commandPrefix .. 'yify <query> - Searches Yify torrents for the given query.'
 end
 
-function yify:onChannelPostReceive(channel_post, configuration)
+function yify:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, yify.help, nil, true, false, channel_post.message_id)
@@ -48,7 +48,7 @@ function yify:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, '[' .. mattata.markdownEscape(jdat.data.movies[1].title_long) .. '](' .. jdat.data.movies[1].large_cover_image .. ')' .. '\n*' .. jdat.data.movies[1].year .. ' | ' .. jdat.data.movies[1].rating .. '/10 | ' .. jdat.data.movies[1].runtime .. ' min*\n\n_' .. mattata.markdownEscape(jdat.data.movies[1].synopsis) .. '_', 'Markdown', true, false, channel_post.message_id, JSON.encode(keyboard))
 end
 
-function yify:onMessageReceive(message, language)
+function yify:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, yify.help, nil, true, false, message.message_id)

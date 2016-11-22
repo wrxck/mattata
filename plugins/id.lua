@@ -9,7 +9,7 @@ function id:init(configuration)
 	id.help = configuration.commandPrefix .. 'id <user> - Sends the name, ID, and (if applicable) username for the given user. Input is also accepted via reply. If no input is given, info about you is sent. This command can also be used inline!'
 end
 
-function id:onInlineCallback(inline_query, configuration)
+function id:onInlineQuery(inline_query, configuration)
 	local name, id, username, title, members, output, input
 	if not mattata.input(inline_query.query) then
 		input = (inline_query.from.username or inline_query.from.id)
@@ -64,7 +64,7 @@ function id:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function id:onMessageReceive(message)
+function id:onMessage(message)
 	local name, id, username, title, members, output
 	local input = mattata.input(message.text)
 	if not input then

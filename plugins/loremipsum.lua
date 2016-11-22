@@ -8,7 +8,7 @@ function loremipsum:init(configuration)
 	loremipsum.help = configuration.commandPrefix .. 'loremipsum - Generates a few Lorem Ipsum sentences!'
 end
 
-function loremipsum:onMessageReceive(message, language)
+function loremipsum:onMessage(message, language)
 	local str, res = HTTP.request('http://loripsum.net/api/1/medium/plaintext')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)

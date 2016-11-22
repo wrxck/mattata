@@ -154,7 +154,7 @@ function gh:getSubs(id, chatName)
 	return text, keyboard
 end
 
-function gh:onChannelPostReceive(channel_post, configuration)
+function gh:onChannelPost(channel_post, configuration)
 	if channel_post.text_lower:match('^' .. configuration.commandPrefix .. 'gh sub') then
 		if not channel_post.text_lower:match('^' .. configuration.commandPrefix .. 'gh sub$') then
 			mattata.sendMessage(channel_post.chat.id, gh:subscribe(channel_post.chat.id, channel_post.text_lower:gsub(configuration.commandPrefix .. 'gh sub ', ''):gsub(' ', '/')), 'Markdown', true, false, channel_post.message_id)
@@ -172,7 +172,7 @@ function gh:onChannelPostReceive(channel_post, configuration)
 	end
 end
 
-function gh:onMessageReceive(message, configuration, self)
+function gh:onMessage(message, configuration, self)
 	if message.chat.type ~= 'private' or (not mattata.isGroupAdmin(message.chat.id, message.from.id)) or (not mattata.isConfiguredAdmin(message.from.id)) then
 		return
 	end

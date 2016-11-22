@@ -14,7 +14,7 @@ function dice:init(configuration)
 	dice.help = configuration.commandPrefix .. 'dice <number of dice to roll> <range of numbers on the dice> - Rolls a die a given amount of times, with a given range.'
 end
 
-function dice:onChannelPostReceive(channel_post, configuration)
+function dice:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, dice.help, nil, true, false, channel_post.message_id)
@@ -49,7 +49,7 @@ function dice:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id)
 end
 
-function dice:onMessageReceive(message, configuration)
+function dice:onMessage(message, configuration)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, dice.help, nil, true, false, message.message_id)

@@ -9,7 +9,7 @@ function qotd:init(configuration)
 	qotd.help = configuration.commandPrefix .. 'qotd - Sends the quote of the day.'
 end
 
-function qotd:onChannelPostReceive(channel_post, configuration)
+function qotd:onChannelPost(channel_post, configuration)
 	local jstr, res = HTTP.request('http://quotes.rest/qod.json')
 	if res ~= 200 then
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
@@ -23,7 +23,7 @@ function qotd:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, '_' .. jdat.contents.quotes[1].quote .. '_ - *' .. jdat.contents.quotes[1].author .. '*', 'Markdown', true, false, channel_post.message_id)
 end
 
-function qotd:onMessageReceive(message, language)
+function qotd:onMessage(message, language)
 	local jstr, res = HTTP.request('http://quotes.rest/qod.json')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)

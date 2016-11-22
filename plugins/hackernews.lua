@@ -6,9 +6,13 @@
 ]]--
 
 local hackernews = {}
+local mattata = require('mattata')
 local HTTPS = require('ssl.https')
 local JSON = require('dkjson')
-local mattata = require('mattata')
+
+hackernews.topstories = 'https://hacker-news.firebaseio.com/v0/topstories.json'
+hackernews.res = 'https://hacker-news.firebaseio.com/v0/item/%s.json'
+hackernews.art = 'https://news.ycombinator.com/item?id=%s'
 
 function hackernews:init(configuration)
 	hackernews.arguments = 'hackernews'
@@ -18,16 +22,16 @@ function hackernews:init(configuration)
 	hackernews.lastUpdate = 0
 end
 
-function getHackernewsResults(configuration, language)
+function getHackernewsResults(language)
 	local results = {}
-	local jstr, res = HTTPS.request(configuration.apis.hackernews.topstories)
+	local jstr, res = HTTPS.request(hackernews.topstories)
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return
 	end
 	local jdat = JSON.decode(jstr)
 	for i = 1, 8 do
-		local ijstr, ires = HTTPS.request(configuration.apis.hackernews.res:format(jdat[i]))
+		local ijstr, ires = HTTPS.request(hackernews.res:format(jdat[i]))
 		if ires ~= 200 then
 			mattata.sendMessage(message, language.errors.connection, nil, true, false, message.message_id)
 			return
@@ -37,7 +41,7 @@ function getHackernewsResults(configuration, language)
 		if ijdat.url then
 			result = string.format(
 				'\n• <code>[</code><a href="%s">%s</a><code>]</code> <a href="%s">%s</a>',
-				mattata.htmlEscape(configuration.apis.hackernews.art:format(ijdat.id)),
+				mattata.htmlEscape(hackernews.art:format(ijdat.id)),
 				ijdat.id,
 				mattata.htmlEscape(ijdat.url),
 				mattata.htmlEscape(ijdat.title)
@@ -45,7 +49,7 @@ function getHackernewsResults(configuration, language)
 		else
 			result = string.format(
 				'\n• <code>[</code><a href="%s">%s</a><code>]</code> %s',
-				mattata.htmlEscape(configuration.apis.hackernews.art:format(ijdat.id)),
+				mattata.htmlEscape(hackernews.art:format(ijdat.id)),
 				ijdat.id,
 				mattata.htmlEscape(ijdat.title)
 			)
@@ -55,10 +59,10 @@ function getHackernewsResults(configuration, language)
 	return results
 end
 
-function hackernews:onMessageReceive(message, configuration, language)
+function hackernews:onMessage(message, language)
 	local now = os.time() / 60
 	if not hackernews.results then
-		hackernews.results = getHackernewsResults(configuration, language)
+		hackernews.results = getHackernewsResults(language)
 		if not hackernews.results then
 			mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 			return

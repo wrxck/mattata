@@ -26,7 +26,7 @@ function set:removeValue(message, variable)
 	end
 end
 
-function set:onMessageReceive(message)
+function set:onMessage(message)
 	local input = mattata.input(message.text)
 	if not input or not input:match('([^%s]+) (.+)') then
 		mattata.sendMessage(message.chat.id, set.help, 'Markdown', true, false, message.message_id)

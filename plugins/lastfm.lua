@@ -6,11 +6,11 @@
 ]]--
 
 local lastfm = {}
-local HTTP = require('socket.http')
+local mattata = require('mattata')
 local HTTPS = require('ssl.https')
+local HTTP = require('socket.http')
 local URL = require('socket.url')
 local JSON = require('dkjson')
-local mattata = require('mattata')
 local redis = require('mattata-redis')
 
 function lastfm:init(configuration)
@@ -50,17 +50,27 @@ function getLastfmUsername(user)
 	end
 end
 
-function lastfm:onInlineCallback(inline_query, configuration)
+function lastfm:onInlineQuery(inline_query, configuration, language)
 	local input = inline_query.query:gsub('^' .. configuration.commandPrefix .. 'np ', '')
-	local url = configuration.apis.lastfm .. configuration.keys.lastfm .. '&user='
+	local url = 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&format=json&limit=1&api_key=' .. configuration.keys.lastfm .. '&user='
 	local username, results, output
 	if inline_query.query == configuration.commandPrefix .. 'np' then
 		if not getLastfmUsername(inline_query.from) then
-			results = '[{"type":"article","id":"1","title":"Please send /fmset <username> to me via private chat!","input_message_content":{"message_text":"Please send /fmset <username> to me via private chat!"}}]'
+			local results = JSON.encode({
+				{
+					type = 'article',
+					id = '1',
+					title = 'An error occured!',
+					description = 'Please send ' .. configuration.commandPrefix .. 'fmset <username> to me via private chat!',
+					input_message_content = {
+						message_text = 'An error occured!\nPlease send ' .. configuration.commandPrefix .. 'fmset <username> to me via private chat!'
+					}
+				}
+			})
 			mattata.answerInlineQuery(inline_query.id, results, 0)
-		else
-			username = getLastfmUsername(inline_query.from)
+			return
 		end
+		username = getLastfmUsername(inline_query.from)
 	else
 		username = input
 	end
@@ -84,15 +94,34 @@ function lastfm:onInlineCallback(inline_query, configuration)
 		artist = jdat.artist['#text']
 	end
 	output = output .. artist .. ' - ' .. title
-	if jdat.image[4]['#text'] == "" then
-		results = '[{"type":"article","id":"1","title":"'..artist..' - ' ..title..'","input_message_content":{"message_text":"'..output..'"}}]'
-	else
-		results = '[{"type":"photo","id":"1","photo_url":"' .. jdat.image[4]['#text'] .. '","thumb_url":"' .. jdat.image[2]['#text'] .. '","caption":"' .. output .. '"}]'
+	if jdat.image[4]['#text'] == '' then
+		local results = JSON.encode({
+			{
+				type = 'article',
+				id = '1',
+				title = artist .. ' - ' .. title,
+				description = 'Click to send the result.',
+				input_message_content = {
+					message_text = output
+				}
+			}
+		})
+		mattata.answerInlineQuery(inline_query.id, results, 0)
+		return
 	end
+	local results = JSON.encode({
+		{
+			type = 'photo',
+			id = '1',
+			photo_url = jdat.image[4]['#text'],
+			thumb_url = jdat.image[4]['#text'],
+			caption = output
+		}
+	})
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function lastfm:onMessageReceive(message, configuration, language)
+function lastfm:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	if message.text_lower:match('^' .. configuration.commandPrefix .. 'lastfm$') then
 		mattata.sendMessage(message.chat.id, lastfm.help, nil, true, false, message.message_id)
@@ -117,7 +146,7 @@ function lastfm:onMessageReceive(message, configuration, language)
 		mattata.sendMessage(message.chat.id, 'Please specify your last.fm username or set it with ' .. configuration.commandPrefix .. 'fmset.', nil, true, false, message.message_id)
 		return
 	end
-	local jstr, res = HTTP.request(configuration.apis.lastfm .. configuration.keys.lastfm .. '&user=' .. URL.escape(username))
+	local jstr, res = HTTP.request('http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&format=json&limit=1&api_key=' .. configuration.keys.lastfm .. '&user=' .. URL.escape(username))
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return

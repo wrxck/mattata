@@ -21,7 +21,7 @@ local filmsByNumber = {
 
 local correctedNumbers = { 4, 5, 6, 1, 2, 3, 7 }
 
-function starwars:onChannelPostReceive(channel_post, configuration)
+function starwars:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, starwars.help, nil, true, false, channel_post.message_id)
@@ -52,7 +52,7 @@ function starwars:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, jdat.opening_crawl, nil, true, false, channel_post.message_id)
 end
 
-function starwars:onMessageReceive(message, language)
+function starwars:onMessage(message, language)
 	mattata.sendChatAction(message.chat.id, 'typing')
 	local input = mattata.input(message.text)
 	if not input then

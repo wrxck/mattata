@@ -21,7 +21,7 @@ function blacklist:reloadPlugins(self, configuration)
 	return
 end
 
-function blacklist:onMessageReceive(message, configuration, language)
+function blacklist:onMessage(message, configuration, language)
 	if not mattata.isConfiguredAdmin(message.from.id) then
 		return
 	end

@@ -29,7 +29,7 @@ function randomword:onQueryReceive(callback, message, language)
 	end
 end
 
-function randomword:onChannelPostReceive(channel_post, configuration)
+function randomword:onChannelPost(channel_post, configuration)
 	local str, res = HTTP.request('http://www.setgetgo.com/randomword/get.php')
 	if res ~= 200 then
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
@@ -47,7 +47,7 @@ function randomword:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, 'Your random word is *' .. str .. '*!', 'Markdown', true, false, channel_post.message_id, JSON.encode(keyboard))
 end
 
-function randomword:onMessageReceive(message, language)
+function randomword:onMessage(message, language)
 	local str, res = HTTP.request('http://www.setgetgo.com/randomword/get.php')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)

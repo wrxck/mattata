@@ -10,7 +10,7 @@ function synonym:init(configuration)
 	synonym.help = configuration.commandPrefix .. 'synonym <word> - Sends a synonym of the given word.'
 end
 
-function synonym:onChannelPostReceive(channel_post, configuration)
+function synonym:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, synonym.help, nil, true, false, channel_post.message_id)
@@ -29,7 +29,7 @@ function synonym:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, 'You could use the word *' .. jdat.def[1].tr[1].text .. '* instead.', 'Markdown', true, false, channel_post.message_id)
 end
 
-function synonym:onMessageReceive(message, configuration, language)
+function synonym:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, synonym.help, nil, true, false, message.message_id)

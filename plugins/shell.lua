@@ -12,7 +12,7 @@ function shell:init(configuration)
 	shell.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('bash').table
 end
 
-function shell:onMessageReceive(message)
+function shell:onMessage(message)
 	if not mattata.isConfiguredAdmin(message.from.id) then
 		return
 	end

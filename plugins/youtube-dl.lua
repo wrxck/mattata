@@ -27,7 +27,7 @@ function extractIdFromUrl(url)
 	return url:gsub('https?://w?w?w?m?%.?youtube.com/watch%?v=', ''):gsub('https?://w?w?w?m?%.?youtube.com/embed/', ''):gsub('https?://w?w?w?m?%.?youtu.be/', '')
 end
 
-function youtube_dl:onChannelPostReceive(channel_post)
+function youtube_dl:onChannelPost(channel_post)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, youtube_dl.help, nil, true, false, channel_post.message_id)
@@ -46,7 +46,7 @@ function youtube_dl:onChannelPostReceive(channel_post)
 	end
 end
 
-function youtube_dl:onMessageReceive(message)
+function youtube_dl:onMessage(message)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, youtube_dl.help, nil, true, false, message.message_id)

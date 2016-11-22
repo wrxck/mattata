@@ -7,7 +7,7 @@ function copypasta:init(configuration)
 	copypasta.help = configuration.commandPrefix .. 'copypasta - Riddles the replied-to message with cancerous emoji. Alias: ' .. configuration.commandPrefix .. '😂.'
 end
 
-function copypasta:onMessageReceive(message, configuration, language)
+function copypasta:onMessage(message, configuration, language)
 	mattata.sendChatAction(message.chat.id, 'typing')
 	if not message.reply_to_message then
 		mattata.sendMessage(message.chat.id, copypasta.help, nil, true, false, message.message_id)

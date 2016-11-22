@@ -100,7 +100,7 @@ function plugins:enableAllPlugins(message)
 	return 'Success! Use ' .. configuration.commandPrefix .. 'plugins disableall to disable all plugins, or use ' .. configuration.commandPrefix .. 'plugins disable <plugin> to disable plugins individually.'
 end
 
-function plugins:onMessageReceive(message, configuration)
+function plugins:onMessage(message, configuration)
 	if message.chat.type ~= 'private' then
 		if not mattata.isGroupAdmin(message.chat.id, message.from.id) or not mattata.isConfiguredAdmin(message.from.id) then
 			if not mattata.input(message.text) then

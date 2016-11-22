@@ -31,7 +31,7 @@ function fact:onQueryReceive(callback, message, language)
 	end
 end
 
-function fact:onChannelPostReceive(channel_post, configuration)
+function fact:onChannelPost(channel_post, configuration)
 	local jstr, res = HTTP.request('http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000')
 	if res ~= 200 then
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
@@ -51,7 +51,7 @@ function fact:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, jdat[jrnd].nid:gsub('&lt;', ''):gsub('<p>', ''):gsub('</p>', ''):gsub('<em>', ''):gsub('</em>', ''), nil, true, false, channel_post.message_id, JSON.encode(keyboard))
 end
 
-function fact:onMessageReceive(message, language)
+function fact:onMessage(message, language)
 	local jstr, res = HTTP.request('http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)

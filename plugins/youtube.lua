@@ -17,19 +17,13 @@ function youtube:init(configuration)
 	youtube.help = configuration.commandPrefix .. 'youtube <query> - Sends the top results from YouTube for the given search query. Alias: ' .. configuration.commandPrefix .. 'yt.'
 end
 
-function youtube:onChannelPostReceive(channel_post, configuration)
+function youtube:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, youtube.help, nil, true, false, channel_post.message_id)
 		return
 	end
-	local url
-	if message.chat.type == 'private' then
-		url = 'https://www.googleapis.com/youtube/v3/search?key=' .. configuration.keys.google .. '&type=video&part=snippet&maxResults=8&q=' .. URL.escape(input)
-	else
-		url = 'https://www.googleapis.com/youtube/v3/search?key=' .. configuration.keys.google .. '&type=video&part=snippet&maxResults=4&q=' .. URL.escape(input)
-	end
-	local jstr, res = HTTPS.request(url)
+	local jstr, res = HTTPS.request('https://www.googleapis.com/youtube/v3/search?key=' .. configuration.keys.google .. '&type=video&part=snippet&maxResults=4&q=' .. URL.escape(input))
 	if res ~= 200 then
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
 		return
@@ -47,7 +41,7 @@ function youtube:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id)
 end
 
-function youtube:onMessageReceive(message, configuration, language)
+function youtube:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, youtube.help, nil, true, false, message.message_id)

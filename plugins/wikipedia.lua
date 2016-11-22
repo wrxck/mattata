@@ -26,7 +26,7 @@ local get_title = function(search)
  	return false
 end
 
-function wikipedia:onChannelPostReceive(channel_post, configuration)
+function wikipedia:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, wikipedia.help, nil, true, false, channel_post.message_id)
@@ -90,7 +90,7 @@ function wikipedia:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id, JSON.encode(keyboard))
 end
 
-function wikipedia:onMessageReceive(message, language)
+function wikipedia:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, wikipedia.help, nil, true, false, message.message_id)

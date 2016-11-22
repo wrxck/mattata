@@ -10,7 +10,7 @@ function ninegag:init(configuration)
 	ninegag.help = configuration.commandPrefix .. '9gag - Returns a random result from the latest 9gag images.'
 end
 
-function ninegag:onInlineCallback(inline_query, language)
+function ninegag:onInlineQuery(inline_query, language)
 	local jstr, res = HTTP.request('http://api-9gag.herokuapp.com/')
 	if res ~= 200 then
 		local results = JSON.encode({
@@ -46,7 +46,7 @@ function ninegag:onInlineCallback(inline_query, language)
 	mattata.answerInlineQuery(inline_query.id, JSON.encode(resultsList), 0)
 end
 
-function ninegag:onChannelPostReceive(channel_post, configuration)
+function ninegag:onChannelPost(channel_post, configuration)
 	local jstr, res = HTTP.request('http://api-9gag.herokuapp.com/')
 	if res ~= 200 then
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
@@ -66,7 +66,7 @@ function ninegag:onChannelPostReceive(channel_post, configuration)
 	mattata.sendPhoto(channel_post.chat.id, jdat[jrnd].src, jdat[jrnd].title, false, channel_post.message_id, JSON.encode(keyboard))
 end
 
-function ninegag:onMessageReceive(message, language)
+function ninegag:onMessage(message, language)
 	local jstr, res = HTTP.request('http://api-9gag.herokuapp.com/')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)

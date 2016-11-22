@@ -23,7 +23,7 @@ function lua:init(configuration)
 	groups = self.groups
 end
 
-function lua:onMessageReceive(message, configuration)
+function lua:onMessage(message, configuration)
 	if not mattata.isConfiguredAdmin(message.from.id) then
 		return true
 	end

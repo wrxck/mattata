@@ -23,7 +23,7 @@ function getUserId(user)
 	return request.result.id
 end
 
-function kick:onMessageReceive(message, configuration)
+function kick:onMessage(message, configuration)
 	local input = mattata.input(message.text)
 	if message.chat.type ~= 'private' then
 		local admin_list = mattata.getChatAdministrators(message.chat.id)

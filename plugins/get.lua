@@ -37,7 +37,7 @@ function get:listVariables(message)
 	end
 end
 
-function get:onMessageReceive(message)
+function get:onMessage(message)
 	local input = mattata.input(message.text)
 	local output
 	if input then

@@ -17,7 +17,7 @@ function imdb:init(configuration)
 	imdb.help = configuration.commandPrefix .. 'imdb <query> - Returns an IMDb entry.'
 end
 
-function imdb:onMessageReceive(message, language)
+function imdb:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, imdb.help, nil, true, false, message.message_id)

@@ -4,7 +4,7 @@ local HTTPS = require('ssl.https')
 local URL = require('socket.url')
 local JSON = require('dkjson')
 
-function ai:onInlineCallback(inline_query, configuration, language)
+function ai:onInlineQuery(inline_query, configuration, language)
 	local input = inline_query.query:gsub(configuration.commandPrefix .. 'ai ', '')
 	local jstr, res = HTTPS.request('https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=' .. URL.escape(input))
 	if not res then
@@ -43,7 +43,7 @@ function ai:onInlineCallback(inline_query, configuration, language)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function ai:onChannelPostReceive(channel_post, configuration)
+function ai:onChannelPost(channel_post, configuration)
 	if not channel_post.text_lower:match('^' .. configuration.commandPrefix) then
 		local input = mattata.input(channel_post.text_lower)
 		local jstr, res = HTTPS.request('https://brawlbot.tk/apis/chatter-bot-api/cleverbot.php?text=' .. URL.escape(input))
@@ -57,7 +57,7 @@ function ai:onChannelPostReceive(channel_post, configuration)
 	end
 end
 
-function ai:onMessageReceive(message, configuration, language)
+function ai:onMessage(message, configuration, language)
 	if not message.text_lower:match('^' .. configuration.commandPrefix) then
 		mattata.sendChatAction(message.chat.id, 'typing')
 		local input = message.text_lower

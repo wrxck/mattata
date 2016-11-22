@@ -10,7 +10,7 @@ function spotify:init(configuration)
 	spotify.help = configuration.commandPrefix .. 'spotify <track ID> - Sends information about the given Spotify track ID.'
 end
 
-function spotify:onChannelPostReceive(channel_post, configuration)
+function spotify:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, spotify.help, nil, true, false, channel_post.message_id)
@@ -43,7 +43,7 @@ function spotify:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id, JSON.encode(keyboard))
 end
 
-function spotify:onMessageReceive(message, language)
+function spotify:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, spotify.help, nil, true, false, message.message_id)

@@ -13,7 +13,7 @@ function control:init()
 	control.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('reload').table
 end
 
-function control:onMessageReceive(message)
+function control:onMessage(message)
 	local configuration = require('configuration')
 	if not mattata.isConfiguredAdmin(message.from.id) then
 		return

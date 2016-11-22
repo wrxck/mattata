@@ -33,7 +33,7 @@ function getLangArgs(language)
 	end
 end
 
-function exec:onMessageReceive(message, configuration, language)
+function exec:onMessage(message, configuration, language)
 	local input = mattata.input(message.text_lower)
 	if not input then
 		mattata.sendMessage(message.chat.id, exec.help, 'Markdown', true, false, message.message_id)

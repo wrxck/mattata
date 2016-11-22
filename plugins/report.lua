@@ -7,7 +7,7 @@ function report:init(configuration)
 	report.help = configuration.commandPrefix .. 'report <text> - Notifies all administrators of an issue. Alias: ' .. configuration.commandPrefix .. 'ops.'
 end
 
-function report:onMessageReceive(message, configuration)
+function report:onMessage(message, configuration)
 	if message.chat.type == 'supergroup' then
 		local input = mattata.input(message.text)
 		local adminList = {}

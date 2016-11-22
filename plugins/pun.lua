@@ -140,11 +140,11 @@ local puns = {
 	'The vegetables from my garden aren\'t that great. I guess you could say they\'re mediokra.'
 }
 
-function pun:onChannelPostReceive(channel_post)
+function pun:onChannelPost(channel_post)
 	mattata.sendMessage(channel_post.chat.id, puns[math.random(#puns)], nil, true, false, channel_post.message_id)
 end
 
-function pun:onMessageReceive(message)
+function pun:onMessage(message)
 	mattata.sendMessage(message.chat.id, puns[math.random(#puns)], nil, true, false, message.message_id)
 end
 

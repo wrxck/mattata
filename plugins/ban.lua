@@ -15,7 +15,7 @@ function getUserId(user)
 	return request.result.id
 end
 
-function ban:onMessageReceive(message)
+function ban:onMessage(message)
 	local input = mattata.input(message.text)
 	if message.chat.type ~= 'private' then
 		local admin_list = mattata.getChatAdministrators(message.chat.id)

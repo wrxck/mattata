@@ -14,7 +14,7 @@ function channel:init(configuration)
 	channel.help = configuration.commandPrefix .. 'ch <channel> <message> - Sends a message to a Telegram channel/group. The channel/group can be specified via ID or username. Messages can be formatted with Markdown. Users can only send messages to channels/groups they own and/or administrate.'
 end
 
-function channel:onMessageReceive(message, configuration, language)
+function channel:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	local output
 	if input then

@@ -11,7 +11,7 @@ function flickr:init(configuration)
 	flickr.help = configuration.commandPrefix .. 'flickr <query> - Sends the first result for the given query from Flickr.'
 end
 
-function flickr:onInlineCallback(inline_query, configuration)
+function flickr:onInlineQuery(inline_query, configuration)
 	local input = mattata.input(inline_query.query)
 	local jstr = HTTPS.request('https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=' .. configuration.keys.flickr .. '&format=json&nojsoncallback=1&privacy_filter=1&safe_search=3&media=photos&sort=relevance&is_common=true&per_page=20&extras=url_s,url_q,url_m,url_n,url_z,url_c,url_l,url_o&text=' .. URL.escape(input))
 	local jdat = JSON.decode(jstr)
@@ -37,7 +37,7 @@ function flickr:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, JSON.encode(resultsList), 0)
 end
 
-function flickr:onChannelPostReceive(channel_post, configuration)
+function flickr:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, flickr.help, nil, true, false, channel_post.message_id)
@@ -65,7 +65,7 @@ function flickr:onChannelPostReceive(channel_post, configuration)
 	mattata.sendPhoto(channel_post.chat.id, jdat.photos.photo[1].url_o, nil, false, channel_post.message_id, JSON.encode(keyboard))
 end
 
-function flickr:onMessageReceive(message, configuration, language)
+function flickr:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, flickr.help, nil, true, false, message.message_id)

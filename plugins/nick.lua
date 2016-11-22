@@ -45,7 +45,7 @@ function getNickname(user)
 	end
 end
 
-function nick:onMessageReceive(message, configuration)
+function nick:onMessage(message, configuration)
 	local input = mattata.input(message.text)
 	local output
 	if not input then

@@ -15,7 +15,7 @@ function currency:init(configuration)
 	currency.help = configuration.commandPrefix .. 'currency <amount> <from> TO <to> - Converts exchange rates for various currencies. Source: Google Finance.'
 end
 
-function currency:onChannelPostReceive(channel_post, configuration)
+function currency:onChannelPost(channel_post, configuration)
 	local input = channel_post.text_upper
 	if not input:match('%a%a%a TO %a%a%a') then
 		mattata.sendMessage(channel_post.chat.id, currency.help, nil, true, false, channel_post.message_id)
@@ -47,7 +47,7 @@ function currency:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, output, nil, true, false, channel_post.message_id)
 end
 
-function currency:onMessageReceive(message, language)
+function currency:onMessage(message, language)
 	local input = message.text_upper
 	if not input:match('%a%a%a TO %a%a%a') then
 		mattata.sendMessage(message.chat.id, currency.help, nil, true, false, message.message_id)

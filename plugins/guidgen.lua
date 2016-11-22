@@ -9,7 +9,7 @@ function guidgen:init(configuration)
 	guidgen.help = configuration.commandPrefix .. 'guidgen - Generates a random GUID.'
 end
 
-function guidgen:onMessageReceive(message, language)
+function guidgen:onMessage(message, language)
 	local str, res = HTTP.request('http://www.passwordrandom.com/query?command=guid&format=text&count=1')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)

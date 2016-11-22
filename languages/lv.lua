@@ -1,0 +1,53 @@
+return { -- when you're translating, do NOT translate the things in CAPS!
+	locale = 'lv',
+	joinChatMessages = {
+		'Labdien, NAME!',
+		'Sveiks, NAME!',
+		'Jūties kā mājās, NAME!',
+		'Esmu priecīgs, ka tu pievienojies, NAME!',
+		'Sveikiņi, NAME!',
+		'Čau, NAME!'
+	},
+	userAddedBot = 'Sveiki visiem! Paldies, ka pievienoji mani, NAME!',
+	leftChatMessages = {
+		'RIP NAME.',
+		'Lai tev vieglas smiltis, NAME!',
+		'Vecīt, es ceru, ka NAME šeit patika!',
+		'Vai tas ir tāpēc, ka es ko nepareizu pateicu, NAME?',
+		'Bet mēs tikai sākām iepazīties, NAME...',
+		'Ak dievs, NAME, vai es esmu TIK slikts?',
+		'Tu zaudē, NAME.',
+		'Gaidīsim atpakaļ, NAME!',
+		'Atā, NAME!',
+		'Uz redzēšanos, NAME.',
+		'Ardievu, NAME.'
+	},
+	errors = {
+		generic = 'Man šķiet, ka kaut kas nogāja greizi!',
+		connection = 'Piedodiet, bet, mēģinot izpildīt jūsu pieprasījumu radās kļūda. Lūdzu mēģiniet vēlāk.',
+		results = 'Piedodiet, bet es nevarēju atrast derīgus rezultātus.',
+		argument = 'Piedodiet, bet vai nu jūsu padotie argumenti bija nepareizi, vai jūs tādus nepadevāt. Lūdzu mēģiniet vēlreiz.',
+		syntax = 'Sintaktiska kļūme, lūdzu mēģiniet vēlreiz.',
+		bibleLength = 'Jūsu pieprasītais teksts ir pārāk garš, lai to šeit parādītu. Lūdzu mēģiniet būt specifiskāks.'
+	},
+	aiError = 'Radītāja vārdi atbalsojās: NAME, visam ir savs laiks!',
+	specifyBlacklistedUser = 'Lūdzu precizējiet lietotāju izmantojot skaitlisko ID.',
+	userNowBlacklisted = 'Šis lietotājs vairs nevar mani izmantot.',
+	userNowWhitelisted = 'Šis lietotājs mani atkal var brīvi izmantot.',
+	messageSentToChannel = 'Jūsu ziņa ir aizsūtīta!',
+	unableToSendToChannel = 'Es diemžēl nevarēju aizsūtīt jūsu ziņu.',
+	enterMessageToSendToChannel = 'Lūdzu ievadiet ziņu, ko sūtīt. Formatēšana izmantojot \'markdown\' ir atbalstīta.',
+	notChannelAdmin = 'Atvainojiet, bet šķiet, ka jūs neesat administrators šajā grupā/kanālā.',
+	unableToRetrieveChannelAdmins = 'Es diemžēl nevarēju iegūt sarakstu ar administratoriem šai grupai/kanālam.\n',
+	copypastaLength = 'Lūdzu atbildiet ziņai ar mazāk nekā MAXIMUM simboliem.',
+	copypastaMustContain = 'Jūsu izvēlētajai ziņai jāsastāv no burtiem un cipariem!',
+	foundOnePwnedAccount = 'Jūsu izvēlētais lietotājs tika atrasts vienā atmaskojumā!',
+	accountFoundMultipleLeaks = 'Jūsu izvēlētais lietotājs tika atrasts X atmaskojumos(ā)',
+	officialLinks = 'Here are some official links that you may find useful!',
+	helpIntroduction = '*Hello, NAME!*\nMy name is MATTATA and I\'m an intelligent bot written with precision. There are many things I can do - try clicking the \'Commands\' button below to see what I can do for you.\n\n*Oh, and I work well in groups, too!*\nYou can enable and disable plugins in your group(s) using COMMANDPREFIXplugins.\nI also feature a multilingual mode (currently in beta), try using COMMANDPREFIXsetlang <language> to adjust your language. That way, when you have a conversation with me, I\'ll make sure to always respond in your language!',
+	helpConfused = '*Confused?*\nDon\'t worry, I was programmed to help! Try using COMMANDPREFIXhelp <command> to get help with a specific plugin and its usage.\n\nI\'m also an innovative example of artificial intelligence - yes, that\'s right; I can learn from you! Try speaking to me right here, or mention me by my name in a group. I can also describe images sent in response to messages I send.\n\nYou can also use me inline, try mentioning my username from any group and discover what else I can do!',
+	noDocumentedHelp = 'I\'m sorry, but I\'m afraid there is no help documented for that plugin at this moment in time. If you believe this is a mistake, please don\'t hesitate to contact [my developer](https://telegram.me/wrxck).',
+	helpAbout = 'I\'m a bot written in Lua, and built to take advantage of the brilliant Bot API which Telegram offers.\n\nMy creator (and primary maintainer) is @wrxck.\nHe believes that anybody who enjoys programming should be able to work with the code of which I was compiled from, so I\'m proud to say that I am an open source project, which you can discover more about on [GitHub](https://github.com/matthewhesketh/mattata).',
+	pleaseMessageMe = 'Please [message me in a private chat](http://telegram.me/MATTATA?start=help) to get started.',
+	sentPrivateMessage = 'I have sent you a private message containing the requested information.'
+}

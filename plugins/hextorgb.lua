@@ -7,7 +7,7 @@ function hextorgb:init(configuration)
 	hextorgb.help = configuration.commandPrefix .. 'hextorgb <colour hex> - Converts the given colour hex to its RGB format.'
 end
 
-function hextorgb:onChannelPostReceive(channel_post)
+function hextorgb:onChannelPost(channel_post)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, hextorgb.help, nil, true, false, channel_post.message_id)
@@ -24,7 +24,7 @@ function hextorgb:onChannelPostReceive(channel_post)
 	mattata.sendPhoto(channel_post.chat.id, 'https://placeholdit.imgix.net/~text?txtsize=1&bg=' .. input .. '&w=150&h=200', 'rgb(' .. r .. ', ' .. g .. ', ' .. b .. ')', false, channel_post.message_id)
 end
 
-function hextorgb:onMessageReceive(message)
+function hextorgb:onMessage(message)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, hextorgb.help, nil, true, false, message.message_id)

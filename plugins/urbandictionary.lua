@@ -18,7 +18,7 @@ function urbandictionary:init(configuration)
 	urbandictionary.help = configuration.commandPrefix .. 'urbandictionary <query> - Defines the given word. Urban style. Aliases: ' .. configuration.commandPrefix .. 'ud, ' .. configuration.commandPrefix .. 'urban.'
 end
 
-function urbandictionary:onInlineCallback(inline_query, language)
+function urbandictionary:onInlineQuery(inline_query, language)
 	local input = mattata.input(inline_query.query)
 	local jstr, res = HTTP.request('http://api.urbandictionary.com/v0/define?term=' .. URL.escape(input))
 	if res ~= 200 then
@@ -58,7 +58,7 @@ function urbandictionary:onInlineCallback(inline_query, language)
 	mattata.answerInlineQuery(inline_query.id, results .. ']', 0)
 end
 
-function urbandictionary:onChannelPostReceive(channel_post, configuration)
+function urbandictionary:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, urbandictionary.help, nil, true, false, channel_post.message_id)
@@ -81,7 +81,7 @@ function urbandictionary:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, output:gsub('%[', ''):gsub('%]', ''), 'Markdown', true, false, channel_post.message_id)
 end
 
-function urbandictionary:onMessageReceive(message, language)
+function urbandictionary:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, urbandictionary.help, nil, true, false, message.message_id)

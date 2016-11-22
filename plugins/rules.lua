@@ -38,7 +38,7 @@ function getRules(message)
 	end
 end
 
-function rules:onMessageReceive(message, configuration)
+function rules:onMessage(message, configuration)
 	if message.chat.type ~= 'private' then
 		if mattata.isGroupAdmin(message.chat.id, message.from.id) then
 			local input = mattata.input(message.text)

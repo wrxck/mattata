@@ -583,7 +583,7 @@ local trumps = {
 	'VICTIM always seems to be crying'
 }
 
-function trump:onMessageReceive(message)
+function trump:onMessage(message)
 	local input = mattata.input(message.text)
 	local victim
 	if not input then

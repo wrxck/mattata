@@ -15,7 +15,7 @@ function preview:init(configuration)
 	preview.help = configuration.commandPrefix .. 'preview <link> - Sends an \'unlinked\' preview of the given URL.'
 end
 
-function preview:onChannelPostReceive(channel_post)
+function preview:onChannelPost(channel_post)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, preview.help, nil, true, false, channel_post.message_id)
@@ -37,7 +37,7 @@ function preview:onChannelPostReceive(channel_post)
 	mattata.sendMessage(channel_post.chat.id, '[​](' .. input .. ')', 'Markdown', false, false)
 end
 
-function preview:onMessageReceive(message)
+function preview:onMessage(message)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, preview.help, nil, true, false, message.message_id)

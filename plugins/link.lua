@@ -38,7 +38,7 @@ function getLink(message)
 	end
 end
 
-function link:onMessageReceive(message, configuration)
+function link:onMessage(message, configuration)
 	if message.chat.type ~= 'private' then
 		if mattata.isGroupAdmin(message.chat.id, message.from.id) then
 			local input = mattata.input(message.text)

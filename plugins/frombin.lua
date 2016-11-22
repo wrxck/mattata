@@ -7,7 +7,7 @@ function frombin:init(configuration)
 	frombin.help = configuration.commandPrefix .. 'frombin <binary> - Converts the given string of binary to a number.'
 end
 
-function frombin:onChannelPostReceive(channel_post, configuration)
+function frombin:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, frombin.help, nil, true, false, channel_post.message_id)
@@ -33,7 +33,7 @@ function frombin:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, '```\n' .. number .. '\n```', 'Markdown', true, false, channel_post.message_id)
 end
 
-function frombin:onMessageReceive(message, configuration)
+function frombin:onMessage(message, configuration)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, frombin.help, nil, true, false, message.message_id)

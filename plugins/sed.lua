@@ -14,7 +14,7 @@ function sed:init(configuration)
 	sed.help = 's/<pattern>/<substitution> - Replaces all matches for the given Lua pattern.'
 end
 
-function sed:onMessageReceive(message)
+function sed:onMessage(message)
 	if not message.reply_to_message then
 		return true
 	end

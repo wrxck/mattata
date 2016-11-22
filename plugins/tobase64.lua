@@ -28,7 +28,7 @@ function tobase64:encode(str)
 	end) .. ({ '', '==', '=' })[#str % 3 + 1])
 end
 
-function tobase64:onChannelPostReceive(channel_post)
+function tobase64:onChannelPost(channel_post)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, tobase64.help, nil, true, false, channel_post.message_id)
@@ -37,7 +37,7 @@ function tobase64:onChannelPostReceive(channel_post)
 	mattata.sendMessage(channel_post.chat.id, '```\n' .. tobase64:encode(input) .. '\n```', 'Markdown', true, false, channel_post.message_id)
 end
 
-function tobase64:onMessageReceive(message)
+function tobase64:onMessage(message)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, tobase64.help, nil, true, false, message.message_id)

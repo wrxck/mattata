@@ -1,4 +1,4 @@
-local mattata = require('mattata')
 local instance = {}
+local mattata = require('mattata')
 local configuration = require('configuration')
-return mattata.run(instance, configuration)
+mattata.run(instance, configuration)

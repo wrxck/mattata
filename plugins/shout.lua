@@ -7,7 +7,7 @@ function shout:init(configuration)
     shout.help = configuration.commandPrefix .. 'shout <text> - Shout something.'
 end
 
-function shout:onChannelPostReceive(channel_post)
+function shout:onChannelPost(channel_post)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, shout.help, nil, true, false, channel_post.message_id)
@@ -41,7 +41,7 @@ function shout:onChannelPostReceive(channel_post)
 	mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id)
 end
 
-function shout:onMessageReceive(message)
+function shout:onMessage(message)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, shout.help, nil, true, false, message.message_id)

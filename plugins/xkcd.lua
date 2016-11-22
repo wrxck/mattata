@@ -30,7 +30,7 @@ function xkcd:init(configuration)
 	xkcd.latest = xkcd.latest
 end
 
-function xkcd:onChannelPostReceive(channel_post, configuration)
+function xkcd:onChannelPost(channel_post, configuration)
 	local input = mattata.getWord(channel_post.text, 2)
 	if not input then
 		input = xkcd.latest
@@ -69,7 +69,7 @@ function xkcd:onChannelPostReceive(channel_post, configuration)
 	mattata.sendPhoto(channel_post.chat.id, data.img, data.num .. ' | ' .. data.safe_title .. ' | ' .. data.day .. '/' .. data.month .. '/' .. data.year, false, channel_post.message_id, JSON.encode(keyboard))
 end
 
-function xkcd:onMessageReceive(message, language)
+function xkcd:onMessage(message, language)
 	local input = mattata.getWord(message.text, 2)
 	if not input then
 		input = xkcd.latest

@@ -8,7 +8,7 @@ function doge:init(configuration)
 	doge.help = configuration.commandPrefix .. 'doge <text> - Doge-ifies the given text. Sentences are separated using slashes. Example: ```\n' .. configuration.commandPrefix .. 'doge hello world\nthis is a test sentence\nmake sure you type like this\nelse it won\'t work!\n```'
 end
 
-function doge:onChannelPostReceive(channel_post, configuration)
+function doge:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, doge.help, nil, true, false, channel_post.message_id)
@@ -23,7 +23,7 @@ function doge:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
 end
 
-function doge:onMessageReceive(message, language)
+function doge:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, doge.help, nil, true, false, message.message_id)

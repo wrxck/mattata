@@ -9,7 +9,7 @@ function tts:init(configuration)
 	tts.help = configuration.commandPrefix .. 'tts <text to convert> - Converts text to speech.'
 end
 
-function tts:onMessageReceive(message, configuration)
+function tts:onMessage(message, configuration)
 	local input = mattata.input(message.text_lower)
 	if not input then
 		mattata.sendMessage(message.chat.id, tts.help, nil, true, false, message.message_id, nil)

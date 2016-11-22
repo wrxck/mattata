@@ -1,0 +1,53 @@
+return { -- when you're translating, do NOT translate the things in CAPS!
+	locale = 'de',
+	joinChatMessages = {
+		'Willkommen, NAME!',
+		'Hallo, NAME!',
+		'Geniesse deinen Aufenthalt, NAME!',
+		'Ich bin froh dich hier zu sehen, NAME!',
+		'Howdy, NAME!',
+		'Hey, NAME!'
+	},
+	userAddedBot = 'Hallo Welt! Danke f¸rs hinzuf¸gen, NAME!',
+	leftChatMessages = {
+		'RIP NAME.',
+		'Ruhe in Frieden, NAME!',
+		'Ich hoffe nur NAME hat seinen Aufenthalt genossen!',
+		'Habe ich etwas falsches gesagt, NAME?',
+		'Wir sind uns doch gerade erst etwas n‰her gekommen, NAME...',
+		'Gosh, NAME - bin ich wirklich SO schlecht?',
+		'Dein Verlust, NAME.',
+		'Komm bald wieder, NAME!',
+		'Bye, NAME!',
+		'Auswiedersehen, NAME.',
+		'Tsch¸ss, NAME.'
+	},
+	errors = {
+		generic = 'Ein Fehler ist aufgetreten!',
+		connection = 'Entschuldigung, es ist ein Fehler aufgetreten beim Verarbeiten deiner Anfrage. Bitte versuche es sp‰ter noch einmal',
+		results = 'Es tut mir leid, ich konnte keine Resultate finden f¸r deine Suche.',
+		argument = 'Es tut mir leid, deine Eingabe ist entweder flasch oder existiert nicht. Versuche es bitte noch einmal',
+		syntax = 'Syntax Fehler, versuche es bitte noch einmal.',
+		bibleLength = 'Die gew¸nschte Passage ist zu lang im hier zu senden. Bitte versuche mehr spezifisch zu sein.'
+	},
+	aiError = 'Matt\'s Worte hallten wider: NAME, es gibt einen Ort und eine Zeit f¸r alles, aber nicht jetzt!',
+	specifyBlacklistedUser = 'Bitte gib die numerische ID des Nutzers an.',
+	userNowBlacklisted = 'Diesem Nutzer ist es nun verboten mich zu nutzen.',
+	userNowWhitelisted = 'Dieser Nutzer kann mich nun wieder nutzen.',
+	messageSentToChannel = 'Deine Nachricht wurde gesendet!',
+	unableToSendToChannel = 'Entschuldigung, ich konnte deine Nachricht nicht versenden.',
+	enterMessageToSendToChannel = 'Bitte sende mir die Nachricht welche ich versenden soll. Markdown wird unterst¸tzt.',
+	notChannelAdmin = 'Es tut mir leid, du scheinst mir keinen Administrator zu sein f¸r diese Gruppe/diesen Kanal.',
+	unableToRetrieveChannelAdmins = 'Entschuldigung, ich konnte die Administratorliste f¸r diese Gruppe/diesen Kanal nicht aufrufen.\n',
+	copypastaLength = 'Bitte antworte auf eine Nachricht mit weniger als MAXIMUM Zeichen.',
+	copypastaMustContain = 'Die Nachricht auf die du antwortest darf nur alphanumerische Zeichen enthalten!',
+	foundOnePwnedAccount = 'Der gegebene Account wurde auf den ersten Versuch gefunden',
+	accountFoundMultipleLeaks = 'Der gegebene Account wurde in X leaks gefunden',
+	officialLinks = 'Here are some official links that you may find useful!',
+	helpIntroduction = '*Hello, NAME!*\nMy name is MATTATA and I\'m an intelligent bot written with precision. There are many things I can do - try clicking the \'Commands\' button below to see what I can do for you.\n\n*Oh, and I work well in groups, too!*\nYou can enable and disable plugins in your group(s) using COMMANDPREFIXplugins.\nI also feature a multilingual mode (currently in beta), try using COMMANDPREFIXsetlang <language> to adjust your language. That way, when you have a conversation with me, I\'ll make sure to always respond in your language!',
+	helpConfused = '*Confused?*\nDon\'t worry, I was programmed to help! Try using COMMANDPREFIXhelp <command> to get help with a specific plugin and its usage.\n\nI\'m also an innovative example of artificial intelligence - yes, that\'s right; I can learn from you! Try speaking to me right here, or mention me by my name in a group. I can also describe images sent in response to messages I send.\n\nYou can also use me inline, try mentioning my username from any group and discover what else I can do!',
+	noDocumentedHelp = 'I\'m sorry, but I\'m afraid there is no help documented for that plugin at this moment in time. If you believe this is a mistake, please don\'t hesitate to contact [my developer](https://telegram.me/wrxck).',
+	helpAbout = 'I\'m a bot written in Lua, and built to take advantage of the brilliant Bot API which Telegram offers.\n\nMy creator (and primary maintainer) is @wrxck.\nHe believes that anybody who enjoys programming should be able to work with the code of which I was compiled from, so I\'m proud to say that I am an open source project, which you can discover more about on [GitHub](https://github.com/matthewhesketh/mattata).',
+	pleaseMessageMe = 'Please [message me in a private chat](http://telegram.me/MATTATA?start=help) to get started.',
+	sentPrivateMessage = 'I have sent you a private message containing the requested information.'
+}

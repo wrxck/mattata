@@ -16,7 +16,7 @@ function cats:init(configuration)
 	cats.help = configuration.commandPrefix .. 'cat - A random picture of a cat!'
 end
 
-function cats:onInlineCallback(inline_query, language)
+function cats:onInlineQuery(inline_query, language)
 	local str, res = HTTP.request('http://thecatapi.com/api/images/get?format=html&type=jpg&api_key=' .. configuration.keys.cats)
 	str = str:match('<img src="(.-)">')
 	if res ~= 200 then
@@ -46,7 +46,7 @@ function cats:onInlineCallback(inline_query, language)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function cats:onChannelPostReceive(channel_post, configuration)
+function cats:onChannelPost(channel_post, configuration)
 	local str, res = HTTP.request('http://thecatapi.com/api/images/get?format=html&type=jpg&api_key=' .. configuration.keys.cats)
 	if res ~= 200 then
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
@@ -55,7 +55,7 @@ function cats:onChannelPostReceive(channel_post, configuration)
 	mattata.sendPhoto(channel_post.chat.id, str:match('<img src="(.-)">'), 'Meow!', false, channel_post.message_id)
 end
 
-function cats:onMessageReceive(message, configuration, language)
+function cats:onMessage(message, configuration, language)
 	local str, res = HTTP.request('http://thecatapi.com/api/images/get?format=html&type=jpg&api_key=' .. configuration.keys.cats)
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)

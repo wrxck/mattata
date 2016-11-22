@@ -3,7 +3,7 @@
 #!/bin/sh
 rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua"
 if [ $(lsb_release -r | cut -f 2) == "16.04" ]; then
-    luaver="5.3"
+    luaver="5.2"
 else
     luaver="5.2"
 fi
@@ -11,7 +11,7 @@ echo "This script will request root privileges to install the required dependenc
 echo "Press enter to continue. Use Ctrl-C to exit."
 read
 sudo apt-get update
-sudo apt-get install -y lua$luaver liblua$luaver-dev git mediainfo python-bcrypt python-cffi python3-bs4 python3 redis-server libssl-dev fortune-mod fortunes unzip make
+sudo apt-get install -y lua$luaver liblua$luaver-dev git mediainfo python-bcrypt python-cffi python3 redis-server libssl-dev fortune-mod fortunes unzip make
 git clone http://github.com/keplerproject/luarocks
 cd luarocks
 ./configure --lua-version=$luaver --versioned-rocks-dir --lua-suffix=$luaver
@@ -20,10 +20,9 @@ sudo make install
 for rock in $rocklist; do
     sudo luarocks-$luaver install $rock
 done
-piplist="BeautifulSoup demjson youtube-dl"
-for pip in $piplist; do
-	sudo pip3 install $pip
-done
+sudo pip install BeautifulSoup
+sudo pip install demjson
+sudo pip install youtube-dl
 sudo -k
 cd ..
 echo "Finished. Use ./launch to start mattata."

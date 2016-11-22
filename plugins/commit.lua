@@ -423,11 +423,11 @@ local commits = {
 	'fml'
 }
 
-function commit:onChannelPostReceive(channel_post)
+function commit:onChannelPost(channel_post)
 	mattata.sendMessage(channel_post.chat.id, commits[math.random(#commits)], nil, true, false, channel_post.message_id)
 end
 
-function commit:onMessageReceive(message)
+function commit:onMessage(message)
 	mattata.sendMessage(message.chat.id, commits[math.random(#commits)], nil, true, false, message.message_id)
 end
 

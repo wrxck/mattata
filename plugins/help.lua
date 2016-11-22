@@ -37,7 +37,7 @@ function help:init(configuration)
 	users = self.users
 end
 
-function help:onInlineCallback(inline_query, configuration)
+function help:onInlineQuery(inline_query, configuration)
 	local results = JSON.encode({
 		{
 			type = 'article',
@@ -309,7 +309,7 @@ function help:onQueryReceive(callback, message, configuration, language)
 	end
 end
 
-function help:onChannelPostReceive(channel_post, configuration)
+function help:onChannelPost(channel_post, configuration)
 	local language = require('languages/en')
 	local input = mattata.input(channel_post.text)
 	if input then
@@ -352,7 +352,7 @@ function help:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, language.helpIntroduction:gsub('NAME', '*friend*'):gsub('MATTATA', self.info.first_name):gsub('COMMANDPREFIX', configuration.commandPrefix), 'Markdown', true, false, nil, JSON.encode(keyboard))
 end
 
-function help:onMessageReceive(message, configuration, language)
+function help:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	if input then
 		for _, plugin in ipairs(self.plugins) do

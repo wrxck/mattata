@@ -17,7 +17,7 @@ function bible:init(configuration)
 	bible.help = configuration.commandPrefix .. 'bible <reference> - Recites the given verse from the Bible.'
 end
 
-function bible:onInlineCallback(inline_query, configuration)
+function bible:onInlineQuery(inline_query, configuration)
 	local url = 'http://api.biblia.com/v1/bible/content/ASV.txt?key=' .. configuration.keys.bible .. '&passage=' .. URL.escape(inline_query.query)
     local output = HTTP.request(url)
 	if output:len() > 4000 then
@@ -27,7 +27,7 @@ function bible:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function bible:onChannelPostReceive(channel_post, configuration)
+function bible:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text_lower)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, bible.help, nil, true, false, channel_post.message_id)
@@ -49,7 +49,7 @@ function bible:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, str, nil, true, false, channel_post.message_id)
 end
 
-function bible:onMessageReceive(message, configuration, language)
+function bible:onMessage(message, configuration, language)
 	local input = mattata.input(message.text_lower)
 	if not input then
 		mattata.sendMessage(message.chat.id, bible.help, nil, true, false, message.message_id)

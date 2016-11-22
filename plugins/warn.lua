@@ -37,7 +37,7 @@ function warn:onQueryReceive(callback, message, configuration)
 	end
 end
 
-function warn:onMessageReceive(message, configuration)
+function warn:onMessage(message, configuration)
 	if message.chat.type ~= 'private' then
 		if mattata.isGroupAdmin(message.chat.id, message.from.id) then
 			if (not message.reply_to_message) or mattata.isGroupAdmin(message.chat.id, message.reply_to_message.from.id) then

@@ -21,7 +21,7 @@ function lyrics:init(configuration)
 	lyrics.help = configuration.commandPrefix .. 'lyrics <query> - Find the lyrics to the specified song.'
 end
 
-function lyrics:onInlineCallback(inline_query, configuration)
+function lyrics:onInlineQuery(inline_query, configuration, language)
 	local input = inline_query.query:gsub('^' .. configuration.commandPrefix .. 'lyrics', ''):gsub(' - ', ' ')
 	local jstrSearch, resSearch = HTTPS.request('https://api.musixmatch.com/ws/1.1/' .. 'track.search?apikey=' .. configuration.keys.lyrics .. '&q_track=' .. input:gsub(' ', '%%20'))
 	if resSearch ~= 200 then
@@ -131,9 +131,7 @@ function lyrics:onInlineCallback(inline_query, configuration)
 			{
 				text = 'musixmatch',
 				url = jdatSearch.message.body.track_list[1].track.track_share_url
-			}
-		},
-		{
+			},
 			{
 				text = 'Spotify',
 				url = 'https://open.spotify.com/track/' .. jdatSpotify.tracks.items[1].id
@@ -157,7 +155,73 @@ function lyrics:onInlineCallback(inline_query, configuration)
 	return
 end
 
-function lyrics:onMessageReceive(message, configuration, language)
+function lyrics:onChannelPost(channel_post, configuration)
+	local input = mattata.input(channel_post.text)
+	if not input then
+		mattata.sendMessage(channel_post.chat.id, lyrics.help, nil, true, false, channel_post.message_id)
+		return
+	end
+	input = input:gsub(' - ', ' ')
+	local jstrSearch, resSearch = HTTPS.request('https://api.musixmatch.com/ws/1.1/' .. 'track.search?apikey=' .. configuration.keys.lyrics .. '&q_track=' .. URL.escape(input))
+	if resSearch ~= 200 then
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
+		return
+	end
+	local jdatSearch = JSON.decode(jstrSearch)
+	if jdatSearch.message.header.available == 0 then
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
+		return
+	end
+	local lyrics = '*' .. jdatSearch.message.body.track_list[1].track.track_name .. ' - ' .. jdatSearch.message.body.track_list[1].track.artist_name .. '*\n\n' .. mattata.markdownEscape(io.popen('python plugins/lyrics.py "' .. jdatSearch.message.body.track_list[1].track.artist_name:gsub('"', '\'') .. '" "' .. jdatSearch.message.body.track_list[1].track.track_name:gsub('"', '\'') .. '"'):read('*all'):gsub('^None$', 'I was not able to fetch the lyrics for that song, try clicking one of the buttons below instead.'))
+	if io.popen('python plugins/lyrics.py "' .. jdatSearch.message.body.track_list[1].track.artist_name:gsub('"', '\'') .. '" "' .. jdatSearch.message.body.track_list[1].track.track_name:gsub('"', '\'') .. '"'):read('*all') == 'None' then
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
+		return
+	end
+	local jstrSpotify, resSpotify = HTTPS.request('https://api.spotify.com/v1/search?q=' .. URL.escape(input) .. '&type=track')
+	if resSpotify ~= 200 then
+		local keyboard = {}
+		keyboard.inline_keyboard = {
+			{
+				{
+					text = 'musixmatch',
+					url = jdatSearch.message.body.track_list[1].track.track_share_url
+				}
+			}
+		}
+		mattata.sendMessage(channel_post.chat.id, lyrics, 'Markdown', true, false, channel_post.message_id, JSON.encode(keyboard))
+		return
+	end
+	local jdatSpotify = JSON.decode(jstrSpotify)
+	if jdatSpotify.tracks.total == 0 then
+		local keyboard = {}
+		keyboard.inline_keyboard = {
+			{
+				{
+					text = 'musixmatch',
+					url = jdatSearch.message.body.track_list[1].track.track_share_url
+				}
+			}
+		}
+		mattata.sendMessage(channel_post.chat.id, lyrics, 'Markdown', true, false, channel_post.message_id, JSON.encode(keyboard))
+		return
+	end
+	local keyboard = {}
+	keyboard.inline_keyboard = {
+		{
+			{
+				text = 'musixmatch',
+				url = jdatSearch.message.body.track_list[1].track.track_share_url
+			},
+			{
+				text = 'Spotify',
+				url = 'https://open.spotify.com/track/' .. jdatSpotify.tracks.items[1].id
+			}
+		}
+	}
+	mattata.sendMessage(channel_post.chat.id, lyrics, 'Markdown', true, false, channel_post.message_id, JSON.encode(keyboard))
+end
+
+function lyrics:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, lyrics.help, nil, true, false, message.message_id)

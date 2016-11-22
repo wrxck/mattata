@@ -17,7 +17,7 @@ function apod:init(configuration)
 	apod.help = configuration.commandPrefix .. 'apod <YYYY/MM/DD> - Sends the Astronomy Picture of the Day.'
 end
 
-function apod:onInlineCallback(inline_query, configuration)
+function apod:onInlineQuery(inline_query, configuration)
 	local jstr, res =  HTTPS.request('https://api.nasa.gov/planetary/apod?api_key=' .. configuration.keys.apod)
 	if res ~= 200 then
 		local results = JSON.encode({
@@ -47,7 +47,7 @@ function apod:onInlineCallback(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function apod:onChannelPostReceive(channel_post, configuration)
+function apod:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	local url = 'https://api.nasa.gov/planetary/apod?api_key=' .. configuration.keys.apod
 	local date = os.date('%Y-%m-%d')
@@ -67,7 +67,7 @@ function apod:onChannelPostReceive(channel_post, configuration)
 	mattata.sendPhoto(channel_post.chat.id, jdat.url, title:gsub('-', '/'):gsub('=', '-'), false, channel_post.message_id)
 end
 
-function apod:onMessageReceive(message, configuration, language)
+function apod:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	local url = 'https://api.nasa.gov/planetary/apod?api_key=' .. configuration.keys.apod
 	local date = os.date('%Y-%m-%d')

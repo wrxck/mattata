@@ -9,7 +9,7 @@ function dns:init(configuration)
 	dns.help = configuration.commandPrefix .. 'dns <URL> <type> - Sends DNS records of the given type for the given URL. The types currently supported are AAAA, A, CERT, CNAME, DLV, IPSECKEY, MX, NS, PTR, SIG, SRV and TXT.'
 end
 
-function dns:onMessageReceive(message, configuration, language)
+function dns:onMessage(message, configuration, language)
 	local input = mattata.input(message.text_lower)
 	if not input then
 		mattata.sendMessage(message.chat.id, dns.help, nil, true, false, message.message_id)

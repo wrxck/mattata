@@ -1,6 +1,6 @@
 local istuesday = {}
-local HTTP = require('socket.http')
 local mattata = require('mattata')
+local HTTP = require('socket.http')
 
 function istuesday:init(configuration)
 	istuesday.arguments = 'istuesday'
@@ -8,19 +8,30 @@ function istuesday:init(configuration)
 	istuesday.help = configuration.commandPrefix .. 'istuesday - Tells you if it\'s Tuesday or not. Alias: ' .. configuration.commandPrefix .. 'iit.'
 end
 
-function istuesday:onMessageReceive(message, language)
+function istuesday:onChannelPost(channel_post, configuration)
+	local str, res = HTTP.request('http://www.studentology.net/tuesday')
+	if res ~= 200 then
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
+		return
+	end
+	if str:match('YES') then
+		mattata.sendMessage(channel_post.chat.id, 'Yes, it\'s Tuesday!', nil, true, false, channel_post.message_id)
+	else
+		mattata.sendMessage(channel_post.chat.id, 'No, it\'s not Tuesday...', nil, true, false, channel_post.message_id)
+	end
+end
+
+function istuesday:onMessage(message, language)
 	local str, res = HTTP.request('http://www.studentology.net/tuesday')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return
 	end
-	local output
 	if str:match('YES') then
-		output = 'Yes!'
+		mattata.sendMessage(message.chat.id, 'Yes, it\'s Tuesday!', nil, true, false, message.message_id)
 	else
-		output = 'No.'
+		mattata.sendMessage(message.chat.id, 'No, it\'s not Tuesday...', nil, true, false, message.message_id)
 	end
-	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id)
 end
 
 return istuesday

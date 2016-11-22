@@ -13,7 +13,7 @@ function faces:init(configuration)
 	end
 end
 
-function faces:onChannelPostReceive(channel_post, configuration)
+function faces:onChannelPost(channel_post, configuration)
 	for commands, face in pairs(configuration.faces) do
 		if string.match(channel_post.text_lower, configuration.commandPrefix .. commands) then
 			mattata.sendMessage(channel_post.chat.id, face, 'HTML', true, false, channel_post.message_id)
@@ -22,7 +22,7 @@ function faces:onChannelPostReceive(channel_post, configuration)
 	end
 end
 
-function faces:onMessageReceive(message, configuration)
+function faces:onMessage(message, configuration)
 	if string.match(message.text_lower, configuration.commandPrefix .. 'faces') then
 		local res = mattata.sendMessage(message.from.id, faces.help, 'HTML', true, false)
 		if not res then

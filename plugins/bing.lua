@@ -19,7 +19,7 @@ function bing:init(configuration)
 	bing.help = configuration.commandPrefix .. 'bing <query> - Returns Bing\'s top 4 search results for the given query.'
 end
 
-function bing:onChannelPostReceive(channel_post, configuration)
+function bing:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, bing.help, nil, true, false, channel_post.message_id)
@@ -53,7 +53,7 @@ function bing:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, string.format('%s', table.concat(results, '\n')), 'HTML', true, false, channel_post.message_id)
 end
 
-function bing:onMessageReceive(message, configuration, language)
+function bing:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, bing.help, nil, true, false, message.message_id)

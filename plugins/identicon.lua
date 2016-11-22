@@ -8,7 +8,7 @@ function identicon:init(configuration)
 	identicon.help = configuration.commandPrefix .. 'identicon <string> - Converts the given string to an identicon.'
 end
 
-function identicon:onMessageReceive(message, language)
+function identicon:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, identicon.help, nil, true, false, message.message_id)

@@ -9,7 +9,7 @@ function yomama:init(configuration)
 	yomama.help = configuration.commandPrefix .. 'yomama - Tells a Yo\' Mama joke!'
 end
 
-function yomama:onChannelPostReceive(channel_post, configuration)
+function yomama:onChannelPost(channel_post, configuration)
 	local jstr, res = HTTP.request('http://api.yomomma.info/')
 	if res ~= 200 then
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
@@ -23,7 +23,7 @@ function yomama:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, jdat.joke, nil, true, false, channel_post.message_id)
 end
 
-function yomama:onMessageReceive(message, language)
+function yomama:onMessage(message, language)
 	local jstr, res = HTTP.request('http://api.yomomma.info/')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)

@@ -8,7 +8,7 @@ function qrgen:init(configuration)
 	qrgen.help = configuration.commandPrefix .. 'qrgen - Converts the given string to an QR code.'
 end
 
-function qrgen:onMessageReceive(message)
+function qrgen:onMessage(message)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, qrgen.help, nil, true, false, message.message_id)

@@ -17,7 +17,7 @@ function calc:init(configuration)
 	calc.help = configuration.commandPrefix .. 'calc <expression> - Calculates solutions to mathematical expressions. The results are provided by mathjs.org.'
 end
 
-function calc:onInlineCallback(inline_query, configuration, language)
+function calc:onInlineQuery(inline_query, configuration, language)
 	local input = inline_query.query:gsub('÷', '/'):gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*')
     local str, res = HTTP.request('https://api.mathjs.org/v1/?expr=' .. URL.escape(input))
 	if res ~= 200 then
@@ -39,17 +39,17 @@ function calc:onInlineCallback(inline_query, configuration, language)
 		{
 			type = 'article',
 			id = '1',
-			title = output,
+			title = str,
 			description = 'Click to send the result.',
 			input_message_content = {
-				message_text = output
+				message_text = str
 			}
 		}
 	})
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function calc:onChannelPostReceive(channel_post, configuration)
+function calc:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, calc.help, 'Markdown', true, false, channel_post.message_id)
@@ -61,10 +61,10 @@ function calc:onChannelPostReceive(channel_post, configuration)
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
 		return
 	end
-	mattata.sendMessage(channel_post.chat.id, output, nil, true, false, channel_post.message_id)
+	mattata.sendMessage(channel_post.chat.id, str, nil, true, false, channel_post.message_id)
 end
 
-function calc:onMessageReceive(message, configuration, language)
+function calc:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, calc.help, 'Markdown', true, false, message.message_id)
@@ -76,7 +76,7 @@ function calc:onMessageReceive(message, configuration, language)
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return
 	end
-	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id)
+	mattata.sendMessage(message.chat.id, str, nil, true, false, message.message_id)
 end
 
 return calc

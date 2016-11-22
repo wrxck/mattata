@@ -108,7 +108,7 @@ function statistics:processMessage(message)
 	return message
 end
 
-function statistics:onMessageReceive(message)
+function statistics:onMessage(message)
 	if message.chat.type ~= 'private' then
 		mattata.sendMessage(message.chat.id, chatStatistics(message.chat.id), 'Markdown', true, false, message.message_id)
 		return

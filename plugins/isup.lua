@@ -35,7 +35,7 @@ function isup.isWebsiteDown(url)
 	return true
 end
 
-function isup:onMessageReceive(message, configuration)
+function isup:onMessage(message, configuration)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, isup.help, nil, true, false, message.message_id, nil)

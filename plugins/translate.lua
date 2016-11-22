@@ -18,7 +18,7 @@ function translate:init(configuration)
 	translate.help = configuration.commandPrefix .. 'translate <language> <text> - Translates input into the given language (if arguments are given), else the replied-to message is translated into ' .. self.info.first_name .. '\'s language. Alias: ' .. configuration.commandPrefix .. 'tl.'
 end
 
-function translate:onInlineCallback(inline_query, configuration, language)
+function translate:onInlineQuery(inline_query, configuration, language)
 	local input = mattata.input(inline_query.query)
 	local translationLanguage
 	if not mattata.getWord(input, 1) or string.len(mattata.getWord(input, 1)) > 2 then
@@ -57,7 +57,7 @@ function translate:onInlineCallback(inline_query, configuration, language)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function translate:onChannelPostReceive(channel_post, configuration)
+function translate:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		if channel_post.reply_to_message then
@@ -88,7 +88,7 @@ function translate:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, '*Translation (from ' .. jdat.lang:gsub('%-', ' to ') .. '): *' .. mattata.markdownEscape(jdat.text[1]), 'Markdown', true, false, channel_post.message_id)
 end
 
-function translate:onMessageReceive(message, configuration, language)
+function translate:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	if not input then
 		if message.reply_to_message then

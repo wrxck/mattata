@@ -17,7 +17,7 @@ function pokedex:init(configuration)
 	pokedex.help = configuration.commandPrefix .. 'pokedex <query> - Returns a Pokedex entry from pokeapi.co. Alias: ' .. configuration.commandPrefix .. 'dex.'
 end
 
-function pokedex:onMessageReceive(message, language)
+function pokedex:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, pokedex.help, nil, true, false, message.message_id)

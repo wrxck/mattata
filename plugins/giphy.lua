@@ -11,7 +11,7 @@ function giphy:init(configuration)
 	giphy.help = configuration.commandPrefix .. 'gif <query> - Searches Giphy for the given query and returns a random result. Alias: ' .. configuration.commandPrefix .. 'giphy.'
 end
 
-function giphy:onInlineCallback(inline_query, language)
+function giphy:onInlineQuery(inline_query, language)
 	local input = mattata.input(inline_query.query)
 	local jstr = HTTPS.request('https://api.giphy.com/v1/gifs/search?q=' .. URL.escape(input) .. '&api_key=dc6zaTOxFJmzC')
 	local jdat = JSON.decode(jstr)
@@ -28,7 +28,7 @@ function giphy:onInlineCallback(inline_query, language)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function giphy:onChannelPostReceive(channel_post, configuration)
+function giphy:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, giphy.help, nil, true, false, channel_post.message_id)
@@ -47,7 +47,7 @@ function giphy:onChannelPostReceive(channel_post, configuration)
 	mattata.sendDocument(channel_post.chat.id, jdat.data[math.random(#jdat.data)].images.original.mp4)
 end
 
-function giphy:onMessageReceive(message, language)
+function giphy:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, giphy.help, nil, true, false, message.message_id)

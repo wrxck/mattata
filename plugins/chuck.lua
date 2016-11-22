@@ -10,7 +10,7 @@ function chuck:init(configuration)
 	chuck.help = configuration.commandPrefix .. 'chuck - Generates a Chuck Norris joke!'
 end
 
-function chuck:onInlineCallback(inline_query, language)
+function chuck:onInlineQuery(inline_query, language)
 	local jstr, res = HTTP.request('http://api.icndb.com/jokes/random')
 	if res ~= 200 then
 		local results = JSON.encode({
@@ -42,7 +42,7 @@ function chuck:onInlineCallback(inline_query, language)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function chuck:onChannelPostReceive(channel_post, configuration)
+function chuck:onChannelPost(channel_post, configuration)
 	local jstr, res = HTTP.request('http://api.icndb.com/jokes/random')
 	if res ~= 200 then
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
@@ -52,7 +52,7 @@ function chuck:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, mattata.htmlEscape(jdat.value.joke), nil, true, false, channel_post.message_id)
 end
 
-function chuck:onMessageReceive(message, language)
+function chuck:onMessage(message, language)
 	local jstr, res = HTTP.request('http://api.icndb.com/jokes/random')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)

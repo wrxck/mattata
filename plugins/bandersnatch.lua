@@ -196,7 +196,7 @@ local lastNames = {
 	'Thundersnatch'
 }
 
-function bandersnatch:onInlineCallback(inline_query)
+function bandersnatch:onInlineQuery(inline_query)
 	local output
 	if math.random(10) == 10 then
 		output = fullNames[math.random(#fullNames)]
@@ -206,7 +206,7 @@ function bandersnatch:onInlineCallback(inline_query)
 	mattata.answerInlineQuery(inline_query.id, '[' .. mattata.generateInlineArticle(1, output, output, 'Markdown', false, 'Click to send your new name!') .. ']', 0)
 end
 
-function bandersnatch:onChannelPostReceive(channel_post)
+function bandersnatch:onChannelPost(channel_post)
 	local output
 	if math.random(10) == 10 then
 		output = fullNames[math.random(#fullNames)]
@@ -216,7 +216,7 @@ function bandersnatch:onChannelPostReceive(channel_post)
 	mattata.sendMessage(channel_post.chat.id, output, nil, true, false, channel_post.message_id)
 end
 
-function bandersnatch:onMessageReceive(message)
+function bandersnatch:onMessage(message)
 	local output
 	if math.random(10) == 10 then
 		output = fullNames[math.random(#fullNames)]

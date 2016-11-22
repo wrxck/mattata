@@ -12,9 +12,17 @@ function jsondump:init(configuration)
 	end
 end
 
-function jsondump:onMessageReceive(message)
+function jsondump:onChannelPost(channel_post)
+	local s = jsondump.serialise(channel_post)
+	if s:len() < 4096 then
+		output = '```\n' .. tostring(s) .. '\n```'
+	end
+	mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id)
+end
+
+function jsondump:onMessage(message)
 	local s = jsondump.serialise(message)
-	if s:len() < 4000 then
+	if s:len() < 4096 then
 		output = '```\n' .. tostring(s) .. '\n```'
 	end
 	local res = mattata.sendMessage(message.from.id, output, 'Markdown', true, false)

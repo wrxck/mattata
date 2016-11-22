@@ -20,11 +20,10 @@ local res = pcall(function()
 end)
 
 if res then
-	if configuration.redis.password then
-		redis:auth(configuration.redis.password)
-	end
-	if configuration.redis.database then
+	if configuration.redis.database ~= '' then
 		redis:select(configuration.redis.database)
+	elseif configuration.redis.usePassword then
+		redis:auth(configuration.redis.password)
 	end
 else
 	print('Error.')

@@ -10,7 +10,7 @@ function mcmigrated:init(configuration)
 	mcmigrated.help = configuration.commandPrefix .. 'mcmigrated <username> - Tells you if a Minecraft username has been migrated to a Mojang account.'
 end
 
-function mcmigrated:onMessageReceive(message, language)
+function mcmigrated:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, mcmigrated.help, nil, true, false, message.message_id)

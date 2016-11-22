@@ -10,7 +10,7 @@ function weather:init(configuration)
 	weather.help = configuration.commandPrefix .. 'weather <location> - Sends the current weather for the given location.'
 end
 
-function weather:onChannelPostReceive(channel_post, configuration)
+function weather:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, weather.help, nil, true, false, channel_post.message_id)
@@ -38,7 +38,7 @@ function weather:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id)
 end
 
-function weather:onMessageReceive(message, configuration, language)
+function weather:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, weather.help, nil, true, false, message.message_id)

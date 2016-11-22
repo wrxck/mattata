@@ -9,7 +9,7 @@ function pwgen:init(configuration)
 	pwgen.help = configuration.commandPrefix .. 'pwgen <length> - Generates a random password of the given length.'
 end
 
-function pwgen:onChannelPostReceive(channel_post)
+function pwgen:onChannelPost(channel_post)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, pwgen.help, nil, true, false, channel_post.message_id)
@@ -22,7 +22,7 @@ function pwgen:onChannelPostReceive(channel_post)
 	mattata.sendMessage(channel_post.chat.id, '```\n' .. io.popen('python3 plugins/pwgen.py ' .. input):read('*all') .. '\n```', 'Markdown', true, false, channel_post.message_id)
 end
 
-function pwgen:onMessageReceive(message)
+function pwgen:onMessage(message)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, pwgen.help, nil, true, false, message.message_id)

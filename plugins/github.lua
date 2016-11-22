@@ -9,7 +9,7 @@ function github:init(configuration)
 	github.help = configuration.commandPrefix .. 'github <username> <repository> - Returns information about the specified GitHub repository.'
 end
 
-function github:onChannelPostReceive(channel_post, configuration)
+function github:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, github.help, nil, true, false, channel_post.message_id)
@@ -51,7 +51,7 @@ function github:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, title .. description .. '[' .. jdat.forks_count .. forks .. '](' .. jdat.html_url .. '/network) *|* [' .. jdat.stargazers_count .. stargazers .. '](' .. jdat.html_url .. '/stargazers) *|* [' .. jdat.subscribers_count .. subscribers .. '](' .. jdat.html_url .. '/watchers) \nLast updated at ' .. jdat.updated_at:gsub('T', ' '):gsub('Z', ''), 'Markdown', true, false, channel_post.message_id)
 end
 
-function github:onMessageReceive(message, language)
+function github:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, github.help, nil, true, false, message.message_id)

@@ -35,7 +35,7 @@ function canitrust.validate(url)
 	return true
 end
 
-function canitrust:onChannelPostReceive(channel_post, configuration)
+function canitrust:onChannelPost(channel_post, configuration)
 	local input = mattata.input(channel_post.text_lower)
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, canitrust.help, nil, true, false, channel_post.message_id)
@@ -103,7 +103,7 @@ function canitrust:onChannelPostReceive(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id, JSON.encode(keyboard))
 end
 
-function canitrust:onMessageReceive(message, configuration, language)
+function canitrust:onMessage(message, configuration, language)
 	local input = mattata.input(message.text_lower)
 	if not input then
 		mattata.sendMessage(message.chat.id, canitrust.help, nil, true, false, message.message_id)

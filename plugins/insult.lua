@@ -8,7 +8,7 @@ function insult:init(configuration)
 	insult.help = configuration.commandPrefix .. 'insult - Sends a random insult.'
 end
 
-function insult:onMessageReceive(message, configuration)
+function insult:onMessage(message, configuration)
 	local insult, res = HTTP.request('http://datahamster.com/autoinsult/index.php?style=' .. math.random(0, 3))
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, configuration.errors.connection, nil, true, false, message.message_id)
