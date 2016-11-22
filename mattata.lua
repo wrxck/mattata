@@ -298,6 +298,9 @@ function mattata:onMessage(message, configuration)
 		elseif message.text_lower:match('^' .. self.info.first_name) or message.text_lower:match(self.info.first_name .. '$') or message.text_lower:match('^@' .. self.info.username) or message.text_lower:match('@' .. self.info.username .. '$') then
 			message.text_lower = message.text_lower:gsub(self.info.first_name, ''):gsub(self.info.username, '')
 			ai.onMessage(self, message, configuration, language)
+		elseif message.reply_to_message and message.reply_to_message.from.id == self.info.id then
+			message.text_lower = message.text_lower:gsub(self.info.first_name, ''):gsub(self.info.username, '')
+			ai.onMessage(self, message, configuration, language)
 		end
 	end
 	if configuration.respondToMemes then
