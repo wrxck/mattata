@@ -173,7 +173,9 @@ function gh:onChannelPost(channel_post, configuration)
 end
 
 function gh:onMessage(message, configuration, self)
-	if message.chat.type ~= 'private' or (not mattata.isGroupAdmin(message.chat.id, message.from.id)) or (not mattata.isConfiguredAdmin(message.from.id)) then
+	if message.chat.type == 'private' then
+		return
+	elseif not mattata.isGroupAdmin(message.chat.id, message.from.id) or not mattata.isConfiguredAdmin(message.from.id) then
 		return
 	end
 	if message.text_lower:match('^' .. configuration.commandPrefix .. 'gh sub') then
@@ -191,7 +193,7 @@ function gh:onMessage(message, configuration, self)
 		mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, keyboard)
 		return
 	end
-	if message.from.id == configuration.owner then
+	if mattata.isConfiguredAdmin(message.from.id) then
 		if message.text_lower == configuration.commandPrefix .. 'gh reload' then
 			local res = gh:cron()
 			if res then
