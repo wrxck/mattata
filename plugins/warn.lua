@@ -9,7 +9,7 @@ function warn:init(configuration)
 	warn.help = configuration.commandPrefix .. 'warn - Warn the replied-to user.'
 end
 
-function warn:onQueryReceive(callback, message, configuration)
+function warn:onCallback(callback, message, configuration)
 	if message.chat.type ~= 'private' then
 		if mattata.isGroupAdmin(message.chat.id, callback.from.id) then
 			if string.match(callback.data, '^resetWarnings') then

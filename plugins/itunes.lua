@@ -30,7 +30,7 @@ function getOutput(jdat)
 	return table.concat(output, '\n')
 end
 
-function itunes:onQueryReceive(callback, message, configuration, language)
+function itunes:onCallback(callback, message, configuration, language)
 	local input = mattata.input(message.reply_to_message.text)
 	if callback.data == 'itunesAlbumArtwork' then
 		local jstr, res = HTTPS.request('https://itunes.apple.com/search?term=' .. URL.escape(input))

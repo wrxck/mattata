@@ -173,7 +173,7 @@ function help:onInlineQuery(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function help:onQueryReceive(callback, message, configuration, language)
+function help:onCallback(callback, message, configuration, language)
 	if callback.data == 'helpCommands' then
 		local keyboard = {}
 		keyboard.inline_keyboard = {

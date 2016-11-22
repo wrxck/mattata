@@ -9,7 +9,7 @@ function randomword:init(configuration)
 	randomword.help = configuration.commandPrefix .. 'randomword - Generates a random word. Alias: ' .. configuration.commandPrefix .. 'rw.'
 end
 
-function randomword:onQueryReceive(callback, message, language)
+function randomword:onCallback(callback, message, language)
 	if callback.data == 'randomword' then
 		local str, res = HTTP.request('http://www.setgetgo.com/randomword/get.php')
 		if res ~= 200 then
