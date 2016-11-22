@@ -204,8 +204,8 @@ function gh:onMessage(message, configuration, self)
 end
 
 function gh:cron()
-   local keys = redis:keys(getRedis('*', 'subs'))
-   for k, v in pairs(keys) do
+	local keys = redis:keys(getRedis('*', 'subs'))
+	for k, v in pairs(keys) do
 		local repo = string.match(v, 'github:(.+):subs')
 		local currentEtag = redis:get(getRedis(repo, 'etag'))
 		local lastDate = redis:get(getRedis(repo, 'date'))
@@ -221,7 +221,7 @@ function gh:cron()
 					local author = data[n].commit.author.name
 					local message = data[n].commit.message
 					local link = data[n].html_url
-					text = text .. '*New commit on* [' .. repo .. '](' .. link .. ')!\n\n`' .. message .. '`\nBy ' .. mattata.markdownEscape(author) .. '\n\n'
+					text = text .. '*New commit on* [' .. repo .. '](' .. link .. ')!\n```\n' .. message .. '\n```By ' .. mattata.markdownEscape(author) .. '\n\n'
 				end
 			end
 			if text ~= '' then

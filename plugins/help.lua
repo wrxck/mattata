@@ -168,6 +168,16 @@ function help:onInlineQuery(inline_query, configuration)
 				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'flickr <query> - Search for an image on Flickr.',
 			},
 			thumb_url = 'http://matthewhesketh.com/mattata/flickr.png'
+		},
+		{
+			type = 'article',
+			id = '14',
+			title = configuration.commandPrefix .. 'location <query>',
+			description = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'location <query> - Sends a location from Google Maps.',
+			input_message_content = {
+				message_text = '@' .. self.info.username .. ' ' .. configuration.commandPrefix .. 'location <query> - Sends a location from Google Maps.',
+			},
+			thumb_url = 'http://matthewhesketh.com/mattata/location.png'
 		}
 	})
 	mattata.answerInlineQuery(inline_query.id, results, 0)

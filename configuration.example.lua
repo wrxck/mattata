@@ -122,6 +122,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'giphy',
 		'id',
 		'lastfm',
+		'location',
 		'lyrics',
 		'translate',
 		'urbandictionary'
