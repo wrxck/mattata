@@ -5,7 +5,7 @@ then
     echo "Then, you need to rename configuration.example.lua to configuration.lua!"
 else
 	while true; do
-		lua main.lua
+		lua -e "require('mattata').run({}, require('configuration'))"
 		echo 'mattata has stopped.'
 		sleep 3s
 	done
