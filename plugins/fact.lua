@@ -9,8 +9,8 @@ function fact:init(configuration)
 	fact.help = configuration.commandPrefix .. 'fact - Returns a random fact!'
 end
 
-function fact:onCallback(callback, message, language)
-	if callback.data == 'fact' then
+function fact:onCallbackQuery(callback_query, message, language)
+	if callback_query.data == 'fact' then
 		local jstr, res = HTTP.request('http://mentalfloss.com/api/1.0/views/amazing_facts.json?limit=5000')
 		if res ~= 200 then
 			mattata.editMessageText(message.chat.id, message.message_id, language.errors.connection, nil, true)

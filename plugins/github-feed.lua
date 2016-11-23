@@ -204,8 +204,8 @@ function gh:onMessage(message, configuration, self)
 end
 
 function gh:cron()
-	local keys = redis:keys(getRedis('*', 'subs'))
-	for k, v in pairs(keys) do
+   local keys = redis:keys(getRedis('*', 'subs'))
+   for k, v in pairs(keys) do
 		local repo = string.match(v, 'github:(.+):subs')
 		local currentEtag = redis:get(getRedis(repo, 'etag'))
 		local lastDate = redis:get(getRedis(repo, 'date'))

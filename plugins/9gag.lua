@@ -58,7 +58,7 @@ function ninegag:onChannelPost(channel_post, configuration)
 	keyboard.inline_keyboard = {
 		{
 			{
-				text = 'Read more',
+				text = 'Read More',
 				url = jdat[jrnd].url
 			}
 		}
@@ -79,7 +79,7 @@ function ninegag:onMessage(message, language)
 	keyboard.inline_keyboard = {
 		{
 			{
-				text = 'Read more',
+				text = 'Read More',
 				url = jdat[jrnd].url
 			}
 		}

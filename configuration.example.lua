@@ -1,21 +1,22 @@
 return { -- rename this file to configuration.lua for mattata to work
-	botToken = '', -- insert the bot API token you received from @BotFather
-	admins = {  -- the numerical ID of the users who shall have full control over mattata
+	botToken = '', -- In order for your copy of mattata to actually work, you MUST insert the Telegram bot API token you received from @BotFather.
+	admins = {  -- Here you need to specify the numerical ID of the users who shall have FULL control over mattata, this includes access to server files via the lua and shell plugins.
 		221714512,
 		265945726
 	},
-	language = 'en', -- two character locale
-	adminGroup = -1001076736500, -- the numerical ID of the chat you wish to log errors in
+	language = 'en', -- two character locale, this is the default language for all users who haven't adjusted their language
+	adminGroup = -1001076736500, -- This needs to be the numerical identifier of the chat you wish to log errors into. If it's not a private chat it should begin with a '-' symbol.
  	commandPrefix = '/', -- the symbol bot commands will be executed with ('/' by default)
 	fileDownloadLocation = '/tmp/', -- the location to save all downloaded media to
-	processMessageEdits = true, -- change this to false to stop mattata from processing message edits
+	processEdits = true, -- change this to false to stop mattata from processing message edits
 	announceMigration = true, -- change this to false to stop mattata from announcing chat migration information
-	respondToMemes = true, -- change this to false to stop mattata from responding to certain memes
-	respondToLyrics = true, -- change this to false to stop mattata from responding to certain lyrics
+	respondToMemes = true, -- This setting determines whether your copy of mattata will respond to certain memes. It MUST be a boolean value.
+	respondToLyrics = true, -- This value determines whether your copy of mattata will respond to certain lyrics. Like the 'respondToMemes' setting, it MUST be a boolean value.
 	maximumCopypastaLength = 300, -- the maximum number of characters a message can have to be parsed through /copypasta
-	plugins = { -- the plugins which mattata will enable on launch
+	debugMode = true,
+	plugins = { -- This table lists the plugins which your copy of mattata will load upon each instance.
 		'control',
-		-- Place all new plugins BELOW this line
+		-- To allow things to work properly, you MUST place all new plugins BELOW this line. It is recommended to keep the list clean by ensuring it keeps its alphabetical order.
 		'9gag',
 		'apod',
 		'bandersnatch',
@@ -111,7 +112,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'youtube-dl',
 		'youtube'
 	},
-	inlinePlugins = {
+	inlinePlugins = { -- This table lists the inline plugins which your copy of mattata will load upon each instance.
 		'9gag',
 		'apod',
 		'bandersnatch',
@@ -127,7 +128,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'translate',
 		'urbandictionary'
 	},
-	administrationPlugins = {
+	administrationPlugins = { -- This table lists the administration plugins which your copy of mattata will load upon each instance.
 		'ban',
 		'blacklist',
 		'groups',
@@ -138,7 +139,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'unban',
 		'warn'
 	},
-	channelPlugins = {
+	channelPlugins = { -- This table lists the channel plugins which your copy of mattata will load upon each instance.
 		'9gag',
 		'apod',
 		'bandersnatch',
@@ -168,16 +169,21 @@ return { -- rename this file to configuration.lua for mattata to work
 		'groups',
 		'help',
 		'hextorgb',
+		'insult',
 		'isp',
 		'ispwned',
 		'istuesday',
 		'itunes',
 		'jsondump',
 		'location',
+		'loremipsum',
 		'lyrics',
 		'mcuuid',
 		'mchistory',
+		'mcmigrated',
+		'news',
 		'ping',
+		'pokedex',
 		'preview',
 		'pun',
 		'pwgen',
@@ -204,7 +210,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'youtube-dl',
 		'youtube'
 	},
-	groups = {
+	groups = { -- A table of groups that will be sorted and displayed upon execution of the groups plugin.
 		['Memes'] = 'https://telegram.me/joinchat/D9oCfkExFv_O2b2HnppZsQ',
 		['Off-Topic Geeks'] = 'https://telegram.me/joinchat/DTcYUD8crPKua-yd0gL3bg',
 		['Programming'] = 'https://telegram.me/ProgrammingChat',
@@ -218,14 +224,14 @@ return { -- rename this file to configuration.lua for mattata to work
 		['Post-Elections Discussion'] = 'https://telegram.me/joinchat/D9oCfkDJS6XhsMBt9RRLYQ',
 		['Arch Linux'] = 'https://telegram.me/joinchat/D9oCfj_vyorPUa2npKHazg'
 	},
-	redis = { -- do NOT edit this, unless you know what you are doing!
+	redis = { -- Configurable options for binding your copy of mattata to Redis. Do NOT modify these settings if you don't know what you're doing!
 		host = '127.0.0.1',
 		port = 6379,
 		usePassword = false,
 		password = '',
 		database = 2
 	},
-	keys = {
+	keys = { -- API keys needed for the full functionality of several plugins.
 		cats = '', -- http://thecatapi.com/api-key-registration.html
 		translate = '', -- https://tech.yandex.com/keys/get/?service=trnsl
 		lyrics = '', -- https://developer.musixmatch.com/admin/applications
@@ -241,7 +247,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		github_feed = '',
 		news = ''
 	},
-	joinChatMessages = {
+	joinChatMessages = { -- A table of messages where one is selected by random to be sent upon each instance of a user entering the chat. 'NAME' is a placeholder for the said user's name to be later inserted.
 		'Welcome, NAME!',
 		'Hello, NAME!',
 		'Enjoy your stay, NAME!',
@@ -250,7 +256,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'Hi, NAME!',
 		'Bonjour, NAME!'
 	},
-	leftChatMessages = {
+	leftChatMessages = { -- A table of messages where one is selected by random to be sent upon each instance of a user leaving the chat. 'NAME' is a placeholder for the said user's name to be later inserted.
 		'RIP NAME.',
 		'Rest in peace, NAME!',
 		'Boy, I sure hope NAME enjoyed their stay!',
@@ -263,7 +269,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'Goodbye, NAME.',
 		'Farewell, NAME.'
 	},
-	errors = {
+	errors = { -- Messages to provide a more user-friendly approach to instances of errors.
 		generic = 'I\'m afraid an error has occured!',
 		connection = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
 		results = 'I\'m sorry, but I couldn\'t find any results for that.',
@@ -319,7 +325,7 @@ return { -- rename this file to configuration.lua for mattata to work
 			'Never!'
 		}
 	},
-	faces = {
+	faces = { -- Just uh, faces? I don't even know anymore...
 		['shrug'] = '¯\\_(ツ)_/¯',
 		['lenny'] = '( ͡° ͜ʖ ͡°)',
 		['flip'] = '(╯°□°）╯︵ ┻━┻',
@@ -341,4 +347,4 @@ return { -- rename this file to configuration.lua for mattata to work
 		['specs'] = 'ᒡ◯ᵔ◯ᒢ',
 		['tobs'] = '<b>TOBS IS A SEXY FUCKER AYYYYY LMAOOOOOOO</b>'
 	}
-} -- End of configuration, you're good to go!
+} -- Well, it looks like you've reached the end of the configuration file, so you're good to go! After you've ensured this file is called 'configuration.lua' then you can run ./launch.sh and have fun! :^)

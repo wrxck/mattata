@@ -12,7 +12,7 @@ end
 function convertAudio(id)
 	local configuration = require('configuration')
 	local fileDownloadLocation = configuration.fileDownloadLocation .. '%(title)s.%(ext)s'
-	local output = io.popen('youtube-dl --max-filesize 49m -o "' .. fileDownloadLocation:gsub(' ', '_') .. '" --extract-audio --audio-format mp3 https://www.youtube.com/watch/?v=' .. extractIdFromUrl(id)):read('*all')
+	local output = io.popen('youtube-dl --max-filesize 49m -o "' .. fileDownloadLocation:gsub(' ', '_') .. '" --extract-audio --audio-format mp3 https://www.youtube.com/watch/?v=' .. extractUrl(id)):read('*all')
 	if string.match(output, '.* File is larger .*') then
 		return false
 	end
@@ -23,7 +23,7 @@ function convertAudio(id)
 	return configuration.fileDownloadLocation .. file .. '.mp3'
 end
 
-function extractIdFromUrl(url)
+function extractUrl(url)
 	return url:gsub('https?://w?w?w?m?%.?youtube.com/watch%?v=', ''):gsub('https?://w?w?w?m?%.?youtube.com/embed/', ''):gsub('https?://w?w?w?m?%.?youtu.be/', '')
 end
 
@@ -36,12 +36,12 @@ function youtube_dl:onChannelPost(channel_post)
 	local output = mattata.sendMessage(channel_post.chat.id, 'Retrieving audio information...', nil, true, false, channel_post.message_id)
 	local file = convertAudio(input)
 	if not file then
-		mattata.editMessageText(channel_post.chat.id, output.result.message_id, 'An error occured! Either that video is too long, or it doesn\'t exist!', nil, nil)
+		mattata.editMessageText(channel_post.chat.id, output.result.message_id, 'An error occured! Either that video is too long, or it doesn\'t exist!')
 		return
 	end
 	local res = mattata.sendAudio(channel_post.chat.id, file)
 	if res then
-		mattata.editMessageText(channel_post.chat.id, output.result.message_id, 'You should find the requested file below.', nil, nil)
+		mattata.editMessageText(channel_post.chat.id, output.result.message_id, 'You should find the requested file below.')
 		return
 	end
 end
@@ -55,13 +55,13 @@ function youtube_dl:onMessage(message)
 	local output = mattata.sendMessage(message.chat.id, 'Retrieving audio information...', nil, true, false, message.message_id)
 	local file = convertAudio(input)
 	if not file then
-		mattata.editMessageText(message.chat.id, output.result.message_id, 'An error occured! Either that video is too long, or it doesn\'t exist!', nil, nil)
+		mattata.editMessageText(message.chat.id, output.result.message_id, 'An error occured! Either that video is too long, or it doesn\'t exist!')
 		return
 	end
 	mattata.sendChatAction(message.chat.id, 'upload_audio')
 	local res = mattata.sendAudio(message.chat.id, file)
 	if res then
-		mattata.editMessageText(message.chat.id, output.result.message_id, 'You should find the requested file below.', nil, nil)
+		mattata.editMessageText(message.chat.id, output.result.message_id, 'You should find the requested file below.')
 		return
 	end
 end

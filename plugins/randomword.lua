@@ -9,8 +9,8 @@ function randomword:init(configuration)
 	randomword.help = configuration.commandPrefix .. 'randomword - Generates a random word. Alias: ' .. configuration.commandPrefix .. 'rw.'
 end
 
-function randomword:onCallback(callback, message, language)
-	if callback.data == 'randomword' then
+function randomword:onCallbackQuery(callback_query, message, language)
+	if callback_query.data == 'randomword' then
 		local str, res = HTTP.request('http://www.setgetgo.com/randomword/get.php')
 		if res ~= 200 then
 			mattata.editMessageText(message.chat.id, message.message_id, language.errors.connection, nil, true)

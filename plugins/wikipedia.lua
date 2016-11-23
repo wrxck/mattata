@@ -90,7 +90,7 @@ function wikipedia:onChannelPost(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, output, 'Markdown', true, false, channel_post.message_id, JSON.encode(keyboard))
 end
 
-function wikipedia:onMessage(message, language)
+function wikipedia:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, wikipedia.help, nil, true, false, message.message_id)
@@ -98,7 +98,7 @@ function wikipedia:onMessage(message, language)
 	else
 		input = input:gsub('#', ' sharp')
 	end
-	local search_url = 'http://' .. language.locale .. '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch='
+	local search_url = 'http://' .. configuration.language .. '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch='
 	local search_jstr, search_res = HTTPS.request(search_url .. URL.escape(input))
 	if search_res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
@@ -114,7 +114,7 @@ function wikipedia:onMessage(message, language)
 		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
 		return
 	end
-	local result_url = 'https://' .. language.locale .. '.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exchars=4000&exsectionformat=plain&titles='
+	local result_url = 'https://' .. configuration.language .. '.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exchars=4000&exsectionformat=plain&titles='
 	local result_jstr, result_res = HTTPS.request(result_url .. URL.escape(title))
 	if result_res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
@@ -134,7 +134,7 @@ function wikipedia:onMessage(message, language)
 	if l then
 		text = text:sub(1, l-1)
 	end
-	local url = 'https://' .. language.locale .. '.wikipedia.org/wiki/' .. URL.escape(title)
+	local url = 'https://' .. configuration.language .. '.wikipedia.org/wiki/' .. URL.escape(title)
 	title = title:gsub('%(.+%)', '')
 	local output
 	if string.match(text:sub(1, title:len()), title) then

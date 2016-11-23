@@ -17,6 +17,41 @@ function pokedex:init(configuration)
 	pokedex.help = configuration.commandPrefix .. 'pokedex <query> - Returns a Pokedex entry from pokeapi.co. Alias: ' .. configuration.commandPrefix .. 'dex.'
 end
 
+function pokedex:onChannelPost(channel_post, configuration)
+	local input = mattata.input(channel_post.text)
+	if not input then
+		mattata.sendMessage(channel_post.chat.id, pokedex.help, nil, true, false, channel_post.message_id)
+		return
+	end
+	local jstr, res = HTTP.request('http://pokeapi.co/api/v1/pokemon/' .. URL.escape(input))
+	if res ~= 200 then
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
+		return
+	end
+	local jdat = JSON.decode(jstr)
+	local name = jdat.name:gsub('^%l', string.upper)
+	local id = '#' .. jdat.national_id
+	local descriptionUrl = 'http://pokeapi.co' .. jdat.descriptions[math.random(#jdat.descriptions)].resource_uri
+	local descriptionJstr, descriptionRes = HTTP.request(descriptionUrl)
+	if descriptionRes ~= 200 then
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
+		return
+	end
+	local descriptionJdat = JSON.decode(descriptionJstr)
+	local description = descriptionJdat.description:gsub('POKMON', 'Pokémon'):gsub('Pokmon', 'Pokémon'):gsub('Pokemon', 'Pokémon')
+	local pokeType
+	for _, v in ipairs(jdat.types) do
+		local typeName = v.name:gsub('^%l', string.upper)
+		if not pokeType then
+			pokeType = typeName
+		else
+			pokeType = pokeType .. ' / ' .. typeName
+		end
+	end
+	pokeType = pokeType .. ' type'
+	mattata.sendPhoto(channel_post.chat.id, 'https://img.pokemondb.net/artwork/' .. name:gsub('^%u', string.lower) .. '.jpg', 'Name: ' .. name .. '\nID: ' .. id .. '\nType: ' .. pokeType .. '\nDescription: ' .. description, false, channel_post.message_id)
+end
+
 function pokedex:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then

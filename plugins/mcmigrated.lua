@@ -10,6 +10,26 @@ function mcmigrated:init(configuration)
 	mcmigrated.help = configuration.commandPrefix .. 'mcmigrated <username> - Tells you if a Minecraft username has been migrated to a Mojang account.'
 end
 
+function mcmigrated:onChannelPost(channel_post, configuration)
+	local input = mattata.input(channel_post.text)
+	if not input then
+		mattata.sendMessage(channel_post.chat.id, mcmigrated.help, nil, true, false, channel_post.message_id)
+		return
+	end
+	local jstr, res = HTTPS.request('https://eu.mc-api.net/v3/migrated/' .. URL.escape(input))
+	if res ~= 200 then
+		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
+		return
+	end
+	local output
+	if string.match(jstr, 'true') then
+		output = 'This username has been migrated to a Mojang account!'
+	else
+		output = 'This username either does not exist, or it just hasn\'t been migrated to a Mojang account.'
+	end
+	mattata.sendMessage(channel_post.chat.id, output, nil, true, false, channel_post.message_id)
+end
+
 function mcmigrated:onMessage(message, language)
 	local input = mattata.input(message.text)
 	if not input then

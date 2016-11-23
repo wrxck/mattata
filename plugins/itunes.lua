@@ -30,9 +30,9 @@ function getOutput(jdat)
 	return table.concat(output, '\n')
 end
 
-function itunes:onCallback(callback, message, configuration, language)
+function itunes:onCallbackQuery(callback_query, message, configuration, language)
 	local input = mattata.input(message.reply_to_message.text)
-	if callback.data == 'itunesAlbumArtwork' then
+	if callback_query.data == 'itunesAlbumArtwork' then
 		local jstr, res = HTTPS.request('https://itunes.apple.com/search?term=' .. URL.escape(input))
 		if res ~= 200 then
 			mattata.editMessageText(message.chat.id, message.message_id, language.errors.connection, nil, false)
@@ -70,7 +70,7 @@ function itunes:onCallback(callback, message, configuration, language)
 				mattata.editMessageText(message.chat.id, message.message_id, 'I have sent you a private message containing the requested information.', nil, true, JSON.encode(keyboard))
 			end
 		end
-	elseif callback.data == 'itunesBack' then
+	elseif callback_query.data == 'itunesBack' then
 		local jstr, res = HTTPS.request('https://itunes.apple.com/search?term=' .. URL.escape(input))
 		if res ~= 200 then
 			mattata.editMessageText(message.chat.id, message.message_id, language.errors.connection, nil, true)

@@ -57,7 +57,7 @@ function flickr:onChannelPost(channel_post, configuration)
 	keyboard.inline_keyboard = {
 		{
 			{
-				text = 'More results',
+				text = 'More Results',
 				url = 'https://www.flickr.com/search/?text=' .. URL.escape(input)
 			}
 		}
@@ -86,7 +86,7 @@ function flickr:onMessage(message, configuration, language)
 	keyboard.inline_keyboard = {
 		{
 			{
-				text = 'More results',
+				text = 'More Results',
 				url = 'https://www.flickr.com/search/?text=' .. URL.escape(input)
 			}
 		}

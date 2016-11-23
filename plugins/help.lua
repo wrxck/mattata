@@ -183,8 +183,8 @@ function help:onInlineQuery(inline_query, configuration)
 	mattata.answerInlineQuery(inline_query.id, results, 0)
 end
 
-function help:onCallback(callback, message, configuration, language)
-	if callback.data == 'helpCommands' then
+function help:onCallbackQuery(callback_query, message, configuration, language)
+	if callback_query.data == 'helpCommands' then
 		local keyboard = {}
 		keyboard.inline_keyboard = {
 			{
@@ -195,7 +195,7 @@ function help:onCallback(callback, message, configuration, language)
 			}
 		}
 		if message.chat.type ~= 'private' then
-			local res = mattata.sendMessage(callback.from.id, helpText, 'Markdown', true, false)
+			local res = mattata.sendMessage(callback_query.from.id, helpText, 'Markdown', true, false)
 			if not res then
 				mattata.editMessageText(message.chat.id, message.message_id, language.pleaseMessageMe:gsub('MATTATA', self.info.username), 'Markdown', true, JSON.encode(keyboard))
 			else
@@ -205,7 +205,7 @@ function help:onCallback(callback, message, configuration, language)
 			mattata.editMessageText(message.chat.id, message.message_id, helpText, 'Markdown', true, JSON.encode(keyboard))
 		end
 	end
-	if callback.data == 'helpAdministration' then
+	if callback_query.data == 'helpAdministration' then
 		local keyboard = {}
 		keyboard.inline_keyboard = {
 			{
@@ -216,7 +216,7 @@ function help:onCallback(callback, message, configuration, language)
 			}
 		}
 		if message.chat.type ~= 'private' then
-			local res = mattata.sendMessage(callback.from.id, administrationHelpText, 'Markdown', true, false)
+			local res = mattata.sendMessage(callback_query.from.id, administrationHelpText, 'Markdown', true, false)
 			if not res then
 				mattata.editMessageText(message.chat.id, message.message_id, language.pleaseMessageMe:gsub('MATTATA', self.info.username), 'Markdown', true, JSON.encode(keyboard))
 			else
@@ -226,7 +226,7 @@ function help:onCallback(callback, message, configuration, language)
 			mattata.editMessageText(message.chat.id, message.message_id, administrationHelpText, 'Markdown', true, JSON.encode(keyboard))
 		end
 	end
-	if callback.data == 'helpLinks' then
+	if callback_query.data == 'helpLinks' then
 		local helpLinks = language.officialLinks
 		local keyboard = {}
 		keyboard.inline_keyboard = {
@@ -263,7 +263,7 @@ function help:onCallback(callback, message, configuration, language)
 		}
 		mattata.editMessageText(message.chat.id, message.message_id, helpLinks, 'Markdown', true, JSON.encode(keyboard))
 	end
-	if callback.data == 'helpBack' then
+	if callback_query.data == 'helpBack' then
 		local keyboard = {}
 		keyboard.inline_keyboard = {
 			{
@@ -291,9 +291,9 @@ function help:onCallback(callback, message, configuration, language)
 				}
 			}
 		}
-		mattata.editMessageText(message.chat.id, message.message_id, language.helpIntroduction:gsub('NAME', '*' .. mattata.markdownEscape(callback.from.first_name) .. '*'):gsub('MATTATA', self.info.first_name):gsub('COMMANDPREFIX', configuration.commandPrefix), 'Markdown', true, JSON.encode(keyboard))
+		mattata.editMessageText(message.chat.id, message.message_id, language.helpIntroduction:gsub('NAME', '*' .. mattata.markdownEscape(callback_query.from.first_name) .. '*'):gsub('MATTATA', self.info.first_name):gsub('COMMANDPREFIX', configuration.commandPrefix), 'Markdown', true, JSON.encode(keyboard))
 	end
-	if callback.data == 'helpHelp' then
+	if callback_query.data == 'helpHelp' then
 		local keyboard = {}
 		keyboard.inline_keyboard = {
 			{
@@ -305,7 +305,7 @@ function help:onCallback(callback, message, configuration, language)
 		}
 		mattata.editMessageText(message.chat.id, message.message_id, language.helpConfused:gsub('COMMANDPREFIX', configuration.commandPrefix), 'Markdown', true, JSON.encode(keyboard))
 	end
-	if callback.data == 'helpAbout' then
+	if callback_query.data == 'helpAbout' then
 		local keyboard = {}
 		keyboard.inline_keyboard = {
 			{
