@@ -9,16 +9,16 @@ function warn:init(configuration)
 	warn.help = configuration.commandPrefix .. 'warn - Warn the replied-to user.'
 end
 
-function warn:onCallback(callback, message, configuration)
+function warn:onCallbackQuery(callback_query, message, configuration)
 	if message.chat.type ~= 'private' then
-		if mattata.isGroupAdmin(message.chat.id, callback.from.id) then
-			if string.match(callback.data, '^resetWarnings') then
-				redis:hdel('chat:' .. message.chat.id .. ':warnings', callback.data:gsub('resetWarnings', ''))
-				mattata.editMessageText(message.chat.id, message.message_id, 'Warnings reset by ' .. callback.from.first_name, nil, true)
+		if mattata.isGroupAdmin(message.chat.id, callback_query.from.id) then
+			if string.match(callback_query.data, '^resetWarnings') then
+				redis:hdel('chat:' .. message.chat.id .. ':warnings', callback_query.data:gsub('resetWarnings', ''))
+				mattata.editMessageText(message.chat.id, message.message_id, 'Warnings reset by ' .. callback_query.from.first_name, nil, true)
 				return
 			end
-			if string.match(callback.data, '^removeWarning') then
-				local user = callback.data:gsub('removeWarning', '')
+			if string.match(callback_query.data, '^removeWarning') then
+				local user = callback_query.data:gsub('removeWarning', '')
 				local amount = redis:hincrby('chat:' .. message.chat.id .. ':warnings', user, -1)
 				local text, maximum, difference
 				if tonumber(amount) < 0 then
@@ -71,14 +71,12 @@ function warn:onMessage(message, configuration)
 			keyboard.inline_keyboard = {
 				{
 					{
-						{
-							text = 'Remove Warning',
-							callback_data = 'removeWarning' .. message.reply_to_message.from.id
-						},
-						{
-							text = 'Reset Warnings',
-							callback_data = 'resetWarnings' .. message.reply_to_message.from.id
-						}
+						text = 'Remove Warning',
+						callback_data = 'removeWarning' .. message.reply_to_message.from.id
+					},
+					{
+						text = 'Reset Warnings',
+						callback_data = 'resetWarnings' .. message.reply_to_message.from.id
 					}
 				}
 			}
