@@ -813,7 +813,7 @@ function mattata:handleException(error, message, adminGroup)
 end
 
 function mattata.downloadToFile(url, name)
-	name = name or url:match('.+/(.-)$') or os.time()
+	name = name or os.time() .. '.' .. url:match('.+/%.(.-)$')
 	local body = {}
 	local protocol = HTTP
 	local redirect = true
