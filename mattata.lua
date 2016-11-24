@@ -892,11 +892,17 @@ function mattata.resolveUsername(user)
 	return false
 end
 
-function mattata.markdownEscape(text)
+function mattata.markdownEscape(text, unescape)
+	if unescape then
+		return text:gsub('\\_', '_'):gsub('\\[', '%['):gsub('\\]', '%]'):gsub('\\*', '%*'):gsub('\\`', '`')
+	end
 	return text:gsub('_', '\\_'):gsub('%[', '\\['):gsub('%]', '\\]'):gsub('%*', '\\*'):gsub('`', '\\`')
 end
 
-function mattata.htmlEscape(text)
+function mattata.htmlEscape(text, unescape)
+	if unescape then
+		return text:gsub('&lt;', '<'):gsub('&gt;', '>'):gsub('&quot;', '"'):gsub('&apos;', '\''):gsub('&#(%d+);', function(n) return string.char(n) end):gsub('&#x(%d+);', function(n) return string.char(tonumber(n, 16)) end):gsub('&amp;', '&')
+	end
 	return text:gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;')
 end
 
