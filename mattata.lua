@@ -22,9 +22,9 @@ local configuration = require('configuration')
 local colors = require('ansicolors')
 
 function mattata:init()
-	print(colors.yellow .. '[mattata] Initialising...')
+	print(colors.white .. '[mattata]' .. colors.yellow .. ' Initialising...' .. colors.reset)
 	if configuration.botToken == '' then
-		print(colors.red .. '[mattata] You need to enter your bot API key in configuration.lua!')
+		print(colors.white .. '[mattata]' .. colors.red .. 'You need to enter your bot API key in configuration.lua!' .. colors.reset)
 	end
 	repeat
 		self.info = mattata.request('getMe')
@@ -87,7 +87,14 @@ function mattata:init()
 			inlinePlugin.commands = {}
 		end
 	end
-	print(colors.green .. '[mattata] Connected to Telegram through @' .. self.info.username .. '!')
+	print(colors.white .. '[mattata]' .. colors.green .. ' Connected to the Telegram bot API!\n' .. colors.reset)
+	self.info.name = self.info.first_name
+	if self.info.last_name then
+		self.info.name = self.info.first_name .. ' ' .. self.info.last_name
+	end
+	print ('          ' .. colors.white .. 'Username: @' .. self.info.username .. colors.reset)
+	print ('          ' .. colors.white .. 'Name: ' .. self.info.name .. colors.reset)
+	print ('          ' .. colors.white .. 'ID: @' .. self.info.id .. '\n' .. colors.reset)
 	self.lastUpdate = self.lastUpdate or 0
 	self.lastCron = self.lastCron or os.date('%M')
 	self.lastDbSave = self.lastDbSave or os.date('%H')
@@ -143,7 +150,7 @@ function mattata.request(method, parameters, file, api)
 	}
 	local data = table.concat(response)
 	if not jstr then
-		print(colors.red .. '[mattata] ' .. method .. ': Connection error: ' .. res)
+		print(colors.white .. '[mattata]' .. colors.red .. ' ' .. method .. ': Connection error: ' .. res .. colors.reset)
 		return false, false
 	end
 	local result = JSON.decode(data)
@@ -177,39 +184,39 @@ function mattata:run(configuration)
 				if update.message then
 					mattata.onMessage(self, update.message, configuration)
 					if configuration.debugMode then
-						print(colors.white .. '[mattata] Message from ' .. update.message.from.id .. ' to ' .. update.message.chat.id)
+						print(colors.white .. '[mattata]' .. colors.yellow .. ' [Update #' .. update.update_id .. ']' .. colors.green .. ' Message from ' .. colors.cyan .. update.message.from.id .. colors.green .. ' to ' .. colors.cyan .. update.message.chat.id .. colors.reset)
 					end
 				elseif update.edited_message and configuration.processEdits then
 					mattata.onMessage(self, update.edited_message, configuration)
 					if configuration.debugMode then
-						print(colors.white .. '[mattata] Message edit from ' .. update.edited_message.from.id .. ' to ' .. update.edited_message.chat.id)
+						print(colors.white .. '[mattata]' .. colors.yellow .. ' [Update #' .. update.update_id .. ']' .. colors.green .. ' Message edit from ' .. colors.cyan .. update.edited_message.from.id .. colors.green .. ' to ' .. colors.cyan .. update.edited_message.chat.id .. colors.reset)
 					end
 				elseif update.channel_post then
 					mattata.onChannelPost(self, update.channel_post, configuration)
 					if configuration.debugMode then
-						print(colors.white .. '[mattata] Channel post from ' .. update.channel_post.chat.id)
+						print(colors.white .. '[mattata]' .. colors.yellow .. ' [Update #' .. update.update_id .. ']' .. colors.green .. ' Channel post from ' .. colors.cyan .. update.channel_post.chat.id .. colors.reset)
 					end
 				elseif update.edited_channel_post and configuration.processEdits then
 					mattata.onChannelPost(self, update.edited_channel_post, configuration)
 					if configuration.debugMode then
-						print(colors.white .. '[mattata] Channel post edit from ' .. update.edited_channel_post.chat.id)
+						print(colors.white .. '[mattata]' .. colors.yellow .. ' [Update #' .. update.update_id .. ']' .. colors.green .. ' Channel post edit from ' .. colors.cyan .. update.edited_channel_post.chat.id .. colors.reset)
 					end
 				elseif update.inline_query then
 					mattata.onInlineQuery(self, update.inline_query, configuration)
 					if configuration.debugMode then
-						print(colors.white .. '[mattata] Inline query from ' .. update.inline_query.from.id)
+						print(colors.white .. '[mattata]' .. colors.yellow .. ' [Update #' .. update.update_id .. ']' .. colors.green .. ' Inline query from ' .. colors.cyan .. update.inline_query.from.id .. colors.reset)
 					end
 				elseif update.chosen_inline_result then
 					print(JSON.encode(update.chosen_inline_result))
 				elseif update.callback_query then
 					mattata.onCallbackQuery(self, update.callback_query, update.callback_query.message, configuration)
 					if configuration.debugMode then
-						print(colors.white .. '[mattata] Callback query from ' .. update.callback_query.from.id)
+						print(colors.white .. '[mattata]' .. colors.yellow .. ' [Update #' .. update.update_id .. ']' .. colors.green .. ' Callback query from ' .. colors.cyan .. update.callback_query.from.id .. colors.reset)
 					end
 				end
 			end
 		else
-			print(colors.red .. '[mattata] There was an error whilst retrieving updates from Telegram.')
+			print(colors.white .. '[mattata]' .. colors.red .. ' There was an error whilst retrieving updates from the Telegram bot API.' .. colors.reset)
 		end
 		if self.lastCron ~= os.date('%M') then
 			self.lastCron = os.date('%M')
@@ -233,7 +240,7 @@ function mattata:run(configuration)
 	end
 	mattata.saveData('data/users.json', self.users)
 	mattata.saveData('data/groups.json', self.groups)
-	print(colors.yellow .. '[mattata] Shutting down...')
+	print(colors.white .. '[mattata]' .. colors.yellow .. ' Shutting down your instance of mattata (@' .. self.info.username .. ') ...' .. colors.reset)
 end
 
 --[[
