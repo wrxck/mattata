@@ -31,14 +31,14 @@ function mattata:init()
 	until self.info
 	self.info = self.info.result
 	self.users = mattata.loadData('data/users.json')
- 	if not self.users then
- 		mattata.loadData('data/users.json')
- 	end
- 	self.groups = mattata.loadData('data/groups.json')
- 	if not self.groups then
- 		mattata.loadData('data/groups.json')
- 	end
-	self.version = '5.2'
+	if not self.users then
+		mattata.loadData('data/users.json')
+	end
+	self.groups = mattata.loadData('data/groups.json')
+	if not self.groups then
+		mattata.loadData('data/groups.json')
+	end
+	self.version = '6.0'
 	self.administrationPlugins = {}
 	for k, v in ipairs(configuration.administrationPlugins) do
 		local administrationPlugin = require('plugins.' .. v)
@@ -87,14 +87,14 @@ function mattata:init()
 			inlinePlugin.commands = {}
 		end
 	end
-	print(colors.white .. '[mattata]' .. colors.green .. ' Connected to the Telegram bot API!\n' .. colors.reset)
+	print(colors.white .. '[mattata]' .. colors.green .. ' Connected to the Telegram bot API!' .. colors.reset)
 	self.info.name = self.info.first_name
 	if self.info.last_name then
 		self.info.name = self.info.first_name .. ' ' .. self.info.last_name
 	end
-	print ('          ' .. colors.white .. 'Username: @' .. self.info.username .. colors.reset)
+	print ('\n          ' .. colors.white .. 'Username: @' .. self.info.username .. colors.reset)
 	print ('          ' .. colors.white .. 'Name: ' .. self.info.name .. colors.reset)
-	print ('          ' .. colors.white .. 'ID: @' .. self.info.id .. '\n' .. colors.reset)
+	print ('          ' .. colors.white .. 'ID: ' .. self.info.id .. '\n' .. colors.reset)
 	self.lastUpdate = self.lastUpdate or 0
 	self.lastCron = self.lastCron or os.date('%M')
 	self.lastDbSave = self.lastDbSave or os.date('%H')
@@ -156,7 +156,7 @@ function mattata.request(method, parameters, file, api)
 	local result = JSON.decode(data)
 	if not result then
 		return false, false
-	elseif result.ok then
+	elseif result.ok == true then
 		return result
 	end
 	return false
@@ -264,7 +264,7 @@ function mattata:onMessage(message, configuration)
 			self.groups[tostring(message.forward_from_chat)] = message.forward_from_chat
 		end
 		message.system_date = os.time()
-		message.service_message = modifyServiceMessage(message)
+		message.service_message = mattata.modifyServiceMessage(message)
 		message.text = message.text or message.caption or ''
 		message.text_lower = message.text:lower()
 		message.text_upper = message.text:upper()
@@ -320,15 +320,25 @@ function mattata:onMessage(message, configuration)
 			ai.onMessage(self, message, configuration, language)
 		end
 	end
-	if configuration.respondToMemes and message.text_lower:match('^what the fuck did you just fucking say about me%??$') then
+	if configuration.respondToMemes and message.text_lower:match('^what the fuck did you just fucking say about me%??$') and message.chat.type ~= 'private' then
 		mattata.sendChatAction(message.chat.id, 'typing')
 		mattata.sendMessage(message.chat.id, 'What the fuck did you just fucking say about me, you little bitch? I\'ll have you know I graduated top of my class in the Navy Seals, and I\'ve been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I\'m the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You\'re fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that\'s just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little "clever" comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn\'t, you didn\'t, and now you\'re paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You\'re fucking dead, kiddo.', nil, true, false, message.message_id)
-	end
-	if configuration.respondToMemes and message.text_lower:match('^gr8 b8,? m8$') then
+	elseif configuration.respondToMemes and message.text_lower:match('^gr8 b8,? m8$') and message.chat.type ~= 'private' then
 		mattata.sendChatAction(message.chat.id, 'typing')
 		mattata.sendMessage(message.chat.id, 'Gr8 b8, m8. I rel8, str8 appreci8, and congratul8. I r8 this b8 an 8/8. Plz no h8, I\'m str8 ir8. Cre8 more, can\'t w8. We should convers8, I won\'t ber8, my number is 8888888, ask for N8. No calls l8 or out of st8. If on a d8, ask K8 to loc8. Even with a full pl8, I always have time to communic8 so don\'t hesit8.', nil, true, false, message.message_id)
-	end
-	if configuration.respondToLyrics and message.text_lower:match('^do you have the time,? to listen to me whine%??$') then
+	elseif configuration.respondToMemes and message.text_lower:match('^why so salty%??$') and message.chat.type ~= 'private' then
+		mattata.sendDocument(message.chat.id, 'BQADBAADpwADfgLaD1Gol8MDljaQAg')
+	elseif configuration.respondToMemes and message.text_lower:match('^bone? appetite?!?$') and message.chat.type ~= 'private' then
+		mattata.sendChatAction(message.chat.id, 'typing')
+		local rnd = math.random(3)
+		if rnd == 1 then
+			mattata.sendMessage(message.chat.id, 'bone apple tea', nil, true, false, message.message_id)
+		elseif rnd == 2 then
+			mattata.sendMessage(message.chat.id, 'bone app the teeth', nil, true, false, message.message_id)
+		else
+			mattata.sendMessage(message.chat.id, 'boney african feet', nil, true, false, message.message_id)
+		end
+	elseif configuration.respondToLyrics and message.text_lower:match('^do you have the time,? to listen to me whine%??$') and message.chat.type ~= 'private' then
 		mattata.sendChatAction(message.chat.id, 'typing')
 		mattata.sendMessage(message.chat.id, 'About nothing and everything, all at once?', nil, true, false, message.message_id)
 	end
@@ -430,12 +440,12 @@ end
 
 --]]
 
-function mattata.processPlugins(self, message, configuration, plugin, language, toggleable)
+function mattata.processPlugins(self, message, configuration, plugin, language)
 	local plugins = plugin.commands or {}
 	for i = 1, #plugins do
 		local command = plugin.commands[i]
 		if string.match(message.text_lower, command) then
-			if toggleable and mattata.isPluginDisabledInChat(plugin.name, message) then
+			if mattata.isPluginDisabledInChat(plugin.name, message) then
 				return
 			else
 				local success, result = pcall(function()
@@ -482,6 +492,13 @@ end
 	
 --]]
 
+function mattata.getUpdates(timeout, offset)
+	return mattata.request('getUpdates', {
+		timeout = timeout,
+		offset = offset
+	})
+end
+
 function mattata.sendMessage(chat_id, text, parse_mode, disable_web_page_preview, disable_notification, reply_to_message_id, reply_markup)
 	return mattata.request('sendMessage', {
 		chat_id = chat_id,
@@ -490,6 +507,18 @@ function mattata.sendMessage(chat_id, text, parse_mode, disable_web_page_preview
 		disable_web_page_preview = disable_web_page_preview or false,
 		disable_notification = disable_notification or false,
 		reply_to_message_id = reply_to_message_id or nil,
+		reply_markup = reply_markup or nil
+	})
+end
+
+function mattata.sendReply(chat_id, text, parse_mode, reply_markup)
+	return mattata.request('sendMessage', {
+		chat_id = chat_id,
+		text = text,
+		parse_mode = parse_mode or nil,
+		disable_web_page_preview = true,
+		disable_notification = false,
+		reply_to_message_id = message.message_id,
 		reply_markup = reply_markup or nil
 	})
 end
@@ -740,17 +769,8 @@ function mattata.getGameHighScores(user_id, chat_id, message_id, inline_message_
 	})
 end
 
--- Functions with bindings to PWRTelegram bot API methods.
-
 function mattata.getChat(chat_id)
-	return mattata.request('getChat', { chat_id = chat_id }, nil, 'https://api.pwrtelegram.xyz/bot')
-end
-
-function mattata.deleteMessage(chat_id, message_id)
-	return mattata.request('deleteMessage', {
-		chat_id = chat_id,
-		message_id = message_id
-	}, nil, 'https://api.pwrtelegram.xyz/bot')
+	return mattata.request('getChat', { chat_id = chat_id })
 end
 
 --[[
@@ -893,16 +913,10 @@ function mattata.resolveUsername(user)
 end
 
 function mattata.markdownEscape(text, unescape)
-	if unescape then
-		return text:gsub('\\_', '_'):gsub('\\[', '%['):gsub('\\]', '%]'):gsub('\\*', '%*'):gsub('\\`', '`')
-	end
 	return text:gsub('_', '\\_'):gsub('%[', '\\['):gsub('%]', '\\]'):gsub('%*', '\\*'):gsub('`', '\\`')
 end
 
 function mattata.htmlEscape(text, unescape)
-	if unescape then
-		return text:gsub('&lt;', '<'):gsub('&gt;', '>'):gsub('&quot;', '"'):gsub('&apos;', '\''):gsub('&#(%d+);', function(n) return string.char(n) end):gsub('&#x(%d+);', function(n) return string.char(tonumber(n, 16)) end):gsub('&amp;', '&')
-	end
 	return text:gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;')
 end
 
@@ -934,7 +948,7 @@ function mattata.tableSize(t)
 	return i
 end
 
-function modifyServiceMessage(message)
+function mattata.modifyServiceMessage(message)
 	if message.new_chat_member then
 		return 'new_chat_member'
 	elseif message.left_chat_member then
@@ -957,8 +971,9 @@ function modifyServiceMessage(message)
 		return 'migrate_from_chat_id'
 	elseif message.pinned_message then
 		return 'pinned_message'
+	else
+		return ''
 	end
-	return ''
 end
 
 function mattata.utf8Len(s)
@@ -983,7 +998,7 @@ function mattata.processMessage(message)
 		message.text = message.caption or ''
 	end
 	message.system_date = os.time()
-	message.service_message = modifyServiceMessage(message)
+	message.service_message = mattata.modifyServiceMessage(message)
 	message.text_lower = message.text:lower()
 	message.text_upper = message.text:upper()
 	message.from = mattata.processUser(message.from)
@@ -993,7 +1008,7 @@ function mattata.processMessage(message)
 			message.reply_to_message.text = message.reply_to_message.caption or ''
 		end
 		message.reply_to_message.system_date = os.time()
-		message.reply_to_message.service_message = modifyServiceMessage(message.reply_to_message)
+		message.reply_to_message.service_message = mattata.modifyServiceMessage(message.reply_to_message)
 		message.reply_to_message.text_lower = message.reply_to_message.text:lower()
 		message.reply_to_message.text_upper = message.reply_to_message.text:upper()
 		message.reply_to_message.from = mattata.processUser(message.reply_to_message.from)
@@ -1040,15 +1055,27 @@ function mattata.isConfiguredAdmin(id)
 	return false
 end
 
-function mattata.getUserLanguage(user)
-	local hash = 'user:' .. user .. ':language'
-	if hash then
-		local language = redis:hget(hash, 'language')
-		if language and language ~= 'false' and language ~= nil then
-			return language
-		end
+function mattata.getUserLanguage(id)
+	local language = redis:hget('user:' .. id .. ':language', 'language')
+	if language and language ~= 'false' and language ~= nil then
+		return language
 	end
 	return 'en'
+end
+
+function mattata.commaValue(amount)
+	local formatted = amount
+	while true do  
+		formatted, k = string.gsub(formatted, '^(-?%d+)(%d%d%d)', '%1,%2')
+		if (k == 0) then
+			break
+		end
+	end
+	return formatted
+end
+
+function mattata.bashEscape(str)
+	return str:gsub('$', ''):gsub('%^', ''):gsub('&', ''):gsub('|', '')
 end
 
 return mattata

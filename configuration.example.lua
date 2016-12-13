@@ -1,11 +1,13 @@
 return { -- rename this file to configuration.lua for mattata to work
 	botToken = '', -- In order for your copy of mattata to actually work, you MUST insert the Telegram bot API token you received from @BotFather.
 	admins = {  -- Here you need to specify the numerical ID of the users who shall have FULL control over mattata, this includes access to server files via the lua and shell plugins.
-		221714512,
-		265945726
+		nil,
+		nil,
+		nil
 	},
 	language = 'en', -- two character locale, this is the default language for all users who haven't adjusted their language
-	adminGroup = -1001076736500, -- This needs to be the numerical identifier of the chat you wish to log errors into. If it's not a private chat it should begin with a '-' symbol.
+	adminGroup = nil, -- This needs to be the numerical identifier of the chat you wish to log errors into. If it's not a private chat it should begin with a '-' symbol.
+ 	kickLog = nil,
  	commandPrefix = '/', -- the symbol bot commands will be executed with ('/' by default)
 	fileDownloadLocation = '/tmp/', -- the location to save all downloaded media to
 	processEdits = true, -- change this to false to stop mattata from processing message edits
@@ -19,6 +21,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		-- To allow things to work properly, you MUST place all new plugins BELOW this line. It is recommended to keep the list clean by ensuring it keeps its alphabetical order.
 		'9gag',
 		'apod',
+		'appStore',
 		'bandersnatch',
 		'bible',
 		'bing',
@@ -39,7 +42,8 @@ return { -- rename this file to configuration.lua for mattata to work
 		'doggo',
 		'echo',
 		'eightball',
-		'exec',
+		-- 'exec',
+		'facebook',
 		'faces',
 		'fact',
 		'flickr',
@@ -50,11 +54,13 @@ return { -- rename this file to configuration.lua for mattata to work
 		'github',
 		'guidgen',
 		'hackernews',
+		'hastebin',
 		'help',
 		'hextorgb',
 		'id',
 		'identicon',
 		'imdb',
+		'instagram',
 		'insult',
 		'isp',
 		'ispwned',
@@ -74,10 +80,12 @@ return { -- rename this file to configuration.lua for mattata to work
 		'minecraft',
 		'news',
 		'nick',
+		'pastebin',
 		'ping',
 		'plugins',
 		'pokedex',
 		'preview',
+		'prime',
 		'pun',
 		'pwgen',
 		'qotd',
@@ -90,6 +98,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'shorten',
 		'shout',
 		'slap',
+		'speechToText',
 		'spotify',
 		'starwars',
 		'statistics',
@@ -102,6 +111,9 @@ return { -- rename this file to configuration.lua for mattata to work
 		'translate',
 		'trump',
 		'tts',
+		'twitch',
+		'unformat',
+		'unicode',
 		'urbandictionary',
 		'weather',
 		'wikipedia',
@@ -109,7 +121,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'yeoldinsult',
 		'yify',
 		'yomama',
-		'youtube-dl',
+		-- 'youtube-dl',
 		'youtube'
 	},
 	inlinePlugins = { -- This table lists the inline plugins which your copy of mattata will load upon each instance.
@@ -142,6 +154,7 @@ return { -- rename this file to configuration.lua for mattata to work
 	channelPlugins = { -- This table lists the channel plugins which your copy of mattata will load upon each instance.
 		'9gag',
 		'apod',
+		'appStore',
 		'bandersnatch',
 		'bible',
 		'bing',
@@ -159,6 +172,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'doggo',
 		'echo',
 		'eightball',
+		'facebook',
 		'faces',
 		'fact',
 		'flickr',
@@ -167,8 +181,10 @@ return { -- rename this file to configuration.lua for mattata to work
 		'github-feed',
 		'github',
 		'groups',
+		'hastebin',
 		'help',
 		'hextorgb',
+		'instagram',
 		'insult',
 		'isp',
 		'ispwned',
@@ -182,9 +198,11 @@ return { -- rename this file to configuration.lua for mattata to work
 		'mchistory',
 		'mcmigrated',
 		'news',
+		'pastebin',
 		'ping',
 		'pokedex',
 		'preview',
+		'prime',
 		'pun',
 		'pwgen',
 		'qotd',
@@ -200,6 +218,8 @@ return { -- rename this file to configuration.lua for mattata to work
 		'tobin',
 		'tohex',
 		'translate',
+		'twitch',
+		'unformat',
 		'urbandictionary',
 		'weather',
 		'wikipedia',
@@ -207,7 +227,7 @@ return { -- rename this file to configuration.lua for mattata to work
 		'yeoldinsult',
 		'yify',
 		'yomama',
-		'youtube-dl',
+		-- 'youtube-dl',
 		'youtube'
 	},
 	groups = { -- A table of groups that will be sorted and displayed upon execution of the groups plugin.
@@ -245,7 +265,10 @@ return { -- rename this file to configuration.lua for mattata to work
 		bing = '', -- https://datamarket.azure.com/account/keys
 		flickr = '', -- https://www.flickr.com/services/apps/create/noncommercial/?
 		github_feed = '',
-		news = ''
+		news = '',
+		witai = '',
+		twitch = '',
+		pastebin = ''
 	},
 	joinChatMessages = { -- A table of messages where one is selected by random to be sent upon each instance of a user entering the chat. 'NAME' is a placeholder for the said user's name to be later inserted.
 		'Welcome, NAME!',

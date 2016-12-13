@@ -1,27 +1,18 @@
-# Installs Lua, Luarocks, and mattata's dependencies. Works in Ubuntu, maybe Debian.
-# Installs Lua 5.3 if your OS is Ubuntu 16.04. Otherwise, 5.2 is installed instead.
 #!/bin/sh
-rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua"
-if [ $(lsb_release -r | cut -f 2) == "16.04" ]; then
-    luaver="5.2"
-else
-    luaver="5.2"
-fi
+rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem oauth luautf8"
 echo "This script will request root privileges to install the required dependencies."
 echo "Press enter to continue. Use Ctrl-C to exit."
 read
 sudo apt-get update
-sudo apt-get install -y lua$luaver liblua$luaver-dev git mediainfo python-bcrypt python-cffi python3 redis-server libssl-dev fortune-mod fortunes unzip make
+sudo apt-get install -y lua5.2 liblua5.2-dev git mediainfo python-bcrypt python-cffi python3 redis-server libssl-dev fortune-mod fortunes unzip make
 git clone http://github.com/keplerproject/luarocks
 cd luarocks
-./configure --lua-version=$luaver --versioned-rocks-dir --lua-suffix=$luaver
+./configure --lua-version=5.2 --versioned-rocks-dir --lua-suffix=5.2
 make build
 sudo make install
 for rock in $rocklist; do
-    sudo luarocks-$luaver install $rock
+    sudo luarocks-5.2 install $rock
 done
-sudo pip install BeautifulSoup
-sudo pip install demjson
 sudo pip install youtube-dl
 sudo -k
 cd ..
