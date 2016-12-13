@@ -10,6 +10,7 @@ function youtube_dl:init(configuration)
 end
 
 function convertAudio(id)
+	id = mattata.bashEscape(id) -- Just for extra precautionary measures
 	local configuration = require('configuration')
 	local fileDownloadLocation = configuration.fileDownloadLocation .. '%(title)s.%(ext)s'
 	local output = io.popen('youtube-dl --max-filesize 49m -o "' .. fileDownloadLocation:gsub(' ', '_') .. '" --extract-audio --audio-format mp3 https://www.youtube.com/watch/?v=' .. extractUrl(id)):read('*all')
@@ -28,7 +29,7 @@ function extractUrl(url)
 end
 
 function youtube_dl:onChannelPost(channel_post)
-	local input = mattata.input(channel_post.text)
+	local input = channel_post.text:match('^' .. configuration.commandPrefix .. '(mp3) ([^%s]+)$')
 	if not input then
 		mattata.sendMessage(channel_post.chat.id, youtube_dl.help, nil, true, false, channel_post.message_id)
 		return
@@ -47,7 +48,7 @@ function youtube_dl:onChannelPost(channel_post)
 end
 
 function youtube_dl:onMessage(message)
-	local input = mattata.input(message.text)
+	local input = message.text:match('^' .. configuration.commandPrefix .. '(mp3) ([^%s]+)$')
 	if not input then
 		mattata.sendMessage(message.chat.id, youtube_dl.help, nil, true, false, message.message_id)
 		return

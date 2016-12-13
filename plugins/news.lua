@@ -1,69 +1,75 @@
 local news = {}
 local mattata = require('mattata')
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
 local JSON = require('dkjson')
 
 function news:init(configuration)
-	news.arguments = 'news <source>'
+	news.arguments = 'news <list>'
 	news.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('news').table
-	news.help = configuration.commandPrefix .. 'news <source> - Returns the latest top headline for the given news source. The current sources are: abc-news-au, ars-technica, associated-press, bbc-news, bbc-sport, bloomberg, business-insider, business-insider-uk, buzzfeed, cnbc, cnn, daily-mail, engadget, entertainment-weekly, espn, espn-cric-info, financial-times, football-italia, fortune, four-four-two, fox-sports, google-news, hacker-news, ign, independent, mashable, metro, mirror, mtv-news, mtv-news-uk, national-geographic, new-scientist, newsweek, new-york-magazine, nfl-news, polygon, recode, reddit-r-all, reuters, sky-news, sky-sports-news, talksport, techcrunch, techradar, the-economist, the-guardian-au, the-guardian-uk, the-hindu, the-huffington-post, the-lad-bible, the-new-york-times, the-next-web, the-sport-bible, the-telegraph, the-times-of-india, the-verge, the-wall-street-journal, the-washington-post, time, usa-today'
+	news.help = configuration.commandPrefix .. 'news <list> - Returns the latest article from BBC News. If \'list\' is given as an argument, the top headlines from BBC News are sent instead.'
+end
+
+function news.listResults(jdat, message, limit)
+	local results = {}
+	for i = 1, limit do
+		table.insert(results, '• <a href="' .. jdat.articles[i].url .. '">' .. mattata.htmlEscape(jdat.articles[i].title) .. '</a>')
+	end
+	return '<b>Here are the latest stories from BBC News:</b>\n' .. table.concat(results, '\n')
+end
+
+function news.getLatestPost(jdat)
+	return '<b>' .. mattata.htmlEscape(jdat.articles[1].title) .. '</b>\n' .. mattata.htmlEscape(jdat.articles[1].description) .. '\n<a href="' .. jdat.articles[1].urlToImage .. '">' .. mattata.htmlEscape(jdat.articles[1].author) .. '</a>', jdat.articles[1].url
 end
 
 function news:onChannelPost(channel_post, configuration)
-	local input = mattata.input(channel_post.text)
-	if not input then
-		mattata.sendMessage(channel_post.chat.id, news.help, nil, true, false, channel_post.message_id)
-		return
-	end
-	local jstr, res = HTTPS.request('https://newsapi.org/v1/articles?source=' .. URL.escape(input) .. '&apiKey=' .. configuration.keys.news)
-	if res ~= 200 then
-		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
-		return
-	end
+	local jstr = '{' .. io.popen('curl -i -H \'x-api-key: ' .. configuration.keys.news .. '\' https://newsapi.org/v1/articles?source=bbc-news&sortBy=top'):read('*all'):match('{(.-)}$') .. '}'
 	local jdat = JSON.decode(jstr)
-	if not jdat.articles then
+	if not jdat.articles or jdat.status ~= 'ok' then
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
 		return
+	elseif channel_post.text_lower:match('^' .. configuration.commandPrefix .. 'news list$') then
+		mattata.sendMessage(channel_post.chat.id, news.listResults(jdat, channel_post, 4), 'HTML', true, false, channel_post.message_id)
+		return
 	end
+	local output, url = news.getLatestPost(jdat)
 	local keyboard = {}
 	keyboard.inline_keyboard = {
 		{
 			{
 				text = 'Read More',
-				url = jdat.articles[1].url
+				url = url
 			}
 		}
 	}
-	mattata.sendMessage(channel_post.chat.id, '*' .. mattata.markdownEscape(jdat.articles[1].title) .. '*\n' .. mattata.markdownEscape(jdat.articles[1].description), 'Markdown', true, false, channel_post.message_id, JSON.encode(keyboard))
+	mattata.sendMessage(channel_post.chat.id, output, 'HTML', false, false, channel_post.message_id, JSON.encode(keyboard))
 end
 
-function news:onMessage(message, configuration, language)
-	local input = mattata.input(message.text)
-	if not input then
-		mattata.sendMessage(message.chat.id, news.help, nil, true, false, message.message_id)
-		return
-	end
-	local jstr, res = HTTPS.request('https://newsapi.org/v1/articles?source=' .. URL.escape(input) .. '&apiKey=' .. configuration.keys.news)
-	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
-		return
-	end
+function news:onMessage(message, configuration)
+	local jstr = '{' .. io.popen('curl -i -H \'x-api-key: ' .. configuration.keys.news .. '\' https://newsapi.org/v1/articles?source=bbc-news&sortBy=top'):read('*all'):match('{(.-)}$') .. '}'
 	local jdat = JSON.decode(jstr)
-	if not jdat.articles then
-		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
+	if not jdat.articles or jdat.status ~= 'ok' then
+		mattata.sendMessage(message.chat.id, configuration.errors.results, nil, true, false, message.message_id)
+		return
+	elseif message.text_lower:match('^' .. configuration.commandPrefix .. 'news list$') then
+		local limit = 8
+		if message.chat.type ~= 'private' then
+			limit = 4
+		elseif limit < #jdat.articles then
+			limit = #jdat.articles
+		end
+		mattata.sendMessage(message.chat.id, news.listResults(jdat, message, limit), 'HTML', true, false, message.message_id)
 		return
 	end
+	local output, url = news.getLatestPost(jdat)
 	local keyboard = {}
 	keyboard.inline_keyboard = {
 		{
 			{
 				text = 'Read More',
-				url = jdat.articles[1].url
+				url = url
 			}
 		}
 	}
-	mattata.sendMessage(message.chat.id, '*' .. mattata.markdownEscape(jdat.articles[1].title) .. '*\n' .. mattata.markdownEscape(jdat.articles[1].description), 'Markdown', true, false, message.message_id, JSON.encode(keyboard))
+	mattata.sendMessage(message.chat.id, output, 'HTML', false, false, message.message_id, JSON.encode(keyboard))
 end
 
 return news

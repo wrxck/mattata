@@ -30,17 +30,6 @@ function getUserMessages(id, chat)
 	return info
 end
 
-function commaValue(amount)
-	local formatted = amount
-	while true do  
-		formatted, k = string.gsub(formatted, '^(-?%d+)(%d%d%d)', '%1,%2')
-		if (k==0) then
-			break
-		end
-	end
-	return formatted
-end
-
 function round(num, idp)
 	local mult = 10^(idp or 0)
 	return math.floor(num * mult + 0.5) / mult
@@ -73,12 +62,12 @@ function chatStatistics(chat)
 	for k, v in pairs(chatUserInfo) do
     	local messageCount = v.messages
 		local percent = tostring(round(messageCount / totalMessages * 100, 1))
-    	text = text .. '*' .. v.name:gsub('%*', '\\*') .. ':* ' .. commaValue(messageCount) .. ' `[`' .. percent .. '%`]`\n'
+    	text = text .. '*' .. v.name:gsub('%*', '\\*') .. ':* ' .. mattata.commaValue(messageCount) .. ' `[`' .. percent .. '%`]`\n'
 	end
 	if isempty(text) then
 		return 'No messages have been sent in this group!'
 	end
-	local text = '*Message Statistics*\n\n' .. text .. '\n*Total messages sent*: ' .. commaValue(totalMessages)
+	local text = '*Message Statistics*\n\n' .. text .. '\n*Total messages sent*: ' .. mattata.commaValue(totalMessages)
 	return text
 end
 
@@ -110,7 +99,7 @@ end
 
 function statistics:onMessage(message)
 	if message.chat.type ~= 'private' then
-		mattata.sendMessage(message.chat.id, chatStatistics(message.chat.id), 'Markdown', true, false, message.message_id)
+		mattata.sendMessage(message.chat.id, chatStatistics(message.chat.id):sub(1, 200), 'Markdown', true, false, message.message_id)
 		return
 	end
 end

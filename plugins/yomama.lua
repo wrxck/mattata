@@ -15,7 +15,7 @@ function yomama:onChannelPost(channel_post, configuration)
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
 		return
 	end
-	if jstr:match('Unable to connect to the db server%.') then
+	if jstr:match('^Unable to connect to the database server%.$') then
 		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
 		return
 	end
@@ -29,7 +29,7 @@ function yomama:onMessage(message, language)
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return
 	end
-	if jstr:match('Unable to connect to the db server%.') then
+	if jstr:match('^Unable to connect to the database server%.$') then
 		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
 		return
 	end

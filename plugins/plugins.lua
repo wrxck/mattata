@@ -102,7 +102,7 @@ end
 
 function plugins:onMessage(message, configuration)
 	if message.chat.type ~= 'private' then
-		if not mattata.isGroupAdmin(message.chat.id, message.from.id) or not mattata.isConfiguredAdmin(message.from.id) then
+		if mattata.isGroupAdmin(message.chat.id, message.from.id) or mattata.isConfiguredAdmin(message.from.id) then
 			if not mattata.input(message.text) then
 				mattata.sendMessage(message.chat.id, plugins.help, nil, true, false, message.message_id)
 				return

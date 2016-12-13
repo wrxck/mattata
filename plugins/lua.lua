@@ -8,6 +8,7 @@
 local lua = {}
 local mattata = require('mattata')
 local URL = require('socket.url')
+local utf8 = require('lua-utf8')
 local JSON = require('serpent')
 local users
 
@@ -29,7 +30,7 @@ function lua:onMessage(message, configuration)
 	end
 	local input = mattata.input(message.text)
 	if not input then
-		mattata.sendMessage(message.chat.id, 'Please enter a string of lua to execute', nil, true, false, message.message_id, nil)
+		mattata.sendMessage(message.chat.id, 'Please enter a string of lua to execute', nil, true, false, message.message_id)
 		return
 	end
 	if message.text_lower:match('^' .. configuration.commandPrefix .. 'return') then
@@ -55,6 +56,7 @@ function lua:onMessage(message, configuration)
 		local mattata = require('mattata')
 		local JSON = require('dkjson')
 		local URL = require('socket.url')
+		local utf8 = require('lua-utf8')
 		local HTTP = require('socket.http')
 		local HTTPS = require('ssl.https')
 		return function (message, configuration, self) ]] .. input .. [[ end
@@ -69,9 +71,9 @@ function lua:onMessage(message, configuration)
 			local s = lua.serialise(output)
 			output = s
 		end
-		output = '`' .. tostring(output) .. '`'
+		output = '```\n' .. tostring(output) .. '\n```'
 	end
-	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, nil)
+	mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id)
 end
 
 return lua

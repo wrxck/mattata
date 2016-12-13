@@ -12,7 +12,7 @@ function telegram:onNewChatMember(message, configuration, language)
 end
 
 function telegram:onLeftChatMember(message, configuration, language)
-	if message.left_chat_member.id ~= self.info.id then
+	if message.left_chat_member.id ~= self.info.id and message.left_chat_member.id == message.from.id then
 		local leftChatMessages = language.leftChatMessages
 		local output = leftChatMessages[math.random(#leftChatMessages)]
 		mattata.sendMessage(message.chat.id, output:gsub('NAME', message.left_chat_member.first_name), nil, true, false, message.message_id)

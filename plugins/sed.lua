@@ -30,7 +30,7 @@ function sed:onMessage(message)
 	if res == false then
 		mattata.sendMessage(message.chat.id, 'Invalid Lua pattern!', nil, true, false, message.message_id)
 	end
-	output = mattata.trim(output:sub(1, 4000))
+	output = mattata.trim(output:sub(1, 4096))
 	mattata.sendMessage(message.chat.id, '*Hi, ' .. message.reply_to_message.from.first_name .. ', are you sure you didn\'t mean:*\n' .. mattata.markdownEscape(output), 'Markdown', true, false, message.reply_to_message.message_id)
 end
 
