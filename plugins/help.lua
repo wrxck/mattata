@@ -232,19 +232,23 @@ function help:onCallbackQuery(callback_query, message, configuration, language)
 		keyboard.inline_keyboard = {
 			{
 				{
-					text = 'Group',
-					url = 'https://telegram.me/mattata'
+					text = 'Support',
+					url = 'https://telegram.me/joinchat/DTcYUD7ELOondGVro-8PZQ'
+				},
+				{
+					text = 'Development',
+					url = 'https://telegram.me/joinchat/DTcYUEDWD1IgrvQDrkKH0w'
 				},
 				{
 					text = 'Channel',
-					url = 'https://telegram.me/mattataofficial'
-				},
-				{
-					text = 'GitHub',
-					url = 'https://github.com/matthewhesketh/mattata'
+					url = 'https://telegram.me/mattata'
 				}
 			},
 			{
+				{
+					text = 'Source',
+					url = 'https://github.com/matthewhesketh/mattata'
+				},
 				{
 					text = 'Donate',
 					url = 'https://paypal.me/wrxck'

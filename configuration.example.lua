@@ -231,10 +231,11 @@ return { -- rename this file to configuration.lua for mattata to work
 		'youtube'
 	},
 	groups = { -- A table of groups that will be sorted and displayed upon execution of the groups plugin.
+		['mattata support'] = 'https://telegram.me/joinchat/DTcYUD7ELOondGVro-8PZQ',
+		['mattata development'] = 'https://telegram.me/joinchat/DTcYUEDWD1IgrvQDrkKH0w',
 		['Memes'] = 'https://telegram.me/joinchat/D9oCfkExFv_O2b2HnppZsQ',
 		['Off-Topic Geeks'] = 'https://telegram.me/joinchat/DTcYUD8crPKua-yd0gL3bg',
 		['Programming'] = 'https://telegram.me/ProgrammingChat',
-		['mattata Development'] = 'https://telegram.me/mattata',
 		['Music'] = 'https://telegram.me/MusicChat',
 		['Cancer'] = 'https://telegram.me/CancerChat',
 		['Rextesters'] = 'https://telegram.me/Rextesters',
