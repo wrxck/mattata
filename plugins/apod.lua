@@ -11,6 +11,7 @@ local HTTPS = require('ssl.https')
 local JSON = require('dkjson')
 
 function apod:init(configuration)
+	assert(configuration.keys.apod, 'This plugin requires an API key, and you haven\'t got one configured!')
 	apod.arguments = 'apod <YYYY/MM/DD>'
 	apod.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('apod').table
 	apod.inlineCommands = apod.commands

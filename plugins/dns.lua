@@ -1,6 +1,7 @@
 local dns = {}
 local mattata = require('mattata')
 local HTTP = require('socket.http')
+local URL = require('socket.url')
 local JSON = require('dkjson')
 
 function dns:init(configuration)
@@ -15,7 +16,7 @@ function dns:onMessage(message, configuration, language)
 		mattata.sendMessage(message.chat.id, dns.help, nil, true, false, message.message_id)
 		return
 	end
-	local jstr, res = HTTP.request('http://dig.jsondns.org/IN/' .. input:gsub(' ', '/'))
+	local jstr, res = HTTP.request('http://dig.jsondns.org/IN/' .. URL.escape(input:gsub(' ', '/')))
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return

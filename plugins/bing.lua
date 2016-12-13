@@ -16,7 +16,7 @@ local JSON = require('dkjson')
 function bing:init(configuration)
 	bing.arguments = 'bing <query>'
 	bing.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('bing').table
-	bing.help = configuration.commandPrefix .. 'bing <query> - Returns Bing\'s top 4 search results for the given query.'
+	bing.help = configuration.commandPrefix .. 'bing <query> - Returns Bing\'s top search results for the given query.'
 end
 
 function bing:onChannelPost(channel_post, configuration)
@@ -45,7 +45,7 @@ function bing:onChannelPost(channel_post, configuration)
 	local results = {}
 	for i = 1, 8 do
 		table.insert(results, string.format(
-			'<b>»</b> <a href="%s">%s</a>',
+			'• <a href="%s">%s</a>',
 			mattata.htmlEscape(jdat.d.results[i].Url),
 			mattata.htmlEscape(jdat.d.results[i].Title)
 		))
@@ -74,13 +74,13 @@ function bing:onMessage(message, configuration, language)
 	local jdat = JSON.decode(table.concat(body))
 	local limit = message.chat.type == 'private' and configuration.bing.maximumResultsPrivate or configuration.bing.maximumResultsGroup
 	if limit > #jdat.d.results and #jdat.d.results or limit == 0 then
-		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id, nil)
+		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
 		return
 	end
 	local results = {}
 	for i = 1, limit do
 		table.insert(results, string.format(
-			'<b>»</b> <a href="%s">%s</a>',
+			'• <a href="%s">%s</a>',
 			mattata.htmlEscape(jdat.d.results[i].Url),
 			mattata.htmlEscape(jdat.d.results[i].Title)
 		))

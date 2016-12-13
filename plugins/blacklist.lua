@@ -30,8 +30,9 @@ function blacklist:onMessage(message, configuration, language)
 		mattata.sendMessage(message.chat.id, blacklist.help, nil, true, false, message.message_id)
 		return
 	end
+	local arguments = message.text_lower:gsub('^' .. configuration.commandPrefix .. 'blacklist ', ''):gsub('^' .. configuration.commandPrefix .. 'whitelist ', '')
 	if message.text_lower:match('^' .. configuration.commandPrefix .. 'blacklist') then
-		if tonumber(message.text_lower:gsub(configuration.commandPrefix .. 'blacklist ')) == nil then
+		if tonumber(arguments) == nil then
 			mattata.sendMessage(message.chat.id, language.specifyBlacklistedUser, nil, true, false, message.message_id)
 			return
 		end
@@ -41,7 +42,7 @@ function blacklist:onMessage(message, configuration, language)
 		mattata.sendMessage(message.chat.id, language.userNowBlacklisted, nil, true, false, message.message_id)
 		return
 	end
-	if tonumber(message.text_lower:gsub(configuration.commandPrefix .. 'whitelist ')) == nil then
+	if tonumber(arguments) == nil then
 		mattata.sendMessage(message.chat.id, language.specifyBlacklistedUser, nil, true, false, message.message_id)
 		return
 	end

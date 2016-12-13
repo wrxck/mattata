@@ -40,13 +40,13 @@ function isp:onChannelPost(channel_post, configuration)
 	mattata.sendMessage(channel_post.chat.id, '`' .. input:gsub('`', '\\`') .. ':`\n' .. output, 'Markdown', true, false, channel_post.message_id)
 end
 
-function isp:onMessage(message, language)
+function isp:onMessage(message, configuration, language)
 	local input = mattata.input(message.text)
 	if not input then
 		mattata.sendMessage(message.chat.id, isp.help, nil, true, false, message.message_id)
 		return
 	end
-	local jstr, res = HTTP.request('http://ip-api.com/json/' .. input .. '?lang=' .. language.locale .. '&fields=country,regionName,city,zip,isp,org,as,status,message,query')
+	local jstr, res = HTTP.request('http://ip-api.com/json/' .. input .. '?lang=' .. configuration.language .. '&fields=country,regionName,city,zip,isp,org,as,status,message,query')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return

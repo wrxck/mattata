@@ -9,53 +9,47 @@ end
 
 function coinflip:onChannelPost(channel_post)
 	local input = mattata.input(channel_post.text_lower):gsub('heads', '1'):gsub('h', '1'):gsub('tails', '2'):gsub('t', '2')
-	local result
+	local result = 'Heads.'
 	local flip = math.random(2)
-	if input and tonumber(input) > 0 and tonumber(input) < 3 then
+	if not input then
+		if flip ~= 1 then
+			result = 'Tails.'
+		end
+		mattata.sendMessage(channel_post.chat.id, '*The coin landed on:* ' .. result, 'Markdown', true, false, channel_post.message_id)
+		return
+	elseif input and tonumber(input) > 0 and tonumber(input) < 3 then
 		input = tonumber(input)
-		if flip == 1 then
-			result = 'Heads.'
-		else
+		if flip ~= 1 then
 			result = 'Tails.'
 		end
 		if input == flip then
 			mattata.sendMessage(channel_post.chat.id, '*The coin landed on:* ' .. result .. ' _You were correct!_', 'Markdown', true, false, channel_post.message_id)
-		else
-			mattata.sendMessage(channel_post.chat.id, '*The coin landed on:* ' .. result .. ' _You weren\'t correct, try again!_', 'Markdown', true, false, channel_post.message_id)
+			return
 		end
-	else
-		if flip == 1 then
-			result = 'Heads.'
-		else
-			result = 'Tails.'
-		end
-		mattata.sendMessage(channel_post.chat.id, '*The coin landed on:* ' .. result, 'Markdown', true, false, channel_post.message_id)
+		mattata.sendMessage(channel_post.chat.id, '*The coin landed on:* ' .. result .. ' _You weren\'t correct, try again!_', 'Markdown', true, false, channel_post.message_id)
 	end
 end
 
 function coinflip:onMessage(message)
 	local input = mattata.input(message.text_lower):gsub('heads', '1'):gsub('h', '1'):gsub('tails', '2'):gsub('t', '2')
-	local result
+	local result = 'Heads.'
 	local flip = math.random(2)
-	if input and tonumber(input) > 0 and tonumber(input) < 3 then
+	if not input then
+		if flip ~= 1 then
+			result = 'Tails.'
+		end
+		mattata.sendMessage(message.chat.id, '*The coin landed on:* ' .. result, 'Markdown', true, false, message.message_id)
+		return
+	elseif input and tonumber(input) > 0 and tonumber(input) < 3 then
 		input = tonumber(input)
-		if flip == 1 then
-			result = 'Heads.'
-		else
+		if flip ~= 1 then
 			result = 'Tails.'
 		end
 		if input == flip then
 			mattata.sendMessage(message.chat.id, '*The coin landed on:* ' .. result .. ' _You were correct!_', 'Markdown', true, false, message.message_id)
-		else
-			mattata.sendMessage(message.chat.id, '*The coin landed on:* ' .. result .. ' _You weren\'t correct, try again!_', 'Markdown', true, false, message.message_id)
+			return
 		end
-	else
-		if flip == 1 then
-			result = 'Heads.'
-		else
-			result = 'Tails.'
-		end
-		mattata.sendMessage(message.chat.id, '*The coin landed on:* ' .. result, 'Markdown', true, false, message.message_id)
+		mattata.sendMessage(message.chat.id, '*The coin landed on:* ' .. result .. ' _You weren\'t correct, try again!_', 'Markdown', true, false, message.message_id)
 	end
 end
 

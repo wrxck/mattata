@@ -162,7 +162,7 @@ function lastfm:onMessage(message, configuration, language)
 		return
 	end
 	if not input then
-		output = '['..message.from.first_name .. '](http://last.fm/user/' .. username .. ')'
+		output = message.from.first_name .. '(last.fm/user/' .. username .. ')'
 	else
 		output = input
 	end
