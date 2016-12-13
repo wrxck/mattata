@@ -45,7 +45,7 @@ function itunes:onCallbackQuery(callback_query, message, configuration, language
 		end
 		if jdat.results[1].artworkUrl100 then
 			local artworkUrl100 = jdat.results[1].artworkUrl100:gsub('/100x100bb.jpg', '/10000x10000bb.jpg')
-			local res = mattata.sendPhoto(message.reply_to_message.from.id, artworkUrl100, nil, false)
+			local res = mattata.sendPhoto(callback_query.from.id, artworkUrl100, nil, false)
 			if not res then
 				local keyboard = {}
 				keyboard.inline_keyboard = {
