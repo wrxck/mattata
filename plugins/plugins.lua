@@ -21,6 +21,9 @@ function plugins:pluginExists(plugin)
 			return true
 		end
 	end
+	if plugin == 'ai' then
+		return true
+	end
 	return false
 end
 
