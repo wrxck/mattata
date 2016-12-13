@@ -16,6 +16,11 @@ function plugins:pluginExists(plugin)
 			return true
 		end
 	end
+	for k, v in pairs(configuration.administrationPlugins) do
+		if v == plugin then
+			return true
+		end
+	end
 	return false
 end
 
@@ -111,7 +116,7 @@ function plugins:onMessage(message, configuration)
 				mattata.sendMessage(message.chat.id, plugins:enablePlugin(message, message.text_lower:gsub(configuration.commandPrefix .. 'plugins enable ', '')), nil, true, false, message.message_id)
 				return
 			end
-			if string.match(message.text_lower, '^' .. configuration.commandPrefix .. 'plugins disable %a+') and not string.match(message.text_lower, 'plugins$') and not string.match(message.text_lower, 'lua$') and not string.match(message.text_lower, 'help$') and not string.match(message.text_lower, 'control$') then
+			if string.match(message.text_lower, '^' .. configuration.commandPrefix .. 'plugins disable %a+') and not string.match(message.text_lower, 'plugins$') and not string.match(message.text_lower, 'lua$') and not string.match(message.text_lower, 'help$') and not string.match(message.text_lower, 'control$') and not string.match(message.text_lower, 'bash$') and not string.match(message.text_lower, 'ping$') then
 				mattata.sendMessage(message.chat.id, plugins:disablePlugin(message, message.text_lower:gsub(configuration.commandPrefix .. 'plugins disable ', '')), nil)
 				return
 			end
