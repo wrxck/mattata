@@ -79,7 +79,7 @@ function speechToText:onMessage(message, configuration, language)
 		mattata.sendMessage(message.chat.id, 'There were no transcribable voices detected.', nil, true, false, message.message_id)
 		return
 	end
-	mattata.sendMessage(message.chat.id, 'Speech to text: ' .. jdat._text, nil, true, false, message.message_id)
+	mattata.sendMessage(message.chat.id, '<b>Speech to text:</b> ' .. mattata.htmlEscape(jdat._text), 'HTML', true, false, message.message_id)
 end
 
 return speechToText
