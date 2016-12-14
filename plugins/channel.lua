@@ -11,7 +11,7 @@ local mattata = require('mattata')
 function channel:init(configuration)
 	channel.arguments = 'ch <channel> \\n <message>'
 	channel.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('ch').table
-	channel.help = configuration.commandPrefix .. 'ch <channel> <message> - Sends a message to a Telegram channel/group. The channel/group can be specified via ID or username. Messages can be formatted with Markdown. Users can only send messages to channels/groups they own and/or administrate.'
+	channel.help = configuration.commandPrefix .. 'ch <channel> <message> - Sends a message to a Telegram channel/group. The channel/group can be specified via ID or username. Messages can be formatted with Markdown. Users can only send messages to channels/groups they own and/or administrate. \\n means a line break.'
 end
 
 function channel:onMessage(message, configuration, language)
@@ -43,7 +43,7 @@ function channel:onMessage(message, configuration, language)
 				output = language.notChannelAdmin
 			end
 		else
-			output = language.unableToRetrieveChannelAdmins .. t.description
+			output = language.unableToRetrieveChannelAdmins
 		end
 	else
 		output = channel.help
