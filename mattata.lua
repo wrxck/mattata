@@ -38,7 +38,7 @@ function mattata:init()
 	if not self.groups then
 		mattata.loadData('data/groups.json')
 	end
-	self.version = '6.0'
+	self.version = '6.1'
 	self.administrationPlugins = {}
 	for k, v in ipairs(configuration.administrationPlugins) do
 		local administrationPlugin = require('plugins.' .. v)
@@ -283,41 +283,43 @@ function mattata:onMessage(message, configuration)
 		message.reply_to_message.text = message.reply_to_message.text or message.reply_to_message.caption or ''	
 	end
 	for _, plugin in ipairs(self.plugins) do
-		mattata.processPlugins(self, message, configuration, plugin, language)
+		mattata.processPlugins(self, message, configuration, plugin)
 	end
 	for _, plugin in ipairs(self.administrationPlugins) do
-		mattata.processPlugins(self, message, configuration, plugin, language)
+		mattata.processPlugins(self, message, configuration, plugin)
 	end
 	if not mattata.isPluginDisabledInChat('telegram', message) then
 		local telegram = require('plugins/telegram')
 		if message.new_chat_member then 
-			telegram.onNewChatMember(self, message, configuration, language)
+			telegram.onNewChatMember(self, message, configuration, require('languages/' .. mattata.getUserLanguage(message.from.id)))
 		end
 		if message.left_chat_member then
-			telegram.onLeftChatMember(self, message, configuration, language)
+			telegram.onLeftChatMember(self, message, configuration, require('languages/' .. mattata.getUserLanguage(message.from.id)))
 		end
 	end
 	if not mattata.isPluginDisabledInChat('captionbotai', message) and message.photo then
 		local captionbotai = require('plugins/captionbotai')
-		captionbotai.onPhotoReceive(self, message, configuration, language)
+		captionbotai.onPhotoReceive(self, message, configuration, require('languages/' .. mattata.getUserLanguage(message.from.id)))
 	end
 	if not mattata.isPluginDisabledInChat('statistics', message) then
 		local statistics = require('plugins/statistics')
 		statistics.processMessage(self, message, configuration)
 		if message.text_lower:match('^' .. configuration.commandPrefix .. 'statistics') then 
-			statistics.onMessage(self, message, configuration, language)
+			statistics.onMessage(self, message, configuration, require('languages/' .. mattata.getUserLanguage(message.from.id)))
 		end
 	end
 	if not mattata.isPluginDisabledInChat('ai', message) then
 		local ai = require('plugins/ai')
 		if message.chat.type == 'private' and message.text_lower ~= '' then
-			ai.onMessage(self, message, configuration, language)
+			ai.onMessage(self, message, configuration, require('languages/' .. mattata.getUserLanguage(message.from.id)))
+		elseif message.text_lower:match('^' .. self.info.first_name .. ',? babe?y?!?$') then
+			mattata.sendMessage(message.chat.id, 'Oh, Daddy!', nil, true, false, message.message_id)
 		elseif message.text_lower:match('^' .. self.info.first_name) or message.text_lower:match(self.info.first_name .. '$') or message.text_lower:match('^@' .. self.info.username) or message.text_lower:match('@' .. self.info.username .. '$') then
 			message.text_lower = message.text_lower:gsub(self.info.first_name, ''):gsub(self.info.username, '')
-			ai.onMessage(self, message, configuration, language)
+			ai.onMessage(self, message, configuration, require('languages/' .. mattata.getUserLanguage(message.from.id)))
 		elseif message.reply_to_message and message.reply_to_message.from.id == self.info.id then
 			message.text_lower = message.text_lower:gsub(self.info.first_name, ''):gsub(self.info.username, '')
-			ai.onMessage(self, message, configuration, language)
+			ai.onMessage(self, message, configuration, require('languages/' .. mattata.getUserLanguage(message.from.id)))
 		end
 	end
 	if configuration.respondToMemes and message.text_lower:match('^what the fuck did you just fucking say about me%??$') and message.chat.type ~= 'private' then
@@ -379,13 +381,12 @@ function mattata:onInlineQuery(inline_query, configuration)
 		mattata.answerInlineQuery(inline_query.id, nil, '5', true)
 		return
 	end
-	local language = require('languages/' .. mattata.getUserLanguage(inline_query.from.id))
 	if inline_query.query:match('^' .. configuration.commandPrefix) then
 		for _, inlinePlugin in ipairs(self.inlinePlugins) do
 			for _, commands in ipairs(inlinePlugin.inlineCommands) do
 				if inline_query.query:match(commands) then
 					local success, result = pcall(function()
-						inlinePlugin.onInlineQuery(self, inline_query, configuration, language)
+						inlinePlugin.onInlineQuery(self, inline_query, configuration, require('languages/' .. mattata.getUserLanguage(inline_query.from.id)))
 					end)
 					if not success then
 						return
@@ -397,10 +398,10 @@ function mattata:onInlineQuery(inline_query, configuration)
 		end
 	elseif inline_query.query:gsub(' ', '') ~= '' then
 		local ai = require('plugins/ai')
-		ai.onInlineQuery(self, inline_query, configuration, language)
+		ai.onInlineQuery(self, inline_query, configuration, require('languages/' .. mattata.getUserLanguage(inline_query.from.id)))
 	else
 		local help = require('plugins/help')
-		help.onInlineQuery(self, inline_query, configuration, language)
+		help.onInlineQuery(self, inline_query, configuration, require('languages/' .. mattata.getUserLanguage(inline_query.from.id)))
 	end
 end
 
@@ -409,11 +410,10 @@ function mattata:onCallbackQuery(callback_query, message, configuration)
 		mattata.answerCallbackQuery(callback_query.id, 'You\'re not allowed to use me!', true)
 		return
 	end
-	local language = require('languages/' .. mattata.getUserLanguage(callback_query.from.id))
 	for _, plugin in ipairs(self.plugins) do
 		if plugin.onCallbackQuery then
 			local success, result = pcall(function()
-				plugin.onCallbackQuery(self, callback_query, message, configuration, language)
+				plugin.onCallbackQuery(self, callback_query, message, configuration, require('languages/' .. mattata.getUserLanguage(callback_query.from.id)))
 			end)
 			if success ~= true then
 				return
@@ -423,7 +423,7 @@ function mattata:onCallbackQuery(callback_query, message, configuration)
 	for _, administrationPlugin in ipairs(self.administrationPlugins) do
 		if administrationPlugin.onCallbackQuery then
 			local success, result = pcall(function()
-				administrationPlugin.onCallbackQuery(self, callback_query, message, configuration, language)
+				administrationPlugin.onCallbackQuery(self, callback_query, message, configuration, require('languages/' .. mattata.getUserLanguage(callback_query.from.id)))
 			end)
 			if success ~= true then
 				return
@@ -440,7 +440,7 @@ end
 
 --]]
 
-function mattata.processPlugins(self, message, configuration, plugin, language)
+function mattata.processPlugins(self, message, configuration, plugin)
 	local plugins = plugin.commands or {}
 	for i = 1, #plugins do
 		local command = plugin.commands[i]
@@ -449,7 +449,7 @@ function mattata.processPlugins(self, message, configuration, plugin, language)
 				return
 			else
 				local success, result = pcall(function()
-					return plugin.onMessage(self, message, configuration, language)
+					return plugin.onMessage(self, message, configuration, require('languages/' .. mattata.getUserLanguage(message.from.id)))
 				end)
 				if not success then
 					mattata.handleException(self, result, message.from.id .. ': ' .. message.text, configuration.adminGroup)
@@ -1057,10 +1057,11 @@ end
 
 function mattata.getUserLanguage(id)
 	local language = redis:hget('user:' .. id .. ':language', 'language')
-	if language and language ~= 'false' and language ~= nil then
+	if language == nil then
+		return 'en'
+	else
 		return language
 	end
-	return 'en'
 end
 
 function mattata.commaValue(amount)
@@ -1075,7 +1076,16 @@ function mattata.commaValue(amount)
 end
 
 function mattata.bashEscape(str)
-	return str:gsub('$', ''):gsub('%^', ''):gsub('&', ''):gsub('|', '')
+	return str:gsub('$', ''):gsub('%^', ''):gsub('&', ''):gsub('|', ''):gsub(';', '')
+end
+
+function mattata.formatMilliseconds(milliseconds)
+	local totalSeconds = math.floor(milliseconds / 1000)
+	local seconds = totalSeconds % 60
+	local minutes = math.floor(totalSeconds / 60)
+	local hours = math.floor(minutes / 60)
+	minutes = minutes % 60
+	return string.format('%02d:%02d:%02d', hours, minutes, seconds)
 end
 
 return mattata
