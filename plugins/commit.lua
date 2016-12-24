@@ -1,16 +1,9 @@
---[[
-
-    Based on commit.lua, Copyright 2016 topkecleon <drew@otou.to>
-    This code is licensed under the GNU AGPLv3.
-
-]]--
-
 local commit = {}
 local mattata = require('mattata')
 
 function commit:init(configuration)
 	commit.arguments = 'commit'
-	commit.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('commit').table
+	commit.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('commit').table
 	commit.help = configuration.commandPrefix .. 'commit - Generates fun (and somewhat-relatable) commit message ideas.'
 end
 
@@ -423,12 +416,6 @@ local commits = {
 	'fml'
 }
 
-function commit:onChannelPost(channel_post)
-	mattata.sendMessage(channel_post.chat.id, commits[math.random(#commits)], nil, true, false, channel_post.message_id)
-end
-
-function commit:onMessage(message)
-	mattata.sendMessage(message.chat.id, commits[math.random(#commits)], nil, true, false, message.message_id)
-end
+function commit:onMessage(message) mattata.sendMessage(message.chat.id, commits[math.random(#commits)], nil, true, false, message.message_id) end
 
 return commit

@@ -1,40 +1,17 @@
---[[
-
-    Based on eightball.lua, Copyright 2016 topkecleon <drew@otou.to>
-    This code is licensed under the GNU AGPLv3.
-
-]]--
-
 local eightball = {}
 local mattata = require('mattata')
 
 function eightball:init(configuration)
 	eightball.arguments = 'eightball'
-	eightball.commands = mattata.commands(self.info.username, configuration.commandPrefix, {'[Yy]/[Nn]%p*$'}):c('eightball').table
+	eightball.commands = mattata.commands(self.info.username, configuration.commandPrefix, {'[Yy]/[Nn]%p*$'}):command('eightball').table
 	eightball.help = configuration.commandPrefix .. 'eightball - Returns your destined decision through mattata\'s sixth sense.'
-end
-
-function eightball:onChannelPost(channel_post, configuration)
-	local answers = configuration.eightball.answers
-	local yes_no_answers = configuration.eightball.yes_no_answers
-	local output = ''
-	if channel_post.text_lower:match('y/n%p?$') then
-		output = yes_no_answers[math.random(#yes_no_answers)]
-	else
-		output = answers[math.random(#answers)]
-	end
-	mattata.sendMessage(channel_post.chat.id, output, nil, true, false, channel_post.message_id)
 end
 
 function eightball:onMessage(message, configuration)
 	local answers = configuration.eightball.answers
-	local yes_no_answers = configuration.eightball.yes_no_answers
-	local output = ''
-	if message.text_lower:match('y/n%p?$') then
-		output = yes_no_answers[math.random(#yes_no_answers)]
-	else
-		output = answers[math.random(#answers)]
-	end
+	local yesNoAnswers = configuration.eightball.yesNoAnswers
+	local output
+	if message.text_lower:match('y/n%p?$') then output = yesNoAnswers[math.random(#yesNoAnswers)] else output = answers[math.random(#answers)] end
 	mattata.sendMessage(message.chat.id, output, nil, true, false, message.message_id)
 end
 

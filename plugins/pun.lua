@@ -1,16 +1,9 @@
---[[
-
-    Based on pun.lua, Copyright 2016 topkecleon <drew@otou.to>
-    This code is licensed under the GNU AGPLv3.
-
-]]--
-
 local pun = {}
 local mattata = require('mattata')
 
 function pun:init(configuration)
 	pun.arguments = 'pun'
-	pun.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('pun').table
+	pun.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('pun').table
 	pun.help = configuration.commandPrefix .. 'pun - Generates a random pun.'
 end
 
@@ -140,12 +133,6 @@ local puns = {
 	'The vegetables from my garden aren\'t that great. I guess you could say they\'re mediokra.'
 }
 
-function pun:onChannelPost(channel_post)
-	mattata.sendMessage(channel_post.chat.id, puns[math.random(#puns)], nil, true, false, channel_post.message_id)
-end
-
-function pun:onMessage(message)
-	mattata.sendMessage(message.chat.id, puns[math.random(#puns)], nil, true, false, message.message_id)
-end
+function pun:onMessage(message) mattata.sendMessage(message.chat.id, puns[math.random(#puns)], nil, true, false, message.message_id) end
 
 return pun

@@ -1,69 +1,55 @@
 local dns = {}
 local mattata = require('mattata')
-local HTTP = require('socket.http')
-local URL = require('socket.url')
-local JSON = require('dkjson')
+local http = require('socket.http')
+local url = require('socket.url')
+local json = require('dkjson')
 
 function dns:init(configuration)
-	dns.arguments = 'dns <URL> <type>'
-	dns.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('dns').table
-	dns.help = configuration.commandPrefix .. 'dns <URL> <type> - Sends DNS records of the given type for the given URL. The types currently supported are AAAA, A, CERT, CNAME, DLV, IPSECKEY, MX, NS, PTR, SIG, SRV and TXT.'
+	dns.arguments = 'dns <url> <type>'
+	dns.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('dns').table
+	dns.help = configuration.commandPrefix .. 'dns <url> <type> - Sends DNS records of the given type for the given url. The types currently supported are AAAA, A, CERT, CNAME, DLV, IPSECKEY, MX, NS, PTR, SIG, SRV and TXT.'
 end
 
 function dns:onMessage(message, configuration, language)
 	local input = mattata.input(message.text_lower)
-	if not input then
-		mattata.sendMessage(message.chat.id, dns.help, nil, true, false, message.message_id)
-		return
-	end
-	local jstr, res = HTTP.request('http://dig.jsondns.org/IN/' .. URL.escape(input:gsub(' ', '/')))
-	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
-		return
-	end
-	local jdat = JSON.decode(jstr)
+	if not input then mattata.sendMessage(message.chat.id, dns.help, nil, true, false, message.message_id) return end
+	local jstr, res = http.request('http://dig.jsondns.org/IN/' .. url.escape(input:gsub(' ', '/')))
+	if res ~= 200 then mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id) return end
+	local jdat = json.decode(jstr)
 	if jdat.header.rcode == 'NOERROR' and not string.match(message.text_lower, 'any$') then
 		local output = ''
 		local rdata = ''
-		if string.match(input, ' aaaa$') or string.match(input, ' a$') or string.match(input, ' ns$') or string.match(input, ' txt$') then
-			for n in pairs(jdat.answer) do
-				output = output .. '`Name: ' .. jdat.answer[n].name .. '\nType: ' .. jdat.answer[n].type .. '\nClass: ' .. jdat.answer[n].class .. '\nTTL: ' .. jdat.answer[n].ttl .. '\nRData: ' .. jdat.answer[n].rdata .. '`\n\n'
-			end
+		if input:match(' aaaa$') or input:match(' a$') or input:match(' ns$') or input:match(' txt$') then
+			for n in pairs(jdat.answer) do output = output .. '`Name: ' .. jdat.answer[n].name .. '\nType: ' .. jdat.answer[n].type .. '\nClass: ' .. jdat.answer[n].class .. '\nTTL: ' .. jdat.answer[n].ttl .. '\nRData: ' .. jdat.answer[n].rdata .. '`\n\n' end
 			mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id)
 			return
-		elseif string.match(input, ' cert$') or string.match(input, ' cname$') then
+		elseif input:match(' cert$') or input:match(' cname$') then
 			for n in pairs(jdat.authority) do
 				for d in pairs(jdat.authority[n].rdata) do
 					rdata = rdata .. jdat.authority[n].rdata[d]
-					if d < #jdat.authority[n].rdata then
-						rdata = rdata .. ', '
-					end
+					if d < #jdat.authority[n].rdata then rdata = rdata .. ', ' end
 				end
 				output = output .. '`Name: ' .. jdat.authority[n].name .. '\nType: ' .. jdat.authority[n].type .. '\nClass: ' .. jdat.authority[n].class .. '\nTTL: ' .. jdat.authority[n].ttl .. '\nRData: ' .. rdata .. '`\n\n'
 			end
 			mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id)
 			return
-		elseif string.match(input, ' mx$') then
+		elseif input:match(' mx$') then
 			for n in pairs(jdat.answer) do
 				rdata = ''
 				for d in pairs(jdat.answer[n].rdata) do
 					rdata = rdata .. jdat.answer[n].rdata[d]
-					if d < #jdat.answer[n].rdata then
-						rdata = rdata .. ', '
-					end
+					if d < #jdat.answer[n].rdata then rdata = rdata .. ', ' end
 				end
 				output = output .. '`Name: ' .. jdat.answer[n].name .. '\nType: ' .. jdat.answer[n].type .. '\nClass: ' .. jdat.answer[n].class .. '\nTTL: ' .. jdat.answer[n].ttl .. '\nRData: ' .. rdata .. '`\n\n'
 			end
 			mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id)
 			return
-		elseif string.match(input, ' srv$') or string.match(input, ' ipseckey$') or string.match(input, ' ptr$') or string.match(input, ' sig$') or string.match(input, ' dlv$') then
+		elseif input:match(' srv$') or input:match(' ipseckey$') or input:match(' ptr$') or input:match(' sig$') or input:match(' dlv$') then
 			for n in pairs(jdat.authority) do
 				rdata = ''
 				for d in pairs(jdat.authority[n].rdata) do
 					rdata = rdata .. jdat.authority[n].rdata[d]
-					if d < #jdat.authority[n].rdata then
-						rdata = rdata .. ', '
-					end
+					if d < #jdat.authority[n].rdata then rdata = rdata .. ', ' end
 				end
 				output = output .. '`Name: ' .. jdat.authority[n].name .. '\nType: ' .. jdat.authority[n].type .. '\nClass: ' .. jdat.authority[n].class .. '\nTTL: ' .. jdat.authority[n].ttl .. '\nRData: ' .. rdata .. '`\n\n'
 			end

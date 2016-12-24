@@ -1,10 +1,10 @@
 #!/bin/sh
-rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem oauth luautf8"
+rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem oauth luautf8 uuid"
 echo "This script will request root privileges to install the required dependencies."
 echo "Press enter to continue. Use Ctrl-C to exit."
 read
 sudo apt-get update
-sudo apt-get install -y lua5.2 liblua5.2-dev git mediainfo python-bcrypt python-cffi python3 redis-server libssl-dev fortune-mod fortunes unzip make
+sudo apt-get install -y lua5.2 liblua5.2-dev git mediainfo python3 redis-server libssl-dev fortune-mod fortunes unzip make
 git clone http://github.com/keplerproject/luarocks
 cd luarocks
 ./configure --lua-version=5.2 --versioned-rocks-dir --lua-suffix=5.2

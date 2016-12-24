@@ -3,7 +3,7 @@ local mattata = require('mattata')
 
 function deadbaby:init(configuration)
 	deadbaby.arguments = 'deadbaby'
-	deadbaby.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('deadbaby').table
+	deadbaby.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('deadbaby').table
 	deadbaby.help = configuration.commandPrefix .. 'deadbaby - Generates a random dead baby joke.'
 end
 
@@ -79,12 +79,6 @@ local jokes = {
 	'*What is the worst part about killing a baby?*\nGetting blood on your clown outfit.'
 }
 
-function deadbaby:onChannelPost(channel_post)
-	mattata.sendMessage(channel_post.chat.id, jokes[math.random(#jokes)], 'Markdown', true, false, channel_post.message_id)
-end
-
-function deadbaby:onMessage(message)
-	mattata.sendMessage(message.chat.id, jokes[math.random(#jokes)], 'Markdown', true, false, message.message_id)
-end
+function deadbaby:onMessage(message) mattata.sendMessage(message.chat.id, jokes[math.random(#jokes)], 'Markdown', true, false, message.message_id) end
 
 return deadbaby

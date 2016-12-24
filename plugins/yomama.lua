@@ -1,39 +1,25 @@
 local yomama = {}
 local mattata = require('mattata')
-local HTTP = require('socket.http')
-local JSON = require('dkjson')
+local http = require('socket.http')
+local json = require('dkjson')
 
 function yomama:init(configuration)
 	yomama.arguments = 'yomama'
-	yomama.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('yomama').table
+	yomama.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('yomama').table
 	yomama.help = configuration.commandPrefix .. 'yomama - Tells a Yo\' Mama joke!'
 end
 
-function yomama:onChannelPost(channel_post, configuration)
-	local jstr, res = HTTP.request('http://api.yomomma.info/')
-	if res ~= 200 then
-		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
-		return
-	end
-	if jstr:match('^Unable to connect to the database server%.$') then
-		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
-		return
-	end
-	local jdat = JSON.decode(jstr)
-	mattata.sendMessage(channel_post.chat.id, jdat.joke, nil, true, false, channel_post.message_id)
-end
-
-function yomama:onMessage(message, language)
-	local jstr, res = HTTP.request('http://api.yomomma.info/')
+function yomama:onMessage(message, configuration, language)
+	local jstr, res = http.request('http://api.yomomma.info/')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return
 	end
-	if jstr:match('^Unable to connect to the database server%.$') then
+	if jstr:match('^Unable to connect to the da?t?a?ba?s?e? server%.?$') then
 		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
 		return
 	end
-	local jdat = JSON.decode(jstr)
+	local jdat = json.decode(jstr)
 	mattata.sendMessage(message.chat.id, jdat.joke, nil, true, false, message.message_id)
 end
 

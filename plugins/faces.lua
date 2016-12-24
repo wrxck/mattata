@@ -5,7 +5,7 @@ function faces:init(configuration)
 	faces.help = '<b>Available faces:</b>\n'
 	faces.arguments = 'faces'
 	faces.help = configuration.commandPrefix .. 'faces - Returns a list of expressive-emoticon commands.\n'
-	faces.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('faces').table
+	faces.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('faces').table
 	local username = self.info.username:lower()
 	for commands, face in pairs(configuration.faces) do
 		faces.help = faces.help .. '• ' .. configuration.commandPrefix .. commands .. ': ' .. face .. '\n'
@@ -13,32 +13,13 @@ function faces:init(configuration)
 	end
 end
 
-function faces:onChannelPost(channel_post, configuration)
-	for commands, face in pairs(configuration.faces) do
-		if string.match(channel_post.text_lower, configuration.commandPrefix .. commands) then
-			mattata.sendMessage(channel_post.chat.id, face, 'HTML', true, false, channel_post.message_id)
-			return
-		end
-	end
-end
-
 function faces:onMessage(message, configuration)
-	if string.match(message.text_lower, configuration.commandPrefix .. 'faces') then
+	if message.text_lower:match('^' .. configuration.commandPrefix .. 'faces$') then
 		local res = mattata.sendMessage(message.from.id, faces.help, 'HTML', true, false)
-		if not res then
-			mattata.sendMessage(message.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=faces) so I can send you a list of the available faces.', 'Markdown', true, false, message.message_id)
-			return
-		elseif message.chat.type ~= 'private' then
-			mattata.sendMessage(message.chat.id, 'I have sent you a private message containing a list of the available faces!', nil, true, false, message.message_id)
-			return
-		end
+		if not res then mattata.sendMessage(message.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=faces) so I can send you a list of the available faces.', 'Markdown', true, false, message.message_id) return
+		elseif message.chat.type ~= 'private' then mattata.sendMessage(message.chat.id, 'I have sent you a private message containing a list of the available faces!', nil, true, false, message.message_id) return end
 	end
-	for commands, face in pairs(configuration.faces) do
-		if string.match(message.text_lower, configuration.commandPrefix .. commands) then
-			mattata.sendMessage(message.chat.id, face, 'HTML', true, false, message.message_id)
-			return
-		end
-	end
+	for commands, face in pairs(configuration.faces) do if message.text_lower:match(configuration.commandPrefix .. commands) then mattata.sendMessage(message.chat.id, face, 'HTML', true, false, message.message_id) return end end
 end
 
 return faces

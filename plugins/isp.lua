@@ -1,43 +1,13 @@
 local isp = {}
 local mattata = require('mattata')
-local HTTP = require('socket.http')
-local URL = require('socket.url')
-local JSON = require('dkjson')
+local http = require('socket.http')
+local url = require('socket.url')
+local json = require('dkjson')
 
 function isp:init(configuration)
-	isp.arguments = 'isp <URL>'
-	isp.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('isp').table
-	isp.help = configuration.commandPrefix .. 'isp <URL> - Sends information about the given URL\'s ISP.'
-end
-
-function isp:onChannelPost(channel_post, configuration)
-	local input = mattata.input(channel_post.text)
-	if not input then
-		mattata.sendMessage(channel_post.chat.id, isp.help, nil, true, false, channel_post.message_id)
-		return
-	end
-	local jstr, res = HTTP.request('http://ip-api.com/json/' .. input .. '?lang=' .. configuration.language .. '&fields=country,regionName,city,zip,isp,org,as,status,message,query')
-	if res ~= 200 then
-		mattata.sendMessage(channel_post.chat.id, configuration.errors.connection, nil, true, false, channel_post.message_id)
-		return
-	end
-	local jdat = JSON.decode(jstr)
-	if jdat.status == 'fail' then
-		mattata.sendMessage(channel_post.chat.id, configuration.errors.results, nil, true, false, channel_post.message_id)
-		return
-	end
-	if jdat.isp ~= '' then
-		output = '*' .. jdat.isp .. '*\n'
-	elseif jdat.zip ~= '' then
-		output = output .. jdat.zip .. '\n'
-	elseif jdat.city ~= '' then
-		output = output .. jdat.city .. '\n'
-	elseif jdat.regionName ~= '' then
-		output = output .. jdat.regionName .. '\n'
-	elseif jdat.country ~= '' then
-		output = output .. jdat.country .. '\n'
-	end
-	mattata.sendMessage(channel_post.chat.id, '`' .. input:gsub('`', '\\`') .. ':`\n' .. output, 'Markdown', true, false, channel_post.message_id)
+	isp.arguments = 'isp <url>'
+	isp.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('isp').table
+	isp.help = configuration.commandPrefix .. 'isp <url> - Sends information about the given url\'s ISP.'
 end
 
 function isp:onMessage(message, configuration, language)
@@ -46,28 +16,23 @@ function isp:onMessage(message, configuration, language)
 		mattata.sendMessage(message.chat.id, isp.help, nil, true, false, message.message_id)
 		return
 	end
-	local jstr, res = HTTP.request('http://ip-api.com/json/' .. input .. '?lang=' .. configuration.language .. '&fields=country,regionName,city,zip,isp,org,as,status,message,query')
+	local jstr, res = http.request('http://ip-api.com/json/' .. url.escape(input) .. '?lang=' .. configuration.language .. '&fields=country,regionName,city,zip,isp,org,as,status,message,query')
 	if res ~= 200 then
 		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
 		return
 	end
-	local jdat = JSON.decode(jstr)
+	local jdat = json.decode(jstr)
 	if jdat.status == 'fail' then
 		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
 		return
 	end
-	if jdat.isp ~= '' then
-		output = '*' .. jdat.isp .. '*\n'
-	elseif jdat.zip ~= '' then
-		output = output .. jdat.zip .. '\n'
-	elseif jdat.city ~= '' then
-		output = output .. jdat.city .. '\n'
-	elseif jdat.regionName ~= '' then
-		output = output .. jdat.regionName .. '\n'
-	elseif jdat.country ~= '' then
-		output = output .. jdat.country .. '\n'
-	end
-	mattata.sendMessage(message.chat.id, '`' .. input:gsub('`', '\\`') .. ':`\n' .. output, 'Markdown', true, false, message.message_id)
+	local output = ''
+	if jdat.isp ~= '' then output = '<b>' .. jdat.isp .. '</b>\n' end
+	if jdat.zip ~= '' then output = output .. jdat.zip .. '\n' end
+	if jdat.city ~= '' then output = output .. jdat.city .. '\n' end
+	if jdat.regionName ~= '' then output = output .. jdat.regionName .. '\n' end
+	if jdat.country ~= '' then output = output .. jdat.country .. '\n' end
+	mattata.sendMessage(message.chat.id, '<pre>' .. mattata.htmlEscape(input) .. ':</pre>\n' .. output, 'HTML', true, false, message.message_id)
 end
 
 return isp

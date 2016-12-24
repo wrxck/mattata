@@ -3,11 +3,11 @@ local mattata = require('mattata')
 
 function prime:init(configuration)
 	prime.arguments = 'prime <number>'
-	prime.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('prime').table
+	prime.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('prime').table
 	prime.help = configuration.commandPrefix .. 'prime <number> - Tells you if a number is prime or not.'
 end
 
-function isPrime(number)
+function prime.isPrime(number)
 	local primes = {}
 	for i = 1, number do
 		primes[i] = 1 ~= i
@@ -22,28 +22,16 @@ function isPrime(number)
 	return number .. ' is a prime number!'
 end
 
-function prime:onChannelPost(channel_post)
-	local input = mattata.input(channel_post.text)
-	if not input or tonumber(input) == nil then
-		mattata.sendMessage(channel_post.chat.id, prime.help, nil, true, false, channel_post.message_id)
-		return
-	elseif tonumber(input) > 999999 or tonumber(input) < 1 then
-		mattata.sendMessage(channel_post.chat.id, 'Please enter a number between 1 and 999999', nil, true, false, channel_post.message_id)
-		return
-	end
-	mattata.sendMessage(channel_post.chat.id, isPrime(tonumber(input)), nil, true, false, channel_post.message_id)
-end
-
 function prime:onMessage(message)
 	local input = mattata.input(message.text)
 	if not input or tonumber(input) == nil then
 		mattata.sendMessage(message.chat.id, prime.help, nil, true, false, message.message_id)
 		return
 	elseif tonumber(input) > 999999 or tonumber(input) < 1 then
-		mattata.sendMessage(message.chat.id, 'Please enter a number between 1 and 999999', nil, true, false, message.message_id)
+		mattata.sendMessage(message.chat.id, 'Please enter a number between 1 and 999999.', nil, true, false, message.message_id)
 		return
 	end
-	mattata.sendMessage(message.chat.id, isPrime(tonumber(input)), nil, true, false, message.message_id)
+	mattata.sendMessage(message.chat.id, prime.isPrime(tonumber(input)), nil, true, false, message.message_id)
 end
 
 return prime
