@@ -4,6 +4,7 @@ local https = require('ssl.https')
 local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
+local isup = require('plugins.isup')
 
 function canitrust:init(configuration)
 	assert(configuration.keys.canitrust, 'canitrust.lua requires an API key, and you haven\'t got one configured!')
@@ -12,26 +13,13 @@ function canitrust:init(configuration)
 	canitrust.help = configuration.commandPrefix .. 'canitrust <url> - Tells you of any known security issues with a website.'
 end
 
-function canitrust.validate(url)
-	local parsedUrl = url.parse(url, { scheme = 'http', authority = '' })
-	if not parsedUrl.host and parsedUrl.path then parsedUrl.host = parsedUrl.path; parsedUrl.path = '' end
-	local url = url.build(parsedUrl)
-	local protocol
-	if parsedUrl.scheme == 'http' then protocol = http end
-	local options = { url = url, redirect = false, method = 'GET' }
-	local _, code = protocol.request(options)
-	code = tonumber(code)
-	if not code or code >= 400 then return false end
-	return true
-end
-
 function canitrust:onMessage(message, configuration, language)
 	local input = mattata.input(message.text_lower)
 	if not input then mattata.sendMessage(message.chat.id, canitrust.help, nil, true, false, message.message_id) return end
 	local jstr = https.request('https://api.mywot.com/0.4/public_link_json2?hosts=' .. url.escape(input) .. '&callback=process&key=' .. configuration.keys.canitrust)
 	local jdat = json.decode(jstr)
 	local output = ''
-	if not canitrust.validate(input) then mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id) return end
+	if not isup.isWebsiteDown(input) then mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id) return end
 	if jstr:match('^process%({ "' .. input .. '": { "target": "' .. input .. '" } } %)$') then
 		output = 'There are *no known issues* with this website.'
 	elseif jstr:match('"101"') then

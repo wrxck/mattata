@@ -10,22 +10,11 @@ function isup:init(configuration)
 end
 
 function isup.isWebsiteDown(input)
-	local parsed = url.parse(input, { scheme = 'http', authority = '' })
-	if not parsed.host and parsed.path then
-		parsed.host = parsed.path
-		parsed.path = ''
-	end
-	local url = url.build(parsed)
-	local protocol
-	if parsed.scheme == 'http' then protocol = http else protocol = http end
-	local options = {
-		url = input,
-		redirect = false,
-		method = 'GET'
-	}
-	local _, code = protocol.request(options)
+	local protocol = http
+	if input:lower():match('^https') then protocol = https elseif not input:lower():match('^http') then input = 'http://' .. input end
+	local _, code = protocol.request(input)
 	code = tonumber(code)
-	if not code or code >= 400 then return false end
+	if not code or code > 399 then return false end
 	return true
 end
 
