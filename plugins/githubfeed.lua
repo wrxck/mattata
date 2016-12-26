@@ -1,9 +1,9 @@
 local githubfeed = {}
 local mattata = require('mattata')
-local HTTPS = require('ssl.https')
+local https = require('ssl.https')
 local url = require('socket.url')
 local ltn12 = require('ltn12')
-local JSON = require('dkjson')
+local json = require('dkjson')
 local redis = require('mattata-redis')
 local configuration = require('configuration')
 
@@ -22,25 +22,25 @@ function githubfeed.getRedis(id, option, extra)
 end
 
 function githubfeed.checkFeed(repo, currentEtag, lastDate)
-	local request = {
+	local repoRequest = {
 		url = 'https://api.github.com/repos/' .. repo,
 		method = 'HEAD',
 		redirect = false,
 		sink = ltn12.sink.null(),
 		headers = { Authorization = 'token ' .. configuration.keys.githubfeed, ['If-None-Match'] = currentEtag }
 	}
-	local res, code = HTTPS.request(request)
+	local res, code = https.request(repoRequest)
 	if not res then return nil elseif code == 304 then return true end
 	local body = {}
-	local buildRequest = {
+	local sinceRequest = {
 		url = 'https://api.github.com/repos/' .. repo .. '/commits?since=' .. lastDate,
 		method = 'GET',
 		sink = ltn12.sink.table(body),
 		headers = { Authorization = 'token ' .. configuration.keys.githubfeed }
 	}
-	local res, code, headers = HTTPS.request(request)
+	local res, code, headers = https.request(sinceRequest)
 	if not headers then return nil end
-	local jdat = JSON.decode(table.concat(body))
+	local jdat = json.decode(table.concat(body))
 	return false, jdat, headers.etag
 end
 
@@ -52,13 +52,12 @@ function githubfeed.checkRepo(repo)
 		sink = ltn12.sink.table(body),
 		headers = { Authorization = 'token ' .. configuration.keys.githubfeed }
 	}
-	local res, code, headers = HTTPS.request(request)
+	local res, code, headers = https.request(request)
 	if not res then return nil end
-	return JSON.decode(table.concat(body)), headers.etag
+	return json.decode(table.concat(body)), headers.etag
 end
 
 function githubfeed.subscribe(id, repo)
-	local configuration = require('configuration')
 	local lastHash = githubfeed.getRedis(repo, 'lastCommit')
 	local lastEtag = githubfeed.getRedis(repo, 'etag')
 	local lastDate = githubfeed.getRedis(repo, 'date')
@@ -67,7 +66,7 @@ function githubfeed.subscribe(id, repo)
 	if redis:sismember(userHash, repo) then return 'You\'re already subscribed to changes made within that repository.' end
 	local jdat, etag = githubfeed.checkRepo(repo)
 	if not jdat or not jdat.full_name then return configuration.errors.results end
-	if not etag then return 'Error2' end
+	if not etag then return 'Error' end
 	local lastCommit = ''
 	local pushedAt = jdat.pushed_at
 	local name = jdat.full_name
@@ -76,7 +75,7 @@ function githubfeed.subscribe(id, repo)
 	redis:set(lastEtag, etag)
 	redis:sadd(lHash, id)
 	redis:sadd(userHash, repo)
-	return 'Subscribed to *' .. name .. '*! You will now receive updates for this repository right here, in this chat.'
+	return 'Subscribed to <b>' .. mattata.htmlEscape(name) .. '</b>! You will now receive updates for this repository right here, in this chat.'
 end
 
 function githubfeed.unsubscribe(id, n)
@@ -98,7 +97,7 @@ function githubfeed.unsubscribe(id, n)
 		redis:del(lastHash)
 		redis:del(lastDate)
 	end
-	return 'You will no longer receive updates from *' .. sub .. '*!'
+	return 'You will no longer receive updates from <b>' .. mattata.htmlEscape(sub) .. '</b>!'
 end
 
 function githubfeed.getSubs(id, chatName)
@@ -108,12 +107,12 @@ function githubfeed.getSubs(id, chatName)
 	local keyboard = {
 		one_time_keyboard = true,
 		selective = true,
-		resize_keyboard_keyboard = true
+		resize_keyboard = true
 	}
 	local buttons = {}
 	local text = 'This chat is currently receiving updates for the following GitHub repositories:'
 	for k, v in pairs(subs) do
-		text = text .. '\n' .. k .. ': [' .. v .. '](https://github.com/' .. v .. ')\n'
+		text = text .. string.format('\n%s: <a href="%s">%s</a>\n', mattata.htmlEscape(k), mattata.htmlEscape(v), v)
 		table.insert(buttons, { text = configuration.commandPrefix .. 'gh del ' .. k })
 	end
 	keyboard.keyboard = { buttons, {{ text = 'Cancel' }}}
@@ -123,21 +122,21 @@ end
 function githubfeed:onMessage(message, configuration)
 	if message.chat.type == 'private' or not mattata.isGroupAdmin(message.chat.id, message.from.id) and not mattata.isConfiguredAdmin(message.from.id) then return
 	elseif message.text_lower:match('^' .. configuration.commandPrefix .. 'gh sub') and not message.text_lower:match('^' .. configuration.commandPrefix .. 'gh sub$') then
-		mattata.sendMessage(message.chat.id, githubfeed.subscribe(message.chat.id, message.text_lower:gsub('^' .. configuration.commandPrefix .. 'gh sub ', ''):gsub(' ', '/')), 'Markdown', true, false, message.message_id)
+		mattata.sendMessage(message.chat.id, githubfeed.subscribe(message.chat.id, message.text_lower:gsub('^' .. configuration.commandPrefix .. 'gh sub ', ''):gsub(' ', '/')), 'HTML', true, false, message.message_id)
 	elseif message.text_lower:match('^' .. configuration.commandPrefix .. 'gh del') then
-		mattata.sendMessage(message.chat.id, githubfeed.unsubscribe(message.chat.id, message.text_lower:gsub('^' .. configuration.commandPrefix .. 'gh del ', ''):gsub(' ', '')), 'Markdown', true, false, message.message_id)
+		mattata.sendMessage(message.chat.id, githubfeed.unsubscribe(message.chat.id, message.text_lower:gsub('^' .. configuration.commandPrefix .. 'gh del ', ''):gsub(' ', '')), 'HTML', true, false, message.message_id)
 	elseif message.text_lower == configuration.commandPrefix .. 'gh' then
 		local output, keyboard = githubfeed.getSubs(message.chat.id, message.chat.id)
-		mattata.sendMessage(message.chat.id, output, 'Markdown', true, false, message.message_id, JSON.encode(keyboard))
+		mattata.sendMessage(message.chat.id, output, 'HTML', true, false, message.message_id, json.encode(keyboard))
 	elseif mattata.isConfiguredAdmin(message.from.id) and message.text_lower == configuration.commandPrefix .. 'gh reload' then
 		local res = githubfeed:cron()
-		if res then mattata.sendMessage(message.chat.id, self.info.username .. ' is reloading...', nil) end
+		if not res then return else mattata.sendMessage(message.chat.id, self.info.first_name .. ' is reloading...', nil) end
 	end
 end
 
 function githubfeed:cron()
-   local keys = redis:keys(githubfeed.getRedis('*', 'subs'))
-   for k, v in pairs(keys) do
+	local keys = redis:keys(githubfeed.getRedis('*', 'subs'))
+	for k, v in pairs(keys) do
 		local repo = v:match('github:(.+):subs')
 		local currentEtag = redis:get(githubfeed.getRedis(repo, 'etag'))
 		local lastDate = redis:get(githubfeed.getRedis(repo, 'date'))
@@ -146,17 +145,28 @@ function githubfeed:cron()
 			if not jdat or not lastEtag then return end
 			local lastCommit = redis:get(githubfeed.getRedis(repo, 'lastCommit')) 
 			local text = ''
-			for n in ipairs(jdat) do if jdat[n].sha ~= lastCommit then text = text .. '*New commit on* [' .. repo .. '](' .. jdat[n].html_url .. ')!\n```\n' .. jdat[n].commit.message .. '\n```By ' .. mattata.markdownEscape(jdat[n].commit.author.name) .. '\n\n' end end
+			for n in ipairs(jdat) do
+				if jdat[n].sha ~= lastCommit then
+					text = text .. string.format(
+						'<b>%s has committed on</b> <a href="%s">%s</a>!\n<pre>%s</pre>',
+						mattata.htmlEscape(jdat[n].commit.author.name),
+						jdat[n].html_url,
+						mattata.htmlEscape(repo),
+						mattata.htmlEscape(jdat[n].commit.message)
+					)
+				end
+			end
 			if text ~= '' then
 				local lastCommit = jdat[1].sha
 				local lastDate = jdat[1].commit.author.date
 				redis:set(githubfeed.getRedis(repo, 'lastCommit'), lastCommit)
 				redis:set(githubfeed.getRedis(repo, 'etag'), lastEtag)
 				redis:set(githubfeed.getRedis(repo, 'date'), lastDate)
-				for key, recipient in pairs(redis:smembers(v)) do mattata.sendMessage(recipient, text, 'Markdown', true) end
+				for key, recipient in pairs(redis:smembers(v)) do mattata.sendMessage(recipient, text, 'HTML', true) end
 			end
 		end
 	end
+	return true
 end
 
 return githubfeed

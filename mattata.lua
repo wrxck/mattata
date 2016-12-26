@@ -8,7 +8,9 @@
 										
 	
 	    Copyright (c) 2016 Matthew Hesketh
-	    See LICENSE for details
+	    See './LICENSE' for details
+	    
+	    Current version: v7.1
 	    
 
 --]]
@@ -31,7 +33,6 @@ function mattata:init()
 	self.info = self.info.result
 	self.users = mattata.loadData('data/users.json')
 	self.groups = mattata.loadData('data/groups.json')
-	self.version = '7.1'
 	self.administration = {}
 	for k, v in ipairs(configuration.administration) do
 		local p = require('administration.' .. v)
@@ -90,7 +91,7 @@ function mattata.request(method, parameters, file, api)
 		method = 'POST',
 		headers = {
 			['Content-Type'] = 'multipart/form-data; boundary=' .. boundary,
-			['Content-Length'] = #body,
+			['Content-Length'] = #body
 		},
 		source = ltn12.source.string(body),
 		sink = ltn12.sink.table(response)
@@ -141,13 +142,13 @@ function mattata:run(configuration)
 	end; else print(colors.white .. '[mattata]' .. colors.red .. ' There was an error whilst retrieving updates from the Telegram bot API.' .. colors.reset) end
 	if self.lcron ~= os.date('%H') then
 		self.lcron = os.date('%H')
-		for i = 1, #self.plugins do; if self.plugins[i].cron then
-			local result, error = pcall(function()
-				local plugin = self.plugins[i]
-				plugin.cron(self, configuration)
-			end)
-			if not result then mattata.exception(self, error, 'CRON: ' .. i, configuration.adminGroup) end
-		end; end
+		for i = 1, #self.plugins do
+			local plugin = self.plugins[i]
+			if plugin.cron then
+				local success, res = pcall(function() plugin.cron(self, configuration) end)
+				if not success then mattata.exception(self, res, 'CRON: ' .. i, configuration.adminGroup) end
+			end
+		end
 		mattata.saveData('data/users.json', self.users)
 		mattata.saveData('data/groups.json', self.groups)
 	end; end
@@ -273,14 +274,18 @@ function mattata:onMessage(message, configuration)
 	elseif message.text_lower:match('^' .. configuration.commandPrefix .. 'donate') then
 		mattata.sendMessage(message.chat.id, '<b>Hello, ' .. mattata.htmlEscape(message.from.first_name) .. '!</b>\n\nIf you\'re feeling generous, you can contribute to the mattata project by making a monetary donation of any amount. This will go towards server costs and any time and resources used to develop mattata. This is an optional act, however it is greatly appreciated and your name will also be listed publically on mattata\'s GitHub page (and, eventually, <a href="http://mattata.pw">website</a>).\n\nIf you\'re still interested in helping me out, you can donate <a href="https://paypal.me/wrxck">here</a>. Thank you for your continued support! 😀', 'HTML', true, false, message.message_id)
 		return
+	elseif message.text_lower:match('^' .. configuration.commandPrefix .. 'license') then
+		local output = io.popen('cat LICENSE'):read('*all')
+		if output ~= 'cat: LICENSE: No such file or directory' then mattata.sendMessage(message.chat.id, '<pre>' .. mattata.htmlEscape(output) .. '</pre>', 'HTML', true, false, message.message_id); return end
 	elseif message.text_lower:match('^' .. self.info.first_name .. ',? babe?y?!?$') then
 		mattata.sendMessage(message.chat.id, 'Oh, Daddy!', nil, true, false, message.message_id)
 		return
 	elseif message.text_lower:match('^hakuna matt?att?a!?%??%.?$') then
 		mattata.sendMessage(message.chat.id, 'HAKUNA MATTATA BITCHES!', nil, true, false, message.message_id)
 		return
-	elseif message.text == 'first message' and mattata.isConfiguredAdmin(message.from.id) then
+	elseif message.text == 'first message' then
 		mattata.sendMessage(message.chat.id, 'Here you go ' .. message.from.first_name, nil, true, false, 1)
+		return
 	end
 	if not mattata.isPluginDisabledInChat('ai', message) and not message.text:match('^Cancel$') and not message.text:match('^/?s/(.-)/(.-)/?$') and not message.photo then
 		local ai = require('plugins.ai')
@@ -686,9 +691,9 @@ function mattata.resolveUsername(input)
 	return tonumber(res.result.id)
 end
 
-function mattata.markdownEscape(text) return text:gsub('_', '\\_'):gsub('%[', '\\['):gsub('%]', '\\]'):gsub('%*', '\\*'):gsub('`', '\\`') end
+function mattata.markdownEscape(text) text = tostring(text); return text:gsub('_', '\\_'):gsub('%[', '\\['):gsub('%]', '\\]'):gsub('%*', '\\*'):gsub('`', '\\`') end
 
-function mattata.htmlEscape(text) return text:gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;') end
+function mattata.htmlEscape(text) text = tostring(text); return text:gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;') end
 
 mattata.commandsMeta = {}
 
