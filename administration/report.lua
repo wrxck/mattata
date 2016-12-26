@@ -3,7 +3,7 @@ local mattata = require('mattata')
 
 function report:init(configuration)
 	report.arguments = 'report <text>'
-	report.commands = mattata.commands(self.info.username, configuration.commandPrefix):c('report'):c('ops').table
+	report.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('report'):command('ops').table
 	report.help = configuration.commandPrefix .. 'report <text> - Notifies all administrators of an issue. Alias: ' .. configuration.commandPrefix .. 'ops.'
 end
 

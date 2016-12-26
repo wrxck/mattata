@@ -10,8 +10,7 @@ end
 function frombin:onMessage(message, configuration)
 	local input = mattata.input(message.text)
 	if not input then mattata.sendMessage(message.chat.id, frombin.help, nil, true, false, message.message_id) return end
-	if input:gsub('0', ''):gsub('1', '') ~= nil then mattata.sendMessage(message.chat.id, 'The inputted string must be in binary format.', nil, true, false, message.message_id) return end
-	input = tonumber(input)
+	if input:gsub('0', ''):gsub('1', '') ~= '' then mattata.sendMessage(message.chat.id, 'The inputted string must be in binary format.', nil, true, false, message.message_id) return end
 	local number = 0
 	local ex = input:len() - 1
 	local l = 0

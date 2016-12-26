@@ -21,6 +21,7 @@ end
 function sed:onMessage(message)
 	if not message.reply_to_message then return end
 	local matches, substitution = message.text:match('^/?s/(.-)/(.-)/?g?$')
+	substitution = substitution:gsub('\\n', '\n'):gsub('\\/', '/')
 	if not substitution then return
 	elseif message.reply_to_message.from.id == self.info.id then
 		mattata.sendMessage(message.chat.id, 'Screw you, I\'m always right.', nil, true, false, message.message_id)
@@ -31,6 +32,7 @@ function sed:onMessage(message)
 		mattata.sendMessage(message.chat.id, 'Invalid Lua pattern!', nil, true, false, message.message_id)
 	end
 	output = mattata.trim(output:sub(1, 4096))
+	if output == message.reply_to_message.text then mattata.sendMessage(message.chat.id, 'You\'re retarded... There\'s literally no difference after applying that substitution.', nil, true, false, message.reply_to_message.id) return end
 	local keyboard = {}
 	keyboard.inline_keyboard = {{
 		{ text = 'I\'m sure', callback_data = 'sed:yes' },

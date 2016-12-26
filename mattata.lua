@@ -31,7 +31,7 @@ function mattata:init()
 	self.info = self.info.result
 	self.users = mattata.loadData('data/users.json')
 	self.groups = mattata.loadData('data/groups.json')
-	self.version = '7.0'
+	self.version = '7.1'
 	self.administration = {}
 	for k, v in ipairs(configuration.administration) do
 		local p = require('administration.' .. v)
@@ -229,7 +229,7 @@ function mattata:onMessage(message, configuration)
 		end
 	end
 	if message.new_chat_member and message.new_chat_member.id ~= self.info.id and not mattata.isPluginDisabledInChat('welcome', message) then 
-		require('plugins.welcome').onNewChatMember(self, message, configuration, require('languages.' .. mattata.getUserLanguage(message.new_chat_member.id)))
+		require('administration.welcome').onNewChatMember(self, message, configuration, require('languages.' .. mattata.getUserLanguage(message.new_chat_member.id)))
 		return
 	end
 	if message.photo and not mattata.isPluginDisabledInChat('captionbotai', message) then
@@ -638,7 +638,7 @@ function mattata.input(s)
 	return s:sub(s:find(' ') + 1)
 end
 
-function mattata.trim(str) return str:gsub('^%s*(.-)%s*$', '%1') end
+function mattata.trim(str) local res = str:gsub('^%s*(.-)%s*$', '%1'); if not res or res == nil then return str else return res end end
 
 function mattata:exception(error, message, adminGroup)
 	local output = string.format('[%s]\n%s: %s\n%s\n', os.date('%X'), self.info.username, mattata.htmlEscape(error) or '', mattata.htmlEscape(message))

@@ -17,8 +17,7 @@ function pastebin.getUrl(str)
 	local parameters = {
 		['api_dev_key'] = configuration.keys.pastebin,
 		['api_option'] = 'paste',
-		['api_paste_code'] = str,
-		['api_paste_private'] = 0
+		['api_paste_code'] = str
 	}
 	local response = {}
 	local body, boundary = multipart.encode(parameters)

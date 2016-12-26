@@ -8,21 +8,13 @@ function shout:init(configuration)
 end
 
 function shout:onMessage(message)
-	local input = mattata.input(message.text)
-	if not input then
-		mattata.sendMessage(message.chat.id, shout.help, nil, true, false, message.message_id)
-		return
-	end
-	input = mattata.trim(input_upper)
+	local input = mattata.input(message.text_upper)
+	if not input then mattata.sendMessage(message.chat.id, shout.help, nil, true, false, message.message_id) return end
+	input = mattata.trim(input)
 	local output = ''
 	local increment = 0
 	local length = 0
-	for match in input:gmatch('([%z\1-\127\194-\244][\128-\191]*)') do
-		if length < 20 then
-			length = length + 1
-			output = output .. match .. ' '
-		end
-	end
+	for match in input:gmatch('([%z\1-\127\194-\244][\128-\191]*)') do if length < 20 then length = length + 1; output = output .. match .. ' ' end; end
 	length = 0
 	output = output .. '\n'
 	for match in input:sub(2):gmatch('([%z\1-\127\194-\244][\128-\191]*)') do

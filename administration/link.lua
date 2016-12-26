@@ -17,7 +17,7 @@ function link.getLink(message)
 	local hash = mattata.getRedisHash(message, 'link')
 	if hash then
 		local link = redis:hget(hash, 'link')
-		if not link or link == 'false' then return 'There isn\'t a link set for this group.'
+		if not link or link == 'false' then return 'There isn\'t a link set for this group.' end
 		return link
 	end
 end
