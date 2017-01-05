@@ -1,74 +1,97 @@
+--[[
+    Based on a plugin by topkecleon.
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local reddit = {}
+
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
 function reddit:init(configuration)
-	reddit.arguments = 'reddit <r/subreddit | query>'
-	reddit.commands = mattata.commands(self.info.username, configuration.commandPrefix, {'^/r/'}):command('reddit'):command('r'):command('r/').table
-	reddit.help = configuration.commandPrefix .. 'reddit <r/subreddit | query> Returns the top posts or results for a given subreddit or query. If no argument is given, the top posts from r/all are returned. Aliases: ' .. configuration.commandPrefix .. 'r, /r/subreddit.'
+    reddit.arguments = 'reddit <r/subreddit | query>'
+    reddit.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix,
+        { '^/r/' }
+    ):command('reddit'):command('r'):command('r/').table
+    reddit.help = configuration.command_prefix .. 'reddit <r/subreddit | query> Returns the top posts or results for a given subreddit or query. If no argument is given, the top posts from reddit\'s /r/all board are returned. Aliases: ' .. configuration.command_prefix .. 'r, /r/subreddit.'
 end
 
-function reddit.formatResults(posts)
-	local output = ''
-	for _, v in ipairs(posts) do
-		local post = v.data
-		local title = post.title:gsub('%[', '('):gsub('%]', ')'):gsub('&amp;', '&')
-		if title:len() > 256 then
-			title = title:sub(1, 253)
-			title = mattata.trim(title) .. '...'
-		end
-		local shortUrl = 'redd.it/' .. post.id
-		local s = '[' .. title .. '](' .. shortUrl .. ')'
-		if post.domain and not post.is_self and not post.over_18 then
-			s = '`[`[' .. post.domain .. '](' .. post.url:gsub('%)', '\\)') .. ')`]` ' .. s
-		end
-		output = output .. '• ' .. s .. '\n'
-	end
-	return output
+function reddit.format_results(posts)
+    local output = ''
+    for _, v in ipairs(posts) do
+        local post = v.data
+        local title = post.title:gsub('%[', '('):gsub('%]', ')'):gsub('&amp;', '&')
+        if title:len() > 250 then
+            title = title:sub(1, 250)
+            title = mattata.trim(title) .. '...'
+        end
+        local short_url = 'redd.it/' .. post.id
+        local s = '[' .. title .. '](' .. short_url .. ')'
+        if post.domain and not post.is_self and not post.over_18 then
+            s = '`[`[' .. post.domain .. '](' .. post.url:gsub('%)', '\\)') .. ')`]` ' .. s
+        end
+        output = output .. '• ' .. s .. '\n'
+    end
+    return output
 end
 
-function reddit:onMessage(message, configuration, language)
-	local limit = 4
-	if message.chat.type == 'private' then limit = 8 end
-	local text = message.text_lower
-	if text:match('^/r/.') then text = message.text_lower:gsub('^/r/', configuration.commandPrefix .. 'r r/') end
-	local input = mattata.input(text)
-	local source, url
-	if input then
-		if not string.match(input, '/random') then
-			if input:match('^r/.') then
-				input = mattata.getWord(input, 1)
-				url = 'https://www.reddit.com/%s/.json?limit='
-				url = url:format(input) .. limit
-				source = '*/' .. mattata.markdownEscape(input):gsub('\\', '') .. '*\n'
-			else
-				input = mattata.input(message.text)
-				source = '*Results for* ' .. mattata.markdownEscape(input) .. '*:*\n'
-				input = url.escape(input)
-				url = 'https://www.reddit.com/search.json?q=%s&limit='
-				url = url:format(input) .. limit
-			end
-		else
-			mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
-			return
-		end
-	else
-		url = 'https://www.reddit.com/.json?limit=' .. limit
-		source = '*/r/all*\n'
-	end
-	local jstr, res = https.request(url)
-	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
-		return
-	end
-	local jdat = json.decode(jstr)
-	if #jdat.data.children == 0 then
-		mattata.sendMessage(message.chat.id, language.errors.results, nil, true, false, message.message_id)
-		return
-	end
-	mattata.sendMessage(message.chat.id, source .. reddit.formatResults(jdat.data.children), 'Markdown', true, false, message.message_id)
+function reddit:on_message(message, configuration, language)
+    local limit = 4
+    if message.chat.type == 'private' then
+        limit = 8
+    end
+    local text = message.text_lower
+    if text:match('^/r/.') then text = message.text_lower:gsub('^/r/', configuration.command_prefix .. 'r r/') end
+    local input = mattata.input(text)
+    local source, url
+    if input then
+        if not string.match(input, '/random') then
+            if input:match('^r/.') then
+                input = mattata.get_word(input)
+                url = 'https://www.reddit.com/%s/.json?limit='
+                url = url:format(input) .. limit
+                source = '*/' .. mattata.escape_markdown(input):gsub('\\', '') .. '*\n'
+            else
+                input = mattata.input(message.text)
+                source = '*Results for* ' .. mattata.escape_markdown(input) .. '*:*\n'
+                input = url.escape(input)
+                url = 'https://www.reddit.com/search.json?q=%s&limit='
+                url = url:format(input) .. limit
+            end
+        else
+            return mattata.send_reply(
+                message,
+                language.errors.results
+            )
+        end
+    else
+        url = 'https://www.reddit.com/.json?limit=' .. limit
+        source = '*/r/all*\n'
+    end
+    local jstr, res = https.request(url)
+    if res ~= 200 then
+        return mattata.send_reply(
+            message,
+            language.errors.connection
+        )
+    end
+    local jdat = json.decode(jstr)
+    if #jdat.data.children == 0 then
+        return mattata.send_reply(
+            message,
+            language.errors.results
+        )
+    end
+    return mattata.send_message(
+        message.chat.id,
+        source .. reddit.format_results(jdat.data.children),
+        'markdown'
+    )
 end
 
 return reddit

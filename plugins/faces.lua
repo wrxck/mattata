@@ -1,25 +1,73 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local faces = {}
+
 local mattata = require('mattata')
 
 function faces:init(configuration)
-	faces.help = '<b>Available faces:</b>\n'
-	faces.arguments = 'faces'
-	faces.help = configuration.commandPrefix .. 'faces - Returns a list of expressive-emoticon commands.\n'
-	faces.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('faces').table
-	local username = self.info.username:lower()
-	for commands, face in pairs(configuration.faces) do
-		faces.help = faces.help .. '• ' .. configuration.commandPrefix .. commands .. ': ' .. face .. '\n'
-		table.insert(faces.commands, configuration.commandPrefix .. commands)
-	end
+    faces.command = 'faces'
+    faces.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('faces').table
+    faces.help = '<b>Faces:</b>\n'
+    for k, v in pairs(configuration.faces) do
+        faces.help = faces.help .. '• ' .. configuration.command_prefix .. k .. ': ' .. v .. '\n'
+        table.insert(
+            faces.commands,
+            '^' .. configuration.command_prefix .. k
+        )
+        table.insert(
+            faces.commands,
+            '^' .. configuration.command_prefix .. k .. '@' .. self.info.username
+        )
+        table.insert(
+            faces.commands,
+            configuration.command_prefix .. k .. '$'
+        )
+        table.insert(
+            faces.commands,
+            configuration.command_prefix .. k .. '@' .. self.info.username .. '$'
+        )
+        table.insert(
+            faces.commands,
+            '\n' .. configuration.command_prefix .. k
+        )
+        table.insert(
+            faces.commands,
+            '\n' .. configuration.command_prefix .. k .. '@' .. self.info.username
+        )
+        table.insert(
+            faces.commands,
+            configuration.command_prefix .. k .. '\n'
+        )
+        table.insert(
+            faces.commands,
+            configuration.command_prefix .. k .. '@' .. self.info.username .. '\n'
+        )
+    end
 end
 
-function faces:onMessage(message, configuration)
-	if message.text_lower:match('^' .. configuration.commandPrefix .. 'faces$') then
-		local res = mattata.sendMessage(message.from.id, faces.help, 'HTML', true, false)
-		if not res then mattata.sendMessage(message.chat.id, 'Please [message me in a private chat](http://telegram.me/' .. self.info.username .. '?start=faces) so I can send you a list of the available faces.', 'Markdown', true, false, message.message_id) return
-		elseif message.chat.type ~= 'private' then mattata.sendMessage(message.chat.id, 'I have sent you a private message containing a list of the available faces!', nil, true, false, message.message_id) return end
-	end
-	for commands, face in pairs(configuration.faces) do if message.text_lower:match(configuration.commandPrefix .. commands) then mattata.sendMessage(message.chat.id, face, 'HTML', true, false, message.message_id) return end end
+function faces:on_message(message, configuration)
+    if message.text_lower:match('^' .. configuration.command_prefix .. 'faces') then
+        return mattata.send_reply(
+            message,
+            faces.help,
+            'html'
+        )
+    end
+    for k, v in pairs(configuration.faces) do
+        if message.text_lower == configuration.command_prefix .. k or message.text_lower:match(' ' .. configuration.command_prefix .. k) or message.text_lower:match(configuration.command_prefix .. k .. ' ') then
+            return mattata.send_message(
+                message.chat.id,
+                v,
+                'html'
+            )
+        end
+    end
 end
 
 return faces

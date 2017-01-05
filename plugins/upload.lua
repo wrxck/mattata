@@ -1,29 +1,55 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local upload = {}
+
 local mattata = require('mattata')
 
-function upload:init(configuration) upload.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('upload').table end
+function upload:init(configuration)
+    upload.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('upload').table
+end
 
-function upload:onMessage(message, configuration)
-	if not mattata.isConfiguredAdmin(message.from.id) then
-		return
-	elseif not message.reply_to_message or not message.reply_to_message.document then
-		mattata.sendMessage(message.chat.id, 'Please reply to the file you\'d like to download to the server. It must be <= 20 MB.', nil, true, false, message.message_id)
-		return
-	elseif message.reply_to_message.document.file_size > 20971520 then
-		mattata.sendMessage(message.chat.id, 'That file is too large. It must be <= 20 MB.', nil, true, false, message.message_id)
-		return
-	end
-	local file = mattata.getFile(message.reply_to_message.document.file_id)
-	if not file then
-		mattata.sendMessage(message.chat.id, 'I couldn\'t get this file, it\'s probably too old.', nil, true, false, message.message_id)
-		return
-	end
-	local res = mattata.downloadToFile('https://api.telegram.org/file/bot' .. configuration.botToken .. '/' .. file.result.file_path:gsub('//', '/'):gsub('/$', ''), message.reply_to_message.document.file_name)
-	if not res then
-		mattata.sendMessage(message.chat.id, 'There was an error whilst retrieving this file.', nil, true, false, message.message_id)
-		return
-	end
-	mattata.sendMessage(message.chat.id, 'Successfully downloaded the file to the server - it can be found at <code>' .. mattata.htmlEscape(configuration.fileDownloadLocation .. message.reply_to_message.document.file_name) .. '</code>!', 'HTML', true, false, message.message_id)
+function upload:on_message(message, configuration)
+    if not mattata.is_global_admin(message.from.id) then
+        return
+    elseif not message.reply_to_message or not message.reply_to_message.document then
+        return mattata.send_reply(
+            message,
+            'Please reply to the file you\'d like to download to the server. It must be <= 20 MB.'
+        )
+    elseif tonumber(message.reply_to_message.document.file_size) > 20971520 then
+        return mattata.send_reply(
+            message,
+            'That file is too large. It must be <= 20 MB.'
+        )
+    end
+    local file = mattata.get_file(message.reply_to_message.document.file_id)
+    if not file then
+        return mattata.send_reply(
+            message,
+            'I couldn\'t get this file, it\'s probably too old.'
+        )
+    end
+    local success = mattata.download_file(
+        'https://api.telegram.org/file/bot' .. configuration.bot_token .. '/' .. file.result.file_path:gsub('//', '/'):gsub('/$', ''),
+        message.reply_to_message.document.file_name
+    )
+    if not success then
+        return mattata.send_reply(
+            message,
+            'There was an error whilst retrieving this file.'
+        )
+    end
+    return mattata.send_reply(
+        message,
+        'Successfully downloaded the file to the server - it can be found at <code>' .. mattata.escape_html(configuration.download_location .. message.reply_to_message.document.file_name) .. '</code>!',
+        'html'
+    )
 end
 
 return upload

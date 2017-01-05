@@ -1,34 +1,56 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local isup = {}
+
 local mattata = require('mattata')
 local http = require('socket.http')
 local url = require('socket.url')
 
 function isup:init(configuration)
-	isup.arguments = 'isup <url>'
-	isup.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('isup').table
-	isup.help = configuration.commandPrefix .. 'isup <url> - Check if the specified url is down for everyone or just you.'
+    isup.arguments = 'isup <url>'
+    isup.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('isup').table
+    isup.help = configuration.command_prefix .. 'isup <url> - Check if the specified url is down for everyone or just you.'
 end
 
-function isup.isWebsiteDown(input)
-	local protocol = http
-	if input:lower():match('^https') then protocol = https elseif not input:lower():match('^http') then input = 'http://' .. input end
-	local _, code = protocol.request(input)
-	code = tonumber(code)
-	if not code or code > 399 then return false end
-	return true
+function isup.is_site_up(input)
+    local protocol = http
+    if input:lower():match('^https') then
+        protocol = https
+    elseif not input:lower():match('^http') then
+        input = 'http://' .. input
+    end
+    local _, res = protocol.request(input)
+    res = tonumber(res)
+    if not res or res > 399 then
+        return false
+    end
+    return true
 end
 
-function isup:onMessage(message, configuration)
-	local input = mattata.input(message.text)
-	if not input then
-		mattata.sendMessage(message.chat.id, isup.help, nil, true, false, message.message_id)
-		return
-	end
-	if isup.isWebsiteDown(input) then
-		mattata.sendMessage(message.chat.id, 'This website is up, maybe it\'s just you?', nil, true, false, message.message_id)
-		return
-	end
-	mattata.sendMessage(message.chat.id, 'It\'s not just you, this website is down!', nil, true, false, message.message_id)
+function isup:on_message(message, configuration)
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(
+            message,
+            isup.help
+        )
+    end
+    if isup.is_site_up(input) then
+        return mattata.send_message(
+            message,
+            'This website is up, maybe it\'s just you?'
+        )
+    end
+    return mattata.send_reply(
+        message,
+        'It\'s not just you, this website is down!'
+    )
 end
 
 return isup

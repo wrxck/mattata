@@ -1,31 +1,74 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local channel = {}
+
 local mattata = require('mattata')
 
 function channel:init(configuration)
-	channel.arguments = 'ch <channel> \\n <message>'
-	channel.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('ch').table
-	channel.help = configuration.commandPrefix .. 'ch <channel> <message> - Sends a message to a Telegram channel/group. The channel/group can be specified via ID or username. Messages can be formatted with Markdown. Users can only send messages to channels/groups they own and/or administrate. \\n means a line break.'
+    channel.arguments = 'ch <channel> <message>'
+    channel.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('ch').table
+    channel.help = configuration.command_prefix .. 'ch <channel> <message> - Sends a message to a Telegram channel/group. The channel/group can be specified via ID or username. Messages can be formatted with HTML. Users can only send messages to channels/groups they own and/or administrate.'
 end
 
-function channel:onMessage(message, configuration, language)
-	if message.chat.type == 'channel' then return end
-	local input = mattata.input(message.text)
-	if not input then mattata.sendMessage(message.chat.id, channel.help, nil, true, false, message.message_id) return end
-	local targetChat = mattata.getWord(input, 1)
-	local adminList, res = mattata.getChatAdministrators(targetChat)
-	if not adminList and not mattata.isConfiguredAdmin(message.from.id) then
-		mattata.sendMessage(message.chat.id, language.unableToRetrieveChannelAdmins, nil, true, false, message.message_id)
-		return
-	elseif not mattata.isConfiguredAdmin(message.from.id) then -- Make OP users an exception
-		local isAdmin = false
-		for _, admin in ipairs(adminList.result) do if admin.user.id == message.from.id then isAdmin = true end end
-		if not isAdmin then mattata.sendMessage(message.chat.id, language.notChannelAdmin, nil, true, false, message.message_id) return end
-	end
-	local text = input:match('\n(.+)')
-	if not text then mattata.sendMessage(message.chat.id, language.enterMessageToSendToChannel, nil, true, false, message.message_id) return end
-	local post = mattata.sendMessage(targetChat, text, 'Markdown', true, false)
-	if not post then mattata.sendMessage(message.chat.id, language.unableToSendToChannel, nil, true, false, message.message_id) return end
-	mattata.sendMessage(message.chat.id, language.messageSentToChannel, nil, true, false, message.message_id)
+function channel:on_message(message, configuration, language)
+    if message.chat.type == 'channel' then
+        return
+    end
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(
+            message,
+            channel.help
+        )
+    end
+    local target = mattata.get_word(input)
+    if tonumber(target) == nil and not target:match('^@') then
+        target = '@' .. target
+    end
+    local admin_list, res = mattata.get_chat_administrators(target)
+    if not admin_list and not mattata.is_global_admin(message.from.id) then
+        return mattata.send_reply(
+            message,
+            language.unable_to_retrieve_channel_admins
+        )
+    elseif not mattata.is_global_admin(message.from.id) then -- Make OP users an exception
+        local is_admin = false
+        for _, admin in ipairs(admin_list.result) do
+            if admin.user.id == message.from.id then
+                is_admin = true
+            end
+        end
+        if not is_admin then
+            return mattata.send_reply(
+                message,
+                language.not_channel_admin
+            )
+        end
+    end
+    local text = input:match('^' .. target .. '(.-)$')
+    if not text then
+        return mattata.send_reply(
+            message,
+            language.enter_message_to_send_to_channel
+        )
+    end
+    local success = mattata.send_message(target, text, 'html')
+    if not success then
+        return mattata.send_reply(
+            message,
+            language.unable_to_send_to_channel
+        )
+    end
+    return mattata.send_reply(
+        message,
+        language.message_sent_to_channel
+    )
 end
 
 return channel

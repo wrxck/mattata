@@ -1,72 +1,84 @@
+--[[
+    Based on a plugin by topkecleon.
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local hackernews = {}
+
 local mattata = require('mattata')
 local https = require('ssl.https')
 local json = require('dkjson')
 
-hackernews.topstories = 'https://hacker-news.firebaseio.com/v0/topstories.json'
-hackernews.res = 'https://hacker-news.firebaseio.com/v0/item/%s.json'
-hackernews.art = 'https://news.ycombinator.com/item?id=%s'
-
 function hackernews:init(configuration)
-	hackernews.arguments = 'hackernews'
-	hackernews.commands = mattata.commands(self.info.username, configuration.commandPrefix):command('hackernews'):command('hn').table
-	hackernews.inlineCommands = hackernews.commands
-	hackernews.help = configuration.commandPrefix .. 'hackernews - Sends the top stories from Hacker News. Alias: ' .. configuration.commandPrefix .. 'hn.'
-	hackernews.lastUpdate = 0
+    hackernews.arguments = 'hackernews'
+    hackernews.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('hackernews'):command('hn').table
+    hackernews.help = configuration.command_prefix .. 'hackernews - Sends the top stories from Hacker News. Alias: ' .. configuration.command_prefix .. 'hn.'
 end
 
-function hackernews.getHackernewsResults(language)
-	local results = {}
-	local jstr, res = https.request(hackernews.topstories)
-	if res ~= 200 then
-		mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
-		return
-	end
-	local jdat = json.decode(jstr)
-	for i = 1, 8 do
-		local ijstr, ires = https.request(hackernews.res:format(jdat[i]))
-		if ires ~= 200 then
-			mattata.sendMessage(message, language.errors.connection, nil, true, false, message.message_id)
-			return
-		end
-		local ijdat = json.decode(ijstr)
-		local result
-		if ijdat.url then
-			result = string.format(
-				'\n• <code>[</code><a href="%s">%s</a><code>]</code> <a href="%s">%s</a>',
-				mattata.htmlEscape(hackernews.art:format(ijdat.id)),
-				ijdat.id,
-				mattata.htmlEscape(ijdat.url),
-				mattata.htmlEscape(ijdat.title)
-			)
-		else
-			result = string.format(
-				'\n• <code>[</code><a href="%s">%s</a><code>]</code> %s',
-				mattata.htmlEscape(hackernews.art:format(ijdat.id)),
-				ijdat.id,
-				mattata.htmlEscape(ijdat.title)
-			)
-		end
-		table.insert(results, result)
-	end
-	return results
+function hackernews.get_results(hackernews_topstories, hackernews_result, hackernews_article)
+    local results = {}
+    local jstr, res = https.request(hackernews_topstories)
+    if res ~= 200 then
+        return false
+    end
+    local jdat = json.decode(jstr)
+    for i = 1, 8 do
+        local result_jstr, result_res = https.request(hackernews_result:format(jdat[i]))
+        if result_res ~= 200 then
+            return false
+        end
+        local result_jdat = json.decode(ijstr)
+        local result = ''
+        if result_jdat.url then
+            result = string.format(
+                '\n• <code>[</code><a href="%s">%s</a><code>]</code> <a href="%s">%s</a>',
+                mattata.escape_html(hackernews_article:format(result_jdat.id)),
+                result_jdat.id,
+                mattata.escape_html(result_jdat.url),
+                mattata.escape_html(result_jdat.title)
+            )
+        else
+            result = string.format(
+                '\n• <code>[</code><a href="%s">%s</a><code>]</code> %s',
+                mattata.escape_html(hackernews_article:format(result_jdat.id)),
+                result_jdat.id,
+                mattata.escape_html(result_jdat.title)
+            )
+        end
+        table.insert(
+            results,
+            result
+        )
+    end
+    return results
 end
 
-function hackernews:onMessage(message, configuration, language)
-	local now = os.time() / 60
-	if not hackernews.results then
-		hackernews.results = hackernews.getHackernewsResults(language)
-		if not hackernews.results then
-			mattata.sendMessage(message.chat.id, language.errors.connection, nil, true, false, message.message_id)
-			return
-		end
-		hackernews.lastUpdate = now
-	end
-	local resultCount = message.chat.id == message.from.id and 8 or 4
-	local output = '<b>Top Stories from Hacker News:</b>'
-	for i = 1, resultCount do output = output .. hackernews.results[i] end
-	mattata.sendChatAction(message.chat.id, 'typing')
-	mattata.sendMessage(message.chat.id, output, 'HTML', true, false, message.message_id)
+function hackernews:on_message(message, configuration, language)
+    local results = hackernews.get_results('https://hacker-news.firebaseio.com/v0/topstories.json', 'https://hacker-news.firebaseio.com/v0/item/%s.json', 'https://news.ycombinator.com/item?id=%s')
+    if not results then
+        return mattata.send_reply(
+            message,
+            language.errors.connection
+        )
+    end
+    local result_count = message.chat.id == message.from.id and 8 or 4
+    local output = '<b>Top Stories from Hacker News:</b>'
+    for i = 1, result_count do
+        output = output .. results[i]
+    end
+    mattata.send_chat_action(
+        message.chat.id,
+        'typing'
+    )
+    return mattata.send_message(
+        message.chat.id,
+        output,
+        'html'
+    )
 end
 
 return hackernews
