@@ -1,4 +1,5 @@
 return { -- when you're translating, do NOT translate the things in CAPS!
+<<<<<<< HEAD
     locale = 'it',
     join_messages = {
         'Welcome, NAME!',
@@ -51,3 +52,57 @@ return { -- when you're translating, do NOT translate the things in CAPS!
     please_message_me = 'Please [message me in a private chat](http://telegram.me/MATTATA?start=help) to get started.',
     sent_private_message = 'I have sent you a private message containing the requested information.'
 }
+=======
+	locale = 'it',
+	joinChatMessages = {
+		'Benvenuto NAME!',
+		'Ciao NAME!',
+		'Buona permanenza NAME!',
+		'Sono felice che tu sia entrato, NAME!',
+		'Salve NAME!',
+		'Piacere NAME!'
+	},
+	userAddedBot = 'Salve a tutti! Grazie per avermi aggiunto NAME!',
+	leftChatMessages = {
+		'RIP NAME.',
+		'Riposa in pace NAME!',
+		'Ragazzi, spero NAME abbia gradito la permanenza!',
+		'È per qualcosa che ho detto NAME?',
+		'Ma stiamo solo cercando di conoscerci, NAME...',
+		'Dio, NAME - sono davvero COSÌ male?',
+		'È una tua perdita, NAME.',
+		'Torna presto, NAME!',
+		'Ciao, NAME!',
+		'Arrivederci, NAME.',
+		'Addio, NAME.'
+	},
+	errors = {
+		generic = 'Ho paura che ci sia un errore!',
+		connection = 'Mi spiace, c\'è stato un errore mentre stavo processando la tua richiesta, prova più tardi.',
+		results = 'Mi spiace ma non sono stato in grado di trovare alcun risultato.',
+		argument = 'Mi spiace, ma il parametro che hai passato è errato o inesistente. Riprova.',
+		syntax = 'Errore di sintassi, Riprova.',
+		bibleLength = 'La richiesta effettuata è troppo lunga per essere mandata qui, prova ad essere più accurato.'
+	},
+	aiError = 'Matt dice: NAME, c\'è un tempo e un luogo per ogni cosa, ma non ora!',
+	specifyBlacklistedUser = 'Devi specificare l\'utente tramite ID numerico.',
+	userNowBlacklisted = 'L\'utente è ora impossibilitato ad usarmi.',
+	userNowWhitelisted = 'L\'utente è nuovamente libero di usarmi.',
+	messageSentToChannel = 'Il messaggio è stato inviato correttamente!',
+	unableToSendToChannel = 'Spiacente, non sono riuscito ad inviare il messaggio.',
+	enterMessageToSendToChannel = 'Inserisci il il messaggio da inviare. Il MarkDown è supportato.',
+	notChannelAdmin = 'Spiacente, sembra che tu non sia admin del gruppo/canale.',
+	unableToRetrieveChannelAdmins = 'Non sono riuscito a ottenere la lista admin del gruppo/canale.\n',
+	copypastaLength = 'Rispondi a un messaggio con meno di MAXIMUM caratteri.',
+	copypastaMustContain = 'Il messaggio di risposta deve contenere caratteri alfanumerici',
+	foundOnePwnedAccount = 'L\'account dato è stato trovao di 1 fuga di dati',
+	accountFoundMultipleLeaks = 'L\'account dato è stato trovato in X fuga di dati',
+	officialLinks = 'Ecco alcuni link ufficiali che potrebbero tornarti utili!',
+	helpIntroduction = '*Ciao NAME!*\nMi chiamo MATTATA e Isono un bot intelligente scritto con accuratezza. Ci sono molte cose che posso fare - Prova a cliccare il bottone \'Comandi\' qui sotto per vedere cosa posso fare per te.\n\n*Oh, funziono anche nei gruppi!*\nPuoi abilitare e disabilitare i plugin nei tuoi gruppi usando COMMANDPREFIXplugins.\nPosso parlare molte lingue (ancora in beta), prova a usare COMMANDPREFIXsetlang <lingua> per impostare la tua lingua. In questo modo, potrai parlare con me, Mi assicurerò di risponderti sempre nella tua lingua!',
+	helpConfused = '*Confuso?*\nNon preoccuparti, sono stato programmato per aiutarti! Prova a usare COMMANDPREFIXhelp <comando> per ricevere un aiuto all\'uso di un plugin specifico.\n\nSono anche un esempio innovativo di Intelligenza Artificiale - si, proprio così; Posso imparare da te! Prova a parlare qui con me, o chiamami per nome in un gruppo. Posso anche descrivere le immagini mandate come risposta ai miei messaggi.\n\nPuoi anche usarmi inline, prova a scrivere il mio username in qualsiasi gruppo e scoprire cos\'altro posso fare!',
+	noDocumentedHelp = 'Mi spiace, ma non c\'è alcuna documentazione per questo plugin al momento. Se credi ci sia un errore, non esitare a contattare [il mio sviluppatore](https://telegram.me/wrxck).',
+	helpAbout = 'Sono un bot scritto in Lua, pensato per sfruttare la fantastica BOT API che Telegram ci offre.\n\nIl mio creatore (e principale sostenitore) è @wrxck.\nLui crede che a chiunque piaccia la programmazione possa lavorare con il codice che mi da vita, quindi sono orgoglioso di poter dire di essere un progetto Open Source, puoi scoprire dippiù su [GitHub](https://github.com/matthewhesketh/mattata).',
+	pleaseMessageMe = '[Scrivimi in chat privata](http://telegram.me/MATTATA?start=help) per cominciare.',
+	sentPrivateMessage = 'Ti ho mandato un messaggio privato contentente le informazioni necessarie.'
+}
+>>>>>>> origin/master
