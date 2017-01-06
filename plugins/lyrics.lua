@@ -9,6 +9,7 @@ local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
+local configuration = require('configuration')
 
 function lyrics:init(configuration)
     lyrics.arguments =  'lyrics <query>'
@@ -25,27 +26,27 @@ function lyrics.get_lyrics(input)
         return false
     end
     local jdat = json.decode(jstr)
-    if jdat.message.header.available == 0 then
+    if jdat.message.header.available == 0 or not jdat.message.body.track_list[1] then
         jstr, res = https.request('https://api.musixmatch.com/ws/1.1/track.search?apikey=' .. configuration.keys.lyrics .. '&q=' .. url.escape(input))
         if res ~= 200 then
             return false
         end
         jdat = json.decode(jstr)
-        if jdat.message.header.available == 0 then
+        if jdat.message.header.available == 0 or not jdat.message.body.track_list[1] then
             return false
         end
     end
-    local artist = mattata.bash_escape(musixmatch.message.body.track_list[1].track.artist_name):gsub('"', '\'')
-    local track = mattata.bash_escape(musixmatch.message.body.track_list[1].track.track_name):gsub('"', '\'')
-    local output = io.popen('python plugins/lyrics.py "' .. artist .. '" "' .. track .. '"'):read('*all')
+    local artist = mattata.bash_escape(jdat.message.body.track_list[1].track.artist_name)
+    local track = mattata.bash_escape(jdat.message.body.track_list[1].track.track_name)
+    local output = io.popen('python plugins/lyrics.py "' .. artist:gsub('"', '\'') .. '" "' .. track:gsub('"', '\'') .. '"'):read('*all')
     if output == nil or output == '' then
         return false
     end
-    local title = '<b>' .. mattata.escape_html(jdat.message.body.track_list[1].track.track_name) .. '</b> ' .. mattata.escape_html(jdat.message.body.track_list[1].track.artist_name) .. '\n🕓 ' .. mattata.format_ms(math.floor(tonumber(jdat.message.body.track_list[1].track.track_length) * 1000)):gsub('^%d%d:', ''):gsub('^0', '') .. '\n\n'
+    local title = '<b>' .. mattata.escape_html(jdat.message.body.track_list[1].track.track_name) .. '</b> ' .. mattata.escape_html(jdat.message.body.track_list[1].track.artist_name) .. '\nðŸ•“ ' .. mattata.format_ms(math.floor(tonumber(jdat.message.body.track_list[1].track.track_length) * 1000)):gsub('^%d%d:', ''):gsub('^0', '') .. '\n\n'
     if output:match('^None\n$') then
         return false
     end
-    return title .. mattata.escape_html(output), jdat.message.body.track_list[1].track.track_share_url, musixmatch.message.body.track_list[1].track.track_name, musixmatch.message.body.track_list[1].track.artist_name
+    return title .. mattata.escape_html(output), jdat.message.body.track_list[1].track.track_share_url, jdat.message.body.track_list[1].track.track_name, jdat.message.body.track_list[1].track.artist_name
 end
 
 function lyrics.get_spotify_url(input)
@@ -77,30 +78,31 @@ function lyrics:on_inline_query(inline_query, configuration, language)
                 }
             }
         }
-    end
-    local jdat = json.decode(jstr)
-    if jdat.tracks.total == 0 then
-        keyboard.inline_keyboard = {
-            {
-                {
-                    ['text'] = 'musixmatch',
-                    ['url'] = musixmatch_url
-                }
-            }
-        }
     else
-        keyboard.inline_keyboard = {
-            {
+        local jdat = json.decode(jstr)
+        if jdat.tracks.total == 0 then
+            keyboard.inline_keyboard = {
                 {
-                    ['text'] = 'musixmatch',
-                    ['url'] = musixmatch_url
-                },
-                {
-                    ['text'] = 'Spotify',
-                    ['url'] = 'https://open.spotify.com/track/' .. jdat.tracks.items[1].id
+                    {
+                        ['text'] = 'musixmatch',
+                        ['url'] = musixmatch_url
+                    }
                 }
             }
-        }
+        else
+            keyboard.inline_keyboard = {
+                {
+                    {
+                        ['text'] = 'musixmatch',
+                        ['url'] = musixmatch_url
+                    },
+                    {
+                        ['text'] = 'Spotify',
+                        ['url'] = 'https://open.spotify.com/track/' .. jdat.tracks.items[1].id
+                    }
+                }
+            }
+        end
     end
     return mattata.answer_inline_query(
         inline_query.id,
