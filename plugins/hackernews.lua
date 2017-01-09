@@ -27,16 +27,24 @@ function hackernews.get_results(hackernews_topstories, hackernews_result, hacker
     end
     local jdat = json.decode(jstr)
     for i = 1, 8 do
-        local result_jstr, result_res = https.request(hackernews_result:format(jdat[i]))
+        hackernews_result = string.format(
+            hackernews_result,
+            jdat[i]
+        )
+        local result_jstr, result_res = https.request(hackernews_result)
         if result_res ~= 200 then
             return false
         end
-        local result_jdat = json.decode(ijstr)
-        local result = ''
+        local result_jdat = json.decode(result_jstr)
+        local result
+        hackernews_article = string.format(
+            hackernews_article,
+            result_jdat.id
+        )
         if result_jdat.url then
             result = string.format(
                 '\n• <code>[</code><a href="%s">%s</a><code>]</code> <a href="%s">%s</a>',
-                mattata.escape_html(hackernews_article:format(result_jdat.id)),
+                mattata.escape_html(hackernews_article),
                 result_jdat.id,
                 mattata.escape_html(result_jdat.url),
                 mattata.escape_html(result_jdat.title)
@@ -44,7 +52,7 @@ function hackernews.get_results(hackernews_topstories, hackernews_result, hacker
         else
             result = string.format(
                 '\n• <code>[</code><a href="%s">%s</a><code>]</code> %s',
-                mattata.escape_html(hackernews_article:format(result_jdat.id)),
+                mattata.escape_html(hackernews_article),
                 result_jdat.id,
                 mattata.escape_html(result_jdat.title)
             )
