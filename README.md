@@ -1,6 +1,6 @@
 # mattata
 
-##### What is mattata?
+## What is mattata?
 mattata's a bot. Not just any bot but a user-friendly [Telegram bot](https://telegram.org/blog/bot-revolution) with a mind of its own.
 
 The idea behind mattata is that it can be used and loved by users of any age; from children to adults, noobies to developers. There's something for everyone and I think you're going to love it.
@@ -11,7 +11,7 @@ mattata is written in Lua, and made with love. It's designed to work with Ubuntu
 
 Now you've learned a bit about mattata, let's move on to getting you your own copy up and running!
 
-### Setup
+## Setup
 Installing mattata is a really simple process. Firstly, you need to clone the repository. To do this, you need to open Terminal, navigate to the directory you'd like to run mattata from, and execute `git clone https://github.com/wrxck/mattata`. If you haven't got `git` installed, you can install it using `sudo apt-get install git`.
 
 After you've done this, you need to install the dependencies required for mattata to do its thing. If you've not already gone inside of the `mattata` directory, just do `cd mattata/`. Then, run `./install.sh`. This script requires you to have root access, commonly known as sudo.
@@ -30,8 +30,76 @@ If you're an advanced user, you can customise the way your copy of mattata will 
 
 The `keys` table of `configuration.lua` is where you'll need to insert API keys for various web APIs mattata uses. The links to most of the API key applications for these are commented out next to the corresponding service.
 
-# Donate
-As well as feedback and suggestions, you can contribute to the mattata project in the form of a monetary donation. This makes the biggest impact since it helps pay for things such as server hosting, domain registration, educational resources and snacks (all programmers get peckish). A donation of any sum is appreciated and, if you wish, you can donate [here](https://paypal.me/wrxck). I'd like to take a moment to thank the following people for their donation:
+After you've done this then you're ready to launch your instance of mattata. Execute `./launch.sh` in the Terminal and mattata will attempt to connect to the Telegram bot API. You'll see more bot information appear, including the username and ID of your bot. If you don't see this then you need to check you still have internet connection.
+
+Having issues with `./install.sh` or `./launch.sh`? Try using `sudo chmod +x <file>` to make it executable.
+
+## API
+
+If you're looking to contribute to the development of mattata, a good beginning is to write a new plugin. This refers to another one of mattata's toggleable functions, and I'm willing to consider implementing any new ideas you may have.
+
+Using mattata is easy. Each Telegram bot API method has a corresponding function in `mattata.lua`. Below are some common method-binding functions you can into your code.
+
+```
+function mattata.send_message(chat_id, text, parse_mode, disable_web_page_preview, disable_notification, reply_to_message_id, reply_markup)
+    return mattata.request(
+        'sendMessage',
+        {
+            ['chat_id'] = chat_id,
+            ['text'] = text,
+            ['parse_mode'] = parse_mode or nil,
+            ['disable_web_page_preview'] = disable_web_page_preview or true,
+            ['disable_notification'] = disable_notification or false,
+            ['reply_to_message_id'] = reply_to_message_id or nil,
+            ['reply_markup'] = reply_markup or nil
+        }
+    )
+end
+```
+
+The above function is taken from `mattata.lua` and is used to send a message through the `sendMessage` method of the Telegram bot API. As you can see from the first line, there are 7 different arguments you can pass to the function - however only the first two are required. `chat_id` needs to be the numerical ID of the chat you want to send the message to. If this is a public group or channel it can be specified by it's [username](https://t.me/username). If you're specifying the chat by its numerical ID then this can be a numerical value or a string. The mattata API will automatically make all passed arguments strings before making the request to the Telegram bot API. If you're specifying the chat by ID then it must be a string with a preceding @ (e.g. `'@mattata'`). The second argument `text`, and also last of the required arguments, must be a string of text with a length no more than 4096. Before I continue, it is important to note that all arguments up to the one you're not specifying must be given. Therefore, if you're specifying a JSON-encoded table for the `reply_markup` argument, you must also give a value for the previous argument, `reply_to_message_id`; and, assuming you don't intend to assign this argument a value, you could just pass `nil`.
+
+The `parse_mode` argument, if needed, should be a choice of two strings - `'markdown'` or `'html'`. The next two arguments, which are also optional, require a boolean value (either `true` or `false`, although these can also be given as a string value). If set to `false`, the `disable_web_page_preview` argument will make the message send with a link preview (that's assuming the text passed contains a URL to start with, otherwise you won't notice a difference) - this value is set to `true` by default. The `disable_notification` argument is set to `false` by default, meaning the user will be notified when sent a message by the bot. If this is set to `true`, the message will be sent silently - which is useful if you're sending a regular message to a channel or group, since a user could get annoyed if you're always notifying them. The next argument, `reply_to_message_id`, should be a numerical value (or an integer-containing string). This is set to `nil` by default. The final argument is necessary if you want to send a [keyboard object](https://core.telegram.org/bots/api#replykeyboardmarkup). This must be JSON-encoded, and it is recommended you create it using Lua tables before encoding it to JSON. Below is an example of a JSON-encoded keyboard object, which will display an inline button labelled 'mattata', which will send the user to 'http://mattata.pw' when clicked.
+
+```
+local keyboard = json.encode(
+	{
+		['inline_keyboard'] = {
+			{
+				{
+					['text'] = 'mattata',
+					['url'] = 'http://mattata.pw'
+				}
+			}
+		}
+	}
+)
+```
+
+To save time typing arguments, a function for sending a message as a reply can be used.
+
+```
+function mattata.send_reply(message, text, parse_mode, disable_web_page_preview, reply_markup)
+    return mattata.request(
+        'sendMessage',
+        {
+            ['chat_id'] = message.chat.id,
+            ['text'] = text,
+            ['parse_mode'] = parse_mode or nil,
+            ['disable_web_page_preview'] = disable_web_page_preview or true,
+            ['disable_notification'] = false,
+            ['reply_to_message_id'] = message.message_id,
+            ['reply_markup'] = reply_markup or nil
+        }
+    )
+end
+```
+
+As with `mattata.send_message`, there are only two required arguments. However there are some differences. The first argument is the entire `message` object **not** the chat ID. This is because the function is intended to be used to send a message as a reply, and gives the `reply_to_message_id` argument a value of `message.message_id` - and by passing the entire object as an argument you're reducing the amount of arguments you need to pass since it contains multiple required values. The `text` argument is the same as before - a string value with a length of no more than 4096. That's it for the required arguments.
+
+
+## Donate
+As well as feedback and suggestions, you can contribute to the mattata project in the form of a monetary donation. This makes the biggest impact since it helps pay for things such as server hosting and domain registration. A donation of any sum is appreciated and, if you wish, you can donate [here](https://paypal.me/wrxck). I'd like to take a moment to thank the following people for their donation:
 * Joshua ([@j0shu4](https://telegram.me/j0shu4))
 * Para ([@para949](https://telegram.me/para949))
 * Flo ([@aRandomStranger](https://telegram.me/aRandomStranger))
