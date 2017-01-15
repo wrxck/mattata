@@ -110,7 +110,7 @@ end
 function imdb:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if not input then
-        mattata.send_reply(
+        return mattata.send_reply(
             message,
             imdb.help
         )
