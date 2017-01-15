@@ -14,7 +14,7 @@ function jsondump:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('jsondump').table
-    jsondump.help = configuration.command_prefix .. 'jsondump - Returns the raw json of your message.'
+    jsondump.help = '/jsondump - Returns the raw json of your message.'
     json = require('dkjson')
     jsondump.serialise = function(input)
         return json.encode(

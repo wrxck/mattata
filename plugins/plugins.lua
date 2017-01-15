@@ -16,7 +16,7 @@ function plugins:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('plugins').table
-    plugins.help = configuration.command_prefix .. 'plugins enable <plugin> - enable one of ' .. self.info.first_name .. '\'s plugins in your group.\n' .. configuration.command_prefix .. 'plugins disable <plugin> - disable one of ' .. self.info.first_name .. '\'s plugins in your group.\n' .. configuration.command_prefix .. 'plugins enable all - enable all of ' .. self.info.first_name .. '\'s non-core plugins in your group.\n' .. configuration.command_prefix .. 'plugins disable all - disable all of' .. self.info.first_name ..  '\'s non-core plugins in your group.\n' .. configuration.command_prefix .. 'plugins list - list all available plugins.'
+    plugins.help = '/plugins enable <plugin> - enable one of ' .. self.info.first_name .. '\'s plugins in your group.\n' .. configuration.command_prefix .. 'plugins disable <plugin> - disable one of ' .. self.info.first_name .. '\'s plugins in your group.\n' .. configuration.command_prefix .. 'plugins enable all - enable all of ' .. self.info.first_name .. '\'s non-core plugins in your group.\n' .. configuration.command_prefix .. 'plugins disable all - disable all of' .. self.info.first_name ..  '\'s non-core plugins in your group.\n' .. configuration.command_prefix .. 'plugins list - list all available plugins.'
 end
 
 local core_plugins = {
@@ -25,8 +25,6 @@ local core_plugins = {
     'plugins',
     'control',
     'help',
-    'ping',
-    'setlang',
     'setloc'
 }
 
@@ -41,52 +39,10 @@ function plugins.is_plugin_existent(plugin)
             return true
         end
     end
-    for k, v in pairs(configuration.administration) do
-        if v == plugin then
-            return true
-        end
-    end
-    if plugin == 'ai' or plugin == 'telegram' then
+    if plugin == 'ai' or plugin == 'telegram' or plugin == 'giphy' then
         return true
     end
     return false
-end
-
-function plugins.disable_administration(message)
-    for k, v in pairs(configuration.administration) do
-        if plugins.is_plugin_existent(v) then
-            local hash = 'chat:' .. message.chat.id .. ':disabled_plugins'
-            if redis:hget(
-                hash,
-                v
-            ) ~= 'true' then
-                redis:hset(
-                    hash,
-                    v,
-                    true
-                )
-            end
-        end
-    end
-    return 'Success! Use \'' .. configuration.command_prefix .. 'plugins enable administration\' to enable all of my administration plugins, or use \'' .. configuration.command_prefix .. 'plugins enable <plugin>\' to enable plugins individually.'
-end
-
-function plugins.enable_administration(message)
-    for k, v in pairs(configuration.administration) do
-        local hash = 'chat:' .. message.chat.id .. ':disabled_plugins'
-        local disabled = redis:hget(
-            hash,
-            v
-        )
-        if disabled ~= 'false' then
-            redis:hset(
-                hash,
-                v,
-                false
-            )
-        end
-    end
-    return 'Success! Use \'' .. configuration.command_prefix .. 'plugins disable administration\' to disable all of my administration plugins, or use \'' .. configuration.command_prefix .. 'plugins disable <plugin>\' to disable plugins individually.'
 end
 
 function plugins.is_plugin_enabled(self, plugin)
@@ -111,7 +67,7 @@ function plugins.enable_plugin(message, plugin)
             plugin,
             false
         )
-        return 'The plugin \'' .. plugin .. '\' has been️ enabled in this chat.'
+        return 'The plugin \'' .. plugin .. '\' has been enabled in this chat.'
     end
     return 'The plugin \'' .. plugin .. '\' has already been enabled in this chat!'
 end
@@ -245,8 +201,6 @@ function plugins:on_message(message, configuration)
         local output
         if plugin == 'all' then
             output = plugins.enable_all(message)
-        elseif plugin == 'administration' then
-            output = plugins.enable_administration(message)
         else
             output = plugins.enable_plugin(
                 message,
@@ -262,8 +216,6 @@ function plugins:on_message(message, configuration)
         local output
         if plugin:lower() == 'all' then
             output = plugins.disable_all(message)
-        elseif plugin:lower() == 'administration' then
-            output = plugins.disable_administration(message)
         else
             output = plugins.disable_plugin(
                 message,

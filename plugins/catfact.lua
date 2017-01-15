@@ -15,7 +15,7 @@ function catfact:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('catfact').table
-    catfact.help = configuration.command_prefix .. 'catfact - A random cat-related fact!'
+    catfact.help = '/catfact - Sends a random cat-related fact!'
 end
 
 function catfact:on_inline_query(inline_query)
@@ -31,10 +31,10 @@ function catfact:on_inline_query(inline_query)
                 {
                     ['type'] = 'article',
                     ['id'] = '1',
-                    ['title'] = jdat.facts[1]:gsub('â', ' '),
+                    ['title'] = jdat.facts[1],
                     ['description'] = 'Click to send the result.',
                     ['input_message_content'] = {
-                        ['message_text'] = jdat.facts[1]:gsub('â', ' ')
+                        ['message_text'] = jdat.facts[1]
                     }
                 }
             }
@@ -53,7 +53,7 @@ function catfact:on_message(message, configuration, language)
     local jdat = json.decode(jstr)
     return mattata.send_message(
         message.chat.id,
-        jdat.facts[1]:gsub('â', ' ')
+        jdat.facts[1]
     )
 end
 

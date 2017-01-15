@@ -14,7 +14,7 @@ function loremipsum:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('loremipsum').table
-    loremipsum.help = configuration.command_prefix .. 'loremipsum - Generates a few Lorem Ipsum sentences!'
+    loremipsum.help = '/loremipsum - Generates a few Lorem Ipsum sentences!'
 end
 
 function loremipsum:on_message(message, configuration, language)

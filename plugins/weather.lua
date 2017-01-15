@@ -18,7 +18,22 @@ function weather:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('weather').table
-    weather.help = configuration.command_prefix .. 'weather <location> - Sends the current weather for the given location.'
+    weather.help = '/weather <location> - Sends the current weather for the given location.'
+end
+
+function weather.format_temperature(temperature, units)
+    temperature = tonumber(temperature)
+    if units ~= 'us' then
+        return temperature .. '°C/' .. string.format(
+            '%.2f',
+            temperature * 9 / 5 + 32
+        ) .. '°F'
+    else
+        return temperature .. '°F/' .. string.format(
+            '%.2f',
+            (temperature - 32) * 5 / 9
+        ) .. '°C'
+    end
 end
 
 function weather.get_weather(input)
@@ -63,13 +78,9 @@ function weather:on_message(message, configuration, language)
         )
     end
     local jdat = json.decode(jstr)
-    local units = '°F'
-    if jdat.flags.units ~= 'us' then
-        units = '°C'
-    end
     return mattata.send_message(
         message.chat.id,
-        'It\'s currently ' .. jdat.currently.temperature .. units .. ' (feels like ' .. jdat.currently.apparentTemperature .. units .. ') in ' .. address .. '. ' .. jdat.daily.summary
+        'It\'s currently ' .. weather.format_temperature(jdat.currently.temperature, jdat.flags.units) .. ' (feels like ' .. weather.format_temperature(jdat.currently.apparentTemperature, jdat.flags.units) .. ') in ' .. address .. '. ' .. jdat.daily.summary
     )
 end
 

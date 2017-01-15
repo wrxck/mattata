@@ -16,7 +16,7 @@ function imdb:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('imdb').table
-    imdb.help = configuration.command_prefix .. 'imdb <query> - Returns an IMDb entry.'
+    imdb.help = '/imdb <query> - Returns an IMDb entry.'
 end
 
 function imdb.get_result_count(input)
@@ -31,6 +31,7 @@ function imdb.get_result_count(input)
 end
 
 function imdb.get_result(input, n)
+    n = n or 1
     local jstr_search, res_search = http.request('http://www.omdbapi.com/?s=' .. url.escape(input) .. '&page=1')
     if res_search ~= 200 then
         return false

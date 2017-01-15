@@ -18,7 +18,7 @@ function reddit:init(configuration)
         configuration.command_prefix,
         { '^/r/' }
     ):command('reddit'):command('r'):command('r/').table
-    reddit.help = configuration.command_prefix .. 'reddit <r/subreddit | query> Returns the top posts or results for a given subreddit or query. If no argument is given, the top posts from reddit\'s /r/all board are returned. Aliases: ' .. configuration.command_prefix .. 'r, /r/subreddit.'
+    reddit.help = '/reddit <r/subreddit | query> Returns the top posts or results for a given subreddit or query. If no argument is given, the top posts from reddit\'s /r/all board are returned. Aliases: ' .. configuration.command_prefix .. 'r, /r/subreddit.'
 end
 
 function reddit.format_results(posts)

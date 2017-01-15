@@ -13,7 +13,7 @@ function doggo:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('doggo').table
-    doggo.help = configuration.command_prefix .. 'doggo - Sends a cute lil\' doggo!'
+    doggo.help = '/doggo - Sends a cute lil\' doggo!'
 end
 
 function doggo:on_message(message, configuration, language)

@@ -10,7 +10,7 @@ local redis = require('mattata-redis')
 
 function statistics:init(configuration)
     statistics.arguments = 'statistics'
-    statistics.help = configuration.command_prefix .. 'statistics - View statistics about the chat you are in. Only the top 10, most-talkative users are listed.'
+    statistics.help = '/statistics - View statistics about the chat you are in. Only the top 10, most-talkative users are listed.'
 end
 
 function statistics.get_name(user)

@@ -16,7 +16,7 @@ function ispwned:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('ispwned').table
-    ispwned.help = configuration.command_prefix .. 'ispwned <username/email> - Tells you if the given username/email has been identified in any data leaks.'
+    ispwned.help = '/ispwned <username/email> - Tells you if the given username/email has been identified in any data leaks.'
 end
 
 function ispwned:on_message(message, configuration, language)

@@ -209,14 +209,14 @@ end
 
 function githubfeed:on_message(message, configuration)
     if message.chat.type == 'private' and not mattata.is_global_admin(message.from.id) then
-    	return mattata.send_reply(
-    		message,
-    		'You can\'t use this command in private chat!'
-    	)
-	elseif not mattata.is_global_admin(message.from.id) and not mattata.is_group_admin(message.chat.id, message.from.id) then
         return mattata.send_reply(
-        	message,
-        	'You must be an administrator of this chat to use this command!'
+            message,
+            'You can\'t use this command in private chat!'
+        )
+    elseif not mattata.is_global_admin(message.from.id) and not mattata.is_group_admin(message.chat.id, message.from.id) then
+        return mattata.send_reply(
+            message,
+            'You must be an administrator of this chat to use this command!'
         )
     elseif message.text_lower:match('^' .. configuration.command_prefix .. 'gh sub') and not message.text_lower:match('^' .. configuration.command_prefix .. 'gh sub$') then
         return mattata.send_reply(
@@ -237,8 +237,8 @@ function githubfeed:on_message(message, configuration)
             'html'
         )
     elseif mattata.is_global_admin(message.from.id) and message.text_lower:match('^' .. configuration.command_prefix .. 'gh reload') then
-    	return githubfeed:cron()
-	else
+        return githubfeed:cron()
+    else
         local output, keyboard = githubfeed.get_subs(message.chat.id)
         return mattata.send_message(
             message.chat.id,

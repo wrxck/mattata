@@ -17,7 +17,7 @@ function exec:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('exec').table
-    exec.help = configuration.command_prefix .. 'exec <language> <code> - Executes the specified code in the given language and returns the output.'
+    exec.help = '/exec <language> <code> - Executes the specified code in the given language and returns the output.'
 end
 
 function exec.get_language_arguments(language)

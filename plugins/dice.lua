@@ -13,7 +13,7 @@ function dice:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('dice').table
-    dice.help = configuration.command_prefix .. 'dice <number of dice to roll> <range of numbers on the dice> - Rolls a die a given amount of times, with a given range.'
+    dice.help = '/dice <number of dice to roll> <range of numbers on the dice> - Rolls a die a given amount of times, with a given range.'
 end
 
 function dice:on_message(message, configuration)

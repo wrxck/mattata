@@ -14,7 +14,7 @@ function id:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('id').table
-    id.help = configuration.command_prefix .. 'id <user> - Sends the name, ID, and (if applicable) username for the given user, group, channel or bot. Input is also accepted via reply. This command can also be used inline!'
+    id.help = '/id <user> - Sends the name, ID, and (if applicable) username for the given user, group, channel or bot. Input is also accepted via reply. This command can also be used inline!'
 end
 
 function id.resolve_chat(message)
@@ -30,6 +30,7 @@ function id.resolve_chat(message)
     local admin_count = ''
     local user_count = ''
     local last_seen = ''
+    local bio = ''
     if message.reply_to_message then
         if message.reply_to_message.forward_from then
             message.reply_to_message.from = message.reply_to_message.forward_from
@@ -57,18 +58,15 @@ function id.resolve_chat(message)
         if tonumber(input) == nil and not input:match('^@') then
             input = '@' .. input
         end
-        local res = mattata.request(
-            'getChat',
-            {
-                chat_id = input
-            },
-            nil,
-            'https://api.pwrtelegram.xyz/bot'
-        )
-        if not res then
-            return '\'' .. mattata.escape_html(input) .. '\' is an invalid username/ID.'
+        local success = mattata.get_chat_pwr(input)
+        if not success then
+            if tonumber(input) == nil then
+                return '\'' .. mattata.escape_html(input) .. '\' is an invalid ID.'
+            else
+                return '\'' .. mattata.escape_html(input) .. '\' is an invalid username.'
+            end
         end
-        res = res.result
+        local res = success.result
         if res.type == 'private' then
             name = '<b>Name:</b> ' .. mattata.escape_html(res.first_name)
             if res.last_name then
@@ -76,10 +74,8 @@ function id.resolve_chat(message)
             end
             name = name .. '\n'
             if res.when then
-                last_seen = '<b>Last seen:</b> ' .. res.when .. '\n'
+                last_seen = '<b>Last seen:</b> ' .. res.when .. ' UTC +1\n'
             end
-            if res.username then username = '<b>Username:</b> @' .. res.username .. '\n' end
-            id = '<b>ID:</b> ' .. res.id .. '\n'
         else
             chat_type = '<b>Type:</b> ' .. res.type .. '\n'
             chat_title = '<b>Title:</b> ' .. mattata.escape_html(res.title) .. '\n'
@@ -89,12 +85,15 @@ function id.resolve_chat(message)
             if res.participants_count then
                 user_count = '<b>User count:</b> ' .. res.participants_count .. '\n'
             end
-            if res.username then
-                chat_username = '<b>Username:</b> @' .. res.username .. '\n'
-            end
-            id = '<b>ID:</b> ' .. res.id .. '\n'
         end
-        return name .. chat_title .. chat_type .. id .. chat_id .. username .. last_seen .. user_count .. admin_count
+        id = '<b>ID:</b> ' .. res.id .. '\n'
+        if res.username then
+            username = '<b>Username:</b> @' .. res.username .. '\n'
+        end
+        if res.bio then
+            bio = '<b>Bio:</b> ' .. mattata.escape_html(res.bio) .. '\n'
+        end
+        return name .. chat_title .. chat_type .. id .. chat_id .. username .. last_seen .. bio .. user_count .. admin_count
     elseif message.chat then
         return '<b>Your ID:</b> ' .. message.from.id .. '\n<b>This chat\'s ID:</b> ' .. message.chat.id
     else

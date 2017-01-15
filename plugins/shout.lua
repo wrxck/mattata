@@ -14,7 +14,7 @@ function shout:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('shout').table
-    shout.help = configuration.command_prefix .. 'shout <text> - Shout something in multiple directions.'
+    shout.help = '/shout <text> - Shout something in multiple directions.'
 end
 
 function shout:on_message(message)

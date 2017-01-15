@@ -16,8 +16,9 @@ function dictionary:init(configuration)
     dictionary.commands = mattata.commands(
         self.info.username,
         configuration.command_prefix
-    ):command('dictionary'):command('define').table
-    dictionary.help = configuration.command_prefix .. 'dictionary <word> - Searches the Oxford Dictionary for the given word and returns the definition. Alias: ' .. configuration.command_prefix .. 'define.'
+    ):command('dictionary')
+     :command('define').table
+    dictionary.help = '/dictionary <word> - Searches the Oxford Dictionary for the given word and returns the definition. Alias: /define.'
 end
 
 function dictionary:on_message(message, configuration, language)

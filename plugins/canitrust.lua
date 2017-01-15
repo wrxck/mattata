@@ -22,7 +22,7 @@ function canitrust:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('canitrust').table
-    canitrust.help = configuration.command_prefix .. 'canitrust <url> - Tells you of any known security issues with a website.'
+    canitrust.help = '/canitrust <url> - Tells you of any known security issues with a website.'
 end
 
 function canitrust:on_message(message, configuration, language)
@@ -91,15 +91,6 @@ function canitrust:on_message(message, configuration, language)
     elseif jstr:match('"501"') then
         output = 'There are *no known issues* with this website.'
     end
-    local keyboard = {}
-    keyboard.inline_keyboard = {
-        {
-            {
-                ['text'] = 'Proceed To Site',
-                ['url'] = input
-            }
-        }
-    }
     return mattata.send_message(
         message.chat.id,
         output,
@@ -107,7 +98,18 @@ function canitrust:on_message(message, configuration, language)
         true,
         false,
         nil,
-        json.encode(keyboard)
+        json.encode(
+            {
+                ['inline_keyboard'] = {
+                    {
+                        {
+                            ['text'] = 'Proceed To Site',
+                            ['url'] = input
+                        }
+                    }
+                }
+            }
+        )
     )
 end
 

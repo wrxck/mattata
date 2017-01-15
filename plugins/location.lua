@@ -17,17 +17,17 @@ function location:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('location'):command('loc').table
-    location.help = configuration.command_prefix .. 'location <query> - Sends your location, or a location from Google Maps. Alias: ' .. configuration.command_prefix .. 'loc.'
+    location.help = '/location <query> - Sends your location, or a location from Google Maps. Alias: /loc.'
 end
 
 function location:on_inline_query(inline_query, configuration, language)
     local input = mattata.input(inline_query.query)
     if not input then
         local loc = setloc.get_loc(inline_query.from)
-        local jdat = json.decode(loc)
-        if not jdat then
+        if not loc then
             return
         end
+        local jdat = json.decode(loc)
         return mattata.answer_inline_query(
             inline_query.id,
             json.encode(

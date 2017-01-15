@@ -13,7 +13,25 @@ function copypasta:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('copypasta'):command('😂').table
-    copypasta.help = configuration.command_prefix .. 'copypasta - Riddles the replied-to message with cancerous emoji. Alias: ' .. configuration.command_prefix .. '😂.'
+    copypasta.help = '/copypasta - Riddles the replied-to message with cancerous emoji. Alias: /😂.'
+end
+
+function copypasta.format_message(input)
+    local emoji = { '😂', '😂', '😂', '😂', '👌', '✌', '💞', '👍', '👌', '💯', '🎶', '👀', '😂', '👓', '👏', '👐', '🍕', '💥', '🍴', '💦', '💦', '🍑', '🍆', '😩', '😏', '👉👌', '👀', '👅', '😩' }
+    local output = {}
+    for i = 1, input:len() do
+        local c = input:sub(i, i)
+        if c == ' ' then
+            for _ = 1, math.random(3) do
+                c = c .. emoji[math.random(#emoji)] .. c
+            end
+        end
+        table.insert(
+            output,
+            c
+        )
+    end
+    return table.concat(output)
 end
 
 function copypasta:on_message(message, configuration, language)
@@ -23,23 +41,17 @@ function copypasta:on_message(message, configuration, language)
             copypasta.help
         )
     end
-    if message.reply_to_message.text:len() > tonumber(configuration.maximum_copypasta_length) then
-        local output = language.copypasta_length:gsub('MAXIMUM', configuration.maximum_copypasta_length)
+    if message.reply_to_message.text:len() > tonumber(configuration.max_copypasta_length) then
+        local output = language.copypasta['45']:gsub('MAXIMUM', configuration.max_copypasta_length)
     end
     mattata.send_chat_action(
         message.chat.id,
         'typing'
     )
-    local success = mattata.send_message(
+    return mattata.send_message(
         message.chat.id,
-        io.popen('python3 plugins/copypasta.py ' .. mattata.escape_bash(message.reply_to_message.text_upper):gsub('\n', ' '):gsub('\'', ''):gsub('%"', ''):gsub('%(', ' '):gsub('%)', ' ')):read('*all')
+        copypasta.format_message(message.reply_to_message.text_upper)
     )
-    if not success then
-        return mattata.send_reply(
-            message,
-            language.copypasta_must_contain
-        )
-    end
 end
 
 return copypasta

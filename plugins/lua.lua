@@ -30,7 +30,6 @@ function lua:init(configuration)
     lua.error_message = function(x)
         return 'Error:\n' .. tostring(x)
     end
-    users = self.users
     groups = self.groups
 end
 
@@ -45,16 +44,7 @@ function lua:on_message(message, configuration)
             'Please enter a string of lua to execute'
         )
     end
-    if message.text_lower:match('^' .. configuration.command_prefix .. 'usercount$') then
-        local user_count = 0
-        for k, v in pairs(users) do
-            user_count = user_count + 1
-        end
-        return mattata.send_message(
-            message.chat.id,
-            user_count
-        )
-    elseif message.text_lower:match('^' .. configuration.command_prefix .. 'groupcount$') then
+    if message.text_lower:match('^' .. configuration.command_prefix .. 'groupcount$') then
         local group_count = 0
         for k, v in pairs(groups) do
             group_count = group_count + 1
@@ -62,19 +52,6 @@ function lua:on_message(message, configuration)
         return mattata.send_message(
             message.chat.id,
             group_count
-        )
-    elseif message.text:match('^' .. configuration.command_prefix .. 'broadcast') then
-        local text = message.text:gsub('^' .. configuration.command_prefix .. 'broadcast ', '')
-        for k, v in pairs(users) do
-            mattata.send_message(
-                v.id,
-                text,
-                'markdown'
-            )
-        end
-        return mattata.send_reply(
-            message,
-            'Done!'
         )
     elseif message.text:match('^' .. configuration.command_prefix .. 'gbroadcast') then
         local text = message.text:gsub('^' .. configuration.command_prefix .. 'gbroadcast ', '')

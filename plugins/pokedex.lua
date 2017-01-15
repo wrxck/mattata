@@ -17,7 +17,7 @@ function pokedex:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('pokedex'):command('dex').table
-    pokedex.help = configuration.command_prefix .. 'pokedex <query> - Returns a Pokedex entry from pokeapi.co. Alias: ' .. configuration.command_prefix .. 'dex.'
+    pokedex.help = '/pokedex <query> - Returns a Pokedex entry from pokeapi.co. Alias: /dex.'
 end
 
 function pokedex:on_message(message, language)

@@ -15,7 +15,7 @@ function isup:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('isup').table
-    isup.help = configuration.command_prefix .. 'isup <url> - Check if the specified url is down for everyone or just you.'
+    isup.help = '/isup <url> - Check if the specified url is down for everyone or just you.'
 end
 
 function isup.is_site_up(input)

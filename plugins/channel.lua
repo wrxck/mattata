@@ -1,4 +1,5 @@
 --[[
+    Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]--
@@ -13,7 +14,7 @@ function channel:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('ch').table
-    channel.help = configuration.command_prefix .. 'ch <channel> <message> - Sends a message to a Telegram channel/group. The channel/group can be specified via ID or username. Messages can be formatted with HTML. Users can only send messages to channels/groups they own and/or administrate.'
+    channel.help = '/ch <channel> <message> - Sends a message to a Telegram channel/group. The channel/group can be specified via ID or username. Messages can be formatted with Markdown. Users can only send messages to channels/groups they own and/or administrate.'
 end
 
 function channel:on_message(message, configuration, language)
@@ -31,7 +32,7 @@ function channel:on_message(message, configuration, language)
     if tonumber(target) == nil and not target:match('^@') then
         target = '@' .. target
     end
-    local admin_list, res = mattata.get_chat_administrators(target)
+    local admin_list = mattata.get_chat_administrators(target)
     if not admin_list and not mattata.is_global_admin(message.from.id) then
         return mattata.send_reply(
             message,
@@ -58,7 +59,11 @@ function channel:on_message(message, configuration, language)
             language.enter_message_to_send_to_channel
         )
     end
-    local success = mattata.send_message(target, text, 'html')
+    local success = mattata.send_message(
+        target,
+        text,
+        'markdown'
+    )
     if not success then
         return mattata.send_reply(
             message,

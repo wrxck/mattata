@@ -12,8 +12,9 @@ function author:init(configuration)
     author.commands = mattata.commands(
         self.info.username,
         configuration.command_prefix
-    ):command('author').table
-    author.help = configuration.command_prefix .. 'author - Returns the numerical ID of the author of the replied-to sticker pack.'
+    ):command('author')
+     :command('origin').table
+    author.help = '/author - Returns the numerical ID of the original sender of the replied-to file. Alias: /origin.'
 end
 
 function author:on_message(message, configuration)
@@ -22,27 +23,43 @@ function author:on_message(message, configuration)
             message,
             author.help
         )
-    elseif not message.reply_to_message.sticker then
+    elseif not message.reply_to_message.is_media then
         return mattata.send_reply(
             message,
-            'The replied-to message must be a sticker!'
+            'The replied-to message must be a file!'
         )
     end
-    local success = mattata.get_chat_by_file(message.reply_to_message.sticker.file_id)
+    local success = mattata.get_chat_by_file(message.reply_to_message.file_id)
     if not success then
         return mattata.send_reply(
             message,
-            'That sticker doesn\'t appear to be part of a valid sticker pack! That is, one which was created using @stickers.'
+            'I couldn\'t get information about that file\'s original sender.'
         )
-    elseif not success.result.user_id then
+    elseif not success.result.additional and self.result.user_id then
         return mattata.send_reply(
             message,
-            'I couldn\'t get information about the author of that sticker pack'
+            'I couldn\'t get information about that file\'s original sender. <code>[' .. success.result.user_id .. ']</code>',
+            'html'
         )
     end
+    local res = success.result.additional
+    local name = '<b>Name:</b> ' .. mattata.escape_html(res.first_name)
+    if res.last_name then
+        name = name .. ' ' .. mattata.escape_html(res.last_name)
+    end
+    name = name .. '\n'
+    local last_seen = ''
+    if res.when then
+        last_seen = '<b>Last seen:</b> ' .. res.when .. '\n'
+    end
+    local username = ''
+    if res.username then
+        username = '<b>Username:</b> @' .. res.username .. '\n'
+    end
+    local id = '<b>ID:</b> ' .. res.id .. '\n'
     return mattata.send_reply(
         message.reply_to_message,
-        'The author of this sticker pack has the ID ' .. success.result.user_id .. '! Use \'' .. configuration.command_prefix .. 'id ' .. success.result.user_id .. '\' to view more information about this user. <i>If information isn\'t correct then please contact @danogentili, as the IDs are resolved using the PWRTelegram API!</i>',
+        name .. username .. id .. last_seen,
         'html'
     )
 end

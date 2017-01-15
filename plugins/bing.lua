@@ -23,7 +23,7 @@ function bing:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('bing').table
-    bing.help = configuration.command_prefix .. 'bing <query> - Returns Bing\'s top search results for the given query.'
+    bing.help = '/bing <query> - Returns Bing\'s top search results for the given query.'
 end
 
 function bing:on_message(message, configuration, language)

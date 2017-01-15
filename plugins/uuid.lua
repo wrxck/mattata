@@ -15,7 +15,7 @@ function uuid:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('uuid'):command('guid').table
-    uuid.help = configuration.command_prefix .. 'uuid - Generates a random UUID.'
+    uuid.help = '/uuid - Generates a random UUID.'
 end
 
 function uuid:on_message(message)

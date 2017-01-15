@@ -14,7 +14,7 @@ function qr:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('qr'):command('qrcode').table
-    qr.help = configuration.command_prefix .. 'qr <string> - Converts the given string to an QR code. Alias: ' .. configuration.command_prefix .. 'qrcode.'
+    qr.help = '/qr <string> - Converts the given string to an QR code. Alias: /qrcode.'
 end
 
 function qr:on_message(message)

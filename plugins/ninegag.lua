@@ -15,7 +15,7 @@ function ninegag:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('ninegag').table
-    ninegag.help = configuration.command_prefix .. 'ninegag - Returns a random image from the latest 9gag posts.'
+    ninegag.help = '/ninegag - Returns a random image from the latest 9gag posts.'
 end
 
 function ninegag:on_inline_query(inline_query, configuration, language)

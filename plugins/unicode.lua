@@ -14,7 +14,7 @@ function unicode:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('unicode').table
-    unicode.help = configuration.command_prefix .. 'unicode <text> - Returns the given text as a json-encoded table of Unicode (UTF-32) values.'
+    unicode.help = '/unicode <text> - Returns the given text as a json-encoded table of Unicode (UTF-32) values.'
 end
 
 function unicode:on_message(message)

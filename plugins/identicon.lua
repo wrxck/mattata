@@ -14,7 +14,7 @@ function identicon:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('identicon').table
-    identicon.help = configuration.command_prefix .. 'identicon <string> - Converts the given string of text to an identicon.'
+    identicon.help = '/identicon <string> - Converts the given string of text to an identicon.'
 end
 
 function identicon:on_message(message, configuration, language)

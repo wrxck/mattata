@@ -15,7 +15,7 @@ function yomama:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('yomama').table
-    yomama.help = configuration.command_prefix .. 'yomama - Tells a Yo\' Mama joke!'
+    yomama.help = '/yomama - Tells a Yo\' Mama joke!'
 end
 
 function yomama:on_message(message, configuration, language)

@@ -15,7 +15,7 @@ function chuck:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('chuck').table
-    chuck.help = configuration.command_prefix .. 'chuck - Generates a Chuck Norris joke!'
+    chuck.help = '/chuck - Generates a Chuck Norris joke!'
 end
 
 function chuck:on_inline_query(inline_query, configuration, language)

@@ -20,7 +20,7 @@ function flickr:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('flickr').table
-    flickr.help = configuration.command_prefix .. 'flickr <query> - Sends the first result for the given query from Flickr.'
+    flickr.help = '/flickr <query> - Sends the first result for the given query from Flickr.'
 end
 
 function flickr:on_inline_query(inline_query, configuration)
@@ -78,22 +78,25 @@ function flickr:on_message(message, configuration, language)
         message.chat.id,
         'upload_photo'
     )
-    local keyboard = {}
-    keyboard.inline_keyboard = {
+    local keyboard = json.encode(
         {
-            {
-                ['text'] = 'More Results',
-                ['url'] = 'https://www.flickr.com/search/?text=' .. url.escape(input)
+            ['inline_keyboard'] = {
+                {
+                    {
+                        ['text'] = 'More Results',
+                        ['url'] = 'https://www.flickr.com/search/?text=' .. url.escape(input)
+                    }
+                }
             }
         }
-    }
+    )
     return mattata.send_photo(
         message.chat.id,
         jdat.photos.photo[1].url_o,
         nil,
         false,
         message.message_id,
-        json.encode(keyboard)
+        keyboard
     )
 end
 

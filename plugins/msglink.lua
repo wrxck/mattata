@@ -13,7 +13,7 @@ function msglink:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('msglink').table
-    msglink.help = configuration.command_prefix .. 'msglink - Gets the link to the replied-to message.'
+    msglink.help = '/msglink - Gets the link to the replied-to message.'
 end
 
 function msglink:on_message(message)

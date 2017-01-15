@@ -12,13 +12,13 @@ function ping:init(configuration)
     ping.commands = mattata.commands(
         self.info.username,
         configuration.command_prefix
-    ):command('ping'):command('pong').table
+    ):command('ping').table
 end
 
 function ping:on_message(message)
     return mattata.send_message(
         message.chat.id,
-        'Pong!'
+        'PONG'
     )
 end
 

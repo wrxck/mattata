@@ -5,13 +5,13 @@ sudo wget "https://raw.githubusercontent.com/matthewhesketh/mattata-redis/master
 sudo wget "https://raw.githubusercontent.com/matthewhesketh/mattata-ai/master/mattata-ai.lua"
 sudo wget "https://raw.githubusercontent.com/hoelzro/ansicolors/master/ansicolors.lua"
 sudo apt-get update
-sudo apt-get install -y lua5.2 liblua5.2-dev git mediainfo python3 redis-server libssl-dev fortune-mod fortunes unzip make
+sudo apt-get install -y lua5.2 liblua5.2-dev git redis-server libssl-dev fortune-mod fortunes cowsay fortune unzip make
 git clone http://github.com/keplerproject/luarocks
 cd luarocks
 ./configure --lua-version=5.2 --versioned-rocks-dir --lua-suffix=5.2
 make build
 sudo make install
-rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem oauth luautf8 uuid"
+rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem oauth luautf8 uuid html-entities"
 for rock in $rocklist; do
     sudo luarocks-5.2 install $rock
 done

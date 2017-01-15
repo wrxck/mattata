@@ -16,7 +16,7 @@ function itunes:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('itunes').table
-    itunes.help = configuration.command_prefix .. 'itunes <song> - Returns information about the given song, from iTunes.'
+    itunes.help = '/itunes <song> - Returns information about the given song, from iTunes.'
 end
 
 function itunes.get_output(jdat)

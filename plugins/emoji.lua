@@ -14,7 +14,7 @@ function emoji:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('emoji').table
-    emoji.help = configuration.command_prefix .. 'emoji <emoji> - Sends information about the given emoji.'
+    emoji.help = '/emoji <emoji> - Sends information about the given emoji.'
 end
 
 local emoji_list = { -- Sourced from https://github.com/github/gemoji/blob/master/db/emoji.json

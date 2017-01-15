@@ -16,7 +16,7 @@ function isp:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('isp').table
-    isp.help = configuration.command_prefix .. 'isp <url> - Sends information about the given url\'s ISP.'
+    isp.help = '/isp <url> - Sends information about the given url\'s ISP.'
 end
 
 function isp:on_message(message, configuration, language)

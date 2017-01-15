@@ -16,7 +16,7 @@ function minecraft:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('minecraft').table
-    minecraft.help = configuration.command_prefix .. 'minecraft <username> - Get information about the given Minecraft player.'
+    minecraft.help = '/minecraft <username> - Get information about the given Minecraft player.'
 end
 
 function minecraft.get_uuid(username)

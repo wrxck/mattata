@@ -15,7 +15,7 @@ function fact:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('fact').table
-    fact.help = configuration.command_prefix .. 'fact - Returns a random fact!'
+    fact.help = '/fact - Returns a random fact!'
 end
 
 function fact:on_message(message, configuration, language)

@@ -13,7 +13,7 @@ function hextorgb:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('hextorgb').table
-    hextorgb.help = configuration.command_prefix .. 'hextorgb <colour hex> - Converts the given colour hex to its RGB format.'
+    hextorgb.help = '/hextorgb <colour hex> - Converts the given colour hex to its RGB format.'
 end
 
 function hextorgb:on_message(message)

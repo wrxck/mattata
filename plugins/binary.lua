@@ -12,8 +12,9 @@ function binary:init(configuration)
     binary.commands = mattata.commands(
         self.info.username,
         configuration.command_prefix
-    ):command('binary'):command('bin').table
-    binary.help = configuration.command_prefix .. 'binary <number> - Converts the given number to binary. Alias: ' .. configuration.command_prefix .. 'bin.'
+    ):command('binary')
+     :command('bin').table
+    binary.help = '/binary <number> - Converts the given number to binary. Alias: /bin.'
 end
 
 function binary:on_message(message, configuration)

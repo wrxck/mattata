@@ -12,8 +12,9 @@ function base64:init(configuration)
     base64.commands = mattata.commands(
         self.info.username,
         configuration.command_prefix
-    ):command('base64').table
-    base64.help = configuration.command_prefix .. 'base64 <string> - Converts the given string to base64.'
+    ):command('base64')
+    :command('b64').table
+    base64.help = '/base64 <string> - Converts the given string to base64. Alias: /b64.'
 end
 
 function base64.encode(str)

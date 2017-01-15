@@ -16,7 +16,7 @@ function yify:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('yify').table
-    yify.help = configuration.command_prefix .. 'yify <query> - Searches Yify torrents for the given query.'
+    yify.help = '/yify <query> - Searches Yify torrents for the given query.'
 end
 
 function yify.get_result_count(input)
@@ -43,31 +43,40 @@ function yify.get_result(input, n)
     end
     local buttons = {}
     for n = 1, #jdat.data.movies[n].torrents do
-        table.insert(
-            buttons,
-            {
-                ['text'] = jdat.data.movies[n].torrents[n].quality,
-                ['url'] = jdat.data.movies[n].torrents[n].url
-            }
-        )
+        if jdat.data.movies[n] and jdat.data.movies[n].torrents[n] then
+            table.insert(
+                buttons,
+                {
+                    ['text'] = jdat.data.movies[n].torrents[n].quality,
+                    ['url'] = jdat.data.movies[n].torrents[n].url
+                }
+            )
+        end
     end
-    local keyboard = {}
-    keyboard.inline_keyboard = {
-        buttons
+    local keyboard = {
+        ['inline_keyboard'] = {
+            buttons
+        }
     }
-    local title = mattata.escape_html(jdat.data.movies[result].title_long):gsub(' %(%d%d%d%d%)$', '')
-    if jdat.data.movies[result].large_cover_image then
-        title = '<a href="' .. jdat.data.movies[result].large_cover_image .. '">' .. title .. '</a>'
+    local title = mattata.escape_html(jdat.data.movies[n].title_long):gsub(' %(%d%d%d%d%)$', '')
+    if jdat.data.movies[n].large_cover_image then
+        title = '<a href="' .. jdat.data.movies[n].large_cover_image .. '">' .. title .. '</a>'
     end
-    local description = mattata.escape_html(jdat.data.movies[result].synopsis)
+    local description = mattata.escape_html(jdat.data.movies[n].synopsis)
     if description:len() > 500 then
         description = description:sub(1, 500) .. '...'
     end
-    return title .. '\n' .. jdat.data.movies[result].year .. ' | ' .. jdat.data.movies[result].rating .. '/10 | ' .. jdat.data.movies[result].runtime .. ' min\n\n<i>' .. description .. '</i>', keyboard
+    return title .. '\n' .. jdat.data.movies[n].year .. ' | ' .. jdat.data.movies[n].rating .. '/10 | ' .. jdat.data.movies[n].runtime .. ' min\n\n<i>' .. description .. '</i>', keyboard
 end
 
 function yify:on_callback_query(callback_query, message, configuration)
     if callback_query.data:match('^results:(.-)$') then
+        if not message.reply_to_message then
+            return mattata.answer_callback_query(
+                callback_query.id,
+                'An error occured!'
+            )
+        end
         local result = callback_query.data:match('^results:(.-)$')
         local input = mattata.input(message.reply_to_message.text)
         local total_results = yify.get_result_count(input)

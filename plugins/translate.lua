@@ -16,7 +16,7 @@ function translate:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('translate'):command('tl').table
-    translate.help = configuration.command_prefix .. 'translate <language> <text> - Translates input into the given language (if arguments are given), else the replied-to message is translated into ' .. self.info.first_name .. '\'s language. Alias: ' .. configuration.command_prefix .. 'tl.'
+    translate.help = '/translate <language> <text> - Translates input into the given language (if arguments are given), else the replied-to message is translated into ' .. self.info.first_name .. '\'s language. Alias: /tl.'
 end
 
 function translate:on_inline_query(inline_query, configuration, language)

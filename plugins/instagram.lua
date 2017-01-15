@@ -6,7 +6,7 @@
 local instagram = {}
 
 local mattata = require('mattata')
-local http = require('socket.http')
+local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
@@ -16,7 +16,7 @@ function instagram:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('instagram'):command('ig').table
-    instagram.help = configuration.command_prefix .. 'instagram <user> - Sends the profile picture of the given Instagram user. Alias: ' .. configuration.command_prefix .. 'ig.'
+    instagram.help = '/instagram <user> - Sends the profile picture of the given Instagram user. Alias: /ig.'
 end
 
 function instagram:on_message(message, configuration, language)
@@ -27,34 +27,39 @@ function instagram:on_message(message, configuration, language)
             instagram.help
         )
     end
-    local str, res = http.request('http://igdp.co/' .. url.escape(input))
+    local response = {}
+
+    local str, res = https.request('https://vibbi.com/' .. url.escape(input))
     if res ~= 200 then
         return mattata.send_reply(
             message,
             language.errors.connection
         )
-    elseif str:match('No Instagram Account found%.') or not str:match('%<img src%=%"https%:%/%/(.-)%" class%=%"img%-responsive%"%>') then
+    elseif not str:match('%<img src%=%"https%:%/%/(.-)%"') then
         return mattata.send_reply(
             message,
             language.errors.results
         )
     end
-    local keyboard = {}
-    keyboard.inline_keyboard = {
+    local keyboard = json.encode(
         {
-            {
-                ['text'] = 'View @' .. input .. ' on Instagram',
-                ['url'] = 'https://www.instagram.com/' .. input
+            ['inline_keyboard'] = {
+                {
+                    {
+                        ['text'] = '@' .. input .. ' on Instagram',
+                        ['url'] = 'https://www.instagram.com/' .. input
+                    }
+                }
             }
         }
-    }
+    )
     return mattata.send_photo(
         message.chat.id,
-        str:match('<img src="https://(.-)" class="img%-responsive">'),
+        str:match('%<img src%=%"https%:%/%/(.-)%"'):gsub('%/s150x150%/', '/s320x320/'),
         nil,
         false,
-        message.message_id,
-        json.encode(keyboard)
+        nil,
+        keyboard
     )
 end
 

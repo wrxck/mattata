@@ -16,7 +16,7 @@ function spotify:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('spotify').table
-    spotify.help = configuration.command_prefix .. 'spotify <query> - Shows information about the top result for the given search query on Spotify.'
+    spotify.help = '/spotify <query> - Shows information about the top result for the given search query on Spotify.'
 end
 
 function spotify.get_track(jdat)
@@ -77,7 +77,7 @@ function spotify:on_message(message, configuration, language)
     if not output then
         return mattata.send_reply(
             message,
-            languages.errors.results
+            language.errors.results
         )
     end
     return mattata.send_message(

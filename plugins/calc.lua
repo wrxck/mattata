@@ -1,4 +1,5 @@
 --[[
+    Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]--
@@ -16,7 +17,7 @@ function calc:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('calc').table
-    calc.help = configuration.command_prefix .. 'calc <expression> - Calculates solutions to mathematical expressions. The results are provided by mathjs.org.'
+    calc.help = '/calc <expression> - Calculates solutions to mathematical expressions. The results are provided by mathjs.org.'
 end
 
 function calc:on_inline_query(inline_query)

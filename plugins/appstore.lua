@@ -15,8 +15,9 @@ function appstore:init(configuration)
     appstore.commands = mattata.commands(
         self.info.username,
         configuration.command_prefix
-    ):command('appstore'):command('app').table
-    appstore.help = configuration.command_prefix .. 'appstore <query> - Returns the first app which iTunes returns for the given search query. Alias: ' .. configuration.command_prefix .. 'app.'
+    ):command('appstore')
+     :command('app').table
+    appstore.help = '/appstore <query> - Returns the first app which iTunes returns for the given search query. Alias: /app.'
 end
 
 function appstore.get_app_info(jdat)
@@ -59,24 +60,25 @@ function appstore:on_message(message, configuration, language)
             message,
             language.errors.results
         )
-    end
-    local keyboard = {}
-    keyboard.inline_keyboard = {
-        {
-            {
-                text = 'View on iTunes',
-                url = jdat.results[1].trackViewUrl
-            }
-        }
-    }
-    return mattata.send_message(
+    end    return mattata.send_message(
         message.chat.id,
         appstore.get_app_info(jdat),
         'html',
         true,
         false,
         nil,
-        json.encode(keyboard)
+        json.encode(
+            {
+                ['inline_keyboard'] = {
+                    {
+                        {
+                            text = 'View on iTunes',
+                            url = jdat.results[1].trackViewUrl
+                        }
+                    }
+                }
+            }
+        )
     )
 end
 

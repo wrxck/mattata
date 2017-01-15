@@ -13,7 +13,7 @@ function frombin:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('frombin').table
-    frombin.help = configuration.command_prefix .. 'frombin <binary> - Converts the given string of binary to a numerical value.'
+    frombin.help = '/frombin <binary> - Converts the given string of binary to a numerical value.'
 end
 
 function frombin:on_message(message, configuration)

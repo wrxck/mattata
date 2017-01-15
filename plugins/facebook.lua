@@ -16,7 +16,7 @@ function facebook:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('facebook'):command('fb').table
-    facebook.help = configuration.command_prefix .. 'facebook <username> - Sends the profile picture of the given Facebook user. Alias: ' .. configuration.command_prefix .. 'fb.'
+    facebook.help = '/facebook <username> - Sends the profile picture of the given Facebook user. Alias: /fb.'
 end
 
 function facebook.get_avatar(user)

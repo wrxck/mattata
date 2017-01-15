@@ -17,7 +17,7 @@ function wikipedia:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('wikipedia'):command('wiki'):command('w').table
-    wikipedia.help = configuration.command_prefix .. 'wikipedia <query> - Returns an article from Wikipedia. Aliases: ' .. configuration.command_prefix .. 'wiki, ' .. configuration.command_prefix .. 'w.'
+    wikipedia.help = '/wikipedia <query> - Returns an article from Wikipedia. Aliases: ' .. configuration.command_prefix .. 'wiki, ' .. configuration.command_prefix .. 'w.'
 end
 
 function wikipedia:on_message(message, configuration, language)
@@ -88,7 +88,7 @@ function wikipedia:on_message(message, configuration, language)
         message.chat.id,
         string.format(
             '%s\n<a href="%s">Read more.</a>',
-            body,
+            output,
             mattata.escape_html(final_url)
         ),
         'html'

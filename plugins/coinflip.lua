@@ -13,7 +13,7 @@ function coinflip:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('coinflip'):command('cf').table
-    coinflip.help = configuration.command_prefix .. 'coinflip <guess> - Flips a coin and returns the result! If no arguments are given, the result of a random coin flip is returned; if, however, an argument is given, the result of the random coin flip tests against your guess and returns the result and whether your guess was correct. Alias: ' .. configuration.command_prefix .. 'cf.'
+    coinflip.help = '/coinflip <guess> - Flips a coin and returns the result! If no arguments are given, the result of a random coin flip is returned; if, however, an argument is given, the result of the random coin flip tests against your guess and returns the result and whether your guess was correct. Alias: /cf.'
 end
 
 function coinflip:on_message(message)

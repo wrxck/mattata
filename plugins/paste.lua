@@ -20,7 +20,7 @@ function paste:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('paste').table
-    paste.help = configuration.command_prefix .. 'paste <text> - Uploads the given text to a pasting service and returns the result URL.'
+    paste.help = '/paste <text> - Uploads the given text to a pasting service and returns the result URL.'
 end
 
 function paste.get_keyboard()

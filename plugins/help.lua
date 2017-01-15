@@ -10,6 +10,7 @@ local https = require('ssl.https')
 local url = require('socket.url')
 local redis = require('mattata-redis')
 local json = require('dkjson')
+local configuration = require('configuration')
 
 function help:init(configuration)
     help.arguments_list = {}
@@ -33,7 +34,7 @@ function help:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('help'):command('start').table
-    help.help = configuration.command_prefix .. 'help <plugin> - Usage information for the given plugin.'
+    help.help = '/help <plugin> - Usage information for the given plugin.'
 end
 
 function help.get_plugin_page(arguments_list, page)
@@ -44,6 +45,75 @@ function help.get_plugin_page(arguments_list, page)
     local pagePlugins = {}
     for i = tonumber(page_begins_at), tonumber(page_ends_at) do table.insert(pagePlugins, arguments_list[i]) end
     return table.concat(pagePlugins, '\n')
+end
+
+function help.get_initial_message(message, is_edit, from)
+    local keyboard = {
+        ['inline_keyboard'] = {}
+    }
+    keyboard = help.get_keyboard_row(keyboard, 'Links', 'help:links', 'Administration', 'help:ahelp', 'Commands', 'help:cmds')
+    keyboard = help.get_keyboard_row(keyboard, 'FAQ', 'help:faq', 'Plugins', 'help:plugins', 'About', 'help:about')
+    local text = string.format(
+        'Hi *%s*, I\'m %s - a multi-purpose & administrative bot written in Lua.\nUse the buttons below to discover what I can do for you!',
+        from,
+        configuration.info.first_name
+    )
+    keyboard = json.encode(keyboard)
+    if is_edit then
+        return mattata.edit_message_text(
+            message.chat.id,
+            message.message_id,
+            text,
+            'markdown',
+            true,
+            keyboard
+        )
+    end
+    return mattata.send_message(
+        message.chat.id,
+        text,
+        'markdown',
+        true,
+        false,
+        message.message_id,
+        keyboard
+    )
+end
+
+function help.get_keyboard_row(keyboard, text1, callback1, text2, callback2, text3, callback3)
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = text1,
+                ['callback_data'] = callback1
+            },
+            {
+                ['text'] = text2,
+                ['callback_data'] = callback2
+            },
+            {
+                ['text'] = text3,
+                ['callback_data'] = callback3
+            }
+        }
+    )
+    return keyboard
+end
+
+function help.get_back_keyboard()
+    return json.encode(
+        {
+            ['inline_keyboard'] = {
+                {
+                    {
+                        ['text'] = 'Back',
+                        ['callback_data'] = 'help:back'
+                    }
+                }
+            }
+        }
+    )
 end
 
 function help:on_inline_query(inline_query, configuration)
@@ -186,29 +256,33 @@ function help:on_inline_query(inline_query, configuration)
 end
 
 function help:on_callback_query(callback_query, message, configuration, language)
-    if callback_query.data == 'commands' then
+    if callback_query.data == 'cmds' then
         local plugin_count = #help.arguments_list
-        local page_count = math.floor(tonumber(plugin_count) / 10) + 1
-        local keyboard = {}
-        keyboard.inline_keyboard = {
-            {
+        local page_count = math.floor(tonumber(plugin_count) / 10)
+        if math.floor(tonumber(plugin_count) / 10) ~= tonumber(plugin_count) / 10 then
+            page_count = page_count + 1
+        end
+        local keyboard = {
+            ['inline_keyboard'] = {
                 {
-                    ['text'] = '← Previous',
-                    ['callback_data'] = 'help:results:0'
+                    {
+                        ['text'] = '← Previous',
+                        ['callback_data'] = 'help:results:0'
+                    },
+                    {
+                        ['text'] = '1/' .. page_count,
+                        ['callback_data'] = 'help:pages:1:' .. page_count
+                    },
+                    {
+                        ['text'] = 'Next →',
+                        ['callback_data'] = 'help:results:2'
+                    }
                 },
                 {
-                    ['text'] = '1/' .. page_count,
-                    ['callback_data'] = 'help:pages:1:' .. page_count
-                },
-                {
-                    ['text'] = 'Next →',
-                    ['callback_data'] = 'help:results:2'
-                }
-            },
-            {
-                {
-                    ['text'] = 'Back',
-                    ['callback_data'] = 'help:back'
+                    {
+                        ['text'] = 'Back',
+                        ['callback_data'] = 'help:back'
+                    }
                 }
             }
         }
@@ -223,32 +297,36 @@ function help:on_callback_query(callback_query, message, configuration, language
     elseif callback_query.data:match('^results:(.-)$') then
         local new_page = callback_query.data:match('^results:(.-)$')
         local plugin_count = #help.arguments_list
-        local page_count = math.floor(tonumber(plugin_count) / 10) + 1
+        local page_count = math.floor(tonumber(plugin_count) / 10)
+        if math.floor(tonumber(plugin_count) / 10) ~= tonumber(plugin_count) / 10 then
+            page_count = page_count + 1
+        end
         if tonumber(new_page) > tonumber(page_count) then
             new_page = 1
         elseif tonumber(new_page) < 1 then
             new_page = tonumber(page_count)
         end
-        local keyboard = {}
-        keyboard.inline_keyboard = {
-            {
+        local keyboard = {
+            ['inline_keyboard'] = {
                 {
-                    ['text'] = '← Previous',
-                    ['callback_data'] = 'help:results:' .. math.floor(tonumber(new_page) - 1)
+                    {
+                        ['text'] = '← Previous',
+                        ['callback_data'] = 'help:results:' .. math.floor(tonumber(new_page) - 1)
+                    },
+                    {
+                        ['text'] = new_page .. '/' .. page_count,
+                        ['callback_data'] = 'help:pages:' .. new_page .. ':' .. page_count
+                    },
+                    {
+                        ['text'] = 'Next →',
+                        ['callback_data'] = 'help:results:' .. math.floor(tonumber(new_page) + 1)
+                    }
                 },
                 {
-                    ['text'] = new_page .. '/' .. page_count,
-                    ['callback_data'] = 'help:pages:' .. new_page .. ':' .. page_count
-                },
-                {
-                    ['text'] = 'Next →',
-                    ['callback_data'] = 'help:results:' .. math.floor(tonumber(new_page) + 1)
-                }
-            },
-            {
-                {
-                    ['text'] = 'Back',
-                    ['callback_data'] = 'help:back'
+                    {
+                        ['text'] = 'Back',
+                        ['callback_data'] = 'help:back'
+                    }
                 }
             }
         }
@@ -266,34 +344,21 @@ function help:on_callback_query(callback_query, message, configuration, language
             callback_query.id,
             'You are on page ' .. current_page .. ' of ' .. total_pages .. '!'
         )
-    elseif callback_query.data == 'administration' then
-        local administration_help_text = 'I take advantage of the administrative methods the Telegram bot API offers in the following ways:\n\nYou can <b>kick</b>, <b>ban</b> and <b>unban</b> users from groups you administrate by doing the following:\n\n- Add me to the group you want me to administrate, and grant me the necessary permissions to do my job by promoting me to an administrator. You\'ll know I\'m an administrator when you see a ⭐️ next to my name in the list of users.\n\nWhen the time comes to perform an administrative action, there are two ways to target the user:\n\n- You can specify the user by their @username (or their numerical ID) as an argument to the command - I then do some further checks to make sure the user you specified meets the necessary criteria (i.e. the user exists, they\'re present in the chat, and not an administrator) - don\'t worry, I\'m a bot, I can do this in no time at all!\n- You can target the user by replying to one of their messages with the desired action-corresponding command\n\n<i>If you specify the user by command arguments, but send the message as a reply, I will target the user you specified as the command arguments by default - which means the replied-to user will only be subject to the specified action when you send the command with nothing next to it!</i>'
-        local keyboard = {}
-        keyboard.inline_keyboard = {
-            {
-                {
-                    ['text'] = 'Back',
-                    ['callback_data'] = 'help:back'
-                }
-            }
-        }
+    elseif callback_query.data == 'ahelp' then
+        local administration_help_text = 'I can perform many administrative actions in your groups, just add me as an administrator and send /administration to adjust the settings for your group. Here are some administrative commands and a brief comment regarding what they do:\n\n- /pin <text> - Send a Markdown-formatted message which can be edited by using the same command with different text, to save you from having to re-pin a message if you can\'t edit it (which happens if the message is older than 48 hours)\n- /ban - Ban a user by replying to one of their messages, or by specifying them by username/ID\n- /kick - Kick (ban and then unban) a user by replying to one of their messages, or by specifying them by username/ID\n- /unban - Unban a user by replying to one of their messages, or by specifying them by username/ID\n- /setrules <text> - Set the given Markdown-formatted text as the group rules, which will be sent whenever somebody uses /rules\n- /setwelcome - Set the given Markdown-formatted text as a welcome message that will be sent every time a user joins your group (the welcome message can be disabled in the administration menu, accessible via /administration)\n- /warn - Warn a user, and ban them when they hit the maximum number of warnings\n- /mod - Promote the replied-to user, giving them access to administrative commands such as /ban, /kick, /warn etc. (this is useful when you don\'t want somebody to have the ability to delete messages!)\n- /demod - Demote the replied-to user, stripping them from their moderation status and revoking their ability to use administrative commands\n- /staff - View the group\'s creator, administrators, and moderators in a neatly-formatted list\n- /report - Forwards the replied-to message to all administrators and alerts them of the current situation\n- /setlink <URL> - Set the group\'s link to the given URL, which will be sent whenever somebody uses /link'
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
             administration_help_text,
-            'html',
+            'markdown',
             true,
-            json.encode(keyboard)
+            help.get_back_keyboard()
         )
     elseif callback_query.data == 'links' then
         local help_links = language.official_links
         local keyboard = {}
         keyboard.inline_keyboard = {
             {
-                {
-                    ['text'] = 'Support',
-                    ['url'] = 'https://telegram.me/joinchat/DTcYUD7ELOondGVro-8PZQ'
-                },
                 {
                     ['text'] = 'Development',
                     ['url'] = 'https://telegram.me/joinchat/DTcYUEDWD1IgrvQDrkKH0w'
@@ -333,97 +398,26 @@ function help:on_callback_query(callback_query, message, configuration, language
             json.encode(keyboard)
         )
     elseif callback_query.data == 'plugins' then
-        local keyboard = {}
-        keyboard.inline_keyboard = {
-            {
-                {
-                    ['text'] = 'Back',
-                    ['callback_data'] = 'help:back'
-                }
-            }
-        }
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
             '<b>Hello, ' .. mattata.escape_html(message.reply_to_message.from.first_name) .. '!</b>\n\nTo disable a specific plugin, use \'' .. configuration.command_prefix .. 'plugins disable &lt;plugin&gt;\'. To enable a specific plugin, use \'' .. configuration.command_prefix .. 'plugins enable &lt;plugin&gt;\'.\n\nFor the sake of convenience, you can disable all of my non-core plugins by using \'' .. configuration.command_prefix .. 'plugins disable all\'. To disable all of my non-core plugins, you can use \'' .. configuration.command_prefix .. 'plugins disable all\'.\n\nTo see a list of plugins you\'ve disabled, use \'' .. configuration.command_prefix .. 'plugins disabled\'. For a list of plugins that can be toggled and haven\'t been disabled in this chat yet, use \'' .. configuration.command_prefix .. 'plugins enabled\'.\n\nA list of all toggleable plugins can be viewed by using \'' .. configuration.command_prefix .. 'plugins list\'.',
             'html',
             true,
-            json.encode(keyboard)
+            help.get_back_keyboard()
         )
     elseif callback_query.data == 'back' then
-        local keyboard = {}
-        keyboard.inline_keyboard = {
-            {
-                {
-                    ['text'] = 'Links',
-                    ['callback_data'] = 'help:links'
-                },
-                {
-                    ['text'] = 'Administration',
-                    ['callback_data'] = 'help:administration'
-                },
-                {
-                    ['text'] = 'Commands',
-                    ['callback_data'] = 'help:commands'
-                }
-            },
-            {
-                {
-                    ['text'] = 'Help',
-                    ['callback_data'] = 'help:help'
-                },
-                {
-                    ['text'] = 'Plugins',
-                    ['callback_data'] = 'help:plugins'
-                },
-                {
-                    ['text'] = 'About',
-                    ['callback_data'] = 'help:about'
-                }
-            },
-            {
-                {
-                    ['text'] = 'Add me to a group!',
-                    ['url'] = 'https://telegram.me/' .. self.info.username .. '?startgroup=c'
-                }
-            }
-        }
-        return mattata.edit_message_text(
-            message.chat.id,
-            message.message_id,
-            language.help_introduction:gsub('NAME', '*' .. mattata.escape_markdown(callback_query.from.first_name) .. '*'):gsub('MATTATA', self.info.first_name):gsub('COMMANDPREFIX', configuration.command_prefix),
-            'markdown',
-            true,
-            json.encode(keyboard)
-        )
-    elseif callback_query.data == 'help' then
-        local keyboard = {}
-        keyboard.inline_keyboard = {
-            {
-                {
-                    ['text'] = 'Back',
-                    ['callback_data'] = 'help:back'
-                }
-            }
-        }
-        return mattata.edit_message_text(message.chat.id, message.message_id, language.help_confused:gsub('COMMANDPREFIX', configuration.command_prefix), 'markdown', true, json.encode(keyboard))
+        return help.get_initial_message(message, true, mattata.escape_markdown(callback_query.from.first_name))
+    elseif callback_query.data == 'faq' then
+        return mattata.edit_message_text(message.chat.id, message.message_id, language.help_confused:gsub('COMMANDPREFIX', configuration.command_prefix), 'markdown', true, help.get_back_keyboard())
     elseif callback_query.data == 'about' then
-        local keyboard = {}
-        keyboard.inline_keyboard = {
-            {
-                {
-                    ['text'] = 'Back',
-                    ['callback_data'] = 'help:back'
-                }
-            }
-        }
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
             language.help_about,
             'markdown',
             true,
-            json.encode(keyboard)
+            help.get_back_keyboard()
         )
     end
 end
@@ -483,15 +477,7 @@ function help:on_message(message, configuration, language)
             }
         }
     }
-    return mattata.send_message(
-        message.chat.id,
-        language.help_introduction:gsub('NAME', '*' .. mattata.escape_markdown(message.from.first_name) .. '*'):gsub('MATTATA', self.info.first_name):gsub('COMMANDPREFIX', configuration.command_prefix),
-        'markdown',
-        true,
-        false,
-        message.message_id,
-        json.encode(keyboard)
-    )
+    return help.get_initial_message(message, false, mattata.escape_markdown(message.from.first_name))
 end
 
 return help

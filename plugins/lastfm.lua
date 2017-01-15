@@ -13,12 +13,17 @@ local json = require('dkjson')
 local redis = require('mattata-redis')
 
 function lastfm:init(configuration)
+    assert(
+        configuration.keys.lastfm,
+        'lastfm.lua requires an API key, and you haven\'t got one configured!'
+    
+    )
     lastfm.arguments = 'lastfm'
     lastfm.commands = mattata.commands(
         self.info.username,
         configuration.command_prefix
     ):command('lastfm'):command('np'):command('fmset').table
-    lastfm.help = configuration.command_prefix .. 'np <username> - Returns what you are or were last listening to. If you specify a username, info will be returned for that username.' .. configuration.command_prefix .. 'fmset <username> - Sets your last.fm username. Use ' .. configuration.command_prefix .. 'fmset -del to delete your current username.'
+    lastfm.help = '/np <username> - Returns what you are or were last listening to. If you specify a username, info will be returned for that username.' .. configuration.command_prefix .. 'fmset <username> - Sets your last.fm username. Use ' .. configuration.command_prefix .. 'fmset -del to delete your current username.'
 end
 
 function lastfm.set_username(user, name)

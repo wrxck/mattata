@@ -1,4 +1,4 @@
-return { -- when you're translating, do NOT translate the things in CAPS (except the word 'THAT')
+return { -- when you're translating, do NOT translate the things in CAPS
 	locale = 'ar',
 	join_messages = {
 		'Welcome, NAME!',
@@ -27,7 +27,9 @@ return { -- when you're translating, do NOT translate the things in CAPS (except
 		connection = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
 		results = 'I\'m sorry, but I couldn\'t find any results for that.'
 	},
-	ai_error = 'Matt\'s words echoed: NAME, there\'s a time and place for everything, but not now!',
+	['ai'] = {
+		['57'] = 'Matt\'s words echoed: NAME, there\'s a time and place for everything, but not now!'
+	},
 	specify_blacklisted_user = 'Please specify the user by their numerical ID.',
 	user_now_blacklisted = 'That user is now blacklisted from using me.',
 	user_now_whitelisted = 'That user is now able to use me again.',
@@ -36,15 +38,19 @@ return { -- when you're translating, do NOT translate the things in CAPS (except
 	enter_message_to_send_to_channel = 'Please enter a message to send. Markdown formatting is supported.',
 	not_channel_admin = 'Sorry, you do not appear to be an administrator for that group/channel.',
 	unable_to_retrieve_channel_admins = 'Sorry, I was unable to retrieve a list of administrators for that group/channel.\n',
-	copypasta_length = 'Please respond to a message with less than MAXIMUM characters.',
-	copypasta_must_contain = 'The replied-to message must contain alpha-numeric characters!',
+	['copypasta'] = {
+		['45'] = 'Please respond to a message with less than MAXIMUM characters.'
+	},
 	found_one_pwned_account = 'The given account was found in 1 leak',
 	account_found_multiple_leaks = 'The given account was found in X leaks',
 	official_links = 'Here are some official links that you may find useful!',
-	help_introduction = '*Hello, NAME!*\nMy name is MATTATA and I\'m an intelligent bot written with precision. There are many things I can do - try clicking the \'Commands\' button below to see what I can do for you.\n\n*Oh, and I work well in groups, too!*\nYou can enable and disable plugins in your group(s) using COMMANDPREFIXplugins.\nI also feature a multilingual mode (currently in beta), try using COMMANDPREFIXsetlang <language> to adjust your language. That way, when you have a conversation with me, I\'ll make sure to always respond in your language!',
-	help_confused = '*Confused?*\nDon\'t worry, I was programmed to help! Try using COMMANDPREFIXhelp <command> to get help with a specific plugin and its usage.\n\nI\'m also an innovative example of artificial intelligence - yes, that\'s right; I can learn from you! Try speaking to me right here, or mention me by my name in a group. I can also describe images sent in response to messages I send.\n\nYou can also use me inline, try mentioning my username from any group and discover what else I can do!',
+	help_introduction = '*Hello, NAME!*\nMy name is MATTATA and I\'m an intelligent bot written with precision. There are many things I can do - try clicking the \'Commands\' button below to see what I can do for you.\n\n*Oh, and I work well in groups, too!*\nYou can enable and disable plugins in your group(s) using /plugins.\nI also feature a multilingual mode (currently in beta), try using /setlang <language> to adjust your language. That way, when you have a conversation with me, I\'ll make sure to always respond in your language!',
+	help_confused = '*Confused?*\nDon\'t worry, I was programmed to help! Try using /help <command> to get help with a specific plugin and its usage.\n\nI\'m also an innovative example of artificial intelligence - yes, that\'s right; I can learn from you! Try speaking to me right here, or mention me by my name in a group. I can also describe images sent in response to messages I send.\n\nYou can also use me inline, try mentioning my username from any group and discover what else I can do!',
 	no_documented_help = 'I\'m sorry, but I\'m afraid there is no help documented for that plugin at this moment in time. If you believe this is a mistake, please don\'t hesitate to contact [my developer](https://telegram.me/wrxck).',
 	help_about = 'I\'m a bot written in Lua, and built to take advantage of the brilliant Bot API which Telegram offers.\n\nMy creator (and primary maintainer) is @wrxck.\nHe believes that anybody who enjoys programming should be able to work with the code of which I was compiled from, so I\'m proud to say that I am an open source project, which you can discover more about on [GitHub](https://github.com/matthewhesketh/mattata).',
 	please_message_me = 'Please [message me in a private chat](http://telegram.me/MATTATA?start=help) to get started.',
-	sent_private_message = 'I have sent you a private message containing the requested information.'
+	sent_private_message = 'I have sent you a private message containing the requested information.',
+	['setlang'] = {
+		['112'] = 'You can only use this command in private chat!'
+	}
 }

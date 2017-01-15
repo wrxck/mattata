@@ -17,7 +17,7 @@ function twitch:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('twitch').table
-    twitch.help = configuration.command_prefix .. 'twitch <query> - Searches Twitch for streams matching the given query.'
+    twitch.help = '/twitch <query> - Searches Twitch for streams matching the given query.'
 end
 
 function twitch.get_result_count(input)

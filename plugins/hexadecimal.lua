@@ -13,7 +13,7 @@ function hexadecimal:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('hexadecimal'):command('hex').table
-    hexadecimal.help = configuration.command_prefix .. 'hexadecimal <string> - Converts the given string to hexadecimal. Alias: ' .. configuration.command_prefix .. 'hex.'
+    hexadecimal.help = '/hexadecimal <string> - Converts the given string to hexadecimal. Alias: /hex.'
 end
 
 function hexadecimal.num_to_hex(num)

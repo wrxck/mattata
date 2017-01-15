@@ -13,7 +13,7 @@ function doge:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('doge').table
-    doge.help = configuration.command_prefix .. 'doge <text> - Doge-ifies the given text. Sentences are separated using slashes. Example: ' .. configuration.command_prefix .. 'doge hello world\nthis is a test sentence\nmake sure you type like this\nelse it won\'t work!'
+    doge.help = '/doge <text> - Doge-ifies the given text. Sentences are separated using slashes. Example: ' .. configuration.command_prefix .. 'doge hello world\nthis is a test sentence\nmake sure you type like this\nelse it won\'t work!'
 end
 
 function doge:on_message(message, configuration, language)

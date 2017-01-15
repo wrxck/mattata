@@ -81,7 +81,7 @@ function sed:on_message(message)
     keyboard.inline_keyboard = {
         {
             {
-                ['text'] = '👍',
+                ['text'] = 'I\'m sure',
                 ['callback_data'] = 'sed:yes'
             },
             {

@@ -12,11 +12,11 @@ function echo:init(configuration)
     echo.commands = mattata.commands(
         self.info.username,
         configuration.command_prefix
-    ):command('echo').table
-    echo.help = configuration.command_prefix .. 'echo <text> - Repeats a string of text.'
+    ):command('echo'):command('bigtext').table
+    echo.help = '/echo <text> - Repeats a string of text.\n' .. configuration.command_prefix .. 'bigtext <text> - Converts standard text into large letters.'
 end
 
-function echo:on_message(message)
+function echo:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -24,9 +24,39 @@ function echo:on_message(message)
             echo.help
         )
     end
+    local output = input
+    if message.text_lower:match('^' .. configuration.command_prefix .. 'bigtext') then
+        output = output:lower()
+        output = output:gsub('a', '🇦 ')
+                       :gsub('b', '🇧 ')
+                       :gsub('c', '🇨 ')
+                       :gsub('d', '🇩 ')
+                       :gsub('e', '🇪 ')
+                       :gsub('f', '🇫 ')
+                       :gsub('g', '🇬 ')
+                       :gsub('h', '🇭 ')
+                       :gsub('i', '🇮 ')
+                       :gsub('j', '🇯 ')
+                       :gsub('k', '🇰 ')
+                       :gsub('l', '🇱 ')
+                       :gsub('m', '🇲 ')
+                       :gsub('n', '🇳 ')
+                       :gsub('o', '🇴 ')
+                       :gsub('p', '🇵 ')
+                       :gsub('q', '🇶 ')
+                       :gsub('r', '🇷 ')
+                       :gsub('s', '🇸 ')
+                       :gsub('t', '🇹 ')
+                       :gsub('u', '🇺 ')
+                       :gsub('v', '🇻 ')
+                       :gsub('w', '🇼 ')
+                       :gsub('x', '🇽 ')
+                       :gsub('y', '🇾 ')
+                       :gsub('z', '🇿 ')
+    end
     return mattata.send_message(
         message.chat.id,
-        input
+        output
     )
 end
 

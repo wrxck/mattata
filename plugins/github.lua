@@ -15,7 +15,7 @@ function github:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('github').table
-    github.help = configuration.command_prefix .. 'github <username> <repository> - Returns information about the specified GitHub repository.'
+    github.help = '/github <username> <repository> - Returns information about the specified GitHub repository.'
 end
 
 function github:on_message(message, configuration, language)

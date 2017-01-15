@@ -15,7 +15,7 @@ function currency:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('currency'):command('convert'):command('cash').table
-    currency.help = configuration.command_prefix .. 'currency <amount> <from> TO <to> - Converts exchange rates for various currencies. Source: Google Finance. Aliases: ' .. configuration.command_prefix .. 'convert, ' .. configuration.command_prefix .. 'cash.'
+    currency.help = '/currency <amount> <from> TO <to> - Converts exchange rates for various currencies. Source: Google Finance. Aliases: ' .. configuration.command_prefix .. 'convert, ' .. configuration.command_prefix .. 'cash.'
 end
 
 function currency:on_message(message, configuration, language)
@@ -37,7 +37,7 @@ function currency:on_message(message, configuration, language)
     local url = 'https://www.google.com/finance/converter'
     if from ~= to then
         url = url .. '?from=' .. from .. '&to=' .. to .. '&a=' .. amount
-        local str, res = https.request(api)
+        local str, res = https.request(url)
         if res ~= 200 then
             return mattata.send_reply(
                 message,
@@ -52,13 +52,13 @@ function currency:on_message(message, configuration, language)
             )
         end
         result = string.format(
-			'%.2f',
-			str
-		)
+            '%.2f',
+            str
+        )
     end
     return mattata.send_message(
         message.chat.id,
-        amount .. ' ' .. from .. ' = ' .. result .. ' ' .. to .. '\n\n' .. os.date('!%F %T UTC') .. '\nSource: Google Finance'
+        amount .. ' ' .. from .. ' = ' .. result .. ' ' .. to .. '\nvia Google Finance'
     )
 end
 

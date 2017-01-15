@@ -16,7 +16,7 @@ function dns:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('dns').table
-    dns.help = configuration.command_prefix .. 'dns <url> <type> - Sends DNS records of the given type for the given url. The types currently supported are AAAA, A, CERT, CNAME, DLV, IPSECKEY, MX, NS, PTR, SIG, SRV and TXT.'
+    dns.help = '/dns <url> <type> - Sends DNS records of the given type for the given url. The types currently supported are AAAA, A, CERT, CNAME, DLV, IPSECKEY, MX, NS, PTR, SIG, SRV and TXT.'
 end
 
 function dns:on_message(message, configuration, language)

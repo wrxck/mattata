@@ -1,4 +1,10 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local ai = {}
+
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
@@ -9,7 +15,7 @@ function ai:on_inline_query(inline_query, configuration, language)
     local input = inline_query.query
     local output = cleverbot.init():talk(input)
     if not output then
-        return false
+        output = 'I don\'t feel like talking at the moment'
     elseif language.locale ~= 'en' then
         local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.keys.translate .. '&lang=' .. language.locale .. '&text=' .. url.escape(output))
         if res == 200 then
@@ -40,15 +46,15 @@ function ai:on_inline_query(inline_query, configuration, language)
 end
 
 function ai:on_message(message, configuration, language)
-    if message.text_lower:match('^' .. configuration.command_prefix) then
+    if message.text_lower:match('^%/') then
         return
     end
     mattata.send_chat_action(message.chat.id, 'typing')
-    local output = cleverbot.init():talk(message.text_lower)
+    local output = cleverbot.init():talk(message.text)
     if not output then
         return mattata.send_reply(
             message,
-            'I don\'t feel like talking at the moment.'
+            language.ai['57']
         )
     end
     if language.locale ~= 'en' then

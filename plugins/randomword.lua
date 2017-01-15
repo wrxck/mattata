@@ -15,7 +15,7 @@ function randomword:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('randomword'):command('rw').table
-    randomword.help = configuration.command_prefix .. 'randomword - Generates a random word. Alias: ' .. configuration.command_prefix .. 'rw.'
+    randomword.help = '/randomword - Generates a random word. Alias: /rw.'
 end
 
 function randomword.get_keyboard()

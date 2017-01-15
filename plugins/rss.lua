@@ -21,7 +21,7 @@ function rss:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('rss').table
-    rss.help = configuration.command_prefix .. 'rss <sub | del> <url> - Subscribe or unsubscribe from the given RSS feed.'
+    rss.help = '/rss <sub | del> <url> - Subscribe or unsubscribe from the given RSS feed.'
 end
 
 function rss.tail(n, k)

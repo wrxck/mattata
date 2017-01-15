@@ -12,12 +12,16 @@ local json = require('dkjson')
 local configuration = require('configuration')
 
 function youtube:init(configuration)
+    assert(
+        configuration.keys.google,
+        'youtube.lua requires an API key, and you haven\'t got one configured!'
+    )
     youtube.arguments = 'youtube <query>'
     youtube.commands = mattata.commands(
         self.info.username,
         configuration.command_prefix
     ):command('youtube'):command('yt').table
-    youtube.help = configuration.command_prefix .. 'youtube <query> - Sends the top results from YouTube for the given search query. Alias: ' .. configuration.command_prefix .. 'yt.'
+    youtube.help = '/youtube <query> - Sends the top results from YouTube for the given search query. Alias: /yt.'
 end
 
 function youtube.get_result_count(input)
@@ -33,6 +37,7 @@ function youtube.get_result_count(input)
 end
 
 function youtube.get_result(input, n)
+    n = n or 1
     local jstr, res = https.request('https://www.googleapis.com/youtube/v3/search?key=' .. configuration.keys.google .. '&type=video&part=snippet&q=' .. url.escape(input))
     if res ~= 200 then
         return false
@@ -88,32 +93,35 @@ function youtube:on_callback_query(callback_query, message, configuration)
                 'An error occured!'
             )
         end
-        local previous_result = 'youtube:results:' .. math.floor(tonumber(result) - 1)
-        local next_result = 'youtube:results:' .. math.floor(tonumber(result) + 1)
-        local keyboard = {}
-        keyboard.inline_keyboard = {
+        local previous_result = 'youtube:results:' .. tonumber(result) - 1
+        local next_result = 'youtube:results:' .. tonumber(result) + 1
+        local keyboard = json.encode(
             {
-                {
-                    ['text'] = '← Previous',
-                    ['callback_data'] = previous_result
-                },
-                {
-                    ['text'] = result .. '/' .. total_results,
-                    ['callback_data'] = 'youtube:pages:' .. result .. ':' .. total_results
-                },
-                {
-                    ['text'] = 'Next →',
-                    ['callback_data'] = next_result
+                inline_keyboard = {
+                    {
+                        {
+                            ['text'] = '← Previous',
+                            ['callback_data'] = previous_result
+                        },
+                        {
+                            ['text'] = result .. '/' .. total_results,
+                            ['callback_data'] = 'youtube:pages:' .. result .. ':' .. total_results
+                        },
+                        {
+                            ['text'] = 'Next →',
+                            ['callback_data'] = next_result
+                        }
+                    }
                 }
             }
-        }
+        )
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
             output,
             'html',
             true,
-            json.encode(keyboard)
+            keyboard
         )
     elseif callback_query.data:match('^pages:(.-):(.-)$') then
         local current_page, total_pages = callback_query.data:match('^pages:(.-):(.-)$')
@@ -139,23 +147,26 @@ function youtube:on_message(message, configuration, language)
             language.errors.results
         )
     end
-    local keyboard = {}
-    keyboard.inline_keyboard = {
+    local keyboard = json.encode(
         {
-            {
-                ['text'] = '← Previous',
-                ['callback_data'] = 'youtube:results:0'
-            },
-            {
-                ['text'] = '1/' .. youtube.get_result_count(input),
-                ['callback_data'] = 'youtube:pages:1:' .. youtube.get_result_count(input)
-            },
-            {
-                ['text'] = 'Next →',
-                ['callback_data'] = 'youtube:results:2'
+            inline_keyboard = {
+                {
+                    {
+                        ['text'] = '← Previous',
+                        ['callback_data'] = 'youtube:results:0'
+                    },
+                    {
+                        ['text'] = '1/' .. youtube.get_result_count(input),
+                        ['callback_data'] = 'youtube:pages:1:' .. youtube.get_result_count(input)
+                    },
+                    {
+                        ['text'] = 'Next →',
+                        ['callback_data'] = 'youtube:results:2'
+                    }
+                }
             }
         }
-    }
+    )
     return mattata.send_message(
         message.chat.id,
         output,
@@ -163,7 +174,7 @@ function youtube:on_message(message, configuration, language)
         true,
         false,
         message.message_id,
-        json.encode(keyboard)
+        keyboard
     )
 end
 

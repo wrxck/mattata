@@ -13,7 +13,7 @@ function apod:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('apod').table
-    apod.help = configuration.command_prefix .. 'apod <DD/MM/YYYY> - Sends the Astronomy Picture of the Day.'
+    apod.help = '/apod <DD/MM/YYYY> - Sends the Astronomy Picture of the Day.'
 end
 
 function apod:on_inline_query(inline_query, configuration)

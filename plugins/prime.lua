@@ -13,7 +13,7 @@ function prime:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('prime').table
-    prime.help = configuration.command_prefix .. 'prime <number> - Tells you if a number is prime or not.'
+    prime.help = '/prime <number> - Tells you if a number is prime or not.'
 end
 
 function prime.is_prime(n)

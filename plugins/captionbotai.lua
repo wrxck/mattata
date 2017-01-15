@@ -24,7 +24,11 @@ function captionbotai.get_conversation_id()
 end
 
 function captionbotai.make_request(input, id)
-    local body = '{"conversationId":"' .. id .. '","waterMark":"","userMessage":"' .. input .. '"}'
+    local body = string.format(
+        '{"conversationId":"%s","waterMark":"","userMessage":"%s"}',
+        id,
+        input
+    )
     local response = {}
     local _, code = https.request(
         {
@@ -53,11 +57,11 @@ function captionbotai.make_request(input, id)
     local jstr, res = https.request('https://www.captionbot.ai/api/message?waterMark=&conversationId=' .. url.escape(id))
     jstr = jstr:gsub(configuration.bot_token, ''):gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"'):gsub('"' .. input .. '",', '')
     local jdat = json.decode(jstr)
-    return jdat.BotMessages[2]
+    return jdat.BotMessages[2]:gsub('\\n', ' ')
 end
 
 function captionbotai:on_photo_receive(message, configuration, language)
-    local file = mattata.get_file(message.photo[1].file_id)
+    local file = mattata.get_file(message.photo[#message.photo].file_id) -- Gets the highest resolution available for the best result
     if not file then
         return
     end
@@ -81,7 +85,7 @@ function captionbotai:on_photo_receive(message, configuration, language)
     end
     return mattata.send_reply(
         message,
-        output
+        output:match('%, but (.-)$') or output
     )
 end
 

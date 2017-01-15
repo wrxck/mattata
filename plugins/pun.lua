@@ -14,7 +14,7 @@ function pun:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('pun').table
-    pun.help = configuration.command_prefix .. 'pun - Generates a random pun.'
+    pun.help = '/pun - Generates a random pun.'
 end
 
 local puns = {

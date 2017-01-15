@@ -14,7 +14,7 @@ function lmgtfy:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('lmgtfy').table
-    lmgtfy.help = configuration.command_prefix .. 'lmgtfy <query> - Sends a LMGTFY link for the given search query.'
+    lmgtfy.help = '/lmgtfy <query> - Sends a LMGTFY link for the given search query.'
 end
 
 function lmgtfy:on_message(message)

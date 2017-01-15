@@ -18,7 +18,7 @@ function setloc:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('setloc').table
-    setloc.help = configuration.command_prefix .. 'setloc <location> - Sets your location to the given value.'
+    setloc.help = '/setloc <location> - Sets your location to the given value.'
 end
 
 function setloc.check_loc(location)
@@ -70,7 +70,7 @@ function setloc.get_loc(user)
             hash,
             'location'
         )
-        if not location or location == 'false' then
+        if not location or location == 'false' or location == nil then
             return false
         else
             return location

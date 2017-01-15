@@ -11,12 +11,18 @@ local url = require('socket.url')
 local json = require('dkjson')
 
 function synonym:init(configuration)
+
+    assert(
+        configuration.keys.synonym,
+        'synonym.lua requires an API key, and you haven\'t got one configured!'
+    )
+
     synonym.arguments = 'synonym <word>'
     synonym.commands = mattata.commands(
         self.info.username,
         configuration.command_prefix
     ):command('synonym').table
-    synonym.help = configuration.command_prefix .. 'synonym <word> - Sends a synonym of the given word.'
+    synonym.help = '/synonym <word> - Sends a synonym of the given word.'
 end
 
 function synonym:on_message(message, configuration, language)
@@ -43,7 +49,7 @@ function synonym:on_message(message, configuration, language)
     end
     return mattata.send_message(
         message.chat.id,
-        'You could use the word <b>' .. jdat.def[1].tr[1].text .. '</b> instead.',
+        'You could use the word <b>' .. mattata.escape_html(jdat.def[1].tr[1].text) .. '</b>, instead of ' .. mattata.escape_html(input) .. '.',
         'html'
     )
 end

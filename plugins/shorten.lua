@@ -18,7 +18,7 @@ function shorten:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('shorten').table
-    shorten.help = configuration.command_prefix .. 'shorten <url> - Shortens the given URL using a choice of multiple URL shorteners.'
+    shorten.help = '/shorten <url> - Shortens the given URL using a choice of multiple URL shorteners.'
 end
 
 function shorten.get_keyboard()

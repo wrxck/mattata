@@ -16,7 +16,7 @@ function urbandictionary:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('urbandictionary'):command('urban'):command('ud').table
-    urbandictionary.help = configuration.command_prefix .. 'urbandictionary <query> - Returns the Urban Dictionary\'s definition for the given word. Aliases: ' .. configuration.command_prefix .. 'urban, ' .. configuration.command_prefix .. 'ud.'
+    urbandictionary.help = '/urbandictionary <query> - Returns the Urban Dictionary\'s definition for the given word. Aliases: ' .. configuration.command_prefix .. 'urban, ' .. configuration.command_prefix .. 'ud.'
 end
 
 function urbandictionary:on_inline_query(inline_query, configuration, language)
@@ -89,6 +89,9 @@ function urbandictionary.get_result(input, n)
 end
 
 function urbandictionary:on_callback_query(callback_query, message, configuration)
+    if not message.reply_to_message then
+        return
+    end
     if callback_query.data:match('^results:(%d*)$') then
         local result = callback_query.data:match('^results:(%d*)$')
         local input = mattata.input(message.reply_to_message.text)

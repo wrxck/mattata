@@ -14,7 +14,7 @@ function eightball:init(configuration)
         configuration.command_prefix,
         { '[Yy]/[Nn]%p*$' }
     ):command('eightball'):command('8ball').table
-    eightball.help = configuration.command_prefix .. 'eightball - Returns your destined decision through mattata\'s sixth sense. Alias: ' .. configuration.command_prefix .. '8ball.'
+    eightball.help = '/eightball - Returns your destined decision through mattata\'s sixth sense. Alias: /8ball.'
 end
 
 function eightball:on_message(message, configuration)
@@ -35,7 +35,7 @@ function eightball:on_message(message, configuration)
             output = 'Well, uh... I\'d ask again later, if I were you.'
         end
     else
-        local answers = configuration.answers
+        local answers = configuration.eightball
         output = answers[math.random(#answers)]
     end
     return mattata.send_reply(

@@ -15,7 +15,7 @@ function whois:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('whois').table
-    whois.help = configuration.command_prefix .. 'whois <IP address> - Displays the WHOIS look-up result for the given IP address.'
+    whois.help = '/whois <IP address> - Displays the WHOIS look-up result for the given IP address.'
 end
 
 function whois:on_message(message, configuration, language)

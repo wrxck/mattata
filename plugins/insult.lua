@@ -14,7 +14,7 @@ function insult:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('insult').table
-    insult.help = configuration.command_prefix .. 'insult - Sends a random insult.'
+    insult.help = '/insult - Sends a random insult.'
 end
 
 function insult:on_message(message, configuration, language)
