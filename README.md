@@ -100,10 +100,11 @@ As with `mattata.send_message`, there are only two required arguments. However t
 
 ## Donate
 As well as feedback and suggestions, you can contribute to the mattata project in the form of a monetary donation. This makes the biggest impact since it helps pay for things such as server hosting and domain registration. A donation of any sum is appreciated and, if you wish, you can donate [here](https://paypal.me/wrxck). I'd like to take a moment to thank the following people for their donation:
-* Joshua ([@j0shu4](https://telegram.me/j0shu4))
-* Para ([@para949](https://telegram.me/para949))
-* Flo ([@aRandomStranger](https://telegram.me/aRandomStranger))
-* mochi ([@mochicon](https://telegram.me/mochicon))
-* Barend ([@xenial](https://telegram.me/xenial))
+* Joshua ([@j0shu4](https://t.me/j0shu4))
+* Para ([@para949](https://t.me/para949))
+* Flo ([@aRandomStranger](https://t.me/aRandomStranger))
+* mochi ([@mochicon](https://t.me/mochicon))
+* Barend ([@xenial](https://t.me/xenial))
+* Robert ([@fizdog](https://t.me/fizdog))
 
 *Disclaimer: this README file is still being extended and may lack information*
