@@ -21,6 +21,9 @@ end
 
 function gif:on_inline_query(inline_query, configuration, language)
     local input = mattata.input(inline_query.query)
+    if not input then
+        return
+    end
     local jstr = https.request('https://api.giphy.com/v1/gifs/search?q=' .. url.escape(input) .. '&api_key=dc6zaTOxFJmzC')
     local jdat = json.decode(jstr)
     local results = '['
@@ -53,7 +56,7 @@ function gif:on_message(message, configuration, language)
         )
     end
     local jdat = json.decode(jstr)
-    if not jdat.data[1] then
+    if not jdat.data or not jdat.data[1] then
         return mattata.send_reply(
             message,
             language.errors.results

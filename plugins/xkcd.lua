@@ -8,7 +8,6 @@ local xkcd = {}
 
 local mattata = require('mattata')
 local https = require('ssl.https')
-local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 
@@ -19,9 +18,7 @@ function xkcd:init(configuration)
         configuration.command_prefix
     ):command('xkcd').table
     xkcd.help = '/xkcd <i> - Returns the latest xkcd strip and its alt text. If a number is given, returns that number strip. If \'r\' is passed in place of a number, returns a random strip.'
-    xkcd.base_url = 'https://xkcd.com/info.0.json'
-    xkcd.strip_url = 'http://xkcd.com/%s/info.0.json'
-    local jstr = http.request(xkcd.base_url)
+    local jstr = https.request('https://xkcd.com/info.0.json')
     if jstr then
         local jdat = json.decode(jstr)
         if jdat then
@@ -32,10 +29,7 @@ function xkcd:init(configuration)
 end
 
 function xkcd:on_message(message, configuration, language)
-    local input = mattata.get_word(
-        message.text,
-        2
-    )
+    local input = mattata.input(message.text)
     if not input then
         input = xkcd.latest
     end
@@ -44,21 +38,24 @@ function xkcd:on_message(message, configuration, language)
     elseif tonumber(input) ~= nil then
         input = tonumber(input)
     else
-        local link = 'https://www.google.co.uk/search?num=20&q=' .. url.escape('inurl:xkcd.com ' .. input)
-        local search = https.request(link)
-        local result = search:match('https?://xkcd[^/]+/(%d+)')
-        if not result then
+        input = 'inurl:xkcd.com ' .. input
+        local search = https.request('https://www.google.co.uk/search?num=20&q= ' .. url.escape(input))
+        if not search:match('https?://xkcd[^/]+/%d+') then
             input = xkcd.latest
         else
-            input = result
+            input = search:match('https?://xkcd[^/]+/(%d+)')
         end
     end
-    local url = xkcd.strip_url:format(input)
-    local jstr, res = http.request(url)
+    local url = string.format(
+        'https://xkcd.com/%s/info.0.json',
+        tostring(input)
+    )
+    local jstr, res = https.request(url)
     if res == 404 then
-        return mattata.send_reply(
-            message,
-            language.errors.results
+        return mattata.send_message(
+            message.chat.id,
+            '[<a href="https://xkcd.com/404">404</a>] <b>404 Not Found</b>, 1/4/2008',
+            'html'
         )
     elseif res ~= 200 then
         return mattata.send_reply(
@@ -67,25 +64,19 @@ function xkcd:on_message(message, configuration, language)
         )
     end
     local jdat = json.decode(jstr)
-    local keyboard = json.encode(
-        {
-            ['inline_keyboard'] = {
-                {
-                    {
-                        ['text'] = 'Read More',
-                        ['url'] = 'https://xkcd.com/' .. jdat.num
-                    }
-                }
-            }
-        }
-    )
-    return mattata.send_photo(
+    return mattata.send_message(
         message.chat.id,
-        jdat.img,
-        jdat.num .. ' | ' .. jdat.safe_title .. ' | ' .. jdat.day .. '/' .. jdat.month .. '/' .. jdat.year,
-        false,
-        nil,
-        keyboard
+        string.format(
+            '[<a href="%s">%s</a>] <b>%s</b>, %s/%s/%s\n<i>%s</i>',
+            jdat.img,
+            jdat.num,
+            mattata.escape_html(jdat.safe_title),
+            jdat.day,
+            jdat.month,
+            jdat.year,
+            mattata.escape_html(jdat.alt)
+        ),
+        'html'
     )
 end
 

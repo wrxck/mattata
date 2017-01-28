@@ -4,7 +4,7 @@ return { -- rename this file to configuration.lua for mattata to work
 
     ['admins'] = {  -- Here you need to specify the numerical ID of the users who shall have FULL control over mattata, this includes access to server files via the lua and shell plugins.
 
-        nil
+        221714512
 
     },
 
@@ -18,7 +18,7 @@ return { -- rename this file to configuration.lua for mattata to work
 
         ['username'] = 'mattatabot',
 
-        ['id'] = nil
+        ['id'] = 268302625
 
     },
 
@@ -46,6 +46,7 @@ return { -- rename this file to configuration.lua for mattata to work
 
         'control',
         -- To allow things to work properly, you MUST place all new plugins BELOW this line. It is recommended to keep the list clean by ensuring it keeps its alphabetical order.
+        'adduser',
         'administration',
         'apod',
         'appstore',
@@ -78,6 +79,7 @@ return { -- rename this file to configuration.lua for mattata to work
         'fact',
         'flickr',
         'fortune',
+        'game',
         'gblacklist',
         'gif',
         'github',
@@ -108,6 +110,7 @@ return { -- rename this file to configuration.lua for mattata to work
         'netflix',
         'ninegag',
         'paste',
+        'pay',
         'ping',
         'plugins',
         'pokedex',
@@ -181,10 +184,6 @@ return { -- rename this file to configuration.lua for mattata to work
         ['flickr'] = '', -- https://www.flickr.com/services/apps/create/noncommercial/?
 
         ['githubfeed'] = '',
-
-        ['news'] = '',
-
-        ['witai'] = '',
 
         ['twitch'] = '',
 

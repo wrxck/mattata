@@ -54,7 +54,16 @@ function spotify.get_track(jdat)
     if jdat.tracks.items[1].popularity then
         output = output .. '<b>Popularity:</b> ' .. jdat.tracks.items[1].popularity
     end
-    return output
+    local preview = false
+    if jdat.tracks.items[1].preview_url then
+        preview = {
+            ['track'] = jdat.tracks.items[1].name,
+            ['artist'] = jdat.tracks.items[1].album.artists[1].name,
+            ['duration'] = math.floor(tonumber(jdat.tracks.items[1].duration_ms) / 100) or nil,
+            ['url'] = jdat.tracks.items[1].preview_url
+        }
+    end
+    return output, preview
 end
 
 function spotify:on_message(message, configuration, language)
@@ -73,17 +82,31 @@ function spotify:on_message(message, configuration, language)
         )
     end
     local jdat = json.decode(jstr)
-    local output = spotify.get_track(jdat)
+    local output, preview = spotify.get_track(jdat)
     if not output then
         return mattata.send_reply(
             message,
             language.errors.results
         )
     end
-    return mattata.send_message(
+    mattata.send_message(
         message.chat.id,
         output,
         'html'
+    )
+    if not preview then
+        return
+    end
+    return mattata.send_file_pwr(
+        message.chat.id,
+        preview.url,
+        nil,
+        preview.duration,
+        preview.artist,
+        preview.track,
+        nil,
+        nil,
+        preview.track .. '.mp3'
     )
 end
 

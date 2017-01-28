@@ -29,8 +29,8 @@ function author:on_message(message, configuration)
             'The replied-to message must be a file!'
         )
     end
-    local success = mattata.get_chat_by_file(message.reply_to_message.file_id)
-    if not success then
+    local success = mattata.get_chat_by_file_pwr(message.reply_to_message.file_id)
+    if not success or not success.result then
         return mattata.send_reply(
             message,
             'I couldn\'t get information about that file\'s original sender.'

@@ -44,29 +44,73 @@ setlang.languages = {
 
 }
 
+setlang.languages_short = {
+
+    ['en'] = '🇬🇧',
+
+    ['it'] = '🇮🇹',
+
+    ['es'] = '🇪🇸',
+
+    ['pt'] = '🇧🇷',
+
+    ['ru'] = '🇷🇺',
+
+    ['de'] = '🇩🇪',
+
+    ['ar'] = '🇸🇩',
+
+    ['fr'] = '🇫🇷',
+
+    ['nl'] = '🇱🇺',
+
+    ['lv'] = '🇱🇻',
+
+    ['pl'] = '🇵🇱'
+
+}
+
 function setlang.get_keyboard(user_id)
     local keyboard = {
-        ['inline_keyboard'] = {}
+        ['inline_keyboard'] = {
+            {}
+        }
     }
-    for k, v in pairs(setlang.languages) do
-        table.insert(
-            keyboard.inline_keyboard,
-            {
-                {
-                    ['text'] = v,
-                    ['callback_data'] = 'setlang:' .. user_id .. ':' .. k
-                }
-            }
-        )
+    local total = 0
+    for _, v in pairs(setlang.languages_short) do
+        total = total + 1
+    end
+    local count = 0
+    local rows = math.floor(total / 2)
+    if rows ~= total then
+        rows = rows + 1
+    end
+    local row = 1
+    for k, v in pairs(setlang.languages_short) do
+        count = count + 1
+        if count == rows * row then
+            row = row + 1
+            table.insert(
+                keyboard.inline_keyboard,
+                {}
+            )
+        end
+		table.insert(
+			keyboard.inline_keyboard[row],
+			{
+				['text'] = v,
+				['callback_data'] = 'setlang:' .. user_id .. ':' .. k
+			}
+		)
     end
     return keyboard
 end
 
-function setlang.set_lang(user_id, language)
+function setlang.set_lang(user_id, locale, language)
     redis:hset(
         'user:' .. user_id .. ':language',
         'language',
-        language
+        locale
     )
     return 'Your language has been set to ' .. language .. '!'
 end
@@ -93,8 +137,11 @@ function setlang:on_callback_query(callback_query, message)
     if not user_id or not new_language then
         return
     end
+    if tostring(callback_query.from.id) ~= user_id then
+        return
+    end
     local keyboard = setlang.get_keyboard(user_id)
-    local output = setlang.set_lang(user_id, new_language)
+    local output = setlang.set_lang(user_id, new_language, setlang.languages[new_language])
     return mattata.edit_message_text(
         message.chat.id,
         message.message_id,
@@ -106,19 +153,15 @@ function setlang:on_callback_query(callback_query, message)
 end
 
 function setlang:on_message(message, configuration, language)
-    if message.chat.type ~= 'private' then
-        return mattata.send_reply(
-            message,
-            language.setlang['112']
-        )
-    end
     local keyboard = setlang.get_keyboard(message.from.id)
     local current = setlang.get_lang(message.from.id)
-    return mattata.send_reply(
-        message,
+    return mattata.send_message(
+        message.chat.id,
         current,
         nil,
         true,
+        false,
+        nil,
         json.encode(keyboard)
     )
 end

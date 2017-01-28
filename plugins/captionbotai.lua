@@ -17,9 +17,6 @@ function captionbotai.get_conversation_id()
     if res ~= 200 then
         return false
     end
-    if not str:match('%"(.-)%"') then
-        return false
-    end
     return str:match('%"(.-)%"')
 end
 

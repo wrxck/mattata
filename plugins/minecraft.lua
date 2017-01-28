@@ -171,7 +171,7 @@ function minecraft:on_callback_query(callback_query, message, configuration, lan
                         ['callback_data'] = 'minecraft:pages:' .. new_page .. ':' .. page_count
                     },
                     {
-                        ['text'] = 'Next →️',
+                        ['text'] = 'Next →',
                         ['callback_data'] = 'minecraft:history:' .. input .. ':' .. math.floor(tonumber(new_page) + 1)
                     }
                 }
