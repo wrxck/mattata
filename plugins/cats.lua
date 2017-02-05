@@ -1,21 +1,68 @@
+--[[
+    Based on a plugin by topkecleon.
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local cats = {}
-local HTTP = require('socket.http')
-local functions = require('functions')
-local telegram_api = require('telegram_api')
+
+local mattata = require('mattata')
+local http = require('socket.http')
+local json = require('dkjson')
+
 function cats:init(configuration)
-	cats.command = 'cat'
-	cats.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('cat').table
-	cats.documentation = configuration.command_prefix .. 'cat - A random picture of a cat!'
+    assert(
+        configuration.keys.cats,
+        'cats.lua requires an API key, and you haven\'t got one configured!'
+    )
+    cats.arguments = 'cat'
+    cats.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('cat')
+     :command('sarah').table -- Sarah likes cats!
+    cats.help = '/cat - A random picture of a cat!'
 end
-function cats:action(msg, configuration)
-	local api = configuration.apis.cats .. '&api_key=' .. configuration.keys.cats
-	local str, res = HTTP.request(api)
-	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
-		return
-	end
-	str = str:match('<img src="(.-)">')
-	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
-	functions.send_photo(msg.chat.id, functions.download_to_file(str), 'Meow!', msg.message_id)
+
+function cats:on_inline_query(inline_query, configuration)
+    local str, res = http.request('http://thecatapi.com/api/images/get?format=html&type=jpg&api_key=' .. configuration.keys.cats)
+    str = str:match('%<img src%=%"(.-)%"%>')
+    if res ~= 200 then
+        return
+    end
+    return mattata.answer_inline_query(
+        inline_query.id,
+        json.encode(
+            {
+                {
+                    ['type'] = 'photo',
+                    ['id'] = '1',
+                    ['photo_url'] = tostring(str),
+                    ['thumb_url'] = tostring(str),
+                    ['caption'] = 'Meow!'
+                }
+            }
+        )
+    )
 end
+
+function cats:on_message(message, configuration, language)
+    local str, res = http.request('http://thecatapi.com/api/images/get?format=html&type=jpg&api_key=' .. configuration.keys.cats)
+    if res ~= 200 then
+        return mattata.send_reply(
+            message,
+            language.errors.connection
+        )
+    end
+    mattata.send_chat_action(
+        message.chat.id,
+        'upload_photo'
+    )
+    return mattata.send_photo(
+        message.chat.id,
+        str:match('%<img src%=%"(.-)%"%>'),
+        'Meow!'
+    )
+end
+
 return cats

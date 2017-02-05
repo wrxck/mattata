@@ -1,50 +1,100 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local translate = {}
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
-local functions = require('functions')
+
+local mattata = require('mattata')
+local https = require('ssl.https')
+local url = require('socket.url')
+local json = require('dkjson')
+
 function translate:init(configuration)
-	translate.command = 'translate (text)'
-	translate.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('translate', true):t('tl', true).table
-	translate.inline_triggers = translate.triggers
-	translate.documentation = configuration.command_prefix .. 'translate (text) - Translates input or the replied-to message into ' .. self.info.first_name .. '\'s language. Alias: ' .. configuration.command_prefix .. 'tl.'
+    translate.arguments = 'translate <language> <text>'
+    translate.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('translate'):command('tl').table
+    translate.help = '/translate <language> <text> - Translates input into the given language (if arguments are given), else the replied-to message is translated into ' .. self.info.first_name .. '\'s language. Alias: /tl.'
 end
-function translate:inline_callback(inline_query, configuration)
-	local url = configuration.apis.translate .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text=' .. URL.escape(inline_query.query)
-	local jstr = HTTPS.request(url)
-	local jdat = JSON.decode(jstr)
-	local results = '[{"type":"article","id":"50","title":"/translate","description":"' .. functions.md_escape(jdat.text[1]):gsub('/translate ', '') .. '","input_message_content":{"message_text":"' .. functions.md_escape(jdat.text[1]) .. '","parse_mode":"Markdown"}}]'
-	functions.answer_inline_query(inline_query, results, 50)
+
+function translate:on_inline_query(inline_query, configuration, language)
+    local input = mattata.input(inline_query.query)
+    if not input then
+        return
+    end
+    local lang
+    if not mattata.get_word(input) or mattata.get_word(input):len() > 2 then
+        lang = language.locale
+    else
+        lang = mattata.get_word(input)
+    end
+    local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.keys.translate .. '&lang=' .. lang .. '&text=' .. url.escape(input:gsub(lang .. ' ', '')))
+    if res ~= 200 then
+        return
+    end
+    local jdat = json.decode(jstr)
+    return mattata.answer_inline_query(
+        inline_query.id,
+        json.encode(
+            {
+                {
+                    ['type'] = 'article',
+                    ['id'] = '1',
+                    ['title'] = jdat.text[1],
+                    ['description'] = 'Click to send your translation.',
+                    ['input_message_content'] = {
+                        ['message_text'] = jdat.text[1]
+                    }
+                }
+            }
+        )
+    )
 end
-function translate:action(msg, configuration)
-	local input = functions.input(msg.text)
-	local url = configuration.apis.translate .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text='
-	if msg.reply_to_message then
-		if not input then
-			url = url .. URL.escape(msg.reply_to_message.text)
-			local jstr, res = HTTPS.request(url)
-			if res ~= 200 then
-				functions.send_reply(msg, configuration.errors.connection)
-				return
-			end
-			local jdat = JSON.decode(jstr)
-			functions.send_reply(msg, functions.md_escape(jdat.text[1]))
-			return
-		end
-	else
-		if not input then
-			functions.send_reply(msg, translate.documentation)
-			return
-		end
-		url = url .. URL.escape(input)
-		local jstr, res = HTTPS.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		end
-		local jdat = JSON.decode(jstr)
-		functions.send_reply(msg, functions.md_escape(jdat.text[1]))
-		return
-	end
+
+function translate:on_message(message, configuration, language)
+    local input = mattata.input(message.text)
+    if not input then
+        if not message.reply_to_message then
+            return mattata.send_reply(
+                message,
+                translate.help
+            )
+        end
+        local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.keys.translate .. '&lang=' .. language.locale .. '&text=' .. url.escape(message.reply_to_message.text))
+        if res ~= 200 then
+            return mattata.send_reply(
+                message,
+                language.errors.connection
+            )
+        end
+        local jdat = json.decode(jstr)
+        return mattata.send_message(
+            message.chat.id,
+            '<b>Translation (from ' .. jdat.lang:gsub('%-', ' to ') .. '):</b>\n' .. mattata.escape_html(jdat.text[1]),
+            'html'
+        )
+    end
+    local lang
+    if not mattata.get_word(input) or mattata.get_word(input):len() > 2 then
+        lang = language.locale
+    else
+        lang = mattata.get_word(input)
+    end
+    local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.keys.translate .. '&lang=' .. lang .. '&text=' .. url.escape(input:gsub(lang .. ' ', '')))
+    if res ~= 200 then
+        return mattata.send_reply(
+            message,
+            language.errors.connection
+        )
+    end
+    local jdat = json.decode(jstr)
+    return mattata.send_message(
+        message.chat.id,
+        '<b>Translation (from ' .. jdat.lang:gsub('%-', ' to ') .. '):</b>\n' .. mattata.escape_html(jdat.text[1]),
+        'html'
+    )
 end
+
 return translate

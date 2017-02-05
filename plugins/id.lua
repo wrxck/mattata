@@ -1,59 +1,135 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local id = {}
-local functions = require('functions')
+
+local mattata = require('mattata')
+local json = require('dkjson')
+
 function id:init(configuration)
-	id.command = 'id <user>'
-	id.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('id', true).table
-	id.inline_triggers = id.triggers
-	id.documentation = configuration.command_prefix .. 'id <user> - Sends the name, ID, and username for the given users. Arguments must be usernames and/or IDs. Input is also accepted via reply. If no input is given, info about you is sent.'
+    id.arguments = 'id <user>'
+    id.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('id')
+     :command('whois').table
+    id.help = '/id <user> - Sends the name, ID, and (if applicable) username for the given user, group, channel or bot. Input is also accepted via reply. Alias: /whois.'
 end
-function id.format(t)
-	if t.username then
-		return string.format(
-			'@%s, AKA %s `[%s]`.\n',
-			t.username,
-			functions.build_name(t.first_name, t.last_name),
-			t.id
-		)
-	else
-		return string.format(
-			'%s `[%s]`.\n',
-			functions.build_name(t.first_name, t.last_name),
-			t.id
-		)
-	end
+
+function id.resolve_chat(message)
+    local output = {}
+    local input = message.text or message.query
+    input = mattata.input(input)
+    if not input and not message.reply_to_message then
+        input = message.from.id
+    elseif message.reply_to_message then
+        input = message.reply_to_message.from.id
+    end
+    if tonumber(input) == nil and not input:match('^%@') then
+        input = '@' .. input
+    end
+    local success = mattata.get_chat_pwr(input)
+    if not success or not success.result then
+        return 'I couldn\'t find any results for that.'
+    end
+    success = success.result
+    if success.id then
+        table.insert(
+            output,
+            '<b>ID:</b> ' .. success.id
+        )
+    end
+    if success.type then
+        table.insert(
+            output,
+            '<b>Chat Type:</b> ' .. success.type
+        )
+    end
+    if success.username then
+        table.insert(
+            output,
+            '<b>Username:</b> ' .. success.username
+        )
+    end
+    if success.first_name then
+        table.insert(
+            output,
+            '<b>First Name:</b> ' .. mattata.escape_html(success.first_name)
+        )
+    end
+    if success.last_name then
+        table.insert(
+            output,
+            '<b>Last Name:</b> ' .. mattata.escape_html(success.last_name)
+        )
+    end
+    if success.verified then
+        table.insert(
+            output,
+            '<b>Official?</b> ' .. success.verified
+        )
+    end
+    if success.phone then
+        table.insert(
+            output,
+            '<b>Phone Number:</b> ' .. success.phone
+        )
+    end
+    if success.restricted then
+        table.insert(
+            output,
+            '<b>Restricted?</b> ' .. success.restricted
+        )
+    end
+    if success.title then
+        table.insert(
+            output,
+            '<b>Chat Title:</b> ' .. mattata.escape_html(success.title)
+        )
+    end
+    if success.bio then
+        table.insert(
+            output,
+            '<b>Bio:</b> ' .. mattata.escape_html(mattata.trim(success.bio))
+        )
+    end
+    return table.concat(
+        output,
+        '\n'
+    )
 end
-function id:inline_callback(inline_query, configuration)
-	local results = '[{"type":"article","id":"50","title":"/id","description":"Your ID is: ' .. inline_query.from.id .. '","input_message_content":{"message_text":"' .. inline_query.from.id .. '","parse_mode":"Markdown"}}]'
-	functions.answer_inline_query(inline_query, results, 50)
+
+function id:on_inline_query(inline_query, configuration)
+    local input = mattata.input(inline_query.query)
+    local output = id.resolve_chat(inline_query)
+    local results = json.encode(
+        {
+            {
+                ['type'] = 'article',
+                ['id'] = '1',
+                ['title'] = tostring(input),
+                ['description'] = 'Click to send the result!',
+                ['input_message_content'] = {
+                    ['message_text'] = tostring(output),
+                    ['parse_mode'] = 'html'
+                }
+            }
+        }
+    )
+    return mattata.answer_inline_query(
+        inline_query.id,
+        results
+    )
 end
-function id:action(msg)
-	local output
-	local input = functions.input(msg.text)
-	if msg.reply_to_message then
-		output = id.format(msg.reply_to_message.from)
-	elseif input then
-		output = ''
-		for user in input:gmatch('%g+') do
-			if tonumber(user) then
-				if self.database.users[user] then
-					output = output .. id.format(self.database.users[user])
-				else
-					output = output .. 'I don\'t recognise that ID (' .. user .. ').\n'
-				end
-			elseif user:match('^@') then
-				local t = functions.resolve_username(self, user)
-				if t then
-					output = output .. id.format(t)
-				else
-					output = output .. 'I don\'t recognise that username (' .. user .. ').\n'
-				end
-			else
-				output = output .. 'Invalid username or ID (' .. user .. ').\n'
-			end
-		end
-	else
-		output = id.format(msg.from)
-	end
-	functions.send_reply(msg, output, true)
+
+function id:on_message(message)
+    return mattata.send_message(
+        message.chat.id,
+        id.resolve_chat(message),
+        'html'
+    )
 end
+
 return id

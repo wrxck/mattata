@@ -1,33 +1,72 @@
+--[[
+    Based on a plugin by topkecleon.
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local calc = {}
-local URL = require('socket.url')
-local HTTP = require('socket.http')
-local functions = require('functions')
+
+local mattata = require('mattata')
+local http = require('socket.http')
+local url = require('socket.url')
+local json = require('dkjson')
+
 function calc:init(configuration)
-	calc.command = 'calc <expression>'
-	calc.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('calc', true).table
-	calc.inline_triggers = calc.triggers
-	calc.documentation = configuration.command_prefix .. 'calc <expression> - Calculates solutions to mathematical expressions. The results are provided by mathjs.org.'
+    calc.arguments = 'calc <expression>'
+    calc.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('calc').table
+    calc.help = '/calc <expression> - Calculates solutions to mathematical expressions. The results are provided by mathjs.org.'
 end
-function calc:inline_callback(inline_query, configuration)
-	local input = inline_query.query:gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*')
-	local url = configuration.apis.calc .. URL.escape(input)
-    local output = HTTP.request(url)
-	local results = '[{"type":"article","id":"50","title":"/calc","description":"' .. calc.documentation .. '","input_message_content":{"message_text":"' .. output .. '","parse_mode":"Markdown"}}]'
-	functions.answer_inline_query(inline_query, results, 50)
+
+function calc:on_inline_query(inline_query)
+    local input = mattata.input(inline_query.query)
+    if not input then
+        return
+    end
+    input = input:gsub('÷', '/'):gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*'):gsub('to the power of', '^'):gsub('minus', '-')
+    local str, res = http.request('https://api.mathjs.org/v1/?expr=' .. url.escape(input))
+    if res ~= 200 then
+        return
+    end
+    return mattata.answer_inline_query(
+        json.encode(
+            {
+                {
+                    ['type'] = 'article',
+                    ['id'] = '1',
+                    ['title'] = str,
+                    ['description'] = 'Click to send the result.',
+                    ['input_message_content'] = {
+                        ['message_text'] = str
+                    }
+                }
+            }
+        )
+    )
 end
-function calc:action(msg, configuration)
-	local input = functions.input(msg.text)
-	if not input then
-		functions.send_reply(msg, calc.documentation)
-		return
-	else
-		input = input:gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*')
-	end
-	local output, res = HTTP.request(configuration.apis.calc .. URL.escape(input))
-	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
-		return
-	end
-	functions.send_reply(msg, output, true)
+
+function calc:on_message(message, configuration, language)
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(
+            message,
+            calc.help
+        )
+    end
+    input = input:gsub('÷', '/'):gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*'):gsub('to the power of', '^'):gsub('minus', '-')
+    local str, res = http.request('https://api.mathjs.org/v1/?expr=' .. url.escape(input))
+    if res ~= 200 then
+        return mattata.send_reply(
+            message,
+            language.errors.connection
+        )
+    end
+    return mattata.send_message(
+        message.chat.id,
+        str
+    )
 end
+
 return calc

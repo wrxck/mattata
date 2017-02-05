@@ -1,133 +1,127 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local time = {}
-local HTTP = require('socket.http')
-local JSON = require('dkjson')
-local functions = require('functions')
+
+local mattata = require('mattata')
+local https = require('ssl.https')
+local http = require('socket.http')
+local url = require('socket.url')
+local json = require('dkjson')
+local setloc = require('plugins.setloc')
+
 function time:init(configuration)
-	time.command = 'time'
-	time.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('time', true).table
-	time.documentation = configuration.command_prefix .. 'time - Without any arguments, this will send the current date and time in UTC. Supports natural language queries as an argument, i.e. \'' .. configuration.command_prefix .. 'time 5 hours before noon next friday\'. You can also say \'in PDT\', for example; and, if it\'s a supported time zone, it\'ll send the said information - adjusted to that time zone. The time zones which are currently supported are: GMT, MST, EST, AST, CST, MSK, EET and CET..'
+    time.arguments = 'time <query>'
+    time.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('time').table
+    time.help = '/time <query> - Returns the time, date, and timezone for your location, if you\'ve set one with \'' .. configuration.command_prefix .. 'setloc <query>\'. If an argument is given, the time for the given place will be sent.'
 end
-function time:action(msg, configuration)
-	local input = functions.input(msg.text)
-	if not input then
-		local url = configuration.apis.time
-		local time, res = HTTP.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		else
-			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
-			return
-		end
-	elseif string.match(input, 'in MST') or string.match(input, 'in mst') then
-		local input = input:gsub('in MST', ''):gsub(' in mst', '')
-		local url = 'http://www.timeapi.org/mst/' .. input
-		local time, res = HTTP.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		else
-			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
-			return
-		end
-	elseif string.match(input, 'in EST') or string.match(input, 'in est') then
-		local input = input:gsub('in EST', ''):gsub(' in est', '')
-		local url = 'http://www.timeapi.org/est/' .. input
-		local time, res = HTTP.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		else
-			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
-			return
-		end
-	elseif string.match(input, 'in AST') or string.match(input, 'in ast') then
-		local input = input:gsub('in AST', ''):gsub(' in ast', '')
-		local url = 'http://www.timeapi.org/ast/' .. input
-		local time, res = HTTP.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		else
-			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
-			return
-		end
-	elseif string.match(input, 'in CST') or string.match(input, 'in cst') then
-		local input = input:gsub('in CST', ''):gsub(' in cst', '')
-		local url = 'http://www.timeapi.org/cst/' .. input
-		local time, res = HTTP.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		else
-			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
-			return
-		end
-	elseif string.match(input, 'in MSK') or string.match(input, 'in msk') then
-		local input = input:gsub('in MSK', ''):gsub(' in msk', '')
-		local url = 'http://www.timeapi.org/msk/' .. input
-		local time, res = HTTP.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		else
-			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
-			return
-		end
-	elseif string.match(input, 'in EET') or string.match(input, 'in eet') then
-		local input = input:gsub('in EET', ''):gsub(' in eet', '')
-		local url = 'http://www.timeapi.org/eet/' .. input
-		local time, res = HTTP.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		else
-			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
-			return
-		end
-	elseif string.match(input, 'in CET') or string.match(input, 'in cet') then
-		local input = input:gsub('in CET', ''):gsub(' in cet', '')
-		local url = 'http://www.timeapi.org/cet/' .. input
-		local time, res = HTTP.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		else
-			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
-			return
-		end
-	elseif string.match(input, 'in GMT') or string.match(input, 'in gmt') then
-		local input = input:gsub('in GMT', ''):gsub(' in gmt', '')
-		local url = 'http://www.timeapi.org/gmt/' .. input
-		local time, res = HTTP.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		else
-			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
-			return
-		end
-	elseif string.match(input, 'in UTC') or string.match(input, 'in utc') then
-		local input = input:gsub('in UTC', ''):gsub(' in utc', '')
-		local url = 'http://www.timeapi.org/utc/' .. input
-		local time, res = HTTP.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		else
-			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
-			return
-		end
-	else
-		local url = 'http://www.timeapi.org/utc/' .. input
-		local time, res = HTTP.request(url)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		else
-			functions.send_reply(msg, '*Date:* ' .. time:gsub('-', '/'):gsub('T', ' *Time:* '):gsub('+', ' *Timezone:* +'), true)
-			return
-		end
-	end
+
+function time.format_float(n)
+    if n % 1 == 0 then
+        return tostring(math.floor(n))
+    else
+        return tostring(n)
+    end
 end
+
+function time.search(input)
+    local jstr, res = http.request('http://maps.googleapis.com/maps/api/geocode/json?address=' .. url.escape(input))
+    if res ~= 200 then
+        return nil
+    end
+    local jdat = json.decode(jstr)
+    if not jdat then
+        return nil
+    elseif jdat.status == 'ZERO_RESULTS' then
+        return false
+    end
+    return jdat.results[1].geometry.location.lat, jdat.results[1].geometry.location.lng, jdat.results[1].formatted_address
+end
+
+function time:on_message(message, configuration, language)
+    local input = mattata.input(message.text)
+    local lat, lon, address
+    if not input then
+        local location = setloc.get_loc(message.from)
+        if not location then
+            return mattata.send_reply(
+                message,
+                time.help
+            )
+        end
+        lat, lon, address = json.decode(location).latitude, json.decode(location).longitude, json.decode(location).address
+    else
+        lat, lon, address = time.search(input)
+        if lat == nil then
+            return mattata.send_reply(
+                message,
+                language.errors.connection
+            )
+        elseif not lat then
+            return mattata.send_reply(
+                message,
+                language.errors.results
+            )
+        end
+    end
+    local now = os.time()
+    local utc = os.time(
+        os.date(
+            '!*t',
+            now
+        )
+    )
+    local url = string.format(
+        'https://maps.googleapis.com/maps/api/timezone/json?location=%s,%s&timestamp=%s',
+        lat,
+        lon,
+        utc
+    )
+    local jstr, res = https.request(url)
+    if res ~= 200 then
+        return mattata.send_reply(
+            message,
+            language.errors.connection
+        )
+    end
+    local jdat = json.decode(jstr)
+    if jdat.status == 'ZERO_RESULTS' then
+        return mattata.send_reply(
+            message,
+            language.errors.results
+        )
+    elseif not jdat.dstOffset then
+        return mattata.send_reply(
+            message,
+            language.errors.results
+        )
+    end
+    local timestamp = now + jdat.rawOffset + jdat.dstOffset
+    local utc_offset = (jdat.rawOffset + jdat.dstOffset) / 3600
+    if utc_offset == math.abs(utc_offset) then
+        utc_offset = '+' .. time.format_float(utc_offset)
+    else
+        utc_offset = time.format_float(utc_offset)
+    end
+    return mattata.send_message(
+        message.chat.id,
+        string.format(
+            '%s\n%s\n%s (UTC%s)',
+            '<b>Current time in ' .. mattata.escape_html(address) .. ':</b>',
+            os.date(
+                '!%I:%M %p\n%A, %B %d, %Y',
+                timestamp
+            ),
+            jdat.timeZoneName,
+            utc_offset
+        ),
+        'html'
+    )
+end
+
 return time

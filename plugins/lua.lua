@@ -1,52 +1,79 @@
+--[[
+    Based on a plugin by topkecleon.
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local lua = {}
-local functions = require('functions')
-local URL = require('socket.url')
-local JSON = require('serpent')
+
+local mattata = require('mattata')
+local url = require('socket.url')
+local utf8 = require('lua-utf8')
+local json = require('serpent')
+local users, groups
+
 function lua:init(configuration)
-	lua.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('lua', true):t('return', true).table
-	JSON = require('dkjson')
-	lua.serialise = function(t) return JSON.encode(t, {indent=true}) end
-	lua.loadstring = load or loadstring
-	lua.error_message = function(x)
-		return 'Error:\n' .. tostring(x)
-	end
+    lua.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('lua').table
+    json = require('dkjson')
+    lua.serialise = function(input)
+        return json.encode(
+            input,
+            {
+                indent = true
+            }
+        )
+    end
+    lua.loadstring = load or loadstring
+    lua.error_message = function(x)
+        return 'Error:\n' .. tostring(x)
+    end
+    groups = self.groups
 end
-function lua:action(msg, configuration)
-	if msg.from.id ~= configuration.owner_id then
-		return true
-	end
-	local input = functions.input(msg.text)
-	if not input then
-		functions.send_reply(msg, 'Please enter a string of lua to execute')
-		return
-	end
-	if msg.text_lower:match('^' .. configuration.command_prefix .. 'return') then
-		input = 'return ' .. input
-	end
-	local output, success = loadstring( [[
-		local mattata = require('mattata')
-		local telegram_api = require('telegram_api')
-		local functions = require('functions')
-		local JSON = require('dkjson')
-		local URL = require('socket.url')
-		local HTTP = require('socket.http')
-		local HTTPS = require('ssl.https')
-		return function (msg, configuration) ]] .. input .. [[ end
-	]] )
-	if output == nil then
-		output = success
-	else
-		success, output = xpcall(output(), lua.error_message, msg, configuration)
-	end
-	if output ~= nil then
-		if type(output) == 'table' then
-			local s = lua.serialise(output)
-			if URL.escape(s):len() < 4000 then
-				output = s
-			end
-		end
-		output = '`' .. tostring(output) .. '`'
-	end
-	functions.send_message(msg.chat.id, output, true, msg.message_id, true)
+
+function lua:on_message(message, configuration)
+    if not mattata.is_global_admin(message.from.id) then
+        return
+    end
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(
+            message,
+            'Please enter a string of Lua to execute!'
+        )
+    end
+    local output, success = loadstring(
+        [[
+            local mattata = require('mattata')
+            local https = require('ssl.https')
+            local http = require('socket.http')
+            local url = require('socket.url')
+            local ltn12 = require('ltn12')
+            local json = require('dkjson')
+            local utf8 = require('lua-utf8')
+            local redis = require('mattata-redis')
+            local socket = require('socket')
+            return function (message, configuration, self)
+        ]] .. input .. ' end'
+    )
+    if success == nil then
+        success, output = xpcall(
+            output(),
+            lua.error_message,
+            message,
+            configuration
+        )
+    end
+    if output ~= nil and type(output) == 'table' then
+        output = lua.serialise(output)
+    end
+    return mattata.send_message(
+        message.chat.id,
+        '<pre>' .. mattata.escape_html(tostring(output)) .. '</pre>',
+        'html'
+    )
 end
+
 return lua

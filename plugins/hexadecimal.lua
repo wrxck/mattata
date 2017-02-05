@@ -1,0 +1,61 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
+local hexadecimal = {}
+
+local mattata = require('mattata')
+
+function hexadecimal:init(configuration)
+    hexadecimal.arguments = 'hexadecimal <string>'
+    hexadecimal.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('hexadecimal'):command('hex').table
+    hexadecimal.help = '/hexadecimal <string> - Converts the given string to hexadecimal. Alias: /hex.'
+end
+
+function hexadecimal.num_to_hex(num)
+    local hex = '0123456789abcdef'
+    local s = ''
+    while num > 0 do
+        local mod = math.fmod(num, 16)
+        s = hex:sub(mod + 1, mod +1) .. s
+        num = math.floor(num / 16)
+    end
+    if s == '' then
+        s = '0'
+    end
+    return s
+end
+
+function hexadecimal.str_to_hex(str)
+    local hex = ''
+    while #str > 0 do
+        local hb = hexadecimal.num_to_hex(str:byte(1, 1))
+        if #hb < 2 then
+            hb = '0' .. hb
+        end
+        hex = hex .. hb
+        str = str:sub(2)
+    end
+    return hex
+end
+
+function hexadecimal:on_message(message)
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(
+            message,
+            hexadecimal.help
+        )
+    end
+    return mattata.send_message(
+        message.chat.id,
+        '<pre>' .. mattata.escape_html(hexadecimal.str_to_hex(input)) .. '</pre>',
+        'html'
+    )
+end
+
+return hexadecimal

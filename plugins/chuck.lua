@@ -1,26 +1,61 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local chuck = {}
-local JSON = require('dkjson')
-local functions = require('functions')
-local HTTP = require('socket.http')
+
+local mattata = require('mattata')
+local http = require('socket.http')
+local json = require('dkjson')
+
 function chuck:init(configuration)
-	chuck.command = 'chuck'
-	chuck.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('chuck', true).table
-	chuck.inline_triggers = chuck.triggers
-	chuck.documentation = configuration.command_prefix .. 'chuck - Generates a Chuck Norris joke!'
+    chuck.arguments = 'chuck'
+    chuck.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('chuck').table
+    chuck.help = '/chuck - Generates a Chuck Norris joke!'
 end
-function chuck:inline_callback(inline_query, configuration)
-	local jstr = HTTP.request(configuration.apis.chuck)
-	local jdat = JSON.decode(jstr)
-	local results = '[{"type":"article","id":"50","title":"/chuck","description":"' .. chuck.documentation .. '","input_message_content":{"message_text":"' .. jdat.value.joke .. '","parse_mode":"Markdown"}}]'
-	functions.answer_inline_query(inline_query, results, 50)
+
+function chuck:on_inline_query(inline_query, configuration, language)
+    local jstr, res = http.request('http://api.icndb.com/jokes/random')
+    if res ~= 200 then
+        return
+    end
+    local jdat = json.decode(jstr)
+    local results = json.encode(
+        {
+            {
+                ['type'] = 'article',
+                ['id'] = '1',
+                ['title'] = jdat.value.joke,
+                ['description'] = 'Click to send the result.',
+                ['input_message_content'] = {
+                    ['message_text'] = jdat.value.joke
+                }
+            }
+        }
+    )
+    return mattata.answer_inline_query(
+        inline_query.id,
+        results
+    )
 end
-function chuck:action(msg, configuration)
-	local jstr, res = HTTP.request(configuration.apis.chuck)
-	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
-		return
-	end
-	local jdat = JSON.decode(jstr)
-	functions.send_reply(msg, functions.html_escape(jdat.value.joke))
+
+function chuck:on_message(message, configuration, language)
+    local jstr, res = http.request('http://api.icndb.com/jokes/random')
+    if res ~= 200 then
+        return mattata.send_reply(
+            message,
+            language.errors.connection
+        )
+    end
+    local jdat = json.decode(jstr)
+    return mattata.send_message(
+        message.chat.id,
+        jdat.value.joke
+    )
 end
+
 return chuck

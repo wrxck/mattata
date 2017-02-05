@@ -1,20 +1,34 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local identicon = {}
-local URL = require('socket.url')
-local functions = require('functions')
-local telegram_api = require('telegram_api')
+
+local mattata = require('mattata')
+local url = require('socket.url')
+
 function identicon:init(configuration)
-	identicon.command = 'identicon <string>'
-	identicon.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('identicon', true).table
-	identicon.documentation = configuration.command_prefix .. 'identicon - Converts the given string to an identicon.'
+    identicon.arguments = 'identicon <string>'
+    identicon.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('identicon').table
+    identicon.help = '/identicon <string> - Converts the given string of text to an identicon.'
 end
-function identicon:action(msg, configuration)
-	local input = functions.input(msg.text)
-	if not input then
-		functions.send_reply(msg, identicon.documentation)
-		return
-	end
-	local str = configuration.apis.identicon .. URL.escape(input) .. '.png'
-	telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
-	functions.send_photo(msg.chat.id, functions.download_to_file(str), 'Here is your string, \'' .. input .. '\' - as an identicon.')
+
+function identicon:on_message(message, configuration, language)
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(
+            message,
+            identicon.help
+        )
+    end
+    return mattata.send_photo(
+        message.chat.id,
+        'http://identicon.rmhdev.net/' .. url.escape(input) .. '.png'
+    )
 end
+
 return identicon

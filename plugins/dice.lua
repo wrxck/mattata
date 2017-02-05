@@ -1,42 +1,72 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local dice = {}
-local functions = require('functions')
+
+local mattata = require('mattata')
+
 function dice:init(configuration)
-	dice.command = 'dice <number of dice> <range of numbers>'
-	dice.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('dice', true).table
-	dice.documentation = configuration.command_prefix .. 'dice <number of dice to roll> <range of numbers on the dice> - Rolls a die a given amount of times, with a given range.'
+    dice.arguments = 'dice <number of dice> <range of numbers>'
+    dice.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('dice').table
+    dice.help = '/dice <number of dice to roll> <range of numbers on the dice> - Rolls a die a given amount of times, with a given range.'
 end
-function dice:action(msg, configuration)
-	local input = functions.input(msg.text)
-	if not input then
-		functions.send_reply(msg, dice.documentation)
-		return
-	end
-	local count, range
-	if input:match('^[%d]+ [%d]+$') then
-		count, range = input:match('([%d]+) ([%d]+)')
-	elseif input:match('^d?[%d]+$') then
-		count = 1
-		range = input:match('^d?([%d]+)$')
-	end
-	count = tonumber(count)
-	range = tonumber(range)
-	if range < configuration.dice.minimum_range then
-		functions.send_reply(msg, 'The minimum range is ' .. configuration.dice.minimum_range .. '.')
-		return
-	end
-	if range > configuration.dice.maximum_range or count > configuration.dice.maximum_count then
-		if configuration.dice.maximum_range == configuration.dice.maximum_count then
-			functions.send_reply(msg, 'The maximum range and count are both ' .. configuration.dice.maximum_range .. '.')
-			return
-		else
-			functions.send_reply(msg, 'The maximum range is ' .. configuration.dice.maximum_range .. ', and the maximum count is ' .. configuration.dice.maximum_count .. '.')
-			return
-		end
-	end
-	local output = '*' .. count .. '* rolls with a range of *' .. range .. '*\n'
-	for _ = 1, count do
-		output = output .. math.random(range) .. '\t'
-	end
-	functions.send_reply(msg, output, true)
+
+function dice:on_message(message, configuration)
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(
+            message,
+            dice.help
+        )
+    end
+    local count, range
+    if input:match('^(%d*) (%d*)$') then
+        count, range = input:match('^(%d*) (%d*)$')
+    end
+    if not count or not range then
+        return mattata.send_reply(
+            message,
+            dice.help
+        )
+    end
+    if tonumber(range) < configuration.dice.min_range then
+        return mattata.send_reply(
+            message,
+            'The minimum range is ' .. configuration.dice.min_range .. '.'
+        )
+    elseif tonumber(range) > configuration.dice.max_range or tonumber(count) > configuration.dice.max_count then
+        if configuration.dice.max_range == configuration.dice.max_count then
+            return mattata.send_reply(
+                message,
+                'The maximum range and count are both ' .. configuration.dice.max_range .. '.'
+            )
+        end
+        return mattata.send_reply(
+            message,
+            'The maximum range is ' .. configuration.dice.max_range .. ', and the maximum count is ' .. configuration.dice.max_count .. '.'
+        )
+    end
+    local output = '<b>' .. count .. '</b> rolls with a range of <b>' .. range .. '</b>:\n'
+    local results = {}
+    for i = 1, tonumber(count) do
+        table.insert(
+            results,
+            math.random(tonumber(range))
+        )
+    end
+    return mattata.send_message(
+        message.chat.id,
+        output .. '<pre>' .. table.concat(
+            results,
+            ', '
+        ) .. '</pre>',
+        'html'
+    )
 end
+
 return dice

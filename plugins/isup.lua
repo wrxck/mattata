@@ -1,47 +1,56 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local isup = {}
-local functions = require('functions')
-local URL = require('socket.url')
-local HTTP = require('socket.http')
+
+local mattata = require('mattata')
+local http = require('socket.http')
+local url = require('socket.url')
+
 function isup:init(configuration)
-	isup.command = 'isup <URL>'
-	isup.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('isup', true).table
-	isup.documentation = configuration.command_prefix .. 'isup <URL> - Check if the specified URL is down for everyone or just you.'
+    isup.arguments = 'isup <url>'
+    isup.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('isup').table
+    isup.help = '/isup <url> - Check if the specified url is down for everyone or just you.'
 end
-function isup.website_down_http(url)
-	local parsed_url = URL.parse(url, { scheme = 'http', authority = '' })
-	if not parsed_url.host and parsed_url.path then
-		parsed_url.host = parsed_url.path
-		parsed_url.path = ''
-	end
-	local url = URL.build(parsed_url)
-	local protocol
-	if parsed_url.scheme == 'http' then
-		protocol = HTTP
-	else
-		protocol = HTTP
-	end
-	local options = {
-		url = url,
-		redirect = false,
-		method = 'GET'
-	}
-	local _, code = protocol.request(options)
-	code = tonumber(code)
-	if not code or code >= 400 then
-		return false
-	end
-	return true
+
+function isup.is_site_up(input)
+    local protocol = http
+    if input:lower():match('^https') then
+        protocol = https
+    elseif not input:lower():match('^http') then
+        input = 'http://' .. input
+    end
+    local _, res = protocol.request(input)
+    res = tonumber(res)
+    if not res or res > 399 then
+        return false
+    end
+    return true
 end
-function isup:action(msg, configuration)
-	local input = functions.input(msg.text)
-	if not input then
-		functions.send_reply(msg, isup.documentation)
-		return
-	end
-	if isup.website_down_http(input) then
-		functions.send_reply(msg, 'This website is up, maybe it\'s just you?')
-	else
-		functions.send_reply(msg, 'It\'s not just you, this website is down!')
-	end
+
+function isup:on_message(message, configuration)
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(
+            message,
+            isup.help
+        )
+    end
+    if isup.is_site_up(input) then
+        return mattata.send_message(
+            message,
+            'This website is up, maybe it\'s just you?'
+        )
+    end
+    return mattata.send_reply(
+        message,
+        'It\'s not just you, this website is down!'
+    )
 end
+
 return isup

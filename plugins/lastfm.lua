@@ -1,99 +1,247 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local lastfm = {}
-local HTTP = require('socket.http')
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
-local functions = require('functions')
-local telegram_api = require('telegram_api')
+
+local mattata = require('mattata')
+local https = require('ssl.https')
+local http = require('socket.http')
+local url = require('socket.url')
+local json = require('dkjson')
+local redis = require('mattata-redis')
+
 function lastfm:init(configuration)
-	lastfm.command = 'lastfm'
-	lastfm.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('lastfm', true):t('np', true):t('fmset', true).table
-	lastfm.documentation = configuration.command_prefix .. 'np (username) - Returns what you are or were last listening to. If you specify a username, info will be returned for that username.' .. configuration.command_prefix .. 'fmset <username> - Sets your last.fm username. Otherwise, ' .. configuration.command_prefix .. 'np will use your Telegram username. Use ' .. configuration.command_prefix .. 'fmset -del to delete it.'
+    assert(
+        configuration.keys.lastfm,
+        'lastfm.lua requires an API key, and you haven\'t got one configured!'
+    
+    )
+    lastfm.arguments = 'lastfm'
+    lastfm.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('lastfm'):command('np'):command('fmset').table
+    lastfm.help = '/np <username> - Returns what you are or were last listening to. If you specify a username, info will be returned for that username.' .. configuration.command_prefix .. 'fmset <username> - Sets your last.fm username. Use ' .. configuration.command_prefix .. 'fmset -del to delete your current username.'
 end
-function lastfm:action(msg, configuration)
-	local input = functions.input(msg.text)
-	local from_id_str = tostring(msg.from.id)
-	self.database.userdata[from_id_str] = self.database.userdata[from_id_str] or {}
-	if string.match(msg.text, '^' .. configuration.command_prefix .. 'lastfm') then
-		functions.send_reply(msg, lastfm.documentation)
-		return
-	elseif string.match(msg.text, '^' .. configuration.command_prefix .. 'fmset') then
-		if not input then
-			functions.send_reply(msg, lastfm.documentation)
-		elseif input == '-del' then
-			self.database.userdata[from_id_str].lastfm = nil
-			functions.send_reply(msg, 'Your last.fm username has been forgotten.')
-		else
-			self.database.userdata[from_id_str].lastfm = input
-			functions.send_reply(msg, 'Your last.fm username has been set to "' .. input .. '".')
-		end
-		return
-	end
-	local url = configuration.apis.lastfm .. configuration.keys.lastfm .. '&user='
-	local username
-	local alert = ''
-	if input then
-		username = input
-	elseif self.database.userdata[from_id_str].lastfm then
-		username = self.database.userdata[from_id_str].lastfm
-	elseif msg.from.username then
-		username = msg.from.username
-		alert = '\n\nYour username has been set to ' .. username .. '.\nTo change it, use ' .. configuration.command_prefix .. 'fmset <username>.'
-		self.database.userdata[from_id_str].lastfm = username
-	else
-		functions.send_reply(msg, 'Please specify your last.fm username or set it with ' .. configuration.command_prefix .. 'fmset.')
-		return
-	end
-	url = url .. URL.escape(username)
-	local jstr, res = HTTP.request(url)
-	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
-		return
-	end
-	local jdat = JSON.decode(jstr)
-	if jdat.error then
-		functions.send_reply(msg, 'Please specify your last.fm username or set it with ' .. configuration.command_prefix .. 'fmset.')
-		return
-	end
-	jdat = jdat.recenttracks.track[1] or jdat.recenttracks.track
-	if not jdat then
-		functions.send_reply(msg, 'No history for this user.' .. alert)
-		return
-	end
-	local output = input or msg.from.first_name
-	output = '🎵  ' .. output
-	if jdat['@attr'] and jdat['@attr'].nowplaying then
-		output = output .. ' is currently listening to:\n'
-	else
-		output = output .. ' last listened to:\n'
-	end
-	local title = jdat.name or 'Unknown'
-	local artist = 'Unknown'
-	if jdat.artist then
-		artist = jdat.artist['#text']
-	end
-	output = output .. title .. ' - ' .. artist .. alert
-	local url = configuration.apis.itunes .. URL.escape(artist)
-	local jstr, res = HTTPS.request(url)
-	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
-		return
-	else
-		local jdat = JSON.decode(jstr)
-		if tonumber(jdat.resultCount) > 0 then
-			if jdat.results[1].artworkUrl100 then
-				local artworkUrl100 = jdat.results[1].artworkUrl100:gsub('/100x100bb.jpg', '/10000x10000bb.jpg')
-				telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'upload_photo' }
-				functions.send_photo(msg.chat.id, functions.download_to_file(artworkUrl100), output, msg.message_id)
-				return
-			else
-				functions.send_reply(msg, output)
-				return
-			end
-		else
-			functions.send_reply(msg, output)
-			return
-		end
-	end
+
+function lastfm.set_username(user, name)
+    local hash = mattata.get_user_redis_hash(user, 'lastfm')
+    if hash then
+        redis:hset(
+            hash,
+            'lastfm',
+            name
+        )
+        return user.first_name .. '\'s last.fm username has been set to \'' .. name .. '\'.'
+    end
 end
+
+function lastfm.del_username(user)
+    local hash = mattata.get_user_redis_hash(user, 'lastfm')
+    if redis:hexists(
+        hash,
+        'lastfm'
+    ) == true then
+        redis:hdel(
+            hash,
+            'lastfm'
+        )
+        return 'Your last.fm username has been forgotten!'
+    else
+        return 'You don\'t currently have a last.fm username set!'
+    end
+end
+
+function lastfm.get_username(user)
+    local hash = mattata.get_user_redis_hash(user, 'lastfm')
+    if hash then
+        local name = redis:hget(hash, 'lastfm')
+        if not name or name == 'false' then
+            return false
+        else
+            return name
+        end
+    end
+end
+
+function lastfm:on_inline_query(inline_query, configuration, language)
+    local input = mattata.input(inline_query.query)
+    local lastfm_url = 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&format=json&limit=1&api_key=' .. configuration.keys.lastfm .. '&user='
+    local username, results, output
+    if inline_query.query == configuration.command_prefix .. 'np' then
+        if not lastfm.get_username(inline_query.from) then
+            local results = json.encode(
+                {
+                    {
+                        ['type'] = 'article',
+                        ['id'] = '1',
+                        ['title'] = 'An error occured!',
+                        ['description'] = 'Please send ' .. configuration.command_prefix .. 'fmset <username> to me via private chat!',
+                        ['input_message_content'] = {
+                            ['message_text'] = 'An error occured!\nPlease send ' .. configuration.command_prefix .. 'fmset <username> to me via private chat!'
+                        }
+                    }
+                }
+            )
+            return mattata.answer_inline_query(
+                inline_query.id,
+                results
+            )
+        end
+        username = lastfm.get_username(inline_query.from)
+    else
+        username = input
+    end
+    lastfm_url = lastfm_url .. url.escape(username)
+    local jstr, res = http.request(lastfm_url)
+    local jdat = json.decode(jstr)
+    jdat = jdat.recenttracks.track[1] or jdat.recenttracks.track
+    if inline_query.query == configuration.command_prefix .. 'np' then
+        output =  inline_query.from.first_name .. ' (last.fm/user/' .. username .. ')'
+    else
+        output = username
+    end
+    if jdat['@attr'] and jdat['@attr'].nowplaying then
+        output = output .. ' is currently listening to:\n'
+    else
+        output = output .. ' last listened to:\n'
+    end
+    local title = jdat.name or 'Unknown'
+    local artist = 'Unknown'
+    if jdat.artist then
+        artist = jdat.artist['#text']
+    end
+    output = output .. artist .. ' - ' .. title
+    if jdat.image[4]['#text'] == '' then
+        local results = json.encode(
+            {
+                {
+                    ['type'] = 'article',
+                    ['id'] = '1',
+                    ['title'] = artist .. ' - ' .. title,
+                    ['description'] = 'Click to send the result.',
+                    ['input_message_content'] = {
+                        ['message_text'] = output
+                    }
+                }
+            }
+        )
+    end
+    local results = json.encode(
+        {
+            {
+                ['type'] = 'photo',
+                ['id'] = '1',
+                ['photo_url'] = jdat.image[4]['#text'],
+                ['thumb_url'] = jdat.image[4]['#text'],
+                ['caption'] = output
+            }
+        }
+    )
+    return mattata.answer_inline_query(
+        inline_query.id,
+        results
+    )
+end
+
+function lastfm:on_message(message, configuration, language)
+    local input = mattata.input(message.text)
+    if message.text_lower:match('^' .. configuration.command_prefix .. 'lastfm$') then
+        return mattata.send_reply(
+            message,
+            lastfm.help
+        )
+    elseif message.text_lower:match('^' .. configuration.command_prefix .. 'fmset') then
+        if not input then
+            return mattata.send_reply(
+                message,
+                lastfm.help
+            )
+        elseif input == '-del' then
+            return mattata.send_reply(
+                message,
+                lastfm.del_username(message.from)
+            )
+        end
+        return mattata.send_reply(
+            message,
+            lastfm.set_username(message.from, input)
+        )
+    end
+    local username, output
+    if input then
+        username = input
+    elseif lastfm.get_username(message.from) then
+        username = lastfm.get_username(message.from)
+    else
+        return mattata.send_reply(
+            message,
+            'Please specify your last.fm username or set it with ' .. configuration.command_prefix .. 'fmset.'
+        )
+    end
+    local jstr, res = http.request('http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&format=json&limit=1&api_key=' .. configuration.keys.lastfm .. '&user=' .. url.escape(username))
+    if res ~= 200 then
+        return mattata.send_reply(
+            message,
+            language.errors.connection
+        )
+    end
+    local jdat = json.decode(jstr)
+    if jdat.error then
+        return mattata.send_reply(
+            message,
+            'Please specify your last.fm username or set it with ' .. configuration.command_prefix .. 'fmset.'
+        )
+    end
+    jdat = jdat.recenttracks.track[1] or jdat.recenttracks.track
+    if not jdat then
+        return mattata.send_reply(
+            message.chat.id,
+            'No history was found for this user.'
+        )
+    end
+    if not input then
+        output = message.from.first_name .. ' (last.fm/user/' .. username .. ')'
+    else
+        output = input
+    end
+    if jdat['@attr'] and jdat['@attr'].nowplaying then
+        output = output .. ' is currently listening to:\n'
+    else
+        output = output .. ' last listened to:\n'
+    end
+    local title = jdat.name or 'Unknown'
+    local artist = 'Unknown'
+    if jdat.artist then
+        artist = jdat.artist['#text']
+    end
+    if artist and title == 'Unknown' then
+        mattata.send_chat_action(
+            message.chat.id,
+            'typing'
+        )
+        return mattata.send_message(
+            message.chat.id,
+            output .. artist .. ' - ' .. title
+        )
+    end
+    if jdat.image[1]['#text'] == '' then
+        return mattata.send_message(
+            message.chat.id,
+            output .. artist .. ' - ' .. title
+        )
+    end
+    mattata.send_chat_action(
+        message.chat.id,
+        'upload_photo'
+    )
+    return mattata.send_photo(
+        message.chat.id,
+        jdat.image[4]['#text'],
+        output .. artist .. ' - ' .. title
+    )
+end
+
 return lastfm

@@ -1,28 +1,41 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local control = {}
+
 local mattata = require('mattata')
-local functions = require('functions')
+
 function control:init(configuration)
-	control.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('reload', true).table
+    control.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('reload'):command('reboot').table
 end
-function control:action(msg, configuration)
-	if msg.from.id ~= configuration.owner_id then
-		return
-	end
-	for pac, _ in pairs(package.loaded) do
-		if pac:match('^plugins%.') then
-				package.loaded[pac] = nil
-		end
-	end
-	package.loaded['telegram_api'] = nil
-	package.loaded['functions'] = nil
-	package.loaded['configuration'] = nil
-	if not msg.text_lower:match('%-configuration') then
-		for k, v in pairs(require('configuration')) do
-			configuration[k] = v
-		end
-	end
-	mattata.init(self, configuration)
-	print(self.info.first_name .. ' is reloading...')
-	functions.send_reply(msg, self.info.first_name .. ' is reloading...')
+
+function control:on_message(message, configuration)
+    if not mattata.is_global_admin(message.from.id) then
+        return
+    end
+    for p, _ in pairs(package.loaded) do
+        if p:match('^plugins%.') then
+            package.loaded[p] = nil
+        end
+    end
+    package.loaded['mattata'] = nil
+    package.loaded['configuration'] = nil
+    for k, v in pairs(configuration) do
+        configuration[k] = v
+    end
+    mattata.init(
+        self,
+        configuration
+    )
+    return mattata.send_message(
+        message.chat.id,
+        self.info.first_name .. ' is reloading...'
+    )
 end
+
 return control

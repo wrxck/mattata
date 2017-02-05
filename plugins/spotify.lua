@@ -1,42 +1,113 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local spotify = {}
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
-local functions = require('functions')
-local telegram_api = require('telegram_api')
+
+local mattata = require('mattata')
+local https = require('ssl.https')
+local url = require('socket.url')
+local json = require('dkjson')
+
 function spotify:init(configuration)
-	spotify.command = 'spotify <track ID>'
-	spotify.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('spotify', true).table
+    spotify.arguments = 'spotify <query>'
+    spotify.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('spotify').table
+    spotify.help = '/spotify <query> - Shows information about the top result for the given search query on Spotify.'
 end
-function spotify:action(msg, configuration)
-	local input = functions.input(msg.text)
-	if not input then
-		functions.send_reply(msg, spotify.documentation)
-		return
-	else
-		input = input:gsub('spotify:track:', '')
-	end
-	local url = configuration.apis.spotify .. '/tracks/' .. input
-	local jstr, res = HTTPS.request(url)
-	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
-		return
-	end
-	local jdat = JSON.decode(jstr)
-	local name = jdat.name
-	local album = jdat.album.name
-	local album_url = jdat.album.external_urls.spotify
-	local artist = jdat.artists[1].name
-	local artist_url = jdat.artists[1].external_urls.spotify
-	local track_number = jdat.track_number
-	local duration = math.abs(jdat.duration_ms/1000)
-	local popularity = jdat.popularity
-	local output = ''
-	if jdat.explicit == true then
-		output = '*\'' .. name .. '\'*, by *' .. artist .. '*, is track number ' .. track_number .. ' on the album *\'' .. album .. '\'*. The song lasts for ' .. duration .. ' seconds. ' .. name .. ' has a Spotify popularity of ' .. popularity .. '. Send `/albumart ' .. album .. '` for a hi-res version of the album artwork. This song is explicit, and is not suitable for children.'
-	else
-		output = '*\'' .. name .. '\'*, by *' .. artist .. '*, is track number ' .. track_number .. ' on the album *\'' .. album .. '\'*. The song lasts for ' .. duration .. ' seconds. ' .. name .. ' has a Spotify popularity of ' .. popularity .. '. Send `/albumart ' .. album .. '` for a hi-res version of the album artwork.'
-	end
-	functions.send_reply(msg, output, true, '{"inline_keyboard":[[{"text":"Album", "url":"' .. album_url .. '"},{"text":"Artist", "url":"' .. artist_url .. '"}]]}')
+
+function spotify.get_track(jdat)
+    if jdat.tracks.total == 0 then
+        return false
+    end
+    local output = ''
+    if jdat.tracks.items[1].name then
+        if jdat.tracks.items[1].external_urls.spotify then
+            output = output .. '<b>Song:</b> <a href="' .. jdat.tracks.items[1].external_urls.spotify .. '">' .. mattata.escape_html(jdat.tracks.items[1].name) .. '</a>\n'
+        else
+            output = output .. '<b>Song:</b> ' .. mattata.escape_html(jdat.tracks.items[1].name) .. '\n'
+        end
+    end
+    if jdat.tracks.items[1].album.name then
+        if jdat.tracks.items[1].album.external_urls.spotify then
+            output = output .. '<b>Album:</b> <a href="' .. jdat.tracks.items[1].album.external_urls.spotify .. '">' .. mattata.escape_html(jdat.tracks.items[1].album.name) .. '</a>\n'
+        else
+            output = output .. '<b>Album:</b> ' .. mattata.escape_html(jdat.tracks.items[1].album.name) .. '\n'
+        end
+    end
+    if jdat.tracks.items[1].album.artists[1].name then
+        if jdat.tracks.items[1].album.artists[1].external_urls.spotify then
+            output = output .. '<b>Artist:</b> <a href="' .. jdat.tracks.items[1].album.artists[1].external_urls.spotify .. '">' .. mattata.escape_html(jdat.tracks.items[1].album.artists[1].name) .. '</a>\n'
+        else
+            output = output .. '<b>Artist:</b> ' .. mattata.escape_html(jdat.tracks.items[1].album.artists[1].name) .. '\n'
+        end
+    end
+    if jdat.tracks.items[1].disc_number then
+        output = output .. '<b>Disc:</b> ' .. jdat.tracks.items[1].disc_number .. '\n'
+    end
+    if jdat.tracks.items[1].track_number then
+        output = output .. '<b>Track:</b> ' .. jdat.tracks.items[1].track_number .. '\n'
+    end
+    if jdat.tracks.items[1].popularity then
+        output = output .. '<b>Popularity:</b> ' .. jdat.tracks.items[1].popularity
+    end
+    local preview = false
+    if jdat.tracks.items[1].preview_url then
+        preview = {
+            ['track'] = jdat.tracks.items[1].name,
+            ['artist'] = jdat.tracks.items[1].album.artists[1].name,
+            ['duration'] = math.floor(tonumber(jdat.tracks.items[1].duration_ms) / 100) or nil,
+            ['url'] = jdat.tracks.items[1].preview_url
+        }
+    end
+    return output, preview
 end
+
+function spotify:on_message(message, configuration, language)
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(
+            message,
+            spotify.help
+        )
+    end
+    local jstr, res = https.request('https://api.spotify.com/v1/search?q=' .. url.escape(input) .. '&type=track&limit=1')
+    if res ~= 200 then
+        return mattata.send_reply(
+            message,
+            language.errors.connection
+        )
+    end
+    local jdat = json.decode(jstr)
+    local output, preview = spotify.get_track(jdat)
+    if not output then
+        return mattata.send_reply(
+            message,
+            language.errors.results
+        )
+    end
+    mattata.send_message(
+        message.chat.id,
+        output,
+        'html'
+    )
+    if not preview then
+        return
+    end
+    return mattata.send_file_pwr(
+        message.chat.id,
+        preview.url,
+        nil,
+        preview.duration,
+        preview.artist,
+        preview.track,
+        nil,
+        nil,
+        preview.track .. '.mp3'
+    )
+end
+
 return spotify

@@ -1,9 +1,25 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local ping = {}
-local functions = require('functions')
+
+local mattata = require('mattata')
+
 function ping:init(configuration)
-	ping.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('ping', true):t('pong', true).table
+    ping.arguments = 'ping'
+    ping.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('ping').table
 end
-function ping:action(msg, configuration)
-	functions.send_reply(msg, 'Pong!')
+
+function ping:on_message(message)
+    return mattata.send_message(
+        message.chat.id,
+        'PONG'
+    )
 end
+
 return ping

@@ -1,33 +1,73 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local faces = {}
-local functions = require('functions')
+
+local mattata = require('mattata')
+
 function faces:init(configuration)
-	faces.help = 'Faces:\n'
-	faces.command = 'faces'
-	faces.documentation = configuration.command_prefix .. 'faces - Returns a list of expressive-emoticon commands.'
-	faces.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('faces').table
-	local username = self.info.username:lower()
-	for trigger, face in pairs(configuration.faces) do
-		faces.help = faces.help .. '• ' .. configuration.command_prefix .. trigger .. ': ' .. face .. '\n'
-		table.insert(faces.triggers, '^'..configuration.command_prefix..trigger)
-		table.insert(faces.triggers, '^'..configuration.command_prefix..trigger..'@'..username)
-		table.insert(faces.triggers, configuration.command_prefix..trigger..'$')
-		table.insert(faces.triggers, configuration.command_prefix..trigger..'@'..username..'$')
-		table.insert(faces.triggers, '\n'..configuration.command_prefix..trigger)
-		table.insert(faces.triggers, '\n'..configuration.command_prefix..trigger..'@'..username)
-		table.insert(faces.triggers, configuration.command_prefix..trigger..'\n')
-		table.insert(faces.triggers, configuration.command_prefix..trigger..'@'..username..'\n')
-	end
+    faces.command = 'faces'
+    faces.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('faces').table
+    faces.help = '<b>Faces:</b>\n'
+    for k, v in pairs(configuration.faces) do
+        faces.help = faces.help .. '• ' .. configuration.command_prefix .. k .. ': ' .. v .. '\n'
+        table.insert(
+            faces.commands,
+            '^' .. configuration.command_prefix .. k
+        )
+        table.insert(
+            faces.commands,
+            '^' .. configuration.command_prefix .. k .. '@' .. self.info.username
+        )
+        table.insert(
+            faces.commands,
+            configuration.command_prefix .. k .. '$'
+        )
+        table.insert(
+            faces.commands,
+            configuration.command_prefix .. k .. '@' .. self.info.username .. '$'
+        )
+        table.insert(
+            faces.commands,
+            '\n' .. configuration.command_prefix .. k
+        )
+        table.insert(
+            faces.commands,
+            '\n' .. configuration.command_prefix .. k .. '@' .. self.info.username
+        )
+        table.insert(
+            faces.commands,
+            configuration.command_prefix .. k .. '\n'
+        )
+        table.insert(
+            faces.commands,
+            configuration.command_prefix .. k .. '@' .. self.info.username .. '\n'
+        )
+    end
 end
-function faces:action(msg, configuration)
-	if string.match(msg.text_lower, configuration.command_prefix .. 'faces') then
-		functions.send_message(msg.chat.id, faces.help, true, nil, 'html')
-		return
-	end
-	for trigger, face in pairs(configuration.faces) do
-		if string.match(msg.text_lower, configuration.command_prefix .. trigger) then
-			functions.send_message(msg.chat.id, face, true, nil, 'html')
-			return
-		end
-	end
+
+function faces:on_message(message, configuration)
+    if message.text_lower:match('^' .. configuration.command_prefix .. 'faces') then
+        return mattata.send_reply(
+            message,
+            faces.help,
+            'html'
+        )
+    end
+    for k, v in pairs(configuration.faces) do
+        if message.text_lower == configuration.command_prefix .. k or message.text_lower:match(' ' .. configuration.command_prefix .. k) or message.text_lower:match(configuration.command_prefix .. k .. ' ') then
+            return mattata.send_message(
+                message.chat.id,
+                v,
+                'html'
+            )
+        end
+    end
 end
+
 return faces

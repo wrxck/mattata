@@ -1,60 +1,156 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local itunes = {}
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
-local functions = require('functions')
-local telegram_api = require('telegram_api')
+
+local mattata = require('mattata')
+local https = require('ssl.https')
+local url = require('socket.url')
+local json = require('dkjson')
+
 function itunes:init(configuration)
-	itunes.command = 'itunes <song>'
-	itunes.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('itunes', true).table
-	itunes.documentation = configuration.command_prefix .. 'itunes <song> - Returns information about the given song, from iTunes.'
+    itunes.arguments = 'itunes <song>'
+    itunes.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('itunes').table
+    itunes.help = '/itunes <song> - Returns information about the given song, from iTunes.'
 end
-function itunes:action(msg, configuration)
-	local input = functions.input(msg.text)
-	local url = configuration.apis.itunes .. URL.escape(input)
-	local jstr, res = HTTPS.request(url)
-	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
-		return
-	else
-		if not input then
-			functions.send_reply(msg, itunes.documentation)
-			return
-		else
-			local jdat = JSON.decode(jstr)
-			if jdat.results[1] then
-				if jdat.results[1].trackName then
-					local trackName = jdat.results[1].trackName
-					local trackViewUrl = jdat.results[1].trackViewUrl
-					output = '*Track Name:* [' .. trackName .. '](' .. trackViewUrl .. ')'
-					if jdat.results[1].artistName and jdat.results[1].artistViewUrl then
-						local artistName = jdat.results[1].artistName
-						local artistViewUrl = jdat.results[1].artistViewUrl
-						output = output .. '\n*Artist:* [' .. artistName .. '](' .. artistViewUrl .. ')'
-						if jdat.results[1].collectionName then
-							local collectionName = jdat.results[1].collectionName
-							local collectionViewUrl = jdat.results[1].collectionViewUrl
-							output = output .. '\n*Album:* [' .. collectionName .. '](' .. collectionViewUrl .. ')'
-							if jdat.results[1].trackNumber then
-								local trackNumber = jdat.results[1].trackNumber
-								local trackCount = jdat.results[1].trackCount
-								output = output .. '\n*Track Number:* ' .. trackNumber .. '/' .. trackCount
-								if jdat.results[1].discNumber then
-									local discNumber = jdat.results[1].discNumber
-									local discCount = jdat.results[1].discCount
-									output = output .. '\n*Disc Number:* ' .. discNumber .. '/' .. discCount
-								end
-							end
-						end
-					end
-				end
-			else
-				output = configuration.errors.results
-			end
-			telegram_api.sendChatAction{ chat_id = msg.chat.id, action = 'typing' }
-			functions.send_message(msg.chat.id, output, true, nil, true)
-			return
-		end
+
+function itunes.get_output(jdat)
+    local output = {}
+    if jdat.results[1].trackViewUrl and jdat.results[1].trackName then
+        table.insert(
+            output,
+            '<b>Name:</b> <a href=\'' .. jdat.results[1].trackViewUrl .. '\'>' .. mattata.escape_html(jdat.results[1].trackName) .. '</a>'
+        )
+    end
+    if jdat.results[1].artistViewUrl and jdat.results[1].artistName then
+        table.insert(
+            output,
+			string.format(
+			    '<b>Artist:</b> <a href="%s">%s</a>',
+				jdat.results[1].artistViewUrl,
+				mattata.escape_html(jdat.results[1].artistName)
+			)
+        )
+    end
+    if jdat.results[1].collectionViewUrl and jdat.results[1].collectionName then
+        table.insert(
+            output,
+			string.format(
+			    '<b>Album:</b> <a href="%s">%s</a>',
+				jdat.results[1].collectionViewUrl,
+				mattata.escape_html(jdat.results[1].collectionName)
+			)
+        )
+    end
+    if jdat.results[1].trackNumber and jdat.results[1].trackCount then
+        table.insert(
+            output,
+			string.format(
+			    '<b>Track:</b> %s/%s',
+				jdat.results[1].trackNumber,
+				jdat.results[1].trackCount
+			)
+        )
+    end
+    if jdat.results[1].discNumber and jdat.results[1].discCount then
+        table.insert(
+            output,
+			string.format(
+			    '<b>Disc:</b> %s/%s',
+				jdat.results[1].discNumber,
+				jdat.results[1].discCount
+			)
+        )
+    end
+    return table.concat(
+        output,
+        '\n'
+    )
+end
+
+function itunes:on_callback_query(callback_query, message, configuration, language)
+    if not message.reply_to_message then
+	    return mattata.answer_callback_query(
+		    callback_query.id,
+			'The original query could not be found, you\'ve probably deleted the original message.',
+			true
+		)
 	end
+    local input = mattata.input(message.reply_to_message.text)
+    if callback_query.data == 'artwork' then
+        local jstr, res = https.request('https://itunes.apple.com/search?term=' .. url.escape(input))
+        if res ~= 200 then
+            return false
+        end
+        local jdat = json.decode(jstr)
+        if not jdat.results[1] then
+            return false
+        end
+        if jdat.results[1].artworkUrl100 then
+            local artwork = jdat.results[1].artworkUrl100:gsub('%/100x100bb%.jpg', '/10000x10000bb.jpg') -- Get the highest quality artwork available
+            mattata.send_photo(
+                message.chat.id,
+                artwork
+            )
+            return mattata.edit_message_text(
+                message.chat.id,
+                message.message_id,
+                'The artwork can be found below:'
+            )
+        end
+    end
 end
+
+function itunes:on_message(message, configuration, language)
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(
+            message,
+            itunes.help
+        )
+    end
+    mattata.send_chat_action(
+        message.chat.id,
+        'typing'
+    )
+    local jstr, res = https.request('https://itunes.apple.com/search?term=' .. url.escape(input))
+    if res ~= 200 then
+        return mattata.send_reply(
+            message,
+            language.errors.connection
+        )
+    end
+    local jdat = json.decode(jstr)
+    if not jdat.results[1] then
+        return mattata.send_reply(
+            message,
+            language.errors.results
+        )
+    end
+    local keyboard = {
+	    ['inline_keyboard'] = {
+            {
+                {
+                    ['text'] = 'Get Album Artwork',
+                    ['callback_data'] = 'itunes:artwork'
+                }
+            }
+		}
+    }
+    return mattata.send_message(
+        message.chat.id,
+        itunes.get_output(jdat),
+        'html',
+        true,
+        false,
+        message.message_id,
+        json.encode(keyboard)
+    )
+end
+
 return itunes

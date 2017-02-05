@@ -1,32 +1,57 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local synonym = {}
-local HTTPS = require('ssl.https')
-local URL = require('socket.url')
-local JSON = require('dkjson')
-local functions = require('functions')
+
+local mattata = require('mattata')
+local https = require('ssl.https')
+local url = require('socket.url')
+local json = require('dkjson')
+
 function synonym:init(configuration)
-	synonym.command = 'synonym <word>'
-	synonym.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('synonym', true).table
-	synonym.documentation = configuration.command_prefix .. 'synonym <word> - Sends a synonym of the given word.'
+
+    assert(
+        configuration.keys.synonym,
+        'synonym.lua requires an API key, and you haven\'t got one configured!'
+    )
+
+    synonym.arguments = 'synonym <word>'
+    synonym.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('synonym').table
+    synonym.help = '/synonym <word> - Sends a synonym of the given word.'
 end
-function synonym:action(msg, configuration)
-	local input = functions.input(msg.text)
-	if not input then
-		functions.send_reply(msg, synonym.documentation)
-		return
-	end
-	local url = configuration.apis.synonym .. configuration.keys.synonym .. '&lang=' .. configuration.language .. '-' .. configuration.language .. '&text=' .. URL.escape(input)
-	local jstr, res = HTTPS.request(url)
-	if res ~= 200 then
-		functions.send_reply(msg, configuration.errors.connection)
-		return
-	end
-	local jdat = JSON.decode(jstr)
-	if jstr ~= '{"head":{},"def":[]}' then
-		functions.send_reply(msg, 'You could use the word *' .. jdat.def[1].tr[1].text .. '* instead.')
-		return
-	else
-		functions.send_reply(msg, configuration.errors.results)
-		return
-	end
+
+function synonym:on_message(message, configuration, language)
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(
+            message,
+            synonym.help
+        )
+    end
+    local jstr, res = https.request('https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=' .. configuration.keys.synonym .. '&lang=' .. configuration.language .. '-' .. configuration.language .. '&text=' .. url.escape(input))
+    if res ~= 200 then
+        return mattata.send_reply(
+            message,
+            language.errors.connection
+        )
+    end
+    local jdat = json.decode(jstr)
+    if jstr == '{"head":{},"def":[]}' then
+        return mattata.send_message(
+            message,
+            language.errors.results
+        )
+    end
+    return mattata.send_message(
+        message.chat.id,
+        'You could use the word <b>' .. mattata.escape_html(jdat.def[1].tr[1].text) .. '</b>, instead of ' .. mattata.escape_html(input) .. '.',
+        'html'
+    )
 end
+
 return synonym

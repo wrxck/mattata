@@ -1,40 +1,65 @@
+--[[
+    Based on a plugin by topkecleon.
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]--
+
 local currency = {}
-local HTTPS = require('ssl.https')
-local functions = require('functions')
+
+local mattata = require('mattata')
+local https = require('ssl.https')
+
 function currency:init(configuration)
-	currency.command = 'currency (amount) <from> TO <to>'
-	currency.triggers = functions.triggers(self.info.username, configuration.command_prefix):t('currency', true).table
-	currency.documentation = configuration.command_prefix .. 'currency (amount) <from> TO <to> - Returns exchange rates for various currencies. Source: Google Finance.'
+    currency.arguments = 'currency <amount> <from> TO <to>'
+    currency.commands = mattata.commands(
+        self.info.username,
+        configuration.command_prefix
+    ):command('currency'):command('convert'):command('cash').table
+    currency.help = '/currency <amount> <from> TO <to> - Converts exchange rates for various currencies. Source: Google Finance. Aliases: ' .. configuration.command_prefix .. 'convert, ' .. configuration.command_prefix .. 'cash.'
 end
-function currency:action(msg, configuration)
-	local input = msg.text:upper()
-	if not input:match('%a%a%a TO %a%a%a') then
-		functions.send_reply(msg, currency.documentation)
-		return
-	end
-	local from = input:match('(%a%a%a) TO')
-	local to = input:match('TO (%a%a%a)')
-	local amount = functions.get_word(input, 2)
-	amount = tonumber(amount) or 1
-	local result = 1
-	local api = configuration.apis.currency
-	if from ~= to then
-		api = api .. '?from=' .. from .. '&to=' .. to .. '&a=' .. amount
-		local str, res = HTTPS.request(api)
-		if res ~= 200 then
-			functions.send_reply(msg, configuration.errors.connection)
-			return
-		end
-		str = str:match('<span class=bld>(.*) %u+</span>')
-		if not str then
-			functions.send_reply(msg, configuration.errors.results)
-			return
-		end
-		result = string.format('%.2f', str)
-	end
-	local output = amount .. ' ' .. from .. ' = ' .. result .. ' ' .. to .. '\n\n'
-	output = output .. os.date('!%F %T UTC') .. '\nSource: Google Finance'
-	output = '\n' .. output .. '\n'
-	functions.send_reply(msg, output)
+
+function currency:on_message(message, configuration, language)
+    local input = mattata.input(message.text_upper)
+    if not input or not input:match('%a%a%a TO %a%a%a') then
+        return mattata.send_reply(
+            message,
+            currency.help
+        )
+    end
+    local from = input:match('(%a%a%a) TO')
+    local to = input:match('TO (%a%a%a)')
+    local amount = mattata.get_word(
+        input,
+        2
+    )
+    amount = tonumber(amount) or 1
+    local result = 1
+    local url = 'https://www.google.com/finance/converter'
+    if from ~= to then
+        url = url .. '?from=' .. from .. '&to=' .. to .. '&a=' .. amount
+        local str, res = https.request(url)
+        if res ~= 200 then
+            return mattata.send_reply(
+                message,
+                language.errors.connection
+            )
+        end
+        str = str:match('<span class=bld>(.*) %u+</span>')
+        if not str then
+            return mattata.send_reply(
+                message,
+                language.errors.results
+            )
+        end
+        result = string.format(
+            '%.2f',
+            str
+        )
+    end
+    return mattata.send_message(
+        message.chat.id,
+        amount .. ' ' .. from .. ' = ' .. result .. ' ' .. to .. '\nvia Google Finance'
+    )
 end
+
 return currency

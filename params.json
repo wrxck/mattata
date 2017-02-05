@@ -1,6 +1,0 @@
-{
-  "name": "mattata",
-  "tagline": "mattata is a plugin-based bot for Telegram, written in Lua and regularly updated. Created by @matthewhesketh.",
-  "body": "mattata is a plugin-based bot for Telegram, written in Lua and regularly updated. mattata started off as an otouto-based bot but, over time, has grown to become more independent and has a re-written framework.\r\n\r\nmattata (including all of the plugins and the documentation) is free software; you are free to redistribute it and/or modify it under the terms of the GNU Affero General Public License, version 3. See LICENSE for details. This license remains present due to some fundamental code mattata uses, which was taken from otouto.",
-  "note": "Don't delete this file! It's used internally to help with page regeneration."
-}
