@@ -17,7 +17,7 @@ function appstore:init(configuration)
         configuration.command_prefix
     ):command('appstore')
      :command('app').table
-    appstore.help = '/appstore <query> - Returns the first app which iTunes returns for the given search query. Alias: /app.'
+    appstore.help = '/appstore <query> - Returns the first app that iTunes returns for the given search query. Alias: /app.'
 end
 
 function appstore.get_app_info(jdat)
@@ -28,15 +28,43 @@ function appstore.get_app_info(jdat)
             jdat.results[1].genres[n]
         )
     end
-    local rating = jdat.results[1].userRatingCount
-    if rating == 1 then
-        rating = '⭐ 1 rating'
-    elseif rating > 0 and rating ~= nil then
-        rating = '⭐ ' .. mattata.comma_value(tostring(rating)) .. ' ratings (' .. jdat.results[1].averageUserRating .. ')'
+    local rating = tonumber(jdat.results[1].userRatingCount)
+    if rating ~= nil then
+        if rating == 1 then
+            rating = '⭐ 1 rating'
+        elseif rating > 0 and rating ~= nil then
+            rating = string.format(
+                '⭐ %s ratings (%s)',
+                mattata.comma_value(tostring(rating)),
+                jdat.results[1].averageUserRating
+            )
+        else
+            rating = string.format(
+                '⭐ %s ratings',
+                mattata.comma_value(tostring(rating))
+            )
+        end
     else
-        rating = '⭐ ' .. mattata.comma_value(tostring(rating)) .. ' ratings'
+        rating = 'N/A'
     end
-    return '<b>' .. mattata.escape_html(jdat.results[1].trackName) .. '</b> - v' .. jdat.results[1].version .. ', ' .. jdat.results[1].currentVersionReleaseDate:sub(9, 10) .. '/' .. jdat.results[1].currentVersionReleaseDate:sub(6, 7) .. '/' .. jdat.results[1].currentVersionReleaseDate:sub(1, 4) .. '\n\n<i>' .. mattata.escape_html(jdat.results[1].description):sub(1, 250) .. '...</i>\n\n' .. table.concat(categories, ' <b>|</b> ') .. '\n' .. rating .. ' <b>|</b> iOS ' .. jdat.results[1].minimumOsVersion .. '+'
+    if jdat.results[1].description:len() > 250 then
+        jdat.results[1].description = jdat.results[1].description:sub(1, 250) .. '...'
+    end
+    return string.format(
+        '<b>%s</b> - v%s, %s/%s/%s\n\n<i>%s</i>\n\n%s\n%s <b>|</b> iOS %s+',
+        mattata.escape_html(jdat.results[1].trackName),
+        jdat.results[1].version,
+        jdat.results[1].currentVersionReleaseDate:sub(9, 10),
+        jdat.results[1].currentVersionReleaseDate:sub(6, 7),
+        jdat.results[1].currentVersionReleaseDate:sub(1, 4),
+        mattata.escape_html(jdat.results[1].description),
+        table.concat(
+            categories,
+            ' <b>|</b> '
+        ),
+        rating,
+        jdat.results[1].minimumOsVersion
+    )
 end
 
 function appstore:on_message(message, configuration, language)
@@ -47,7 +75,13 @@ function appstore:on_message(message, configuration, language)
             appstore.help
         )
     end
-    local jstr, res = https.request('https://itunes.apple.com/search?term=' .. url.escape(input) .. '&lang=' .. configuration.language .. '&entity=software')
+    local jstr, res = https.request(
+        string.format(
+            'https://itunes.apple.com/search?term=%s&lang=%s&entity=software',
+            url.escape(input),
+            language.locale
+        )
+    )
     if res ~= 200 then
         return mattata.send_reply(
             message,
@@ -60,7 +94,8 @@ function appstore:on_message(message, configuration, language)
             message,
             language.errors.results
         )
-    end    return mattata.send_message(
+    end
+    return mattata.send_message(
         message.chat.id,
         appstore.get_app_info(jdat),
         'html',
@@ -72,8 +107,8 @@ function appstore:on_message(message, configuration, language)
                 ['inline_keyboard'] = {
                     {
                         {
-                            text = 'View on iTunes',
-                            url = jdat.results[1].trackViewUrl
+                            ['text'] = 'View on iTunes',
+                            ['url'] = jdat.results[1].trackViewUrl
                         }
                     }
                 }

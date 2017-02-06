@@ -35,65 +35,87 @@ function id.resolve_chat(message)
         return 'I couldn\'t find any results for that.'
     end
     success = success.result
+    if message.chat and message.chat.type and message.chat.type ~= 'private' then
+        table.insert(
+            output,
+            '<b>Queried Chat:</b>'
+        )
+    end
     if success.id then
         table.insert(
             output,
-            '<b>ID:</b> ' .. success.id
+            '🆔 ' .. success.id
         )
     end
     if success.type then
         table.insert(
             output,
-            '<b>Chat Type:</b> ' .. success.type
+            '➡️ ' .. success.type:gsub('^%l', string.upper)
         )
     end
     if success.username then
         table.insert(
             output,
-            '<b>Username:</b> ' .. success.username
+            'ℹ️ @' .. success.username
         )
     end
-    if success.first_name then
+    if success.type == 'private' then
+        if success.last_name then
+            success.first_name = success.first_name .. ' ' .. success.last_name
+        end
         table.insert(
             output,
-            '<b>First Name:</b> ' .. mattata.escape_html(success.first_name)
+            '👤 ' .. mattata.escape_html(success.first_name)
         )
-    end
-    if success.last_name then
+    else
         table.insert(
             output,
-            '<b>Last Name:</b> ' .. mattata.escape_html(success.last_name)
+            '👤 ' .. mattata.escape_html(success.title)
         )
     end
     if success.verified then
         table.insert(
             output,
-            '<b>Official?</b> ' .. success.verified
+            '✅ Official Account'
         )
     end
     if success.phone then
         table.insert(
             output,
-            '<b>Phone Number:</b> ' .. success.phone
+            '📱 ' .. success.phone
         )
     end
     if success.restricted then
         table.insert(
             output,
-            '<b>Restricted?</b> ' .. success.restricted
-        )
-    end
-    if success.title then
-        table.insert(
-            output,
-            '<b>Chat Title:</b> ' .. mattata.escape_html(success.title)
+            'This user is restricted.'
         )
     end
     if success.bio then
         table.insert(
             output,
-            '<b>Bio:</b> ' .. mattata.escape_html(mattata.trim(success.bio))
+            '📰 ' .. mattata.escape_html(mattata.trim(success.bio))
         )
+    end
+    if message.chat and message.chat.type and message.chat.type ~= 'private' then
+        table.insert(
+            output,
+            '\n<b>This Chat:</b>'
+        )
+        table.insert(
+            output,
+            '👥 ' .. mattata.escape_html(message.chat.title)
+        )
+        table.insert(
+            output,
+            '🆔 ' .. message.chat.id
+        )
+        if message.chat.username then
+            table.insert(
+                output,
+                'ℹ️ @' .. message.chat.username
+            )
+        end
     end
     return table.concat(
         output,
@@ -103,6 +125,9 @@ end
 
 function id:on_inline_query(inline_query, configuration)
     local input = mattata.input(inline_query.query)
+    if not input then
+        input = inline_query.from.id
+    end
     local output = id.resolve_chat(inline_query)
     local results = json.encode(
         {

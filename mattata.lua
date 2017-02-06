@@ -9,13 +9,14 @@
         Copyright (c) 2017 Matthew Hesketh
         See './LICENSE' for details
 
-        Current version: v10
+        Current version: v11
 
 ]]--
 
 local mattata = {}
-local https = require('ssl.https')
+
 local http = require('socket.http')
+local https = require('ssl.https')
 local url = require('socket.url')
 local ltn12 = require('ltn12')
 local multipart = require('multipart-post')
@@ -26,10 +27,18 @@ local colors = require('ansicolors')
 
 function mattata:init()
     if not configuration.bot_token or configuration.bot_token == '' or type(configuration.bot_token) ~= 'string' then
-        print(colors.white .. '[mattata]' .. colors.red .. 'You need to enter your bot API key in configuration.lua!' .. colors.reset)
+        print(
+            string.format(
+                '%s[mattata] %sYou need to enter your Telegram bot API token in configuration.lua!%s',
+                colors.white,
+                colors.red,
+                colors.reset
+            )
+        )
+        return false
     end
     repeat
-        self.info = mattata.request('getMe')
+        self.info = mattata.get_me()
     until self.info
     self.info = self.info.result
     self.plugins = {}
@@ -47,16 +56,36 @@ function mattata:init()
             plugin.commands = {}
         end
         if plugin.help then
-            plugin.help = 'Usage:\n' .. plugin.help:gsub('%. Alias', '.\nAlias')
+            plugin.help = 'Usage:\n' .. plugin.help:gsub('%. (Alias)', '.\n%1')
         end
     end
-    print(colors.white .. '[mattata]' .. colors.green .. ' Connected to the Telegram bot API!' .. colors.reset)
+    print(
+        string.format(
+            '%s[mattata] %sConnected to the Telegram bot API!%s',
+            colors.white,
+            colors.green,
+            colors.reset
+        )
+    )
     self.info.name = self.info.first_name
     if self.info.last_name then
-        self.info.name = self.info.first_name .. ' ' .. self.info.last_name
+        self.info.name = string.format(
+            '%s %s',
+            self.info.first_name,
+            self.info.last_name
+        )
     end
-    print ('\n          ' .. colors.white .. 'Username: @' .. self.info.username .. '\n          Name: ' .. self.info.name .. '\n          ID: ' .. self.info.id .. colors.reset .. '\n')
-    self.version = 'v10'
+    print(
+        string.format(
+            '\n          %sUsername: @%s\n          Name: %s\n          ID: %s%s\n',
+            colors.white,
+            self.info.username,
+            self.info.name,
+            self.info.id,
+            colors.reset
+        )
+    )
+    self.version = 'v11'
     self.last_update = self.last_update or 0
     self.last_cron = self.last_cron or os.date('%H')
     return true
@@ -67,12 +96,14 @@ end
     Function to make POST requests to the Telegram bot API.
     A custom API can be specified, such as the PWRTelegram API,
     using the 'api' parameter.
+]]--
 
---]]
-
-function mattata.request(method, parameters, file, api)
+function mattata.request(endpoint, parameters, file, timeout)
+    assert(
+        endpoint,
+        'You must specify an endpoint to make this request to!'
+    )
     parameters = parameters or {}
-    api = api or 'https://api.telegram.org/bot'
     for k, v in pairs(parameters) do
         parameters[k] = tostring(v)
     end
@@ -98,13 +129,18 @@ function mattata.request(method, parameters, file, api)
         end
     end
     if next(parameters) == nil then
-        parameters = { '' }
+        parameters = {
+            ''
+        }
     end
     local response = {}
     local body, boundary = multipart.encode(parameters)
+    if timeout then
+        http.TIMEOUT = 1
+    end
     local success, code = https.request(
         {
-            ['url'] = api .. configuration.bot_token .. '/' .. method,
+            ['url'] = endpoint,
             ['method'] = 'POST',
             ['headers'] = {
                 ['Content-Type'] = 'multipart/form-data; boundary=' .. boundary,
@@ -115,23 +151,33 @@ function mattata.request(method, parameters, file, api)
         }
     )
     if not success then
-        print(colors.white .. '[mattata]' .. colors.red .. ' ' .. method .. ': Connection error: ' .. code .. colors.reset)
-        return false, false, code
+        print(
+            string.format(
+                '%s[mattata] %sConnection error: %s%s',
+                colors.white,
+                colors.red,
+                code,
+                colors.reset
+            )
+        )
+        return false, code
     end
     local jdat = table.concat(response)
-    jdat = json.decode(jdat)
-    if not jdat then
-        return false, false, code
-    elseif jdat.ok == true then
-        return jdat, 200, 'Success'
+    if not json.decode(jdat) then
+        return jdat, code
     end
-    local api_error = string.format(
-        '%s [%s]',
-        jdat.description,
-        jdat.error_code
+    jdat = json.decode(jdat)
+    if jdat.ok == true then
+        return jdat, code
+    end
+    print(
+        string.format(
+            '%s [%s]',
+            jdat.description,
+            jdat.error_code
+        )
     )
-    print(api_error)
-    return false, api_error
+    return false, jdat
 end
 
 --[[
@@ -141,13 +187,16 @@ end
     The objects received in the updates are then further processed
     through object-specific functions.
 
---]]
+]]--
 
 function mattata:run(configuration)
-    local init = mattata.init(self, configuration)
+    local init = mattata.init(
+        self,
+        configuration
+    )
     while init do
         local res = mattata.get_updates(
-            40,
+            5,
             self.last_update + 1
         )
         if res then
@@ -160,7 +209,21 @@ function mattata:run(configuration)
                         configuration
                     )
                     if configuration.debug then
-                        print(colors.white .. '[mattata]' .. colors.yellow .. ' [Update #' .. update.update_id .. ']' .. colors.green .. ' Message from ' .. colors.cyan .. update.message.from.id .. colors.green .. ' to ' .. colors.cyan .. update.message.chat.id .. colors.reset)
+                        print(
+                            string.format(
+                                '%s[mattata] %s[Update #%s] %sMessage from %s%s %sto %s%s%s',
+                                colors.white,
+                                colors.yellow,
+                                update.update_id,
+                                colors.green,
+                                colors.cyan,
+                                update.message.from.id,
+                                colors.green,
+                                colors.cyan,
+                                update.message.chat.id,
+                                colors.reset
+                            )
+                        )
                     end
                 elseif update.channel_post then
                     mattata.on_message(
@@ -169,7 +232,18 @@ function mattata:run(configuration)
                         configuration
                     )
                     if configuration.debug then
-                        print(colors.white .. '[mattata]' .. colors.yellow .. ' [Update #' .. update.update_id .. ']' .. colors.green .. ' Channel post from ' .. colors.cyan .. update.channel_post.chat.id .. colors.reset)
+                        print(
+                            string.format(
+                                '%s[mattata] %s[Update #%s] %sChannel post from %s%s%s',
+                                colors.white,
+                                colors.yellow,
+                                update.update_id,
+                                colors.green,
+                                colors.cyan,
+                                update.channel_post.chat.id,
+                                colors.reset
+                            )
+                        )
                     end
                 elseif update.inline_query then
                     mattata.on_inline_query(
@@ -178,7 +252,18 @@ function mattata:run(configuration)
                         configuration
                     )
                     if configuration.debug then
-                        print(colors.white .. '[mattata]' .. colors.yellow .. ' [Update #' .. update.update_id .. ']' .. colors.green .. ' Inline query from ' .. colors.cyan .. update.inline_query.from.id .. colors.reset)
+                        print(
+                            string.format(
+                                '%s[mattata] %s[Update #%s] %sInline query from %s%s%s',
+                                colors.white,
+                                colors.yellow,
+                                update.update_id,
+                                colors.green,
+                                colors.cyan,
+                                update.inline_query.from.id,
+                                colors.reset
+                            )
+                        )
                     end
                 elseif update.callback_query then
                     mattata.on_callback_query(
@@ -188,12 +273,32 @@ function mattata:run(configuration)
                         configuration
                     )
                     if configuration.debug then
-                        print(colors.white .. '[mattata]' .. colors.yellow .. ' [Update #' .. update.update_id .. ']' .. colors.green .. ' Callback query from ' .. colors.cyan .. update.callback_query.from.id .. colors.reset)
+                        print(
+                            string.format(
+                                '%s[mattata] %s[Update #%s] %sCallback query from %s%s%s',
+                                colors.white,
+                                colors.yellow,
+                                update.update_id,
+                                colors.green,
+                                colors.cyan,
+                                update.callback_query.from.id,
+                                colors.reset
+                            )
+                        )
                     end
+                else
+                    print(json.encode(update))
                 end
             end
         else
-            print(colors.white .. '[mattata]' .. colors.red .. ' There was an error whilst retrieving updates from the Telegram bot API.' .. colors.reset)
+            print(
+                string.format(
+                    '%s[mattata] %sThere was an error retrieving updates from the Telegram bot API!%s',
+                    colors.white,
+                    colors.red,
+                    colors.reset
+                )
+            )
         end
         if self.last_cron ~= os.date('%H') then
             self.last_cron = os.date('%H')
@@ -220,7 +325,15 @@ function mattata:run(configuration)
             end
         end
     end
-    print(colors.white .. '[mattata]' .. colors.yellow .. ' mattata [@' .. self.info.username .. '] is shutting down...' .. colors.reset)
+    print(
+        string.format(
+            '%s[mattata] %smattata [@%s] is shutting down...%s',
+            colors.white,
+            colors.yellow,
+            self.info.username,
+            colors.reset
+        )
+    )
 end
 
 --[[
@@ -235,17 +348,22 @@ function mattata:on_message(message, configuration)
         return
     end
     message.text = message.text or message.caption or ''
-    if not message.from then -- Ignore messages from channels without the 'Sign messages' options enabled.
-        if message.text:match('^/(.-)$') then
-            return mattata.send_reply(
-                message,
-                'To be able to use me in this channel, you need to enable the "Sign Messages" option in your channel\'s settings.'
-            )
-        end
+    if not message.from and message.text:match('^%/') then
+        return mattata.send_reply(
+            message,
+            'To be able to use me in this channel, you need to enable the "Sign Messages" option in your channel\'s settings.'
+        )
+    elseif not message.from then
         return
     elseif redis:get('global_blacklist:' .. message.from.id) then -- Ignore messages from globally-blacklisted users.
         return
-    elseif redis:get('group_blacklist:' .. message.chat.id .. ':' .. message.from.id) then
+    elseif redis:get(
+        string.format(
+            'group_blacklist:%s:%s',
+            message.chat.id,
+            message.from.id
+        )
+    ) then
         return
     end
     local user_language = mattata.get_user_language(message.from.id)
@@ -254,15 +372,15 @@ function mattata:on_message(message, configuration)
     if message.reply_to_message then
         message.reply_to_message = mattata.process_message(message.reply_to_message)
     end
-    if message.text:match('^/start (.-)$') then -- Allow deep-linking through the /start command
-        message.text = message.text:match('^/start (.-)$')
+    if message.text:match('^%/start .-$') then -- Allow deep-linking through the /start command
+        message.text = message.text:match('^%/start (.-)$')
         message.text_lower = message.text:lower()
         message.text_upper = message.text:upper()
     end
     if message.forward_from or message.forward_from_chat then
         return
     end
-    if message.text == configuration.command_prefix .. 'cancel' or message.text == configuration.command_prefix .. 'cancel@' .. self.info.username:lower() then -- A small hack to forcibly remove a keyboard.
+    if message.text == '/cancel' or message.text == '/cancel@' .. self.info.username:lower() then -- A small hack to forcibly remove a keyboard.
         return mattata.send_message(
             message.chat.id,
             'Cancelled current operation!',
@@ -272,20 +390,25 @@ function mattata:on_message(message, configuration)
             message.message_id,
             json.encode(
                 {
-                    remove_keyboard = true
+                    ['remove_keyboard'] = true
                 }
             )
         )
     end
     if mattata.is_global_admin(message.from.id) and message.text:match(' %-%-switch%-chat$') then
         message.text = message.text:match('^(.-) %-%-switch%-chat$')
-        local id = message.from.id
+        local old_id = message.from.id
         message.from.id = message.chat.id
-        message.chat.id = id
+        message.chat.id = old_id
     end
-    if message.text:match('^(.-)%:(.-)$') and message.chat.type == 'private' then
+    if message.text:match('^.-%:.-$') and message.chat.type == 'private' then
         local chat_id, action = message.text:match('^(.-)%:(.-)$')
-        if action == 'rules' and redis:get('administration:' .. chat_id .. ':enabled') then
+        if action == 'rules' and redis:get(
+            string.format(
+                'administration:%s:enabled',
+                chat_id
+            )
+        ) then
             local administration = require('plugins.administration')
             return mattata.send_message(
                 message.chat.id,
@@ -294,7 +417,12 @@ function mattata:on_message(message, configuration)
             )
         end
     end
-    if message.chat.type == 'supergroup' and redis:get('administration:' .. message.chat.id .. ':enabled') then
+    if message.chat.type == 'supergroup' and redis:get(
+        string.format(
+            'administration:%s:enabled',
+            message.chat.id
+        )
+    ) then
         local administration = require('plugins.administration')
         administration.process_message(
             self,
@@ -304,15 +432,18 @@ function mattata:on_message(message, configuration)
     end
     if message.new_chat_member then
         if message.new_chat_member.id == self.info.id then
-            message.text = '/help'
-            local help = require('plugins.help')
-            local user_language = mattata.get_user_language(message.from.id)
-            local language = require('languages.' .. user_language)
-            return help.on_message(self, message, configuration, language)
+            return mattata.send_message(
+                message.chat.id,
+                string.format(
+                    'My name is %s and I\'m here to help. If you\'re an administrator, use /plugins to choose which features you want to enable in this group and use /administration to set up my administrative functionality. For more information, use /help.',
+                    self.info.first_name
+                )
+            )
         end
         local administration = require('plugins.administration')
-        local user_language = mattata.get_user_language(message.new_chat_member.id)
-        local language = require('languages.' .. user_language)
+        local language = require(
+            'languages.' .. mattata.get_user_language(message.new_chat_member.id)
+        )
         administration.on_new_chat_member(
             self,
             message,
@@ -322,9 +453,13 @@ function mattata:on_message(message, configuration)
     end
     local user_language = mattata.get_user_language(message.from.id)
     local language = require('languages.' .. user_language)
-    if message.chat.type ~= 'private' and message.text:match('^%#(%a+)') and redis:get('administration:' .. message.chat.id .. ':enabled') then
-        local trigger = message.text:match('^%#(%a+)')
-        trigger = '#' .. trigger
+    if message.chat.type ~= 'private' and message.text:match('^%#%a+') and redis:get(
+        string.format(
+            'administration:%s:enabled',
+            message.chat.id
+        )
+    ) then
+        local trigger = message.text:match('^(%#%a+)')
         local custom_commands = redis:hkeys(
             string.format(
                 'administration:%s:custom',
@@ -337,7 +472,10 @@ function mattata:on_message(message, configuration)
         for k, v in ipairs(custom_commands) do
             if trigger == v then
                 local value = redis:hget(
-                    'administration:' .. message.chat.id .. ':custom',
+                    string.format(
+                        'administration:%s:custom',
+                        message.chat.id
+                    ),
                     trigger
                 )
                 if not value then
@@ -355,14 +493,32 @@ function mattata:on_message(message, configuration)
         for i = 1, #plugins do
             local command = plugin.commands[i]
             if message.text:match(command) then
-                if (plugin.name == 'administration' and not redis:get('administration:' .. message.chat.id .. ':enabled') and not message.text:match('^%/administration') and not message.text:match('^%/chats') and not message.text:match('^%/groups')) or (plugin.name ~= 'administration' and mattata.is_plugin_disabled(
-                    plugin.name,
-                    message
-                )) then
-                    if message.chat.type ~= 'private' and not redis:get('chat:' .. message.chat.id .. ':dismiss_disabled_message:' .. plugin.name) then
+                if (
+                    plugin.name == 'administration' and not redis:get(
+                        string.format(
+                            'administration:%s:enabled',
+                            message.chat.id
+                        )
+                    ) and not message.text:match('^%/administration') and not message.text:match('^%/chats') and not message.text:match('^%/groups')
+                ) or (
+                    plugin.name ~= 'administration' and mattata.is_plugin_disabled(
+                        plugin.name,
+                        message
+                    )
+                ) then
+                    if message.chat.type ~= 'private' and not redis:get(
+                        string.format(
+                            'chat:%s:dismiss_disabled_message:%s',
+                            message.chat.id,
+                            plugin.name
+                        )
+                    ) then
                         return mattata.send_message(
                             message.chat.id,
-                            plugin.name:gsub('^%l', string.upper) .. ' is disabled in this chat.',
+                            string.format(
+                                '%s is disabled in this chat.',
+                                plugin.name:gsub('^%l', string.upper)
+                            ),
                             nil,
                             true,
                             false,
@@ -426,7 +582,11 @@ function mattata:on_message(message, configuration)
                     mattata.exception(
                         self,
                         result,
-                        message.from.id .. ': ' .. message.text,
+                        string.format(
+                            '%s: %s',
+                            message.from.id,
+                            message.text
+                        ),
                         configuration.log_chat
                     )
                     message = nil
@@ -438,12 +598,16 @@ function mattata:on_message(message, configuration)
     if not mattata.is_plugin_disabled(
         'captionbotai',
         message
-    ) and (message.photo or (message.reply_to_message and message.reply_to_message.photo)) then
+    ) and (
+        message.photo or (
+            message.reply_to_message and message.reply_to_message.photo
+        )
+    ) then
         if message.reply_to_message then
             message.reply_to_message.text_lower = message.text_lower
             message = message.reply_to_message
         end
-        if message.text_lower:match('^wh?at.-this.-') then
+        if message.text_lower:match('^wh?at .- this.-') or message.text_lower:match('^wot .- this.-') or message.text_lower:match('^who .- this.-') then
             local captionbotai = require('plugins.captionbotai')
             return captionbotai.on_photo_receive(
                 self,
@@ -463,7 +627,7 @@ function mattata:on_message(message, configuration)
             message,
             configuration
         )
-        if message.text_lower:match('^' .. configuration.command_prefix .. 'statistics$') or message.text_lower:match('^' .. configuration.command_prefix .. 'stats$') or message.text_lower:match('^group stats?i?s?t?i?c?s?%.?%??!?$') then 
+        if message.text:match('^%/statistics$') or message.text:match('^%/statistics@' .. self.info.username:lower()) or message.text:match('^%/stats$') or message.text:match('^%/stats@' .. self.info.username:lower()) then 
             return statistics.on_message(
                 self,
                 message,
@@ -511,26 +675,29 @@ function mattata:on_message(message, configuration)
             )
         end
     end
-    if message.text:match('^/donate') then
+    if message.text:match('^%/donate$') or message.text:match('^%/donate@' .. self.info.username) then
         return mattata.send_message(
             message.chat.id,
             '<b>Hello, ' .. mattata.escape_html(message.from.first_name) .. '!</b>\n\nIf you\'re feeling generous, you can contribute to the mattata project by making a monetary donation of any amount. This will go towards server costs and any time and resources used to develop mattata. This is an optional act, however it is greatly appreciated and your name will also be listed publically on mattata\'s GitHub page (and, eventually, <a href="http://mattata.pw">website</a>).\n\nIf you\'re still interested in helping me out, you can donate <a href="https://paypal.me/wrxck">here</a>. Thank you for your continued support! 😀',
             'html'
         )
-    elseif message.text:match('^/license') then
+    elseif message.text:match('^%/license$') or message.text:match('^%/license@' .. self.info.username) then
         local output = io.popen('cat LICENSE'):read('*all')
         if output == 'cat: LICENSE: No such file or directory' then
             return
         end
         return mattata.send_message(
             message.chat.id,
-            '<pre>' .. mattata.escape_html(output) .. '</pre>',
+            string.format(
+                '<pre>%s</pre>',
+                mattata.escape_html(output)
+            ),
             'html'
         )
-    elseif message.text_lower:match('^' .. self.info.first_name .. ',? .- or .-%?$') and message.text_lower:len() < 50 then
+    elseif message.text_lower:match('^mattata%,? .- or .-%?$') and message.text_lower:len() < 50 then
         local choices = {
-            message.text_lower:match('^' .. self.info.first_name .. ',? (.-) or .-%??$'),
-            message.text_lower:match('^' .. self.info.first_name .. ',? .- or (.-)%??$')
+            message.text_lower:match('^mattata%,? (.-) or .-%??$'),
+            message.text_lower:match('^mattata%,? .- or (.-)%??$')
         }
         return mattata.send_reply(
             message,
@@ -539,145 +706,248 @@ function mattata:on_message(message, configuration)
     elseif not mattata.is_plugin_disabled(
         'ai',
         message
-    ) and (message.text_lower == 'hi' or message.text_lower == 'hello' or message.text_lower == 'hey' or message.text_lower == 'howdy' or message.text_lower == 'hai') then
-        local greetings = {
-            '\'Ello!',
-            'Hey there!',
-            'Hi!',
-            'Hello.',
-            'Howdy, partner!',
-            '\'Sup?',
-            'Aye!',
-            'Bonjour!',
-            'Hai!',
-            'Ohai.',
-            'Hiiiii.',
-            'Hello to you too!',
-            'Hallo!',
-            'Haiii',
-            'Hello'
-        }
-        return mattata.send_message(
-            message.chat.id,
-            greetings[math.random(#greetings)]
-        )
-    elseif message.text_lower:match('^show me message (.-)%.?%!?$') and message.chat.type == 'supergroup' then
-        local message_id = message.text_lower:match('message (.-)%.?%!?$')
-        message_id = message_id:gsub('number', '')
-        message_id = mattata.trim(message_id)
-        if tonumber(message_id) == nil then
-            return
-        end
-        local user = message.from.first_name
-        if message.from.username then
-            user = '@' .. message.from.username
-        end
-        return mattata.send_message(
-            message.chat.id,
-            'Here you go ' .. user .. '!',
-            nil,
-            true,
-            false,
-            message_id
-        )
-    elseif message.text_lower:match('^top ?kek%!?%??%.?%.?%.?$') then
-        return mattata.send_message(
-            message.chat.id,
-            'toppest of keks!'
-        )
-    elseif message.text:match('😡😡😡') then -- Inside joke.
-        return mattata.send_reply(
-            message,
-            'Uh.. is your name Em or something?'
-        )
-    elseif message.text_lower:match('^back%.?%??%!?$') or message.text_lower:match('^i\'?m back%.?%??%!?$') then
-        return mattata.send_message(
-            message.chat.id,
-            'Welcome back, ' .. message.from.first_name .. '!'
-        )
-    elseif message.text_lower:match('^brb%.?%??%!?$') then
-        return mattata.send_message(
-            message.chat.id,
-            'Don\'t be too long, ' .. message.from.first_name .. '...'
-        )
-    elseif message.text_lower:match('^gn%.?%??%!?$') or message.text_lower:match('^good night%.?%??%!?$') then
-        return mattata.send_message(
-            message.chat.id,
-            'Good night, ' .. message.from.first_name .. ' - sleep well! 😄'
-        )
-    elseif message.text_lower:match('^gm%.?%??%!?$') or message.text_lower:match('^good morning?%.?%??%!?$') then
-        return mattata.send_message(
-            message.chat.id,
-            'Good morning, ' .. message.from.first_name .. '! Did you sleep well? ☺'
-        )
-    elseif message.text_lower:match('^my name is (.-)%.?%??%!?$') then
-        local supposed_name = message.text_lower:match('^my name is (.-)%.?%??%!?$')
-        if message.from.first_name:lower() == supposed_name then
+    ) then
+        if message.text_lower == 'hi' or message.text_lower == 'hello' or message.text_lower == 'hey' or message.text_lower == 'howdy' or message.text_lower == 'hai' then
+            local greetings = {
+                '\'Ello!',
+                'Hey there!',
+                'Hi!',
+                'Hello.',
+                'Howdy, partner!',
+                '\'Sup?',
+                'Aye!',
+                'Bonjour!',
+                'Hai!',
+                'Ohai.',
+                'Hiiiii.',
+                'Hello to you too!',
+                'Hallo!',
+                'Haiii',
+                'Hello'
+            }
+            return mattata.send_message(
+                message.chat.id,
+                greetings[math.random(#greetings)]
+            )
+        elseif message.text_lower:match('^mattata%,? what is .-%?$') then
+            local query = message.text_lower:match('s (.-)%?$')
+            if query:len() < 16 and not query:match('y?our ') and not query:match('my ') then
+                message.text = string.format(
+                    '/lmgtfy What is "%s"?',
+                    query
+                )
+                if query:match(' time$') then
+                    message.text = '/time'
+                end
+                return mattata.on_message(
+                    self,
+                    message,
+                    configuration
+                )
+            end
+        elseif message.text_lower:match('^mattata%,? wh?at time is it.?$') then
+            message.text = '/time'
+            return mattata.on_message(
+                self,
+                message,
+                configuration
+            )
+        elseif message.text:match('^[Mm][Aa][Tt][Tt][Aa][Tt][Aa]%,? [Hh][Oo][Ww] [Dd][Oo] [Ii] .-%??$') then
+            message.text = '/google How do I ' .. message.text:match('^[Mm][Aa][Tt][Tt][Aa][Tt][Aa]%,? [Hh][Oo][Ww] [Dd][Oo] [Ii] .-%??$')
+            return mattata.on_message(
+                self,
+                message,
+                configuration
+            )
+        elseif message.text_lower:match('^mattata%,? search %a+ for %"?%\'?.-%"?%\'?$') then
+            local service, query = message.text_lower:match('^mattata%,? search (%a+) for %"?%\'?(.-)%"?%\'?$')
+            if service ~= 'youtube' and service ~= 'bing' and service ~= 'google' and service ~= 'flickr' and service ~= 'itunes' then
+                return mattata.send_reply(
+                    message,
+                    'I\'m sorry, I don\'t recognise that service.'
+                )
+            end
+            message.text = string.format(
+                '/%s %s',
+                service,
+                query
+            )
+            return mattata.on_message(
+                self,
+                message,
+                configuration
+            )
+        elseif message.text_lower:match('^show me message .-%.?%!?$') and message.chat.type == 'supergroup' then
+            local message_id = message.text_lower:match('ge .-%.?%!?$')
+            message_id = mattata.trim(message_id):gsub('number', '')
+            if tonumber(message_id) == nil then
+                return
+            end
+            local user = message.from.first_name
+            if message.from.username then
+                user = '@' .. message.from.username
+            end
+            return mattata.send_message(
+                message.chat.id,
+                string.format(
+                    'Here you go %s!',
+                    user
+                ),
+                nil,
+                true,
+                false,
+                message_id
+            )
+        elseif message.text_lower:match('^top ?kek%!?%??%.?%.?%.?$') then
+            return mattata.send_message(
+                message.chat.id,
+                'toppest of keks!'
+            )
+        elseif message.text:match('😡😡😡') then -- Inside joke.
             return mattata.send_reply(
                 message,
-                'No, you silly goose - your name is ' .. message.from.first_name .. '!'
+                'Uh.. is your name Em or something?'
+            )
+        elseif message.text_lower:match('^back%.?%??%!?$') or message.text_lower:match('^i\'?m back%.?%??%!?$') then
+            return mattata.send_message(
+                message.chat.id,
+                'Welcome back, ' .. message.from.first_name .. '!'
+            )
+        elseif message.text_lower:match('^brb%.?%??%!?$') then
+            return mattata.send_message(
+                message.chat.id,
+                string.format(
+                    'Don\'t be too long, %s...',
+                    message.from.first_name
+                )
+            )
+        elseif message.text_lower:match('blue waffle') then
+            return mattata.send_photo(
+                message.chat.id,
+                'AgADBAADwqcxG2QlwVA4aJHiXUZPJQoFYBkABP5H1dYBkOt9nswCAAEC'
+            )
+        elseif message.text_lower:match('^gn%.?%??%!?$') or message.text_lower:match('^good night%.?%??%!?$') then
+            return mattata.send_message(
+                message.chat.id,
+                'Good night, ' .. message.from.first_name .. ' - sleep well! 😄'
+            )
+        elseif message.text_lower:match('^gm%.?%??%!?$') or message.text_lower:match('^good morning?%.?%??%!?$') then
+            return mattata.send_message(
+                message.chat.id,
+                'Good morning, ' .. message.from.first_name .. '! Did you sleep well? ☺'
+            )
+        elseif message.text_lower:match('^my name is (.-)%.?%??%!?$') then
+            local supposed_name = message.text_lower:match('^my name is (.-)%.?%??%!?$')
+            if message.from.first_name:lower() == supposed_name then
+                return mattata.send_reply(
+                    message,
+                    'No, you silly goose - your name is ' .. message.from.first_name .. '!'
+                )
+            end
+        elseif message.text_lower:match('^wh?at is my name%.?%??%!?$') then
+            local name = message.from.first_name
+            if message.from.last_name then
+                name = name .. ' ' .. message.from.last_name
+            end
+            return mattata.send_reply(
+                message,
+                'Why, your name is ' .. name .. '!'
+            )
+        elseif message.text_lower == 'winrar' then
+            return mattata.send_message(
+                message.chat.id,
+                'Please note that WinRAR is not free software. After a 40 day trial period you must either buy a license or remove it from your computer.'
+            )
+        elseif message.text == '🍆' then
+            return mattata.send_message(
+                message.chat.id,
+                '🍑'
+            )
+        elseif message.text == '🍑' then
+            return mattata.send_message(
+                message.chat.id,
+                '🍆'
+            )
+        elseif message.text_lower == 'ellie' then -- By her request *sigh*
+            return mattata.send_reply(
+                message,
+                '❤'
+            )
+        elseif message.text == 'LOL' then
+            return mattata.send_reply(
+                message,
+                'LMAO'
+            )
+        elseif message.text_lower:match('^your not ') or message.text_lower:match(' your not ') then
+            return mattata.send_reply(
+                message,
+                'you\'re*'
+            )
+        elseif message.text_lower:match('^trump is my president%.?%!?%??$') then
+            return mattata.send_reply(
+                message,
+                'Well, he isn\'t MY president! 😰'
+            )
+        elseif message.text == '/canter' or message.text == '/cancer@' .. self.info.username then -- Also by Ellie's request
+            return mattata.send_message(
+                message.chat.id,
+                '🏇 🏇 🏇 Canter!\n🏇 🏇 🏇 Canter!\n🏇 🏇 🏇 Canter!\n🏇 🏇 🏇 Canter!\n🏇 🏇 🏇 Canter!'
+            )
+        elseif message.text_lower:match('^happy new year%.?%??%!?$') then
+            local output = string.format(
+                'But it\'s not %s yet!',
+                os.date(
+                    '*t',
+                    os.time()
+                ).year + 1
+            )
+            if os.date(
+                '*t',
+                os.time()
+            ).month == 1 then
+                output = string.format(
+                    'Thanks, %s - Happy New Year to you too! I can\'t believe it\'s %s already?!',
+                    message.from.first_name,
+                    os.date(
+                        '*t',
+                        os.time()
+                    ).year
+                )
+            end
+            return mattata.send_reply(
+                message,
+                output
             )
         end
-    elseif message.text_lower:match('^wh?at is my name%.?%??%!?$') then
-        local name = message.from.first_name
-        if message.from.last_name then
-            name = name .. ' ' .. message.from.last_name
-        end
-        return mattata.send_reply(
-            message,
-            'Why, your name is ' .. name .. '!'
-        )
-    elseif message.text_lower == 'winrar' then
-        return mattata.send_message(
-            message.chat.id,
-            'Please note that WinRAR is not free software. After a 40 day trial period you must either buy a license or remove it from your computer.'
-        )
-    elseif message.text == '🍆' then
-        return mattata.send_message(
-            message.chat.id,
-            '🍑'
-        )
-    elseif message.text == '🍑' then
-        return mattata.send_message(
-            message.chat.id,
-            '🍆'
-        )
-    elseif message.text_lower == 'ellie' then -- By her request *sigh*
-        return mattata.send_reply(
-            message,
-            '❤'
-        )
-    elseif message.text == 'LOL' then
-        return mattata.send_reply(
-            message,
-            'LMAO'
-        )
-    elseif message.text_lower:match('^trump is my president%.?%!?%??$') then
-        return mattata.send_reply(
-            message,
-            'Well, he isn\'t MY president! 😰'
-        )
-    elseif message.text == '/canter' or message.text == '/cancer@' .. self.info.username then -- Also by Ellie's request
-        return mattata.send_message(
-            message.chat.id,
-            '🏇 🏇 🏇 Canter!\n🏇 🏇 🏇 Canter!\n🏇 🏇 🏇 Canter!\n🏇 🏇 🏇 Canter!\n🏇 🏇 🏇 Canter!'
-        )
-    elseif message.text_lower:match('^happy new year%.?%??%!?$') and os.date('*t', os.time()).month == 1 then
-        return mattata.send_reply(
-            message,
-            'Aw, thank you! Happy New Year to you too, ' .. message.from.first_name .. '! I can\'t believe it\'s ' .. os.date("*t", os.time()).year .. ' already!'
-        )
-    elseif mattata.is_global_admin(message.from.id) and message.chat.id == configuration.bug_reports_chat and message.reply_to_message and message.reply_to_message.forward_from and not message.text:match('^' .. configuration.command_prefix) then
+    elseif mattata.is_global_admin(message.from.id) and message.chat.id == configuration.bug_reports_chat and message.reply_to_message and message.reply_to_message.forward_from and not message.text:match('^%/') then
         return mattata.send_message(
             message.reply_to_message.forward_from.id,
-            'Message from the developer regarding bug report #' .. message.reply_to_message.forward_date .. ':\n<pre>' .. mattata.escape_html(message.text) .. '</pre>',
+            string.format(
+                'Message from the developer regarding bug report #%s:\n<pre>%s</pre>',
+                message.reply_to_message.forward_date,
+                mattata.escape_html(message.text)
+            ),
             'html'
         )
     end
-    if not mattata.is_plugin_disabled(
+    if message.reply_to_message and message.reply_to_message.text and message.text_lower:match('^wh?at would matt?att?a say%??%.?%!?$') and not mattata.is_plugin_disabled(
         'ai',
         message
-    ) and not message.text:match('^Cancel$') and not message.text:match('^/?s/(.-)/(.-)/?$') and not message.photo and not message.text:match('^%/') and not message.forward_from then
+    ) then
+        local old_from = message.from
+        message = message.reply_to_message
+        message.from = old_from
+        local ai = require('plugins.ai')
+        return ai.on_message(
+            self,
+            message,
+            configuration,
+            language
+        )
+    elseif not mattata.is_plugin_disabled(
+        'ai',
+        message
+    ) and not message.text:match('^Cancel$') and not message.text:match('^%/?s%/.-%/.-%/?$') and not message.photo and not message.text:match('^%/') and not message.forward_from then
         local ai_type, is_ai = 1, false
         if message.text:match('^[Pp][Ee][Ww][Dd][Ss]%,? .-$') or message.text:match('^.-%,? [Pp][Ee][Ww][Dd][Ss]%??%.?%!?$') then
             ai_type, is_ai = 2, true
@@ -707,10 +977,14 @@ function mattata:on_message(message, configuration)
         end
     end
     -- If a user executes a command and it's not recognised; provide a response, explaining what's happened and how they can resolve it.
-    if (message.text:match('^%/') and message.chat.type == 'private') or (message.chat.type ~= 'private' and message.text:match('^%/%a+@' .. self.info.username)) then
+    if (
+        message.text:match('^%/') and message.chat.type == 'private'
+    ) or (
+        message.chat.type ~= 'private' and message.text:match('^%/%a+@' .. self.info.username)
+    ) then
         return mattata.send_reply(
             message,
-            'Sorry, I don\'t understand that command.\nTip: Use /help to discover what I can do!'
+            'Sorry, I don\'t understand that command.\nTip: Use /help to discover what else I can do!'
         )
     end
 end
@@ -740,7 +1014,11 @@ function mattata:on_inline_query(inline_query, configuration)
                     mattata.exception(
                         self,
                         result,
-                        inline_query.from.id .. ': ' .. inline_query.query,
+                        string.format(
+                            '%s: %s',
+                            inline_query.from.id,
+                            inline_query.query
+                        ),
                         configuration.log_chat
                     )
                     message = nil
@@ -774,19 +1052,23 @@ function mattata:on_callback_query(callback_query, message, configuration)
     elseif message.reply_to_message and message.chat.type ~= 'channel' and callback_query.from.id ~= message.reply_to_message.from.id and not callback_query.data:match('^game%:') then
         return mattata.answer_callback_query(
             callback_query.id,
-            'Only ' .. message.reply_to_message.from.first_name .. ' can use this!'
+            string.format(
+                'Only %s can use this!',
+                message.reply_to_message.from.first_name
+            )
         )
     end
     for _, plugin in ipairs(self.plugins) do
-        if plugin.name == callback_query.data:match('^(%a+):.-$') and plugin.on_callback_query then
-            callback_query.data = callback_query.data:match('^%a+:(.-)$')
+        if plugin.name == callback_query.data:match('^(.-)%:.-$') and plugin.on_callback_query then
+            callback_query.data = callback_query.data:match('^%a+%:(.-)$')
             if not callback_query.data then
                 return
             end
             local success, result = pcall(
                 function()
-                    local user_language = mattata.get_user_language(callback_query.from.id)
-                    local language = require('languages.' .. user_language)
+                    local language = require(
+                        'languages.' .. mattata.get_user_language(callback_query.from.id)
+                    )
                     return plugin.on_callback_query(
                         self,
                         callback_query,
@@ -804,7 +1086,11 @@ function mattata:on_callback_query(callback_query, message, configuration)
                 mattata.exception(
                     self,
                     result,
-                    callback_query.from.id .. ': ' .. callback_query.data,
+                    string.format(
+                        '%s: %s',
+                        callback_query.from.id,
+                        callback_query.data
+                    ),
                     configuration.log_chat
                 )
                 callback_query = nil
@@ -819,11 +1105,25 @@ end
     Functions which compliment the mattata API by providing Lua
     bindings to the Telegram bot API.
     
---]]
+]]--
 
-function mattata.get_updates(timeout, offset) -- https://core.telegram.org/bots/api#getupdates
+function mattata.get_me(token)
+    token = token or configuration.bot_token
     return mattata.request(
-        'getUpdates',
+        string.format(
+            'https://api.telegram.org/bot%s/getMe',
+            token
+        )
+    )
+end
+
+function mattata.get_updates(timeout, offset, token) -- https://core.telegram.org/bots/api#getupdates
+    token = token or configuration.bot_token
+    return mattata.request(
+        string.format(
+            'https://api.telegram.org/bot%s/getUpdates',
+            token
+        ),
         {
             ['timeout'] = timeout,
             ['offset'] = offset
@@ -831,12 +1131,16 @@ function mattata.get_updates(timeout, offset) -- https://core.telegram.org/bots/
     )
 end
 
-function mattata.send_message(chat_id, text, parse_mode, disable_web_page_preview, disable_notification, reply_to_message_id, reply_markup) -- https://core.telegram.org/bots/api#sendmessage
+function mattata.send_message(chat_id, text, parse_mode, disable_web_page_preview, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendmessage
+    token = token or configuration.bot_token
     if disable_web_page_preview == nil then
         disable_web_page_preview = true
     end
     return mattata.request(
-        'sendMessage',
+        string.format(
+            'https://api.telegram.org/bot%s/sendMessage',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['text'] = text,
@@ -849,12 +1153,16 @@ function mattata.send_message(chat_id, text, parse_mode, disable_web_page_previe
     )
 end
 
-function mattata.send_reply(message, text, parse_mode, disable_web_page_preview, reply_markup) -- A variant of mattata.send_message(), optimised for sending a message as a reply.
+function mattata.send_reply(message, text, parse_mode, disable_web_page_preview, reply_markup, token) -- A variant of mattata.send_message(), optimised for sending a message as a reply.
+    token = token or configuration.bot_token
     if disable_web_page_preview == nil then
         disable_web_page_preview = true
     end
     return mattata.request(
-        'sendMessage',
+        string.format(
+            'https://api.telegram.org/bot%s/sendMessage',
+            token
+        ),
         {
             ['chat_id'] = message.chat.id,
             ['text'] = text,
@@ -867,9 +1175,13 @@ function mattata.send_reply(message, text, parse_mode, disable_web_page_preview,
     )
 end
 
-function mattata.forward_message(chat_id, from_chat_id, disable_notification, message_id) -- https://core.telegram.org/bots/api#forwardmessage
+function mattata.forward_message(chat_id, from_chat_id, disable_notification, message_id, token) -- https://core.telegram.org/bots/api#forwardmessage
+    token = token or configuration.bot_token
     return mattata.request(
-        'forwardMessage',
+        string.format(
+            'https://api.telegram.org/bot%s/forwardMessage',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['from_chat_id'] = from_chat_id,
@@ -879,9 +1191,13 @@ function mattata.forward_message(chat_id, from_chat_id, disable_notification, me
     )
 end
 
-function mattata.send_photo(chat_id, photo, caption, disable_notification, reply_to_message_id, reply_markup) -- https://core.telegram.org/bots/api#sendphoto
+function mattata.send_photo(chat_id, photo, caption, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendphoto
+    token = token or configuration.bot_token
     return mattata.request(
-        'sendPhoto',
+        string.format(
+            'https://api.telegram.org/bot%s/sendPhoto',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['caption'] = caption,
@@ -895,9 +1211,13 @@ function mattata.send_photo(chat_id, photo, caption, disable_notification, reply
     )
 end
 
-function mattata.send_audio(chat_id, audio, caption, duration, performer, title, disable_notification, reply_to_message_id, reply_markup) -- https://core.telegram.org/bots/api#sendaudio
+function mattata.send_audio(chat_id, audio, caption, duration, performer, title, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendaudio
+    token = token or configuration.bot_token
     return mattata.request(
-        'sendAudio',
+        string.format(
+            'https://api.telegram.org/bot%s/sendAudio',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['caption'] = caption,
@@ -914,9 +1234,13 @@ function mattata.send_audio(chat_id, audio, caption, duration, performer, title,
     )
 end
 
-function mattata.send_document(chat_id, document, caption, disable_notification, reply_to_message_id, reply_markup) -- https://core.telegram.org/bots/api#senddocument
+function mattata.send_document(chat_id, document, caption, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#senddocument
+    token = token or configuration.bot_token
     return mattata.request(
-        'sendDocument',
+        string.format(
+            'https://api.telegram.org/bot%s/sendDocument',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['caption'] = caption,
@@ -930,9 +1254,13 @@ function mattata.send_document(chat_id, document, caption, disable_notification,
     )
 end
 
-function mattata.send_sticker(chat_id, sticker, disable_notification, reply_to_message_id, reply_markup) -- https://core.telegram.org/bots/api#sendsticker
+function mattata.send_sticker(chat_id, sticker, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendsticker
+    token = token or configuration.bot_token
     return mattata.request(
-        'sendSticker',
+        string.format(
+            'https://api.telegram.org/bot%s/sendSticker',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['disable_notification'] = disable_notification or false,
@@ -945,9 +1273,13 @@ function mattata.send_sticker(chat_id, sticker, disable_notification, reply_to_m
     )
 end
 
-function mattata.send_video(chat_id, video, duration, width, height, caption, disable_notification, reply_to_message_id, reply_markup) -- https://core.telegram.org/bots/api#sendvideo
+function mattata.send_video(chat_id, video, duration, width, height, caption, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendvideo
+    token = token or configuration.bot_token
     return mattata.request(
-        'sendVideo',
+        string.format(
+            'https://api.telegram.org/bot%s/sendVideo',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['duration'] = duration,
@@ -964,9 +1296,13 @@ function mattata.send_video(chat_id, video, duration, width, height, caption, di
     )
 end
 
-function mattata.send_voice(chat_id, voice, caption, duration, disable_notification, reply_to_message_id, reply_markup) -- https://core.telegram.org/bots/api#sendvoice
+function mattata.send_voice(chat_id, voice, caption, duration, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendvoice
+    token = token or configuration.bot_token
     return mattata.request(
-        'sendVoice',
+        string.format(
+            'https://api.telegram.org/bot%s/sendVoice',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['caption'] = caption,
@@ -981,9 +1317,13 @@ function mattata.send_voice(chat_id, voice, caption, duration, disable_notificat
     )
 end
 
-function mattata.send_location(chat_id, latitude, longitude, disable_notification, reply_to_message_id, reply_markup) -- https://core.telegram.org/bots/api#sendlocation
+function mattata.send_location(chat_id, latitude, longitude, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendlocation
+    token = token or configuration.bot_token
     return mattata.request(
-        'sendLocation',
+        string.format(
+            'https://api.telegram.org/bot%s/sendLocation',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['latitude'] = latitude,
@@ -995,9 +1335,13 @@ function mattata.send_location(chat_id, latitude, longitude, disable_notificatio
     )
 end
 
-function mattata.send_venue(chat_id, latitude, longitude, title, address, foursquare_id, disable_notification, reply_to_message_id, reply_markup) -- https://core.telegram.org/bots/api#sendvenue
+function mattata.send_venue(chat_id, latitude, longitude, title, address, foursquare_id, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendvenue
+    token = token or configuration.bot_token
     return mattata.request(
-        'sendVenue',
+        string.format(
+            'https://api.telegram.org/bot%s/sendVenue',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['latitude'] = latitude,
@@ -1012,9 +1356,13 @@ function mattata.send_venue(chat_id, latitude, longitude, title, address, foursq
     )
 end
 
-function mattata.send_contact(chat_id, phone_number, first_name, last_name, disable_notification, reply_to_message_id, reply_markup) -- https://core.telegram.org/bots/api#sendcontact
+function mattata.send_contact(chat_id, phone_number, first_name, last_name, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendcontact
+    token = token or configuration.bot_token
     return mattata.request(
-        'sendContact',
+        string.format(
+            'https://api.telegram.org/bot%s/sendContact',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['phone_number'] = phone_number,
@@ -1027,9 +1375,13 @@ function mattata.send_contact(chat_id, phone_number, first_name, last_name, disa
     )
 end
 
-function mattata.send_chat_action(chat_id, action) -- https://core.telegram.org/bots/api#sendchataction
+function mattata.send_chat_action(chat_id, action, token) -- https://core.telegram.org/bots/api#sendchataction
+    token = token or configuration.bot_token
     return mattata.request(
-        'sendChatAction',
+        string.format(
+            'https://api.telegram.org/bot%s/sendChatAction',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['action'] = action or 'typing'
@@ -1037,9 +1389,13 @@ function mattata.send_chat_action(chat_id, action) -- https://core.telegram.org/
     )
 end
 
-function mattata.get_user_profile_photos(user_id, offset, limit) -- https://core.telegram.org/bots/api#getuserprofilephotos
+function mattata.get_user_profile_photos(user_id, offset, limit, token) -- https://core.telegram.org/bots/api#getuserprofilephotos
+    token = token or configuration.bot_token
     return mattata.request(
-        'getUserProfilePhotos',
+        string.format(
+            'https://api.telegram.org/bot%s/getUserProfilePhotos',
+            token
+        ),
         {
             ['user_id'] = user_id,
             ['offset'] = offset,
@@ -1048,18 +1404,26 @@ function mattata.get_user_profile_photos(user_id, offset, limit) -- https://core
     )
 end
 
-function mattata.get_file(file_id) -- https://core.telegram.org/bots/api#getfile
+function mattata.get_file(file_id, token) -- https://core.telegram.org/bots/api#getfile
+    token = token or configuration.bot_token
     return mattata.request(
-        'getFile',
+        string.format(
+            'https://api.telegram.org/bot%s/getFile',
+            token
+        ),
         {
             ['file_id'] = file_id
         }
     )
 end
 
-function mattata.kick_chat_member(chat_id, user_id) -- https://core.telegram.org/bots/api#kickchatmember
+function mattata.kick_chat_member(chat_id, user_id, token) -- https://core.telegram.org/bots/api#kickchatmember
+    token = token or configuration.bot_token
     return mattata.request(
-        'kickChatMember',
+        string.format(
+            'https://api.telegram.org/bot%s/kickChatMember',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['user_id'] = user_id
@@ -1067,18 +1431,26 @@ function mattata.kick_chat_member(chat_id, user_id) -- https://core.telegram.org
     )
 end
 
-function mattata.leave_chat(chat_id) -- https://core.telegram.org/bots/api#leavechat
+function mattata.leave_chat(chat_id, token) -- https://core.telegram.org/bots/api#leavechat
+    token = token or configuration.bot_token
     return mattata.request(
-        'leaveChat',
+        string.format(
+            'https://api.telegram.org/bot%s/leaveChat',
+            token
+        ),
         {
             ['chat_id'] = chat_id
         }
     )
 end
 
-function mattata.unban_chat_member(chat_id, user_id) -- https://core.telegram.org/bots/api#unbanchatmember
+function mattata.unban_chat_member(chat_id, user_id, token) -- https://core.telegram.org/bots/api#unbanchatmember
+    token = token or configuration.bot_token
     return mattata.request(
-        'unbanChatMember',
+        string.format(
+            'https://api.telegram.org/bot%s/unbanChatMember',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['user_id'] = user_id
@@ -1086,27 +1458,39 @@ function mattata.unban_chat_member(chat_id, user_id) -- https://core.telegram.or
     )
 end
 
-function mattata.get_chat_administrators(chat_id) -- https://core.telegram.org/bots/api#getchatadministrators
+function mattata.get_chat_administrators(chat_id, token) -- https://core.telegram.org/bots/api#getchatadministrators
+    token = token or configuration.bot_token
     return mattata.request(
-        'getChatAdministrators',
+        string.format(
+            'https://api.telegram.org/bot%s/getChatAdministrators',
+            token
+        ),
         {
             ['chat_id'] = chat_id
         }
     )
 end
 
-function mattata.get_chat_members_count(chat_id) -- https://core.telegram.org/bots/api#getchatmemberscount
+function mattata.get_chat_members_count(chat_id, token) -- https://core.telegram.org/bots/api#getchatmemberscount
+    token = token or configuration.bot_token
     return mattata.request(
-        'getChatMembersCount',
+        string.format(
+            'https://api.telegram.org/bot%s/getChatMembersCount',
+            token
+        ),
         {
             ['chat_id'] = chat_id
         }
     )
 end
 
-function mattata.get_chat_member(chat_id, user_id) -- https://core.telegram.org/bots/api#getchatmember
+function mattata.get_chat_member(chat_id, user_id, token) -- https://core.telegram.org/bots/api#getchatmember
+    token = token or configuration.bot_token
     return mattata.request(
-        'getChatMember',
+        string.format(
+            'https://api.telegram.org/bot%s/getChatMember',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['user_id'] = user_id
@@ -1114,9 +1498,13 @@ function mattata.get_chat_member(chat_id, user_id) -- https://core.telegram.org/
     )
 end
 
-function mattata.answer_callback_query(callback_query_id, text, show_alert, url) -- https://core.telegram.org/bots/api#answercallbackquery
+function mattata.answer_callback_query(callback_query_id, text, show_alert, url, token) -- https://core.telegram.org/bots/api#answercallbackquery
+    token = token or configuration.bot_token
     return mattata.request(
-        'answerCallbackQuery',
+        string.format(
+            'https://api.telegram.org/bot%s/answerCallbackQuery',
+            token
+        ),
         {
             ['callback_query_id'] = callback_query_id,
             ['text'] = text,
@@ -1127,8 +1515,12 @@ function mattata.answer_callback_query(callback_query_id, text, show_alert, url)
 end
 
 function mattata.edit_message_text(chat_id, message_id, text, parse_mode, disable_web_page_preview, reply_markup) -- https://core.telegram.org/bots/api#editmessagetext
+    token = token or configuration.bot_token
     return mattata.request(
-        'editMessageText',
+        string.format(
+            'https://api.telegram.org/bot%s/editMessageText',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['message_id'] = message_id,
@@ -1140,9 +1532,13 @@ function mattata.edit_message_text(chat_id, message_id, text, parse_mode, disabl
     )
 end
 
-function mattata.edit_message_caption(chat_id, message_id, inline_message_id, caption, reply_markup) -- https://core.telegram.org/bots/api#editmessagecaption
+function mattata.edit_message_caption(chat_id, message_id, inline_message_id, caption, reply_markup, token) -- https://core.telegram.org/bots/api#editmessagecaption
+    token = token or configuration.bot_token
     return mattata.request(
-        'editMessageCaption',
+        string.format(
+            'https://api.telegram.org/bot%s/editMessageCaption',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['message_id'] = message_id,
@@ -1153,9 +1549,13 @@ function mattata.edit_message_caption(chat_id, message_id, inline_message_id, ca
     )
 end
 
-function mattata.edit_message_reply_markup(chat_id, message_id, inline_message_id, reply_markup) -- https://core.telegram.org/bots/api#editmessagereplymarkup
+function mattata.edit_message_reply_markup(chat_id, message_id, inline_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#editmessagereplymarkup
+    token = token or configuration.bot_token
     return mattata.request(
-        'editMessageReplyMarkup',
+        string.format(
+            'https://api.telegram.org/bot%s/editMessageReplyMarkup',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['message_id'] = message_id,
@@ -1165,9 +1565,13 @@ function mattata.edit_message_reply_markup(chat_id, message_id, inline_message_i
     )
 end
 
-function mattata.answer_inline_query(inline_query_id, results, cache_time, is_personal, next_offset, switch_pm_text, switch_pm_parameter) -- https://core.telegram.org/bots/api#answerinlinequery
+function mattata.answer_inline_query(inline_query_id, results, cache_time, is_personal, next_offset, switch_pm_text, switch_pm_parameter, token) -- https://core.telegram.org/bots/api#answerinlinequery
+    token = token or configuration.bot_token
     return mattata.request(
-        'answerInlineQuery',
+        string.format(
+            'https://api.telegram.org/bot%s/answerInlineQuery',
+            token
+        ),
         {
             ['inline_query_id'] = inline_query_id,
             ['results'] = results,
@@ -1180,9 +1584,13 @@ function mattata.answer_inline_query(inline_query_id, results, cache_time, is_pe
     )
 end
 
-function mattata.send_game(chat_id, game_short_name, disable_notification, reply_to_message_id, reply_markup) -- https://core.telegram.org/bots/api#sendgame
+function mattata.send_game(chat_id, game_short_name, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendgame
+    token = token or configuration.bot_token
     return mattata.request(
-        'sendGame',
+        string.format(
+            'https://api.telegram.org/bot%s/sendGame',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['game_short_name'] = game_short_name,
@@ -1193,13 +1601,17 @@ function mattata.send_game(chat_id, game_short_name, disable_notification, reply
     )
 end
 
-function mattata.set_game_score(user_id, score, force, disable_edit_message, chat_id, message_id, inline_message_id) -- https://core.telegram.org/bots/api#setgamescore
+function mattata.set_game_score(chat_id, user_id, message_id, score, force, disable_edit_message, inline_message_id, token) -- https://core.telegram.org/bots/api#setgamescore
+    token = token or configuration.bot_token
     return mattata.request(
-        'setGameScore',
+        string.format(
+            'https://api.telegram.org/bot%s/setGameScore',
+            token
+        ),
         {
             ['user_id'] = user_id,
             ['score'] = score,
-            ['force'] = force,
+            ['force'] = force or false,
             ['disable_edit_message'] = disable_edit_message or false,
             ['chat_id'] = chat_id,
             ['message_id'] = message_id,
@@ -1208,9 +1620,13 @@ function mattata.set_game_score(user_id, score, force, disable_edit_message, cha
     )
 end
 
-function mattata.get_game_high_scores(user_id, chat_id, message_id, inline_message_id) -- https://core.telegram.org/bots/api#getgamehighscores
+function mattata.get_game_high_scores(user_id, chat_id, message_id, inline_message_id, token) -- https://core.telegram.org/bots/api#getgamehighscores
+    token = token or configuration.bot_token
     return mattata.request(
-        'getGameHighScores',
+        string.format(
+            'https://api.telegram.org/bot%s/getGameHighScores',
+            token
+        ),
         {
             ['user_id'] = user_id,
             ['chat_id'] = chat_id,
@@ -1220,9 +1636,13 @@ function mattata.get_game_high_scores(user_id, chat_id, message_id, inline_messa
     )
 end
 
-function mattata.get_chat(chat_id) -- https://core.telegram.org/bots/api#getchat
+function mattata.get_chat(chat_id, token) -- https://core.telegram.org/bots/api#getchat
+    token = token or configuration.bot_token
     return mattata.request(
-        'getChat',
+        string.format(
+            'https://api.telegram.org/bot%s/getChat',
+            token
+        ),
         {
             ['chat_id'] = chat_id
         }
@@ -1231,81 +1651,117 @@ end
 
 -- PWRTelegram methods
 
-function mattata.get_chat_pwr(chat_id, full)
+function mattata.get_chat_pwr(chat_id, full, token)
+    token = token or configuration.bot_token
     local success = mattata.request(
-        'getChat',
+        string.format(
+            'https://api.pwrtelegram.xyz/bot%s/getChat',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['full'] = full or false
         },
         nil,
-        'https://api.pwrtelegram.xyz/bot'
+        true
     )
     if not success then
-        return false
+        return mattata.get_chat(chat_id)
     elseif success.result.type == 'user' then
         success.result.type = 'private'
     end
     return success
 end
 
-function mattata.get_chat_by_file_pwr(file_id)
+function mattata.get_chat_by_file_pwr(file_id, token)
+    token = token or configuration.bot_token
     return mattata.request(
-        'getChatByFile',
+        string.format(
+            'https://api.pwrtelegram.xyz/bot%s/getChatByFile',
+            token
+        ),
         {
             ['file_id'] = file_id
-        },
-        nil,
-        'https://api.pwrtelegram.xyz/bot'
+        }
     )
 end
 
-function mattata.get_message_pwr(chat_id, message_id)
+function mattata.get_message_pwr(chat_id, message_id, token)
+    token = token or configuration.bot_token
     return mattata.request(
-        'getMessage',
+        string.format(
+            'https://api.pwrtelegram.xyz/bot%s/getMessage',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['message_id'] = message_id
-        },
-        nil,
-        'https://api.pwrtelegram.xyz/bot'
+        }
     )
 end
 
-function mattata.add_chat_user_pwr(chat_id, user_id, fwd_limit)
+function mattata.add_chat_user_pwr(chat_id, user_id, fwd_limit, token)
+    token = token or configuration.bot_token
     return mattata.request(
-        'addChatUser',
+        string.format(
+            'https://api.pwrtelegram.xyz/bot%s/addChatUser',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
             ['user_id'] = user_id,
             ['fwd_limit'] = fwd_limit or nil
-        },
-        nil,
-        'https://beta.pwrtelegram.xyz/bot'
+        }
     )
 end
 
-function mattata.send_file_pwr(chat_id, file, caption, duration, performer, title, width, height, file_name, disable_notification, reply_to_message_id, reply_markup)
+function mattata.send_file_pwr(chat_id, file, caption, duration, performer, title, width, height, file_name, disable_notification, reply_to_message_id, reply_markup, token)
+    token = token or configuration.bot_token
     return mattata.request(
-        'sendFile',
+        string.format(
+            'https://api.pwrtelegram.xyz/bot%s/sendFile',
+            token
+        ),
         {
             ['chat_id'] = chat_id,
-            ['caption'] = caption or nil,
-            ['duration'] = duration or nil,
-            ['performer'] = performer or nil,
-            ['title'] = title or nil,
-            ['width'] = width or nil,
-            ['height'] = height or nil,
-            ['file_name'] = file_name or nil,
+            ['caption'] = caption,
+            ['duration'] = duration,
+            ['performer'] = performer,
+            ['title'] = title,
+            ['width'] = width,
+            ['height'] = height,
+            ['file_name'] = file_name,
             ['disable_notification'] = disable_notification or false,
-            ['reply_to_message_id'] = reply_to_message_id or nil,
-            ['reply_markup'] = reply_markup or nil
+            ['reply_to_message_id'] = reply_to_message_id,
+            ['reply_markup'] = reply_markup
         },
         {
             ['file'] = file
-        },
-        'https://beta.pwrtelegram.xyz/bot'
+        }
     )
+end
+
+function mattata.get_user_profile_photos_pwr(user_id, offset, limit, token)
+    token = token or configuration.bot_token
+    local success = mattata.request(
+        string.format(
+            'https://api.pwrtelegram.xyz/bot%s/getUserProfilePhotos',
+            token
+        ),
+        {
+            ['user_id'] = user_id,
+            ['offset'] = offset,
+            ['limit'] = limit
+        }
+    )
+    if not success then
+        return mattata.get_user_profile_photos(
+            user_id,
+            offset,
+            limit
+        )
+    end
+    return success
 end
 
 --[[
@@ -1320,9 +1776,12 @@ function mattata.is_plugin_disabled(plugin, message)
         message = message.chat.id
     end
     if redis:hget(
-        'chat:' .. message .. ':disabled_plugins',
+        string.format(
+            'chat:%s:disabled_plugins',
+            message
+        ),
         plugin
-    ) == 'true' then
+    ) == 'true' and plugin ~= 'plugins' then
         return true
     end
     return false
@@ -1332,14 +1791,22 @@ function mattata.get_redis_hash(k, v)
     if type(k) == 'table' then
         k = k.chat.id
     end
-    return 'chat:' .. k .. ':' .. v
+    return string.format(
+        'chat:%s:%s',
+        k,
+        v
+    )
 end
 
 function mattata.get_user_redis_hash(k, v)
     if type(k) == 'table' then
         k = k.id
     end
-    return 'user:' .. k .. ':' .. v
+    return string.format(
+        'user:%s:%s',
+        k,
+        v
+    )
 end
 
 function mattata.get_word(str, i)
@@ -1358,6 +1825,9 @@ function mattata.get_word(str, i)
 end
 
 function mattata.input(s)
+    if s:lower():match('^mattata search %a+ for .-$') then
+        return s:lower():match('^mattata search %a+ for (.-)$')
+    end
     local input = s:find(' ')
     if not input then
         return false
@@ -1381,14 +1851,21 @@ function mattata:exception(err, message, log_chat)
     if log_chat then
         return mattata.send_message(
             log_chat,
-            '<pre>' .. output .. '</pre>',
+            string.format(
+                '<pre>%s</pre>',
+                output
+            ),
             'html'
         )
     end
 end
 
 function mattata.download_file(url, name)
-    name = name or os.time() .. '.' .. url:match('.+/%.(.-)$')
+    name = name or string.format(
+        '%s.%s',
+        os.time(),
+        url:match('.+%/%.(.-)$')
+    )
     local body = {}
     local protocol = http
     local redirect = true
@@ -1410,7 +1887,9 @@ function mattata.download_file(url, name)
         configuration.download_location .. name,
         'w+'
     )
-    file:write(table.concat(body))
+    file:write(
+        table.concat(body)
+    )
     file:close()
     return configuration.download_location .. name
 end
@@ -1426,7 +1905,6 @@ function mattata.is_group_admin(chat_id, user_id, is_real_admin)
     end
     local admins = mattata.get_chat_administrators(chat_id)
     if not admins then
-        print(1)
         return false
     end
     for _, admin in ipairs(admins.result) do
@@ -1440,7 +1918,13 @@ end
 function mattata.is_group_mod(chat_id, user_id)
     if not chat_id or not user_id then
         return false
-    elseif redis:get('mods:' .. chat_id .. ':' .. user_id) then
+    elseif redis:get(
+        string.format(
+            'mods:%s:%s',
+            chat_id,
+            user_id
+        )
+    ) then
         return true
     end
     return false
@@ -1485,15 +1969,15 @@ function mattata.get_linked_name(id)
 end
 
 function mattata.escape_markdown(str)
-    str = tostring(str)
-    str = str:gsub('%_', '\\_'):gsub('%[', '\\['):gsub('%*', '\\*'):gsub('%`', '\\`')
-    return str
+    return tostring(str):gsub('%_', '\\_'):gsub('%[', '\\['):gsub('%*', '\\*'):gsub('%`', '\\`')
 end
 
 function mattata.escape_html(str)
-    str = tostring(str)
-    str = str:gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;')
-    return str
+    return tostring(str):gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;')
+end
+
+function mattata.escape_bash(str)
+    return tostring(str):gsub('$', ''):gsub('%^', ''):gsub('&', ''):gsub('|', ''):gsub(';', '')
 end
 
 mattata.commands_meta = {}
@@ -1503,19 +1987,33 @@ mattata.commands_meta.__index = mattata.commands_meta
 function mattata.commands_meta:command(command)
     table.insert(
         self.table,
-        '^' .. self.command_prefix .. command .. '$'
+        string.format(
+            '^/%s$',
+            command
+        )
     )
     table.insert(
         self.table,
-        '^' .. self.command_prefix .. command .. '@' .. self.username:lower() .. '$'
+        string.format(
+            '^/%s@%s$',
+            command,
+            self.username
+        )
     )
     table.insert(
         self.table,
-        '^' .. self.command_prefix .. command .. '%s+[^%s]*'
+        string.format(
+            '^/%s%%s+[^%%s]*',
+            command
+        )
     )
     table.insert(
         self.table,
-        '^' .. self.command_prefix .. command .. '@' .. self.username:lower() .. '%s+[^%s]*'
+        string.format(
+            '^/%s@%s%%s+[^%%s]*',
+            command,
+            self.username
+        )
     )
     return self
 end
@@ -1525,7 +2023,7 @@ function mattata.commands(username, command_prefix, command_table)
         {},
         mattata.commands_meta
     )
-    self.username = username
+    self.username = username:lower()
     self.command_prefix = command_prefix
     self.table = command_table or {}
     return self
@@ -1627,11 +2125,11 @@ function mattata.file_id(message)
     return ''
 end
 
-function mattata.utf8_len(s)
+function mattata.utf8_len(str)
     local chars = 0
-    for i = 1, s:len() do
-        local b = s:byte(i)
-        if b < 128 or b >= 192 then
+    for i = 1, str:len() do
+        local byte = str:byte(i)
+        if byte < 128 or byte >= 192 then
             chars = chars + 1
         end
     end
@@ -1644,30 +2142,50 @@ function mattata.process_chat(chat)
         return chat
     end
     if not redis:hget(
-        'chat:' .. chat.id .. ':info',
+        string.format(
+            'chat:%s:info',
+            chat.id
+        ),
         'id'
     ) then
-        print('New chat added to database [' .. chat.id .. ']')
+        print(
+            string.format(
+                'New chat added to database [%s]',
+                chat.id
+            )
+        )
     end
     redis:hset(
-        'chat:' .. chat.id .. ':info',
+        string.format(
+            'chat:%s:info',
+            chat.id
+        ),
         'title',
         chat.title
     )
     redis:hset(
-        'chat:' .. chat.id .. ':info',
+        string.format(
+            'chat:%s:info',
+            chat.id
+        ),
         'type',
         chat.type
     )
     if chat.username then
         redis:hset(
-            'chat:' .. chat.id .. ':info',
+            string.format(
+                'chat:%s:info',
+                chat.id
+            ),
             'username',
             chat.username
         )
     end
     redis:hset(
-        'chat:' .. chat.id .. ':info',
+        string.format(
+            'chat:%s:info',
+            chat.id
+        ),
         'id',
         chat.id
     )
@@ -1681,40 +2199,67 @@ function mattata.process_user(user)
     user.id_str = tostring(user.id)
     user.name = user.first_name
     if user.last_name then
-        user.name = user.name .. ' ' .. user.last_name
+        user.name = string.format(
+            '%s %s',
+            user.name,
+            user.last_name
+        )
     end
     if not redis:hget(
-        'user:' .. user.id .. ':info',
+        string.format(
+            'user:%s:info',
+            user.id
+        ),
         'id'
     ) then
-        print('New user added to database [' .. user.id .. ']')
+        print(
+            string.format(
+                'New user added to database [%s]',
+                user.id
+            )
+        )
     end
     redis:hset(
-        'user:' .. user.id .. ':info',
+        string.format(
+            'user:%s:info',
+            user.id
+        ),
         'name',
         user.name
     )
     redis:hset(
-        'user:' .. user.id .. ':info',
+        string.format(
+            'user:%s:info',
+            user.id
+        ),
         'first_name',
         user.first_name
     )
     if user.last_name then
         redis:hset(
-            'user:' .. user.id .. ':info',
+            string.format(
+                'user:%s:info',
+                user.id
+            ),
             'last_name',
             user.last_name
         )
     end
     if user.username then
         redis:hset(
-            'user:' .. user.id .. ':info',
+            string.format(
+                'user:%s:info',
+                user.id
+            ),
             'username',
             user.username
         )
     end
     redis:hset(
-        'user:' .. user.id .. ':info',
+        string.format(
+            'user:%s:info',
+            user.id
+        ),
         'id',
         user.id
     )
@@ -1756,14 +2301,13 @@ function mattata.is_global_admin(id)
 end
 
 function mattata.get_user_language(id)
-    local language = redis:hget(
-        'user:' .. id .. ':language',
+    return redis:hget(
+        string.format(
+            'user:%s:language',
+            id
+        ),
         'language'
-    )
-    if not language then
-        language = 'en'
-    end
-    return language
+    ) or 'en'
 end
 
 function mattata.comma_value(amount)
@@ -1775,12 +2319,6 @@ function mattata.comma_value(amount)
         end
     end
     return amount
-end
-
-function mattata.escape_bash(str)
-    str = tostring(str)
-    str = str:gsub('$', ''):gsub('%^', ''):gsub('&', ''):gsub('|', ''):gsub(';', '')
-    return str
 end
 
 function mattata.format_ms(milliseconds)
@@ -1798,8 +2336,7 @@ function mattata.format_ms(milliseconds)
 end
 
 function mattata.round(num, idp)
-    local mult = 10^(idp or 0)
-    return math.floor(num * mult + 0.5) / mult
+    return (math.floor(num * mult + 0.5)) / (10 ^ (idp or 0))
 end
 
 function mattata.index_chat(input)
@@ -1807,7 +2344,7 @@ function mattata.index_chat(input)
         input = '@' .. input
     end
     local chats = mattata.get_chat_pwr(
-        tostring(input),
+        input,
         true
     )
     for k, v in pairs(chats.result.participants) do

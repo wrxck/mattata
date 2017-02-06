@@ -46,11 +46,10 @@ return { -- rename this file to configuration.lua for mattata to work
 
         'control',
         -- To allow things to work properly, you MUST place all new plugins BELOW this line. It is recommended to keep the list clean by ensuring it keeps its alphabetical order.
-        'adduser',
         'administration',
         'apod',
         'appstore',
-        'author',
+        'avatar',
         'base64',
         'bash',
         'binary',
@@ -73,7 +72,6 @@ return { -- rename this file to configuration.lua for mattata to work
         'echo',
         'eightball',
         'emoji',
-        'exec',
         'facebook',
         'faces',
         'fact',
@@ -105,9 +103,11 @@ return { -- rename this file to configuration.lua for mattata to work
         'loremipsum',
         'lua',
         'lyrics',
+        'me',
         'minecraft',
         'msglink',
         'netflix',
+        'news',
         'ninegag',
         'paste',
         'pay',
@@ -119,6 +119,7 @@ return { -- rename this file to configuration.lua for mattata to work
         'qr',
         'randomword',
         'reddit',
+        'rimg',
         'rss',
         'sed',
         'setlang',
@@ -126,8 +127,10 @@ return { -- rename this file to configuration.lua for mattata to work
         'shorten',
         'shout',
         'slap',
+        'snapchat',
         'spotify',
         'statistics',
+        'steam',
         'synonym',
         'time',
         'translate',
@@ -213,7 +216,9 @@ return { -- rename this file to configuration.lua for mattata to work
 
             ['cse_key'] = ''
 
-        }
+        },
+
+        ['steam'] = '' -- https://steamcommunity.com/dev/registerkey
 
     },
 

@@ -13,7 +13,7 @@ local json = require('dkjson')
 function flickr:init(configuration)
     assert(
         configuration.keys.flickr,
-        'flickr.lua requires an API key, and you haven\'t got one configured!'
+        [[flickr.lua requires an API key, and you haven't got one configured!]]
     )
     flickr.arguments = 'flickr <query>'
     flickr.commands = mattata.commands(
@@ -25,6 +25,9 @@ end
 
 function flickr:on_inline_query(inline_query, configuration)
     local input = mattata.input(inline_query.query)
+    if not input then
+        return
+    end
     local jstr = https.request('https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=' .. configuration.keys.flickr .. '&format=json&nojsoncallback=1&privacy_filter=1&safe_search=3&media=photos&sort=relevance&is_common=true&per_page=20&extras=url_s,url_q,url_m,url_n,url_z,url_c,url_l,url_o&text=' .. url.escape(input))
     local jdat = json.decode(jstr)
     local results_list = {}
@@ -60,7 +63,13 @@ function flickr:on_message(message, configuration, language)
             flickr.help
         )
     end
-    local jstr, res = https.request('https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=' .. configuration.keys.flickr .. '&format=json&nojsoncallback=1&privacy_filter=1&safe_search=3&media=photos&sort=relevance&is_common=true&per_page=20&extras=url_o&text=' .. url.escape(input))
+    local jstr, res = https.request(
+        string.format(
+            'https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=%s&format=json&nojsoncallback=1&privacy_filter=1&safe_search=3&media=photos&sort=relevance&is_common=true&per_page=20&extras=url_o&text=%s',
+            configuration.keys.flickr,
+            url.escape(input)
+        )
+    )       
     if res ~= 200 then
         return mattata.send_reply(
             message,

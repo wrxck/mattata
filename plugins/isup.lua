@@ -6,6 +6,7 @@
 local isup = {}
 
 local mattata = require('mattata')
+local https = require('ssl.https')
 local http = require('socket.http')
 local url = require('socket.url')
 
@@ -15,7 +16,7 @@ function isup:init(configuration)
         self.info.username,
         configuration.command_prefix
     ):command('isup').table
-    isup.help = '/isup <url> - Check if the specified url is down for everyone or just you.'
+    isup.help = '/isup <url> - Check if the specified url is down for everyone or just for you.'
 end
 
 function isup.is_site_up(input)
@@ -42,14 +43,14 @@ function isup:on_message(message, configuration)
         )
     end
     if isup.is_site_up(input) then
-        return mattata.send_message(
+        return mattata.send_reply(
             message,
-            'This website is up, maybe it\'s just you?'
+            [[This website is up, maybe it's just you?]]
         )
     end
     return mattata.send_reply(
         message,
-        'It\'s not just you, this website is down!'
+        [[It's not just you, this website is down!]]
     )
 end
 

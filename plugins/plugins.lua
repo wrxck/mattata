@@ -22,7 +22,7 @@ end
 function plugins.get_toggleable_plugins()
     local toggleable = {}
     for k, v in pairs(configuration.plugins) do
-        if v ~= 'plugins' and v ~= 'administration' and v ~= 'control' and v ~= 'bash' and v ~= 'lua' and v ~= 'gwhitelist' and v ~= 'gblacklist' then
+        if v ~= 'plugins' and v ~= 'control' and v ~= 'bash' and v ~= 'lua' and v ~= 'gwhitelist' and v ~= 'gblacklist' then
             table.insert(
                 toggleable,
                 v
@@ -111,14 +111,24 @@ function plugins.get_keyboard(user_id, chat, page, columns, per_page)
             keyboard.inline_keyboard[current_row],
             {
                 ['text'] = output[n].plugin,
-                ['callback_data'] = 'plugins:' .. chat .. ':' .. output[n].plugin .. ':' .. page
+                ['callback_data'] = string.format(
+                    'plugins:%s:%s:%s',
+                    chat,
+                    output[n].plugin,
+                    page
+                )
             }
         )
         table.insert(
             keyboard.inline_keyboard[current_row],
             {
                 ['text'] = output[n].status,
-                ['callback_data'] = 'plugins:' .. chat .. ':' .. output[n].plugin .. ':' .. page
+                ['callback_data'] = string.format(
+                    'plugins:%s:%s:%s',
+                    chat,
+                    output[n].plugin,
+                    page
+                )
             }
         )
     end
@@ -127,15 +137,27 @@ function plugins.get_keyboard(user_id, chat, page, columns, per_page)
         {
             {
                 ['text'] = '← Previous',
-                ['callback_data'] = 'plugins:' .. chat .. ':page:' .. page - 1
+                ['callback_data'] = string.format(
+                    'plugins:%s:page:%s',
+                    chat,
+                    page - 1
+                )
             },
             {
-                ['text'] = page .. '/' .. page_count,
+                ['text'] = string.format(
+                    '%s/%s',
+                    page,
+                    page_count
+                ),
                 ['callback_data'] = 'plugins:nil'
             },
             {
                 ['text'] = 'Next →',
-                ['callback_data'] = 'plugins:' .. chat .. ':page:' .. page + 1
+                ['callback_data'] = string.format(
+                    'plugins:%s:page:%s',
+                    chat,
+                    page + 1
+                )
             }
         }
     )
@@ -144,11 +166,19 @@ function plugins.get_keyboard(user_id, chat, page, columns, per_page)
         {
             {
                 ['text'] = 'Disable All',
-                ['callback_data'] = 'plugins:' .. chat .. ':disable_all:' .. page
+                ['callback_data'] = string.format(
+                    'plugins:%s:disable_all:%s',
+                    chat,
+                    page
+                )
             },
             {
                 ['text'] = 'Enable All',
-                ['callback_data'] = 'plugins:' .. chat .. ':enable_all:' .. page
+                ['callback_data'] = string.format(
+                    'plugins:%s:enable_all:%s',
+                    chat,
+                    page
+                )
             }
         }
     )
@@ -175,7 +205,10 @@ function plugins:on_callback_query(callback_query, message, configuration)
         if callback_type == 'enable_all' then
             for k, v in pairs(toggleable) do
                 redis:hset(
-                    'chat:' .. chat .. ':disabled_plugins',
+                    string.format(
+                        'chat:%s:disabled_plugins',
+                        chat
+                    ),
                     v,
                     false
                 )
@@ -184,15 +217,21 @@ function plugins:on_callback_query(callback_query, message, configuration)
         elseif callback_type == 'disable_all' then
             for k, v in pairs(toggleable) do
                 redis:hset(
-                    'chat:' .. chat .. ':disabled_plugins',
+                    string.format(
+                        'chat:%s:disabled_plugins',
+                        chat
+                    ),
                     v,
                     true
                 )
             end
             toggle_status = 'disabled!'
-        elseif callback_type == 'enable_via_message' then
+        elseif callback_type == 'enable_via_message' or callback_type == 'enable' then
             redis:hset(
-                'chat:' .. chat .. ':disabled_plugins',
+                string.format(
+                    'chat:%s:disabled_plugins',
+                    chat
+                ),
                 page,
                 false
             )
@@ -202,7 +241,11 @@ function plugins:on_callback_query(callback_query, message, configuration)
             )
         elseif callback_type == 'dismiss_disabled_message' then
             redis:set(
-                'chat:' .. chat .. ':dismiss_disabled_message:' .. page,
+                string.format(
+                    'chat:%s:dismiss_disabled_message:%s',
+                    chat,
+                    page
+                ),
                 true
             )
             return mattata.answer_callback_query(
@@ -215,20 +258,32 @@ function plugins:on_callback_query(callback_query, message, configuration)
                 chat
             ) then
                 redis:hset(
-                    'chat:' .. chat .. ':disabled_plugins',
+                    string.format(
+                        'chat:%s:disabled_plugins',
+                        chat
+                    ),
                     callback_type,
                     false
                 )
             else
                 redis:hset(
-                    'chat:' .. chat .. ':disabled_plugins',
+                    string.format(
+                        'chat:%s:disabled_plugins',
+                        chat
+                    ),
                     callback_type,
                     true
                 )
             end
         end
     end
-    local keyboard = plugins.get_keyboard(callback_query.from.id, chat, tonumber(page), 2, 20)
+    local keyboard = plugins.get_keyboard(
+        callback_query.from.id,
+        chat,
+        tonumber(page),
+        2,
+        20
+    )
     local success = mattata.edit_message_reply_markup(
         message.chat.id,
         message.message_id,
@@ -255,10 +310,19 @@ function plugins:on_message(message, configuration)
             'You must be an administrator to use this!'
         )
     end
-    local keyboard = plugins.get_keyboard(message.from.id, message.chat.id, 1, 2, 20)
+    local keyboard = plugins.get_keyboard(
+        message.from.id,
+        message.chat.id,
+        1,
+        2,
+        20
+    )
     local success = mattata.send_message(
         message.from.id,
-        'Toggle the plugins for <b>' .. mattata.escape_html(message.chat.title) .. '</b> using the keyboard below:',
+        string.format(
+            'Toggle the plugins for <b>%s</b> using the keyboard below:',
+            mattata.escape_html(message.chat.title)
+        ),
         'html',
         true,
         false,
@@ -268,7 +332,10 @@ function plugins:on_message(message, configuration)
     if not success then
         return mattata.send_reply(
             message,
-            'I couldn\'t send you the plugin management menu, you need to send me a [private message](https://t.me/' .. configuration.info.username .. ') first, then try using /plugins again.',
+            string.format(
+                'I couldn\'t send you the plugin management menu, you need to send me a [private message](https://t.me/%s) first, then try using /plugins again.',
+                configuration.info.username:lower()
+            ),
             'markdown'
         )
     end
