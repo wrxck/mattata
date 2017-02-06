@@ -357,6 +357,81 @@ mattata.send_location(
 | reply\_to\_message\_id | Integer                                                                          | Optional | If the message is a reply, ID of the original message                                                                                                                          |
 | reply\_markup          | InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply | Optional | Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. |
 
+## External Usage
+
+You can use the mattata API without initialising the entire library (i.e. no plugin system etc.) by referencing the library in your code. This can be done in the following way:
+
+```Lua
+local mattata = require('mattata')
+-- Blah, blah; your code goes here
+```
+
+Now, if you wish to make a request to the Telegram API, you need to use the `mattata.request()` function; which takes 4 parameters. Below is a table containing each parameter, the type of value it takes and a brief description of what it's for.
+
+| Parameters | Type                | Required | Description                                                                                                                                                                                                               |
+|------------|---------------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| endpoint   | String              | Yes      | The API URL (with the token and method) which you'd like to make the request to (e.g. `https://api.telegram.org/bot123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/sendMessage`)                                                |
+| parameters | Table               | Yes      | A key-value table of parameters and their respective values (if you're using the official Telegram bot API, check out the documented examples above)                                                                      |
+| file       | InputFile or String | Optional | A table of a single key/value pair, where the key is the name of the parameter and the value is the filename (if these are included in parameters instead, mattata will attempt to send the filename as a file ID or URL) |
+| timeout    | Boolean             | Optional | If set to true, the request will timeout after 1 second                                                                                                                                                                   |
+
+Here's an example script which, when executed, will send the message `Hello, World!` to the chat ID `-100123456789` using the `sendMessage` method via the default API endpoint, `https://api.telegram.org/bot`, using the token `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11`:
+
+```Lua
+local mattata = require('mattata') -- Load the library
+
+local request, code =  mattata.request( -- Make the request to the Telegram bot API
+    'https://api.telegram.org/bot123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/sendMessage',
+    {
+        ['chat_id'] = -100123456789,
+        ['text'] = 'Hello, World!'
+    }
+)
+
+if not request then
+    print('The Telegram bot API returned the following error: ' .. code)
+    return false
+end
+
+return true
+```
+
+It is easier to make requests if you're using mattata for its intended purpose (a plugin-based bot), however it really is that easy to make a request to the bot API - in any snippet of Lua!
+
+Here's an example bot which uses long-polling to get updates, and responds to `/ping` with `PONG`:
+
+```Lua
+api = require('mattata')
+token = '' -- Enter your token here
+last = last or 0
+while true do
+    local request = api.get_updates(
+        5,
+        last + 1,
+        token
+    )
+    if request then
+        for _, update in ipairs(request.result) do
+            last = update.update_id
+            if update.message and update.message.text and update.message.text == '/ping' then
+                api.request(
+                    string.format(
+                        'https://api.telegram.org/bot%s/sendMessage',
+                        token
+                    ),
+                    {
+                        ['chat_id'] = update.message.chat.id,
+                        ['text'] = 'PONG'
+                    }
+                )
+            end
+        end
+    else
+        print('Error')
+    end
+end
+```
+
 ## Contribute
 
 As well as feedback and suggestions, you can contribute to the mattata project in the form of a monetary donation. This makes the biggest impact since it helps pay for things such as server hosting and domain registration. A donation of any sum is appreciated and, if you so wish, you can donate [here](https://paypal.me/wrxck).
