@@ -444,3 +444,4 @@ I'd like to take a moment to thank the following people for their donation:
 * mochicon
 * xenial
 * fizdog
+* caidens
