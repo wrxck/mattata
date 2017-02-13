@@ -12,7 +12,7 @@ local ltn12 = require('ltn12')
 local json = require('dkjson')
 local configuration = require('configuration')
 
-function captionbotai.get_conversation_id()
+function captionbotai.conversation()
     local str, res = https.request('https://www.captionbot.ai/api/init')
     if res ~= 200 then
         return false
@@ -20,7 +20,7 @@ function captionbotai.get_conversation_id()
     return str:match('%"(.-)%"')
 end
 
-function captionbotai.make_request(input, id)
+function captionbotai.request(input, id)
     local body = string.format(
         '{"conversationId":"%s","waterMark":"","userMessage":"%s"}',
         id,
@@ -57,8 +57,8 @@ function captionbotai.make_request(input, id)
     return jdat.BotMessages[2]:gsub('\\n', ' ')
 end
 
-function captionbotai:on_photo_receive(message, configuration, language)
-    local file = mattata.get_file(message.photo[#message.photo].file_id) -- Gets the highest resolution available for the best result
+function captionbotai:on_message(message, configuration, language)
+    local file = mattata.get_file(message.photo[#message.photo].file_id) -- Gets the highest resolution available for the best result.
     if not file then
         return
     end
@@ -66,23 +66,31 @@ function captionbotai:on_photo_receive(message, configuration, language)
         message.chat.id,
         'typing'
     )
-    local init = captionbotai.get_conversation_id()
+    local init = captionbotai.conversation()
     if not init then
         return mattata.send_reply(
             message,
             language.errors.connection
         )
     end
-    local output = captionbotai.make_request('https://api.telegram.org/file/bot' .. configuration.bot_token .. '/' .. file.result.file_path, init)
+    local output = captionbotai.request(
+        string.format(
+            'https://api.telegram.org/file/bot%s/%s',
+            configuration.bot_token,
+            file.result.file_path
+        ),
+        init
+    )
     if not output then
         return mattata.send_reply(
             message,
-            'I really can\'t describe the picture 😳'
+            'I REALLY CANNOT DESCRIBE THAT PICTURE 😳'
         )
     end
+    output = output:match('%, but (.-)$') or output
     return mattata.send_reply(
         message,
-        output:match('%, but (.-)$') or output
+        string.upper(output)
     )
 end
 

@@ -9,9 +9,9 @@
         Copyright (c) 2017 Matthew Hesketh
         See './LICENSE' for details
 
-        Current version: v11
+        Current version: v12
 
-]]--
+]]
 
 local mattata = {}
 
@@ -85,7 +85,7 @@ function mattata:init()
             colors.reset
         )
     )
-    self.version = 'v11'
+    self.version = 'v12'
     self.last_update = self.last_update or 0
     self.last_cron = self.last_cron or os.date('%H')
     return true
@@ -96,7 +96,7 @@ end
     Function to make POST requests to the Telegram bot API.
     A custom API can be specified, such as the PWRTelegram API,
     using the 'api' parameter.
-]]--
+]]
 
 function mattata.request(endpoint, parameters, file, timeout)
     assert(
@@ -187,7 +187,7 @@ end
     The objects received in the updates are then further processed
     through object-specific functions.
 
-]]--
+]]
 
 function mattata:run(configuration)
     local init = mattata.init(
@@ -323,6 +323,29 @@ function mattata:run(configuration)
                     end
                 end
             end
+            for p, _ in pairs(package.loaded) do
+                if p:match('^plugins%.') then
+                    package.loaded[p] = nil
+                end
+            end
+            package.loaded['mattata'] = nil
+            package.loaded['configuration'] = nil
+            for k, v in pairs(configuration) do
+                configuration[k] = v
+            end
+            print(
+                string.format(
+                    '%s[mattata] %smattata [@%s] is reloading...%s',
+                    colors.white,
+                    colors.yellow,
+                    self.info.username,
+                    colors.reset
+                )
+            )
+            mattata.init(
+                self,
+                configuration
+            )
         end
     end
     print(
@@ -341,7 +364,7 @@ end
     Functions to run when the Telegram bot API (successfully) returns an object.
     Each object has a designated function within each plugin.
 
-]]--
+]]
 
 function mattata:on_message(message, configuration)
     if not message or message.date < os.time() - 5 then -- Don't iterate over old messages.
@@ -353,11 +376,7 @@ function mattata:on_message(message, configuration)
             message,
             'To be able to use me in this channel, you need to enable the "Sign Messages" option in your channel\'s settings.'
         )
-    elseif not message.from then
-        return
-    elseif redis:get('global_blacklist:' .. message.from.id) then -- Ignore messages from globally-blacklisted users.
-        return
-    elseif redis:get(
+    elseif not message.from or redis:get('global_blacklist:' .. message.from.id) or redis:get( -- Ignore messages from a user if they're speaking in a channel that doesn't have the sign messages setting enabled, or if they're blacklisted (whether that'd be globally or just in the group).
         string.format(
             'group_blacklist:%s:%s',
             message.chat.id,
@@ -366,13 +385,19 @@ function mattata:on_message(message, configuration)
     ) then
         return
     end
+    self.info.name = redis:get(
+        string.format(
+            'chat:%s:name',
+            message.chat.id
+        )
+    ) or 'mattata'
     local user_language = mattata.get_user_language(message.from.id)
-    local language = require('languages.' .. user_language)
-    message = mattata.process_message(message) -- Process the message
+    local language = require('languages.en')
+    message = mattata.process_message(message) -- Process the message.
     if message.reply_to_message then
         message.reply_to_message = mattata.process_message(message.reply_to_message)
     end
-    if message.text:match('^%/start .-$') then -- Allow deep-linking through the /start command
+    if message.text:match('^%/start .-$') then -- Allow deep-linking through the /start command.
         message.text = message.text:match('^%/start (.-)$')
         message.text_lower = message.text:lower()
         message.text_upper = message.text:upper()
@@ -380,7 +405,7 @@ function mattata:on_message(message, configuration)
     if message.forward_from or message.forward_from_chat then
         return
     end
-    if message.text == '/cancel' or message.text == '/cancel@' .. self.info.username:lower() then -- A small hack to forcibly remove a keyboard.
+    if message.text == '/cancel' or message.text == '/cancel@' .. self.info.username:lower() then -- A small "hack" to forcibly remove a keyboard.
         return mattata.send_message(
             message.chat.id,
             'Cancelled current operation!',
@@ -436,7 +461,7 @@ function mattata:on_message(message, configuration)
                 message.chat.id,
                 string.format(
                     'My name is %s and I\'m here to help. If you\'re an administrator, use /plugins to choose which features you want to enable in this group and use /administration to set up my administrative functionality. For more information, use /help.',
-                    self.info.first_name
+                    self.info.name
                 )
             )
         end
@@ -452,7 +477,7 @@ function mattata:on_message(message, configuration)
         )
     end
     local user_language = mattata.get_user_language(message.from.id)
-    local language = require('languages.' .. user_language)
+    local language = require('languages.en')
     if message.chat.type ~= 'private' and message.text:match('^%#%a+') and redis:get(
         string.format(
             'administration:%s:enabled',
@@ -499,7 +524,7 @@ function mattata:on_message(message, configuration)
                             'administration:%s:enabled',
                             message.chat.id
                         )
-                    ) and not message.text:match('^%/administration') and not message.text:match('^%/chats') and not message.text:match('^%/groups')
+                    ) and not message.text:match('^%/administration') and not message.text:match('^%/administration%@' .. self.info.username:lower()) and not message.text:match('^%/groups') and not message.text:match('^%/groups%@' .. self.info.username:lower())
                 ) or (
                     plugin.name ~= 'administration' and mattata.is_plugin_disabled(
                         plugin.name,
@@ -609,7 +634,7 @@ function mattata:on_message(message, configuration)
         end
         if message.text_lower:match('^wh?at .- this.-') or message.text_lower:match('^wot .- this.-') or message.text_lower:match('^who .- this.-') then
             local captionbotai = require('plugins.captionbotai')
-            return captionbotai.on_photo_receive(
+            return captionbotai.on_message(
                 self,
                 message,
                 configuration,
@@ -675,29 +700,37 @@ function mattata:on_message(message, configuration)
             )
         end
     end
-    if message.text:match('^%/donate$') or message.text:match('^%/donate@' .. self.info.username) then
-        return mattata.send_message(
+    if message.text:match('^%/developer$') or message.text:match('^%/developer%@' .. self.info.username:lower()) then
+        return mattata.forward_message(
             message.chat.id,
-            '<b>Hello, ' .. mattata.escape_html(message.from.first_name) .. '!</b>\n\nIf you\'re feeling generous, you can contribute to the mattata project by making a monetary donation of any amount. This will go towards server costs and any time and resources used to develop mattata. This is an optional act, however it is greatly appreciated and your name will also be listed publically on mattata\'s GitHub page (and, eventually, <a href="http://mattata.pw">website</a>).\n\nIf you\'re still interested in helping me out, you can donate <a href="https://paypal.me/wrxck">here</a>. Thank you for your continued support! 😀',
-            'html'
+            '@wrxck',
+            false,
+            33
         )
-    elseif message.text:match('^%/license$') or message.text:match('^%/license@' .. self.info.username) then
-        local output = io.popen('cat LICENSE'):read('*all')
-        if output == 'cat: LICENSE: No such file or directory' then
-            return
-        end
-        return mattata.send_message(
+    elseif message.text:match('^%/theme$') or message.text:match('^%/theme%@' .. self.info.username:lower()) then
+        return mattata.forward_message(
             message.chat.id,
-            string.format(
-                '<pre>%s</pre>',
-                mattata.escape_html(output)
-            ),
-            'html'
+            '@mattata',
+            false,
+            1090
         )
-    elseif message.text_lower:match('^mattata%,? .- or .-%?$') and message.text_lower:len() < 50 then
+    elseif mattata.is_global_admin(message.from.id) and message.text:match('^%/index %@.-$') then
+        local group = mattata.input(message.text)
+        return mattata.send_reply(
+            message,
+            mattata.index_chat(group)
+        )
+    elseif message.text_lower:match('^' .. self.info.name:lower() .. ' what.?s? the weather') and not message.text_lower:match('in') then
+        message.text = '/weather'
+        return mattata.on_message(
+            self,
+            message,
+            configuration
+        )
+    elseif message.text_lower:match('^' .. self.info.name:lower() .. '%,? .- or .-%?$') and message.text_lower:len() < 50 then
         local choices = {
-            message.text_lower:match('^mattata%,? (.-) or .-%??$'),
-            message.text_lower:match('^mattata%,? .- or (.-)%??$')
+            message.text_lower:match('^' .. self.info.name:lower() .. '%,? (.-) or .-%??$'),
+            message.text_lower:match('^' .. self.info.name:lower() .. '%,? .- or (.-)%??$')
         }
         return mattata.send_reply(
             message,
@@ -729,38 +762,22 @@ function mattata:on_message(message, configuration)
                 message.chat.id,
                 greetings[math.random(#greetings)]
             )
-        elseif message.text_lower:match('^mattata%,? what is .-%?$') then
-            local query = message.text_lower:match('s (.-)%?$')
-            if query:len() < 16 and not query:match('y?our ') and not query:match('my ') then
-                message.text = string.format(
-                    '/lmgtfy What is "%s"?',
-                    query
-                )
-                if query:match(' time$') then
-                    message.text = '/time'
-                end
-                return mattata.on_message(
-                    self,
-                    message,
-                    configuration
-                )
-            end
-        elseif message.text_lower:match('^mattata%,? wh?at time is it.?$') then
+        elseif message.text_lower:match('^' .. self.info.name:lower() .. '%,? wh?at time is it.?$') or message.text_lower:match('^' .. self.info.name:lower() .. '%,? wh?at%\'?s the time.?$') then
             message.text = '/time'
             return mattata.on_message(
                 self,
                 message,
                 configuration
             )
-        elseif message.text:match('^[Mm][Aa][Tt][Tt][Aa][Tt][Aa]%,? [Hh][Oo][Ww] [Dd][Oo] [Ii] .-%??$') then
-            message.text = '/google How do I ' .. message.text:match('^[Mm][Aa][Tt][Tt][Aa][Tt][Aa]%,? [Hh][Oo][Ww] [Dd][Oo] [Ii] .-%??$')
+        elseif message.text_lower:match('^' .. self.info.name:lower() .. '%,? how do i .-$') then
+            message.text = '/google how do i ' .. message.text_lower:match('^' .. self.info.name:lower() .. '%,? how do i (.-)$')
             return mattata.on_message(
                 self,
                 message,
                 configuration
             )
-        elseif message.text_lower:match('^mattata%,? search %a+ for %"?%\'?.-%"?%\'?$') then
-            local service, query = message.text_lower:match('^mattata%,? search (%a+) for %"?%\'?(.-)%"?%\'?$')
+        elseif message.text_lower:match('^' .. self.info.name:lower() .. '%,? search %a+ for %"?%\'?.-%"?%\'?$') then
+            local service, query = message.text_lower:match('^' .. self.info.name:lower() .. '%,? search (%a+) for %"?%\'?(.-)%"?%\'?$')
             if service ~= 'youtube' and service ~= 'bing' and service ~= 'google' and service ~= 'flickr' and service ~= 'itunes' then
                 return mattata.send_reply(
                     message,
@@ -772,6 +789,13 @@ function mattata:on_message(message, configuration)
                 service,
                 query
             )
+            return mattata.on_message(
+                self,
+                message,
+                configuration
+            )
+        elseif message.text_lower:match('^' .. self.info.name:lower() .. '%,? who is .-$') or message.text_lower:match('^' .. self.info.name:lower() .. '%,? wh?at is .-$') or message.text_lower:match('^' .. self.info.name:lower() .. '%,? who are .-$') or message.text_lower:match('^' .. self.info.name:lower() .. '%,? what are .-$') then
+            message.text = '/ddg ' .. message.text_lower:match('^' .. self.info.name:lower() .. '%,? (.-)$')
             return mattata.on_message(
                 self,
                 message,
@@ -803,7 +827,7 @@ function mattata:on_message(message, configuration)
                 message.chat.id,
                 'toppest of keks!'
             )
-        elseif message.text:match('😡😡😡') then -- Inside joke.
+        elseif message.text:match('??????') then -- Inside joke.
             return mattata.send_reply(
                 message,
                 'Uh.. is your name Em or something?'
@@ -829,14 +853,14 @@ function mattata:on_message(message, configuration)
         elseif message.text_lower:match('^gn%.?%??%!?$') or message.text_lower:match('^good night%.?%??%!?$') then
             return mattata.send_message(
                 message.chat.id,
-                'Good night, ' .. message.from.first_name .. ' - sleep well! 😄'
+                'Good night, ' .. message.from.first_name .. ' - sleep well! ??'
             )
         elseif message.text_lower:match('^gm%.?%??%!?$') or message.text_lower:match('^good morning?%.?%??%!?$') then
             return mattata.send_message(
                 message.chat.id,
-                'Good morning, ' .. message.from.first_name .. '! Did you sleep well? ☺'
+                'Good morning, ' .. message.from.first_name .. '! Did you sleep well? ?'
             )
-        elseif message.text_lower:match('^my name is (.-)%.?%??%!?$') then
+        elseif message.text_lower:match('^my name is .-%.?%??%!?$') then
             local supposed_name = message.text_lower:match('^my name is (.-)%.?%??%!?$')
             if message.from.first_name:lower() == supposed_name then
                 return mattata.send_reply(
@@ -858,20 +882,20 @@ function mattata:on_message(message, configuration)
                 message.chat.id,
                 'Please note that WinRAR is not free software. After a 40 day trial period you must either buy a license or remove it from your computer.'
             )
-        elseif message.text == '🍆' then
+        elseif message.text == '??' then
             return mattata.send_message(
                 message.chat.id,
-                '🍑'
+                '??'
             )
-        elseif message.text == '🍑' then
+        elseif message.text == '??' then
             return mattata.send_message(
                 message.chat.id,
-                '🍆'
+                '??'
             )
-        elseif message.text_lower == 'ellie' then -- By her request *sigh*
+        elseif message.text_lower == 'ellie' then -- By her request *sigh*.
             return mattata.send_reply(
                 message,
-                '❤'
+                '?'
             )
         elseif message.text == 'LOL' then
             return mattata.send_reply(
@@ -886,12 +910,12 @@ function mattata:on_message(message, configuration)
         elseif message.text_lower:match('^trump is my president%.?%!?%??$') then
             return mattata.send_reply(
                 message,
-                'Well, he isn\'t MY president! 😰'
+                'Well, he isn\'t MY president! ??'
             )
         elseif message.text == '/canter' or message.text == '/cancer@' .. self.info.username then -- Also by Ellie's request
             return mattata.send_message(
                 message.chat.id,
-                '🏇 🏇 🏇 Canter!\n🏇 🏇 🏇 Canter!\n🏇 🏇 🏇 Canter!\n🏇 🏇 🏇 Canter!\n🏇 🏇 🏇 Canter!'
+                '?? ?? ?? Canter!\n?? ?? ?? Canter!\n?? ?? ?? Canter!\n?? ?? ?? Canter!\n?? ?? ?? Canter!'
             )
         elseif message.text_lower:match('^happy new year%.?%??%!?$') then
             local output = string.format(
@@ -930,7 +954,7 @@ function mattata:on_message(message, configuration)
             'html'
         )
     end
-    if message.reply_to_message and message.reply_to_message.text and message.text_lower:match('^wh?at would matt?att?a say%??%.?%!?$') and not mattata.is_plugin_disabled(
+    if message.reply_to_message and message.reply_to_message.text and message.text_lower:match('^wh?at would ' .. self.info.name:lower() .. ' say%??%.?%!?$') and not mattata.is_plugin_disabled(
         'ai',
         message
     ) then
@@ -948,35 +972,22 @@ function mattata:on_message(message, configuration)
         'ai',
         message
     ) and not message.text:match('^Cancel$') and not message.text:match('^%/?s%/.-%/.-%/?$') and not message.photo and not message.text:match('^%/') and not message.forward_from then
-        local ai_type, is_ai = 1, false
-        if message.text:match('^[Pp][Ee][Ww][Dd][Ss]%,? .-$') or message.text:match('^.-%,? [Pp][Ee][Ww][Dd][Ss]%??%.?%!?$') then
-            ai_type, is_ai = 2, true
-            message.text = message.text:match('^[Pp][Ee][Ww][Dd][Ss]%,? (.-)$') or message.text:match('^(.-)%,? [Pp][Ee][Ww][Dd][Ss]%??%.?%!?$')
-        elseif message.text:match('^[Ee][Vv][Ii][Ee]%,? .-$') or message.text:match('^.-%,? [Ee][Vv][Ii][Ee]%??%.?%!?$') then
-            ai_type, is_ai = 3, true
-            message.text = message.text:match('^[Ee][Vv][Ii][Ee]%,? (.-)$') or message.text:match('^(.-)%,? [Ee][Vv][Ii][Ee]%??%.?%!?$')
-        elseif message.text:match('^[Bb][Oo][Ii]%,? .-$') or message.text:match('^.-%,? [Bb][Oo][Ii]%??%.?%!?$') then
-            ai_type, is_ai = 4, true
-            message.text = message.text:match('^[Bb][Oo][Ii]%,? (.-)$') or message.text:match('^(.-)%,? [Bb][Oo][Ii]%??%.?%!?$')
-        elseif message.text:match('^[Ww][Ii][Ll][Ll][Ii][Aa][Mm]%,? .-$') or message.text:match('^.-%,? [Ww][Ii][Ll][Ll][Ii][Aa][Mm]%??%.?%!?$') then
-            ai_type, is_ai = 5, true
-            message.text = message.text:match('^[Ww][Ii][Ll][Ll][Ii][Aa][Mm]%,? (.-)$') or message.text:match('^(.-)%,? [Ww][Ii][Ll][Ll][Ii][Aa][Mm]%??%.?%!?$')
-        elseif (message.text:match('^[Mm][Aa][Tt][Tt][Aa][Tt][Aa]%,? .-$') or message.text:match('^.-%,? [Mm][Aa][Tt][Tt][Aa][Tt][Aa]%??%.?%!?$') or message.chat.type == 'private' or (message.reply_to_message and message.reply_to_message.from.id == self.info.id)) and message.text_lower ~= 'pewds' and message.text_lower ~= 'evie' and message.text_lower ~= 'boi'  and message.text_lower ~= 'mattata' and message.text_lower ~= 'william' then
-            ai_type, is_ai = 1, true
-            message.text = message.text:match('^[Mm][Aa][Tt][Tt][Aa][Tt][Aa]%,? (.-)$') or message.text:match('^(.-)%,? [Mm][Aa][Tt][Tt][Aa][Tt][Aa]%??%.?%!?$') or message.text
-        end
-        if is_ai then
+        if (
+            message.text_lower:match('^' .. self.info.name:lower() .. '.? .-$') or message.text:match('^.-%,? ' .. self.info.name:lower() .. '%??%.?%!?$') or message.chat.type == 'private' or (
+            message.reply_to_message and message.reply_to_message.from.id == self.info.id
+        )
+    ) and message.text_lower ~= self.info.name:lower() then
+            message.text = message.text_lower:gsub(self.info.name:lower(), '')
             local ai = require('plugins.ai')
             return ai.on_message(
                 self,
                 message,
                 configuration,
-                language,
-                ai_type
+                language
             )
         end
     end
-    -- If a user executes a command and it's not recognised; provide a response, explaining what's happened and how they can resolve it.
+    -- If a user executes a command and it's not recognised, provide a response - explaining what's happened and how it can be resolved.
     if (
         message.text:match('^%/') and message.chat.type == 'private'
     ) or (
@@ -990,11 +1001,11 @@ function mattata:on_message(message, configuration)
 end
 
 function mattata:on_inline_query(inline_query, configuration)
-    if redis:get('global_blacklist:' .. inline_query.from.id) then
+    if not inline_query.from or not inline_query.query or redis:get('global_blacklist:' .. inline_query.from.id) then
         return
     end
     local user_language = mattata.get_user_language(inline_query.from.id)
-    local language = require('languages.' .. user_language)
+    local language = require('languages.en')
     for _, plugin in ipairs(self.plugins) do
         local plugins = plugin.commands or {}
         for i = 1, #plugins do
@@ -1514,7 +1525,7 @@ function mattata.answer_callback_query(callback_query_id, text, show_alert, url,
     )
 end
 
-function mattata.edit_message_text(chat_id, message_id, text, parse_mode, disable_web_page_preview, reply_markup) -- https://core.telegram.org/bots/api#editmessagetext
+function mattata.edit_message_text(chat_id, message_id, text, parse_mode, disable_web_page_preview, reply_markup, token) -- https://core.telegram.org/bots/api#editmessagetext
     token = token or configuration.bot_token
     return mattata.request(
         string.format(
@@ -1653,24 +1664,10 @@ end
 
 function mattata.get_chat_pwr(chat_id, full, token)
     token = token or configuration.bot_token
-    local success = mattata.request(
-        string.format(
-            'https://api.pwrtelegram.xyz/bot%s/getChat',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['full'] = full or false
-        },
-        nil,
-        true
+    return mattata.get_chat(
+        chat_id,
+        token
     )
-    if not success then
-        return mattata.get_chat(chat_id)
-    elseif success.result.type == 'user' then
-        success.result.type = 'private'
-    end
-    return success
 end
 
 function mattata.get_chat_by_file_pwr(file_id, token)
@@ -1743,25 +1740,12 @@ end
 
 function mattata.get_user_profile_photos_pwr(user_id, offset, limit, token)
     token = token or configuration.bot_token
-    local success = mattata.request(
-        string.format(
-            'https://api.pwrtelegram.xyz/bot%s/getUserProfilePhotos',
-            token
-        ),
-        {
-            ['user_id'] = user_id,
-            ['offset'] = offset,
-            ['limit'] = limit
-        }
+    return mattata.get_user_profile_photos(
+        user_id,
+        offset,
+        limit,
+        token
     )
-    if not success then
-        return mattata.get_user_profile_photos(
-            user_id,
-            offset,
-            limit
-        )
-    end
-    return success
 end
 
 --[[
@@ -2196,6 +2180,7 @@ function mattata.process_user(user)
     if not user.id or not user.first_name then
         return
     end
+    local new = false
     user.id_str = tostring(user.id)
     user.name = user.first_name
     if user.last_name then
@@ -2218,6 +2203,7 @@ function mattata.process_user(user)
                 user.id
             )
         )
+        new = true
     end
     redis:hset(
         string.format(
@@ -2263,7 +2249,7 @@ function mattata.process_user(user)
         'id',
         user.id
     )
-    return user
+    return user, new
 end
 
 function mattata.process_message(message)
@@ -2347,9 +2333,45 @@ function mattata.index_chat(input)
         input,
         true
     )
-    for k, v in pairs(chats.result.participants) do
-        mattata.process_user(v.user)
+    local count = 0
+    if not chats or not chats.result.participants then
+        return 'Added 0 new user(s) to the database!'
     end
+    for k, v in pairs(chats.result.participants) do
+        local _, new = mattata.process_user(v.user)
+        if new then
+            count = count + 1
+        end
+    end
+    return string.format(
+        'Added %s new user(s) to the database!',
+        count
+    )
+end
+
+function mattata.get_user(input)
+    input = tostring(input):match('^%@(.-)$') or tostring(input)
+    local keys = redis:keys('user:*:info')
+    for _, v in pairs(keys) do
+        local user = redis:hgetall(v)
+        if user.username and (
+            user.username:lower() == input:lower()
+        ) then
+            return mattata.get_chat(user.id)
+        end
+    end
+    return false
+end
+
+function mattata.get_id_by_username(username)
+    if not username then
+        return false
+    end
+    local user = mattata.get_user(username)
+    if not user then
+        return false
+    end
+    return tonumber(user.result.id)
 end
 
 return mattata

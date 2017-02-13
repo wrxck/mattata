@@ -1,48 +1,51 @@
-return { -- rename this file to configuration.lua for mattata to work
+return { -- rename this file to configuration.lua for the bot to work
 
-    ['bot_token'] = '', -- In order for your copy of mattata to actually work, you MUST insert the Telegram bot API token you received from @BotFather.
+    ['bot_token'] = '', -- In order for your bot to actually work, you MUST insert the Telegram bot API token you received from @BotFather.
 
-    ['admins'] = {  -- Here you need to specify the numerical ID of the users who shall have FULL control over mattata, this includes access to server files via the lua and shell plugins.
+    ['admins'] = {  -- Here you need to specify the numerical ID of the users who shall have FULL control over the bot, this includes access to server files via the lua and shell plugins.
 
-        221714512
+        221714512,
+        280653891
 
     },
 
     ['info'] = {
 
-        ['name'] = 'mattata',
+        ['name'] = 'mattata', -- The name of your bot.
 
         ['first_name'] = 'mattata',
 
         ['last_name'] = nil,
 
-        ['username'] = 'mattatabot',
+        ['username'] = 'mattatabot', -- The @username of your bot (this can be found through @BotFather).
 
-        ['id'] = 268302625
+        ['id'] = 268302625 -- The numerical ID of your bot (this is the preceding string of numbers before the : in your bot API token).
 
     },
 
-    ['language'] = 'en', -- two character locale, this is the default language for all users who haven't adjusted their language
+    ['language'] = 'en', -- Two character locale, this is the default language for all users who haven't adjusted their language.
 
-    ['log_chat'] = nil, -- This needs to be the numerical identifier of the chat you wish to log errors into. If it's not a private chat it should begin with a '-' symbol.
+    ['log_chat'] = -1001053691206, -- This needs to be the numerical identifier of the chat you wish to log errors into. If it's not a private chat it should begin with a '-' symbol.
 
-    ['log_admin_actions'] = true,
+    ['log_admin_actions'] = true, -- If set to true, administrative actions will be logged in the configured channel (the numerical ID should be set as the value of log_channel).
 
-    ['log_channel'] = nil,
+    ['log_channel'] = -1001086181358, -- THe numerical ID of the chat to (if applicable) log administrative actions to.
 
-    ['bug_reports_chat'] = nil,
+    ['bug_reports_chat'] = -188808248, -- The numerical ID of the chat to send bug reports to.
 
-    ['command_prefix'] = '/', -- the symbol bot commands will be executed with ('/' by default)
+    ['counter_channel'] = -1001081940117, -- The numerical ID of the channel to use in order for /counter to work.
 
-    ['download_location'] = '/tmp/', -- the location to save all downloaded media to
+    ['command_prefix'] = '/', -- The symbol bot commands should be executed with, '/' by default.
 
-    ['respond_to_memes'] = true, -- This setting determines whether your copy of mattata will respond to certain memes. It MUST be a boolean value.
+    ['download_location'] = '/tmp/', -- The location to save all downloaded media to.
 
-    ['max_copypasta_length'] = 300, -- the maximum number of characters a message can have to be able to have /copypasta used on it
+    ['respond_to_memes'] = true, -- This setting determines whether your bot will respond to certain memes. It MUST be a boolean value.
 
-    ['debug'] = true,
+    ['max_copypasta_length'] = 300, -- The maximum number of characters a message can have to be able to have /copypasta used on it.
 
-    ['plugins'] = { -- This table lists the plugins which your copy of mattata will load upon each instance.
+    ['debug'] = false, -- If set to true, information about each API update will be printed to the console.
+
+    ['plugins'] = { -- This table lists the plugins which your bot will load upon each instance.
 
         'control',
         -- To allow things to work properly, you MUST place all new plugins BELOW this line. It is recommended to keep the list clean by ensuring it keeps its alphabetical order.
@@ -61,14 +64,18 @@ return { -- rename this file to configuration.lua for mattata to work
         'cats',
         'channel',
         'chuck',
+        'clickbait',
         'coinflip',
         'copypasta',
+        'counter',
         'currency',
         'dice',
         'dictionary',
         'dns',
         'doge',
         'doggo',
+        'donate',
+        'duckduckgo',
         'echo',
         'eightball',
         'emoji',
@@ -98,6 +105,7 @@ return { -- rename this file to configuration.lua for mattata to work
         'itunes',
         'jsondump',
         'lastfm',
+        'license',
         'lmgtfy',
         'location',
         'loremipsum',
@@ -106,6 +114,7 @@ return { -- rename this file to configuration.lua for mattata to work
         'me',
         'minecraft',
         'msglink',
+        'name',
         'netflix',
         'news',
         'ninegag',
@@ -150,7 +159,7 @@ return { -- rename this file to configuration.lua for mattata to work
 
     },
 
-    ['redis'] = { -- Configurable options for connecting your copy of mattata to redis. Do NOT modify these settings if you don't know what you're doing!
+    ['redis'] = { -- Configurable options for connecting your bot to redis. Do NOT modify these settings if you don't know what you're doing!
 
         ['host'] = '127.0.0.1',
 
@@ -158,11 +167,11 @@ return { -- rename this file to configuration.lua for mattata to work
 
         ['password'] = nil,
 
-        ['db'] = 2
+        ['db'] = 1
 
     },
 
-    ['keys'] = { -- API keys needed for the full functionality of several plugins
+    ['keys'] = { -- API keys needed for the full functionality of several plugins.
 
         ['cats'] = '', -- http://thecatapi.com/api-key-registration.html
 
@@ -187,6 +196,8 @@ return { -- rename this file to configuration.lua for mattata to work
         ['flickr'] = '', -- https://www.flickr.com/services/apps/create/noncommercial/?
 
         ['githubfeed'] = '',
+
+        ['news'] = '',
 
         ['twitch'] = '',
 
@@ -222,7 +233,7 @@ return { -- rename this file to configuration.lua for mattata to work
 
     },
 
-    ['errors'] = { -- Messages to provide a more user-friendly approach to instances of errors
+    ['errors'] = { -- Messages to provide a more user-friendly approach to instances of errors.
 
         ['generic'] = 'I\'m afraid an error has occured!',
 
@@ -268,7 +279,7 @@ return { -- rename this file to configuration.lua for mattata to work
 
     },
 
-    ['faces'] = { -- Expressive emoticon faces which can be triggered with /<name>
+    ['faces'] = { -- Expressive emoticon faces which can be triggered with /<name>.
 
         ['shrug'] = '¯\\_(ツ)_/¯',
 
@@ -302,13 +313,4 @@ return { -- rename this file to configuration.lua for mattata to work
 
     }
 
-}
-
---[[
-
-    Well, it looks like you've reached the end of the configuration file, so you're good to go!
-    Make sure this file is called 'configuration.lua'; then you can run ./launch.sh and have fun!
-
-    :^)
-
-]]--
+} -- End of configuration, you're good to go. Use ./launch.sh to start the bot. Having trouble? Try using chmod +x ./launch.sh.

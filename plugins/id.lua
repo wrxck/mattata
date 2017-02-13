@@ -30,9 +30,12 @@ function id.resolve_chat(message)
     if tonumber(input) == nil and not input:match('^%@') then
         input = '@' .. input
     end
-    local success = mattata.get_chat_pwr(input)
-    if not success or not success.result then
-        return 'I couldn\'t find any results for that.'
+    local success = mattata.get_user(input)
+    if not success then
+        success = mattata.get_chat(input)
+        if not success then
+            return 'I\'m sorry, but I don\'t recognise that user. To teach me who they are, forward a message from them to me or get them to send me a message.'
+        end
     end
     success = success.result
     if message.chat and message.chat.type and message.chat.type ~= 'private' then
@@ -61,7 +64,11 @@ function id.resolve_chat(message)
     end
     if success.type == 'private' then
         if success.last_name then
-            success.first_name = success.first_name .. ' ' .. success.last_name
+            success.first_name = string.format(
+                '%s %s',
+                success.first_name,
+                success.last_name
+            )
         end
         table.insert(
             output,
@@ -71,30 +78,6 @@ function id.resolve_chat(message)
         table.insert(
             output,
             '👤 ' .. mattata.escape_html(success.title)
-        )
-    end
-    if success.verified then
-        table.insert(
-            output,
-            '✅ Official Account'
-        )
-    end
-    if success.phone then
-        table.insert(
-            output,
-            '📱 ' .. success.phone
-        )
-    end
-    if success.restricted then
-        table.insert(
-            output,
-            'This user is restricted.'
-        )
-    end
-    if success.bio then
-        table.insert(
-            output,
-            '📰 ' .. mattata.escape_html(mattata.trim(success.bio))
         )
     end
     if message.chat and message.chat.type and message.chat.type ~= 'private' then

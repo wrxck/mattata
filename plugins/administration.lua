@@ -41,7 +41,8 @@ function administration:init(configuration)
      :command('pin')
      :command('report')
      :command('ops')
-     :command('user').table
+     :command('user')
+     :command('tempban').table
 end
 
 function administration.insert_keyboard_row(keyboard, text1, callback1, text2, callback2, text3, callback3)
@@ -105,6 +106,18 @@ function administration.get_initial_keyboard(chat_id)
                 ['text'] = 'Anti-Spam Settings',
                 ['callback_data'] = string.format(
                     'administration:%s:antispam',
+                    chat_id
+                )
+            }
+        }
+    )
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = '/warn Settings',
+                ['callback_data'] = string.format(
+                    'administration:%s:warning_settings',
                     chat_id
                 )
             }
@@ -261,7 +274,7 @@ function administration.get_initial_keyboard(chat_id)
         keyboard.inline_keyboard,
         {
             {
-                ['text'] = 'Kick/Ban?',
+                ['text'] = 'Action on flood/max warnings',
                 ['callback_data'] = 'administration:nil'
             },
             {
@@ -365,6 +378,59 @@ function administration.get_antispam_keyboard(chat_id)
     return keyboard
 end
 
+function administration.get_warning_settings(chat_id)
+    local keyboard = {
+        ['inline_keyboard'] = {}
+    }
+    local current = redis:get(
+        string.format(
+            'administration:%s:max_warnings',
+            chat_id
+        )
+    ) or 3
+    local ban_kick_status = administration.get_hash_status(
+        chat_id,
+        'ban_kick'
+    )
+    local action = 'ban'
+    if not ban_kick_status then
+        action = 'kick'
+    end
+    local lower = tonumber(current) - 1
+    local higher = tonumber(current) + 1
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = string.format(
+                    'Number of warnings until %s:',
+                    action
+                ),
+                ['callback_data'] = 'administration:nil'
+            }
+        }
+    )
+    administration.insert_keyboard_row(
+        keyboard,
+        '-',
+        'administration:' .. chat_id .. ':max_warnings:' .. lower,
+        tostring(current),
+        'administration:nil',
+        '+',
+        'administration:' .. chat_id .. ':max_warnings:' .. higher
+    )
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = 'Back',
+                ['callback_data'] = 'administration:' .. chat_id .. ':back'
+            }
+        }
+    )
+    return keyboard
+end
+
 function administration.get_message_limit(chat_id, spam_type)
     local hash = mattata.get_redis_hash(
         chat_id,
@@ -453,9 +519,19 @@ function administration.check_links(message, process_type)
     if process_type == 'whitelist' then
         local count = 0
         for k, v in pairs(links) do
-            if not redis:get('whitelisted_links:' .. message.chat.id .. ':' .. v) then
+            if not redis:get(
+                string.format(
+                    'whitelisted_links:%s:%s',
+                    message.chat.id,
+                    v
+                )
+            ) then
                 redis:set(
-                    'whitelisted_links:' .. message.chat.id .. ':' .. v,
+                    string.format(
+                        'whitelisted_links:%s:%s',
+                        message.chat.id,
+                        v
+                    ),
                     true
                 )
                 count = count + 1
@@ -1130,6 +1206,134 @@ function administration.ban(message)
     end
 end
 
+function administration.tempban(message)
+    local input = mattata.input(message.text)
+    if (
+        not input and not message.reply_to_message
+    ) or (
+        input and not message.reply_to_message and not input:match('^%@%a+ %d*')
+    ) or (
+        input and message.reply_to_message and not input:match('^%d*')
+    ) then
+        return mattata.send_reply(
+            message,
+            'Please specify the user you\'d like to temp-ban, and how long you\'d like to temp-ban them for. This must be sent in the format /tempban [user] <hours> [reason]. If a user isn\'t specified then you must use this command in reply to the user you\'d like to temp-ban.'
+        )
+    end
+    local user = input:match('^(%@%a+) %d*') or message.reply_to_message.from.id
+    if tonumber(user) == nil then
+        user = mattata.get_id_by_username(user)
+        if not user then
+            return mattata.send_reply(
+                message,
+                'I don\'t recognise that user!'
+            )
+        end
+    end
+    if mattata.is_group_admin(
+        message.chat.id,
+        user
+    ) then
+        return mattata.send_reply(
+            message,
+            'I can\'t temp-ban that user because they\'re a staff member of this chat!'
+        )
+    elseif not mattata.get_chat_member(
+        message.chat.id,
+        user
+    ) then
+        return mattata.send_reply(
+            message,
+            'I can\'t temp-ban that user because they\'re not a member of this chat!'
+        )
+    elseif redis:sismember(
+        string.format(
+            'chat:%s:tempbanned',
+            message.chat.id
+        ),
+        user
+    ) then
+        return mattata.send_reply(
+            message,
+            'That user is already temp-banned!'
+        )
+    end
+    local user_info = mattata.get_chat_member(
+        message.chat.id,
+        user
+    )
+    local reason = input:match('%d* (.-)$') or false
+    local hours = input:match('^%@%a+ (%d*)$') or input:match('^%@%a+ (%d*) .-$') or input:match('^(%d*)$') or input:match('^(%d*) .-$')
+    if tonumber(hours) == nil or tonumber(hours) < 1 or tonumber(hours) > 168 then
+        return mattata.send_reply(
+            message,
+            'The minimum time you can temp-ban a user for is 1 hour. The maximum time you can temp-ban a user for is 168 hours (1 week).'
+        )
+    end
+    local success = mattata.kick_chat_member(
+        message.chat.id,
+        user
+    )
+    if not success then
+        return mattata.send_reply(
+            message,
+            'I can\'t temp-ban that user because I\'m not an administrator in this chat!'
+        )
+    end
+    local unban_time = 
+    redis:hset(
+        'tempbanned',
+        os.time() + (tonumber(hours) * 3600),
+        string.format(
+            '%s:%s',
+            message.chat.id,
+            user
+        )
+    )
+    redis:sadd(
+        string.format(
+            'chat:%s:tempbanned',
+            message.chat.id
+        ),
+        user
+    )
+    local hours_formatted = hours .. ' hour'
+    if tonumber(hours) > 1 then
+        hours_formatted = hours_formatted .. 's'
+    end
+    local output = string.format(
+        '%s [%s] has temp-banned %s [%s] from %s [%s] for %s.',
+        message.from.first_name,
+        message.from.id,
+        user_info.result.user.first_name,
+        user_info.result.user.id,
+        message.chat.title,
+        message.chat.id,
+        hours_formatted
+    )
+    if reason ~= false then
+        output = output .. '\nReason: ' .. reason
+    end
+    if configuration.log_admin_actions and configuration.log_channel ~= '' then
+        mattata.send_message(
+            configuration.log_channel,
+            string.format(
+                '<pre>%s</pre>',
+                mattata.escape_html(output)
+            ),
+            'html'
+        )
+    end
+    return mattata.send_reply(
+        message,
+        string.format(
+            '<pre>%s</pre>',
+            mattata.escape_html(output)
+        ),
+        'html'
+    )
+end
+
 function administration.unban(message, is_silent, force_admin)
     local old_reply = message.reply_to_message
     if is_silent then
@@ -1395,7 +1599,7 @@ function administration.get_user(message)
         warning_count = 0
     end
     local output = string.format(
-        '%s [%s] has been banned %s, and has been kicked %s, in this chat. They are currently on %s/3 warnings.',
+        '%s [%s]\n\nBanned %s\nKicked %s\n%s/3 warnings',
         message.reply_to_message.from.first_name,
         message.reply_to_message.from.id,
         ban_count,
@@ -1499,6 +1703,32 @@ function administration:on_callback_query(callback_query, message, configuration
             tonumber(limit)
         )
         keyboard = administration.get_antispam_keyboard(chat_id)
+    elseif callback_query.data:match('^%-%d+:warning%_settings$') then
+        local chat_id = callback_query.data:match('^(%-%d+):warning%_settings$')
+        keyboard = administration.get_warning_settings(chat_id)
+    elseif callback_query.data:match('^%-%d+%:max%_warnings%:.-$') then
+        local chat_id, max_warnings = callback_query.data:match('^(%-%d+)%:max%_warnings%:(.-)$')
+        if tonumber(max_warnings) > 10 then
+            return mattata.answer_callback_query(
+                callback_query.id,
+                'The maximum number of warnings is 10.'
+            )
+        elseif tonumber(max_warnings) < 2 then
+            return mattata.answer_callback_query(
+                callback_query.id,
+                'The minimum number of warnings is 2.'
+            )
+        elseif tonumber(max_warnings) == nil then
+            return
+        end
+        redis:set(
+            string.format(
+                'administration:%s:max_warnings',
+                chat_id
+            ),
+            tonumber(max_warnings)
+        )
+        keyboard = administration.get_warning_settings(chat_id)
     elseif callback_query.data:match('^%-%d+%:enable$') then
         local chat_id = callback_query.data:match('^(%-%d+)%:enable$')
         redis:set(
@@ -2647,6 +2877,77 @@ function administration:on_message(message, configuration)
         return administration.get_chats(message)
     elseif message.text:match('^%/user') then
         return administration.get_user(message)
+    elseif message.text:match('^%/tempban') then
+        return administration.tempban(message)
+    end
+    return
+end
+
+function administration:cron()
+    local tempbanned = redis:hgetall('tempbanned')
+    if not next(tempbanned) then
+        return
+    end
+    for k, v in pairs(tempbanned) do
+        if os.time() > tonumber(k) then
+            local chat_id, user_id = v:match('^(%-%d+)%:(%d+)$')
+            local user = mattata.get_chat(user_id)
+            local chat = mattata.get_chat(chat_id)
+            local success = mattata.unban_chat_member(
+                chat_id,
+                user_id
+            )
+            redis:hdel(
+                'tempbanned',
+                k
+            )
+            redis:srem(
+                string.format(
+                    'chat:%s:tempbanned',
+                    chat_id
+                ),
+                user_id
+            )
+            local unban_status = '\nI have unbanned them from this chat.'
+            if not success then
+                unban_status = '\nI was unable to unban them from this chat.'
+            end
+            if user then
+                mattata.send_message(
+                    chat_id,
+                    string.format(
+                        '%s\'s <code>[%s]</code> temp-ban has expired.%s',
+                        mattata.escape_html(user.result.first_name),
+                        user.result.id,
+                        unban_status
+                    ),
+                    'html'
+                )
+            end
+            if chat then
+                if success then
+                    mattata.send_message(
+                        user_id,
+                        string.format(
+                            'Your temp-ban from %s <code>[%s]</code> has expired, you are now allowed to join again!',
+                            mattata.escape_html(chat.result.title),
+                            chat.result.id
+                        ),
+                        'html'
+                    )
+                else
+                    mattata.send_message(
+                        user_id,
+                        string.format(
+                            'Your temp-ban from %s <code>[%s]</code> has expired - however, I was unable to unban you!',
+                            mattata.escape_html(chat.result.title),
+                            chat.result.id
+                        ),
+                        'html'
+                    )
+                end
+            end
+        end
     end
     return
 end

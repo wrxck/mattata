@@ -42,7 +42,7 @@ function lyrics.search_lyrics_wikia(artist, track)
     if not str or str:match('[Uu]nfortunately%,? we are not licensed%.?') then
         return false
     end
-    str = str:gsub('%<br ?%/?%>', '\n'):gsub('%<%/?b%>', '')
+    str = str:gsub('%<br ?%/?%>', '\n'):gsub('%<%/?b%>', ''):gsub('%<%/?i%>', '')
     return html.decode(str)
 end
 
@@ -74,7 +74,7 @@ function lyrics.search_az_lyrics(artist, track)
     if res ~= 200 then
         return false
     end
-    local str = table.concat(response):match('%<%!%-%- Usage of azlyrics%.com content by any third%-party lyrics provider is prohibited by our licensing agreement%. Sorry about that%. %-%-%>(.-)%<%/div%>'):gsub('%<br ?%/?%>', ''):gsub('%<%/?b%>', '')
+    local str = table.concat(response):match('%<%!%-%- Usage of azlyrics%.com content by any third%-party lyrics provider is prohibited by our licensing agreement%. Sorry about that%. %-%-%>(.-)%<%/div%>'):gsub('%<br ?%/?%>', ''):gsub('%<%/?b%>', ''):gsub('%<%/?i%>', '')
     if not str then
         return false
     end
@@ -108,11 +108,11 @@ function lyrics.search_plyrics(artist, track)
     if res ~= 200 then
         return false
     end
-    str = table.concat(response):match('%<%!%-%- start of lyrics %-%-%>(.-)%<%!%-%- end of lyrics %-%-%>')
+    str = table.concat(response):match('%<%!%-%- start of lyrics %-%-%>(.-)%<%!%-%- end of lyrics %-%-%>'):gsub('%<br ?%/?%>', ''):gsub('%<%/?b%>', ''):gsub('%<%/?i%>', '')
     if not str then
         return false
     end
-    return html.decode(str:gsub('%<br ?%/?%>', ''):gsub('%<%/?b%>', ''))
+    return html.decode(str)
 end
 
 function lyrics.search_lyrics(artist, track)

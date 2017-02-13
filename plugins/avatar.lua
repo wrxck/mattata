@@ -29,10 +29,19 @@ function avatar:on_message(message)
         selected_photo = tonumber(input:match(' (%d*)$'))
         input = input:match('^(.-) %d*$')
     end
-    if tonumber(input) == nil and not input:match('^%@') then
-        input = '@' .. input
+    local success = true
+    local old_input = input
+    if tonumber(input) == nil then
+        input = mattata.get_user(input)
+        if not input then
+            success = false
+        else
+            input = input.result.id
+        end
     end
-    local success = mattata.get_user_profile_photos_pwr(input)
+    if success then
+        success = mattata.get_user_profile_photos(input)
+    end
     if not success then
         return mattata.send_reply(
             message,
@@ -52,10 +61,10 @@ function avatar:on_message(message)
     local highest_res = success.result.photos[selected_photo][#success.result.photos[selected_photo]].file_id
     local caption = string.format(
         'User: %s\nPhoto: %s/%s\nUse /avatar %s <number> to view a specific photo of this user',
-        input,
+        old_input,
         selected_photo,
         success.result.total_count,
-        input
+        old_input
     )
     return mattata.send_photo(
         message.chat.id,
