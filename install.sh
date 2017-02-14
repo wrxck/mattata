@@ -15,6 +15,7 @@ rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafiles
 for rock in $rocklist; do
     sudo luarocks-5.2 install $rock
 done
+sudo luarocks install --server=http://luarocks.org/dev openssl
 sudo -k
 cd ..
 echo "Finished. Use './launch' to start mattata. Be sure to set your bot token in configuration.example.lua, and then rename it to configuration.lua!"

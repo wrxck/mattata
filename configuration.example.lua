@@ -187,7 +187,7 @@ return { -- rename this file to configuration.lua for the bot to work
 
         ['lastfm'] = '', -- http://www.last.fm/api/account/create
 
-        ['weather'] = '', -- https://openweathermap.org/api
+        ['weather'] = '', -- https://darksky.net/dev/register
 
         ['google'] = '', -- https://console.developers.google.com/apis
 
