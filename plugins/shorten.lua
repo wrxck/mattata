@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local shorten = {}
 
@@ -12,13 +12,11 @@ local ltn12 = require('ltn12')
 local json = require('dkjson')
 local configuration = require('configuration')
 
-function shorten:init(configuration)
-    shorten.arguments = 'shorten <url>'
+function shorten:init()
     shorten.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('shorten').table
-    shorten.help = '/shorten <url> - Shortens the given URL using a choice of multiple URL shorteners.'
+    shorten.help = [[/shorten <url> - Shortens the given URL using one of the given URL shorteners.]]
 end
 
 function shorten.get_keyboard()

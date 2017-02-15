@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local ninegag = {}
 
@@ -9,16 +9,14 @@ local mattata = require('mattata')
 local http = require('socket.http')
 local json = require('dkjson')
 
-function ninegag:init(configuration)
-    ninegag.arguments = 'ninegag'
+function ninegag:init()
     ninegag.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('ninegag').table
-    ninegag.help = '/ninegag - Returns a random image from the latest 9gag posts.'
+    ninegag.help = [[/ninegag - Returns a random image from the latest 9gag posts.]]
 end
 
-function ninegag:on_inline_query(inline_query, configuration, language)
+function ninegag:on_inline_query(inline_query, configuration)
     local jstr, res = http.request('http://api-9gag.herokuapp.com/')
     if res ~= 200 then
         return
@@ -47,12 +45,12 @@ function ninegag:on_inline_query(inline_query, configuration, language)
     )
 end
 
-function ninegag:on_message(message, configuration, language)
+function ninegag:on_message(message, configuration)
     local jstr, res = http.request('http://api-9gag.herokuapp.com/')
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     mattata.send_chat_action(

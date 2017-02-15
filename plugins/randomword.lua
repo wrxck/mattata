@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local randomword = {}
 
@@ -9,13 +9,12 @@ local mattata = require('mattata')
 local http = require('socket.http')
 local json = require('dkjson')
 
-function randomword:init(configuration)
-    randomword.arguments = 'randomword'
+function randomword:init()
     randomword.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('randomword'):command('rw').table
-    randomword.help = '/randomword - Generates a random word. Alias: /rw.'
+        self.info.username
+    ):command('randomword')
+     :command('rw').table
+    randomword.help = [[/randomword - Generates a random word. Alias: /rw.]]
 end
 
 function randomword.get_keyboard()
@@ -31,13 +30,13 @@ function randomword.get_keyboard()
     return keyboard
 end
 
-function randomword:on_callback_query(callback_query, message, configuration, language)
+function randomword:on_callback_query(callback_query, message, configuration)
     local str, res = http.request('http://www.setgetgo.com/randomword/get.php')
     if res ~= 200 then
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local keyboard = randomword.get_keyboard()
@@ -51,12 +50,12 @@ function randomword:on_callback_query(callback_query, message, configuration, la
     )
 end
 
-function randomword:on_message(message, configuration, language)
+function randomword:on_message(message, configuration)
     local str, res = http.request('http://www.setgetgo.com/randomword/get.php')
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local keyboard = randomword.get_keyboard()

@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local urbandictionary = {}
 
@@ -10,16 +10,16 @@ local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function urbandictionary:init(configuration)
-    urbandictionary.arguments = 'urbandictionary <query>'
+function urbandictionary:init()
     urbandictionary.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('urbandictionary'):command('urban'):command('ud').table
-    urbandictionary.help = '/urbandictionary <query> - Returns the Urban Dictionary\'s definition for the given word. Aliases: ' .. configuration.command_prefix .. 'urban, ' .. configuration.command_prefix .. 'ud.'
+        self.info.username
+    ):command('urbandictionary')
+     :command('urban')
+     :command('ud').table
+    urbandictionary.help = [[/urbandictionary <query> - Searches the Urban Dictionary for the given search query and returns the most relevant result(s). Aliases: /urban, /ud.]]
 end
 
-function urbandictionary:on_inline_query(inline_query, configuration, language)
+function urbandictionary:on_inline_query(inline_query, configuration)
     local input = mattata.input(inline_query.query)
     if not input then
         return
@@ -157,7 +157,7 @@ function urbandictionary:on_callback_query(callback_query, message, configuratio
     end
 end
 
-function urbandictionary:on_message(message, configuration, language)
+function urbandictionary:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -169,7 +169,7 @@ function urbandictionary:on_message(message, configuration, language)
     if not output then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local keyboard = {}

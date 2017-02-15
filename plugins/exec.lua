@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local exec = {}
 
@@ -11,16 +11,14 @@ local ltn12 = require('ltn12')
 local multipart = require('multipart-post')
 local json = require('dkjson')
 
-function exec:init(configuration)
-    exec.arguments = 'exec <language> <code>'
+function exec:init()
     exec.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('exec').table
-    exec.help = '/exec <language> <code> - Executes the specified code in the given language and returns the output.'
+    exec.help = [[/exec <language> <code> - Executes the specified code in the given language and returns the output.]]
 end
 
-function exec.get_language_arguments(language)
+function exec.get_arguments(language)
     if language == 'c_gcc' or language == 'gcc' or language == 'c' or language == 'c_clang' or language == 'clang' then
         return '-Wall -std=gnu99 -O2 -o a.out source_file.c'
     elseif language == 'cpp' or language == 'cplusplus_clang' or language == 'cpp_clang' or language == 'clangplusplus' or language == 'clang++' then
@@ -38,11 +36,11 @@ function exec.get_language_arguments(language)
     elseif language == 'objective_c' or language == 'objc' then
         return '-MMD -MP -DGNUSTEP -DGNUSTEP_BASE_LIBRARY=1 -DGNU_GUI_LIBRARY=1 -DGNU_RUNTIME=1 -DGNUSTEP_BASE_LIBRARY=1 -fno-strict-aliasing -fexceptions -fobjc-exceptions -D_NATIVE_OBJC_EXCEPTIONS -pthread -fPIC -Wall -DGSWARN -DGSDIAGNOSE -Wno-import -g -O2 -fgnu-runtime -fconstant-string-class=NSConstantString -I. -I /usr/include/GNUstep -I/usr/include/GNUstep -o a.out source_file.m -lobjc -lgnustep-base'
     end
-    return false
+    return ''
 end
 
-function exec:on_message(message, configuration, language)
-    local input = mattata.input(message.text_lower)
+function exec:on_message(message, configuration)
+    local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
             message,
@@ -53,12 +51,9 @@ function exec:on_message(message, configuration, language)
         message.chat.id,
         'typing'
     )
-    local language = mattata.get_word(input)
-    local code = message.text:gsub('^' .. configuration.command_prefix .. 'exec ' .. language .. ' ', ''):gsub('^' .. configuration.command_prefix .. 'exec ' .. language, '')
-    local args = exec.get_language_arguments(language)
-    if not args then
-        args = ''
-    end
+    local language = input:match('^(%a+) '):lower()
+    local code = input:match('^%a+ (.-)$')
+    local args = exec.get_arguments(language)
     local parameters = {
         ['LanguageChoice'] = language,
         ['Program'] = code,
@@ -67,6 +62,8 @@ function exec:on_message(message, configuration, language)
     }
     local response = {}
     local body, boundary = multipart.encode(parameters)
+    local old_timeout = http.TIMEOUT
+    http.TIMEOUT = 2
     local jstr, res = http.request(
         {
             ['url'] = 'http://rextester.com/rundotnet/api/',
@@ -79,33 +76,47 @@ function exec:on_message(message, configuration, language)
             ['sink'] = ltn12.sink.table(response)
         }
     )
+    http.TIMEOUT = old_timeout
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            'Timed out.'
         )
     end
     local jdat = json.decode(table.concat(response))
-    local warnings = ''
-    local errors = ''
-    local result = ''
-    local stats = ''
+    local output = {}
     if jdat.Warnings and jdat.Warnings ~= '' then
-        warnings = '<b>Warnings</b>:\n' .. mattata.escape_html(jdat.Warnings) .. '\n'
+        table.insert(
+            output,
+            '<b>Warnings</b>\n' .. mattata.escape_html(jdat.Warnings)
+        )
     end
     if jdat.Errors and jdat.Errors ~= '' then
-        errors = '<b>Errors</b>:\n' .. mattata.escape_html(jdat.Errors) .. '\n'
+        table.insert(
+            output,
+            '<b>Errors</b>\n' .. mattata.escape_html(jdat.Errors)
+        )
     end
     if jdat.Result and jdat.Result ~= '' then
-        result = '<b>Result</b>\n' .. mattata.escape_html(jdat.Result) .. '\n'
+        table.insert(
+            output,
+            '<b>Result</b>\n' .. mattata.escape_html(jdat.Result)
+        )
     end
     if jdat.Stats and jdat.Stats ~= '' then
-        stats = '<b>Statistics\n•</b> ' .. jdat.Stats:gsub(', ', '\n<b>•</b> '):gsub('cpu', 'CPU'):gsub('memory', 'Memory'):gsub('absolute', 'Absolute'):gsub(',', '.')
+        table.insert(
+            output,
+            '<b>Statistics</b>\n• ' .. mattata.escape_html(
+                jdat.Stats:gsub('%, ', '\n• '):gsub('cpu', 'CPU'):gsub('memory', 'Memory'):gsub('absolute', 'Absolute'):gsub('%,', '.')
+            )
+        )
     end
-    local output = warnings .. errors .. result .. stats
     return mattata.send_message(
         message.chat.id,
-        output,
+        table.concat(
+            output,
+            '\n'
+        ),
         'html'
     )
 end

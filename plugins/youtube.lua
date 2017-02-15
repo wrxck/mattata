@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local youtube = {}
 
@@ -16,12 +16,11 @@ function youtube:init(configuration)
         configuration.keys.google,
         'youtube.lua requires an API key, and you haven\'t got one configured!'
     )
-    youtube.arguments = 'youtube <query>'
     youtube.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('youtube'):command('yt').table
-    youtube.help = '/youtube <query> - Sends the top results from YouTube for the given search query. Alias: /yt.'
+        self.info.username
+    ):command('youtube')
+     :command('yt').table
+    youtube.help = [[/youtube <query> - Searches YouTube for the given search query and returns the most relevant result(s). Alias: /yt.]]
 end
 
 function youtube.get_result_count(input)
@@ -132,7 +131,7 @@ function youtube:on_callback_query(callback_query, message, configuration)
     end
 end
 
-function youtube:on_message(message, configuration, language)
+function youtube:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -144,7 +143,7 @@ function youtube:on_message(message, configuration, language)
     if not output then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local keyboard = json.encode(

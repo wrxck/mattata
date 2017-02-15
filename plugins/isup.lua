@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local isup = {}
 
@@ -10,13 +10,11 @@ local https = require('ssl.https')
 local http = require('socket.http')
 local url = require('socket.url')
 
-function isup:init(configuration)
-    isup.arguments = 'isup <url>'
+function isup:init()
     isup.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('isup').table
-    isup.help = '/isup <url> - Check if the specified url is down for everyone or just for you.'
+    isup.help = [[/isup <url> - Checks to see if the given URL is down for everyone or just you.]]
 end
 
 function isup.is_site_up(input)

@@ -2,24 +2,24 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local currency = {}
 
 local mattata = require('mattata')
 local https = require('ssl.https')
 
-function currency:init(configuration)
-    currency.arguments = 'currency <amount> <from> TO <to>'
+function currency:init()
     currency.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('currency'):command('convert'):command('cash').table
-    currency.help = '/currency <amount> <from> TO <to> - Converts exchange rates for various currencies. Source: Google Finance. Aliases: ' .. configuration.command_prefix .. 'convert, ' .. configuration.command_prefix .. 'cash.'
+        self.info.username
+    ):command('currency')
+     :command('convert')
+     :command('cash').table
+    currency.help = [[/currency <amount> <from> TO <to> - Converts exchange rates for various currencies via Google Finance. Aliases: /convert, /cash.]]
 end
 
-function currency:on_message(message, configuration, language)
-    local input = mattata.input(message.text_upper)
+function currency:on_message(message, configuration)
+    local input = mattata.input(message.text:upper())
     if not input or not input:match('%a%a%a TO %a%a%a') then
         return mattata.send_reply(
             message,
@@ -41,14 +41,14 @@ function currency:on_message(message, configuration, language)
         if res ~= 200 then
             return mattata.send_reply(
                 message,
-                language.errors.connection
+                configuration.errors.connection
             )
         end
         str = str:match('<span class=bld>(.*) %u+</span>')
         if not str then
             return mattata.send_reply(
                 message,
-                language.errors.results
+                configuration.errors.results
             )
         end
         result = string.format(

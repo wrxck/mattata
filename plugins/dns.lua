@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local dns = {}
 
@@ -10,17 +10,15 @@ local http = require('socket.http')
 local json = require('dkjson')
 local ltn12 = require('ltn12')
 
-function dns:init(configuration)
-    dns.arguments = 'dns <url> <type>'
+function dns:init()
     dns.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('dns').table
-    dns.help = '/dns <url> <type> - Sends DNS records of the given type for the given url. The types currently supported are AAAA, A, CERT, CNAME, DLV, IPSECKEY, MX, NS, PTR, SIG, SRV and TXT.'
+    dns.help = [[/dns <url> <record type> - Sends the given URL's DNS records of the given type. The record types currently supported are AAAA, A, CERT, CNAME, DLV, IPSECKEY, MX, NS, PTR, SIG, SRV and TXT.]]
 end
 
-function dns:on_message(message, configuration, language)
-    local input = mattata.input(message.text_lower)
+function dns:on_message(message, configuration)
+    local input = mattata.input(message.text:lower())
     if not input then
         return mattata.send_reply(
             message,
@@ -38,14 +36,14 @@ function dns:on_message(message, configuration, language)
     if res ~= 203 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(table.concat(response))
     if jdat.header.rcode ~= 'NOERROR' then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     if jdat.authority[1] then
@@ -55,7 +53,7 @@ function dns:on_message(message, configuration, language)
     else
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local output = ''

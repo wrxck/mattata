@@ -2,7 +2,7 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local xkcd = {}
 
@@ -11,13 +11,11 @@ local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function xkcd:init(configuration)
-    xkcd.arguments = 'xkcd <i>'
+function xkcd:init()
     xkcd.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('xkcd').table
-    xkcd.help = '/xkcd <i> - Returns the latest xkcd strip and its alt text. If a number is given, returns that number strip. If \'r\' is passed in place of a number, returns a random strip.'
+    xkcd.help = [[/xkcd [query] - Returns the latest xkcd strip and its alt text. If a number is given, returns that number strip. If 'r' is passed in place of a number, returns a random strip. Any other text passed as the command argument will search Google for a relevant strip and, if applicable, return it.]]
     local jstr = https.request('https://xkcd.com/info.0.json')
     if jstr then
         local jdat = json.decode(jstr)
@@ -28,7 +26,7 @@ function xkcd:init(configuration)
     xkcd.latest = xkcd.latest
 end
 
-function xkcd:on_message(message, configuration, language)
+function xkcd:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         input = xkcd.latest
@@ -60,7 +58,7 @@ function xkcd:on_message(message, configuration, language)
     elseif res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)

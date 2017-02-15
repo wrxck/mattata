@@ -2,19 +2,17 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local pun = {}
 
 local mattata = require('mattata')
 
-function pun:init(configuration)
-    pun.arguments = 'pun'
+function pun:init()
     pun.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('pun').table
-    pun.help = '/pun - Generates a random pun.'
+    pun.help = [[/pun - Generates a random pun.]]
 end
 
 local puns = {

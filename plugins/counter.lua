@@ -1,19 +1,18 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local counter = {}
 
 local mattata = require('mattata')
 
-function counter:init(configuration)
-    counter.arguments = 'counter'
+function counter:init()
     counter.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('counter').table
-    counter.help = '/counter - Add a view count to the replied-to message.'
+        self.info.username
+    ):command('counter')
+     :command('count').table
+    counter.help = [[/counter - Adds a view count to the replied-to message. Alias: /count.]]
 end
 
 function counter:on_message(message, configuration)

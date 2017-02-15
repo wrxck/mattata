@@ -1,19 +1,17 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local frombin = {}
 
 local mattata = require('mattata')
 
-function frombin:init(configuration)
-    frombin.arguments = 'frombin <binary>'
+function frombin:init()
     frombin.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('frombin').table
-    frombin.help = '/frombin <binary> - Converts the given string of binary to a numerical value.'
+    frombin.help = [[/frombin <binary> - Converts the given string of binary to a numerical value.]]
 end
 
 function frombin:on_message(message, configuration)
@@ -28,7 +26,7 @@ function frombin:on_message(message, configuration)
     if temp_input ~= '' then
         return mattata.send_reply(
             message,
-            'The inputted string must be in binary format.'
+            'Input must be in binary!'
         )
     end
     local number = 0

@@ -1,20 +1,18 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local clickbait = {}
 
 local mattata = require('mattata')
 local json = require('dkjson')
 
-function clickbait:init(configuration)
-    clickbait.arguments = 'clickbait'
+function clickbait:init()
     clickbait.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('clickbait').table
-    clickbait.help = '/clickbait - Generate a clickbait article headline!'
+    clickbait.help = [[/clickbait - Generates a random, click-bait article headline.]]
 end
 
 function clickbait.get_keyboard()

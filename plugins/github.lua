@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local github = {}
 
@@ -9,16 +9,15 @@ local mattata = require('mattata')
 local https = require('ssl.https')
 local json = require('dkjson')
 
-function github:init(configuration)
-    github.arguments = 'github <username> <repository>'
+function github:init()
     github.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('github').table
-    github.help = '/github <username> <repository> - Returns information about the specified GitHub repository.'
+        self.info.username
+    ):command('github')
+     :command('gh').table
+    github.help = [[/github <GitHub username> <GitHub repository name> - Returns information about the specified GitHub repository. Alias: /gh.]]
 end
 
-function github:on_message(message, configuration, language)
+function github:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -26,19 +25,19 @@ function github:on_message(message, configuration, language)
             github.help
         )
     end
-    input = input:gsub(' ', '/')
+    input = input:gsub('%s', '/')
     local jstr, res = https.request('https://api.github.com/repos/' .. input)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if not jdat.id then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local title = '[' .. mattata.escape_markdown(jdat.full_name) .. '](' .. jdat.html_url .. ') *|* ' .. jdat.language

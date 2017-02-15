@@ -1,19 +1,17 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local prime = {}
 
 local mattata = require('mattata')
 
-function prime:init(configuration)
-    prime.arguments = 'prime <number>'
+function prime:init()
     prime.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('prime').table
-    prime.help = '/prime <number> - Tells you if a number is prime or not.'
+    prime.help = [[/prime <number> - Tells you if a number is prime or not.]]
 end
 
 function prime.is_prime(n)

@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local game = {}
 
@@ -10,13 +10,11 @@ local socket = require('socket')
 local json = require('dkjson')
 local redis = require('mattata-redis')
 
-function game:init(configuration)
-    game.arguments = 'game'
+function game:init()
     game.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('game').table
-    game.help = '/game - Challenge somebody to a game of Tic Tac Toe! Use /game stats to view your game statistics.'
+    game.help = [[/game [stats] - Play a game of Tic-Tac-Toe. Use /game stats to view your current game statistics.]]
 end
 
 function game.get_stats(user_id, chat_id)

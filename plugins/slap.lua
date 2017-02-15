@@ -2,19 +2,17 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local slap = {}
 
 local mattata = require('mattata')
 
-function slap:init(configuration)
-    slap.arguments = 'slap <target>'
+function slap:init()
     slap.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('slap').table
-    slap.help = '/slap <target> - Slap someone!'
+    slap.help = [[/slap [target] - Slaps someone, or something.]]
     slap.slaps = {
         'VICTIM was shot by VICTOR.',
         'VICTIM was pricked to death.',
@@ -135,9 +133,9 @@ function slap:on_message(message)
     else
         victor = message.from.first_name:gsub('%%', '%%%%')
         victim = input:gsub('%%', '%%%%')
-        local success = mattata.get_chat_pwr(input)
-        if success and success.result.type == 'private' then
-            victim = success.result.first_name:gsub('%%', '%%%%')
+        local success = mattata.get_user(input)
+        if success then
+            victim = success.result.first_name:gsub('%%', '%%%%') or success.result.title:gsub('%%', '%%%%')
         end
     end
     local output = slap.slaps[math.random(#slap.slaps)]

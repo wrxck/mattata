@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local paste = {}
 
@@ -14,13 +14,11 @@ local multipart = require('multipart-post')
 local json = require('dkjson')
 local configuration = require('configuration')
 
-function paste:init(configuration)
-    paste.arguments = 'paste <text>'
+function paste:init()
     paste.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('paste').table
-    paste.help = '/paste <text> - Uploads the given text to a pasting service and returns the result URL.'
+    paste.help = [[/paste <text> - Uploads the given text to a pasting service and returns the result URL.]]
 end
 
 function paste.get_keyboard()
@@ -178,7 +176,7 @@ function paste:on_callback_query(callback_query, message, configuration)
     )
 end
 
-function paste:on_message(message, configuration, language)
+function paste:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(

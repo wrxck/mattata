@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local time = {}
 
@@ -12,13 +12,11 @@ local url = require('socket.url')
 local json = require('dkjson')
 local setloc = require('plugins.setloc')
 
-function time:init(configuration)
-    time.arguments = 'time <query>'
+function time:init()
     time.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('time').table
-    time.help = '/time <query> - Returns the time, date, and timezone for your location, if you\'ve set one with \'' .. configuration.command_prefix .. 'setloc <query>\'. If an argument is given, the time for the given place will be sent.'
+    time.help = [[/time [location] - If no arguments are given; the current time, date, and timezone for your location are sent (if applicable). Otherwise, the current time, date and timezone for the given location is returned. The returned location is the first relevant result on Google Maps for the given search query.]]
 end
 
 function time.format_float(n)
@@ -43,7 +41,7 @@ function time.search(input)
     return jdat.results[1].geometry.location.lat, jdat.results[1].geometry.location.lng, jdat.results[1].formatted_address
 end
 
-function time:on_message(message, configuration, language)
+function time:on_message(message, configuration)
     local input = mattata.input(message.text)
     local lat, lon, address
     if not input then
@@ -60,12 +58,12 @@ function time:on_message(message, configuration, language)
         if lat == nil then
             return mattata.send_reply(
                 message,
-                language.errors.connection
+                configuration.errors.connection
             )
         elseif not lat then
             return mattata.send_reply(
                 message,
-                language.errors.results
+                configuration.errors.results
             )
         end
     end
@@ -86,19 +84,19 @@ function time:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if jdat.status == 'ZERO_RESULTS' then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     elseif not jdat.dstOffset then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local timestamp = now + jdat.rawOffset + jdat.dstOffset

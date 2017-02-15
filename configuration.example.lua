@@ -35,11 +35,9 @@ return { -- rename this file to configuration.lua for the bot to work
 
     ['counter_channel'] = -1001081940117, -- The numerical ID of the channel to use in order for /counter to work.
 
-    ['command_prefix'] = '/', -- The symbol bot commands should be executed with, '/' by default.
-
     ['download_location'] = '/tmp/', -- The location to save all downloaded media to.
 
-    ['respond_to_memes'] = true, -- This setting determines whether your bot will respond to certain memes. It MUST be a boolean value.
+    ['respond_to_misc'] = true, -- This setting determines whether your copy of mattata will respond to certain miscellaneous triggers. It MUST be a boolean value.
 
     ['max_copypasta_length'] = 300, -- The maximum number of characters a message can have to be able to have /copypasta used on it.
 
@@ -78,7 +76,7 @@ return { -- rename this file to configuration.lua for the bot to work
         'duckduckgo',
         'echo',
         'eightball',
-        'emoji',
+        'exec',
         'facebook',
         'faces',
         'fact',
@@ -89,7 +87,7 @@ return { -- rename this file to configuration.lua for the bot to work
         'gif',
         'github',
         'githubfeed',
-        'gsearch',
+        'google',
         'gwhitelist',
         'hackernews',
         'hexadecimal',
@@ -221,7 +219,7 @@ return { -- rename this file to configuration.lua for the bot to work
 
         ['pasteee'] = '',
 
-        ['gsearch'] = {
+        ['google'] = {
 
             ['api_key'] = '',
 
@@ -234,8 +232,6 @@ return { -- rename this file to configuration.lua for the bot to work
     },
 
     ['errors'] = { -- Messages to provide a more user-friendly approach to instances of errors.
-
-        ['generic'] = 'I\'m afraid an error has occured!',
 
         ['connection'] = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
 
@@ -279,6 +275,17 @@ return { -- rename this file to configuration.lua for the bot to work
 
     },
 
+    ['join_messages'] = {
+
+        'Welcome, NAME!',
+        'Hello, NAME!',
+        'Enjoy your stay, NAME!',
+        'I\'m glad you joined, NAME!',
+        'Howdy, NAME!',
+        'Hi, NAME!'
+
+    },
+
     ['faces'] = { -- Expressive emoticon faces which can be triggered with /<name>.
 
         ['shrug'] = '¯\\_(ツ)_/¯',
@@ -313,4 +320,4 @@ return { -- rename this file to configuration.lua for the bot to work
 
     }
 
-} -- End of configuration, you're good to go. Use ./launch.sh to start the bot. Having trouble? Try using chmod +x ./launch.sh.
+} -- End of configuration, you're good to go. Use ./launch.sh to start the bot.

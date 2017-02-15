@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local facebook = {}
 
@@ -10,13 +10,12 @@ local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function facebook:init(configuration)
-    facebook.arguments = 'facebook <username>'
+function facebook:init()
     facebook.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('facebook'):command('fb').table
-    facebook.help = '/facebook <username> - Sends the profile picture of the given Facebook user. Alias: /fb.'
+        self.info.username
+    ):command('facebook')
+     :command('fb').table
+    facebook.help = [[/facebook <Facebook username> - Sends the profile picture of the given Facebook user. Alias: /fb.]]
 end
 
 function facebook.get_avatar(user)
@@ -38,7 +37,7 @@ function facebook.get_avatar(user)
     return res.location
 end
 
-function facebook:on_message(message, configuration, language)
+function facebook:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -50,7 +49,7 @@ function facebook:on_message(message, configuration, language)
     if not output then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local keyboard = {}

@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local twitch = {}
 
@@ -11,13 +11,11 @@ local url = require('socket.url')
 local json = require('dkjson')
 local configuration = require('configuration')
 
-function twitch:init(configuration)
-    twitch.arguments = 'twitch <query>'
+function twitch:init()
     twitch.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('twitch').table
-    twitch.help = '/twitch <query> - Searches Twitch for streams matching the given query.'
+    twitch.help = [[/twitch <query> - Searches Twitch for the given search query and returns the most relevant result(s).]]
 end
 
 function twitch.get_result_count(input)
@@ -121,7 +119,7 @@ function twitch:on_callback_query(callback_query, message, configuration)
     end
 end
 
-function twitch:on_message(message, configuration, language)
+function twitch:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -133,7 +131,7 @@ function twitch:on_message(message, configuration, language)
     if not output then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local keyboard = {}

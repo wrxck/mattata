@@ -1,16 +1,15 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local upload = {}
 
 local mattata = require('mattata')
 
-function upload:init(configuration)
+function upload:init()
     upload.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('upload').table
 end
 

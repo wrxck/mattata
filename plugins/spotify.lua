@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local spotify = {}
 
@@ -10,13 +10,11 @@ local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function spotify:init(configuration)
-    spotify.arguments = 'spotify <query>'
+function spotify:init()
     spotify.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('spotify').table
-    spotify.help = '/spotify <query> - Shows information about the top result for the given search query on Spotify.'
+    spotify.help = [[/spotify <query> - Searches Spotify for a track matching the given search query and returns the most relevant result.]]
 end
 
 function spotify.get_track(jdat)
@@ -66,7 +64,7 @@ function spotify.get_track(jdat)
     return output, preview
 end
 
-function spotify:on_message(message, configuration, language)
+function spotify:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -78,7 +76,7 @@ function spotify:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
@@ -86,7 +84,7 @@ function spotify:on_message(message, configuration, language)
     if not output then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     mattata.send_message(

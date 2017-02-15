@@ -1,20 +1,18 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local name = {}
 
 local mattata = require('mattata')
 local redis = require('mattata-redis')
 
-function name:init(configuration)
-    name.arguments = 'name'
+function name:init()
     name.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('name').table
-    name.help = '/name <text> - Change the name mattata responds to.'
+    name.help = [[/name <text> - Change the name that the bot's AI responds to.]]
 end
 
 function name.set_name(chat_id, input)

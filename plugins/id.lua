@@ -1,21 +1,19 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local id = {}
 
 local mattata = require('mattata')
 local json = require('dkjson')
 
-function id:init(configuration)
-    id.arguments = 'id <user>'
+function id:init()
     id.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('id')
-     :command('whois').table
-    id.help = '/id <user> - Sends the name, ID, and (if applicable) username for the given user, group, channel or bot. Input is also accepted via reply. Alias: /whois.'
+     :command('whoami').table
+    id.help = [[/id [chat] - Sends information about the given chat. Input is also accepted via reply. Alias: /whoami.]]
 end
 
 function id.resolve_chat(message)

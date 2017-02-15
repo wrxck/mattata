@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local translate = {}
 
@@ -10,23 +10,22 @@ local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function translate:init(configuration)
-    translate.arguments = 'translate <language> <text>'
+function translate:init()
     translate.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('translate'):command('tl').table
-    translate.help = '/translate <language> <text> - Translates input into the given language (if arguments are given), else the replied-to message is translated into ' .. self.info.first_name .. '\'s language. Alias: /tl.'
+        self.info.username
+    ):command('translate')
+     :command('tl').table
+    translate.help = [[/translate [locale] <text> - If a locale is given, the given text is translated into the said locale's language. If no locale is given then the given text is translated into the bot's configured language. If the command is used in reply to a message containing text, then the replied-to text is translated and the translation is returned. Alias: /tl.]]
 end
 
-function translate:on_inline_query(inline_query, configuration, language)
+function translate:on_inline_query(inline_query, configuration)
     local input = mattata.input(inline_query.query)
     if not input then
         return
     end
     local lang
     if not mattata.get_word(input) or mattata.get_word(input):len() > 2 then
-        lang = language.locale
+        lang = configuration.language
     else
         lang = mattata.get_word(input)
     end
@@ -53,7 +52,7 @@ function translate:on_inline_query(inline_query, configuration, language)
     )
 end
 
-function translate:on_message(message, configuration, language)
+function translate:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         if not message.reply_to_message then
@@ -62,11 +61,11 @@ function translate:on_message(message, configuration, language)
                 translate.help
             )
         end
-        local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.keys.translate .. '&lang=' .. language.locale .. '&text=' .. url.escape(message.reply_to_message.text))
+        local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text=' .. url.escape(message.reply_to_message.text))
         if res ~= 200 then
             return mattata.send_reply(
                 message,
-                language.errors.connection
+                configuration.errors.connection
             )
         end
         local jdat = json.decode(jstr)
@@ -78,7 +77,7 @@ function translate:on_message(message, configuration, language)
     end
     local lang
     if not mattata.get_word(input) or mattata.get_word(input):len() > 2 then
-        lang = language.locale
+        lang = configuration.language
     else
         lang = mattata.get_word(input)
     end
@@ -86,7 +85,7 @@ function translate:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)

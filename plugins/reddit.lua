@@ -2,7 +2,7 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local reddit = {}
 
@@ -11,14 +11,16 @@ local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function reddit:init(configuration)
-    reddit.arguments = 'reddit <r/subreddit | query>'
+function reddit:init()
     reddit.commands = mattata.commands(
         self.info.username,
-        configuration.command_prefix,
-        { '^/r/' }
-    ):command('reddit'):command('r'):command('r/').table
-    reddit.help = '/reddit <r/subreddit | query> Returns the top posts or results for a given subreddit or query. If no argument is given, the top posts from reddit\'s /r/all board are returned. Aliases: ' .. configuration.command_prefix .. 'r, /r/subreddit.'
+        {
+            '^/r/'
+        }
+    ):command('reddit')
+     :command('r')
+     :command('r/').table
+    reddit.help = [[/reddit <subreddit/query> - Returns the latest posts from the given subreddit, or for the given query. Aliases: /r, /r/subreddit.]]
 end
 
 function reddit.format_results(posts)
@@ -40,13 +42,15 @@ function reddit.format_results(posts)
     return output
 end
 
-function reddit:on_message(message, configuration, language)
+function reddit:on_message(message, configuration)
     local limit = 4
     if message.chat.type == 'private' then
         limit = 8
     end
-    local text = message.text_lower
-    if text:match('^/r/.') then text = message.text_lower:gsub('^/r/', configuration.command_prefix .. 'r r/') end
+    local text = message.text:lower()
+    if text:match('^/r/.') then
+        text = message.text:lower():gsub('^%/r%/', '/r r/')
+    end
     local input = mattata.input(text)
     local source, url
     if input then
@@ -66,7 +70,7 @@ function reddit:on_message(message, configuration, language)
         else
             return mattata.send_reply(
                 message,
-                language.errors.results
+                configuration.errors.results
             )
         end
     else
@@ -77,14 +81,14 @@ function reddit:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if #jdat.data.children == 0 then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     return mattata.send_message(

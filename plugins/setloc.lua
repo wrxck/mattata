@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local setloc = {}
 
@@ -12,13 +12,11 @@ local json = require('dkjson')
 local redis = require('mattata-redis')
 local configuration = require('configuration')
 
-function setloc:init(configuration)
-    setloc.arguments = 'setloc <location>'
+function setloc:init()
     setloc.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('setloc').table
-    setloc.help = '/setloc <location> - Sets your location to the given value.'
+    setloc.help = [[/setloc <location> - Sets your location to the given value.]]
 end
 
 function setloc.check_loc(location)
@@ -56,7 +54,7 @@ function setloc.set_loc(user, location)
             'location',
             user_loc
         )
-        return 'Your location has been updated to: ' .. address .. '\nYou can now use commands such as ' .. configuration.command_prefix .. 'weather and ' .. configuration.command_prefix .. 'location, without needing to specify a location - your location will be used by default. Giving a different location as the command argument will override this.'
+        return 'Your location has been updated to: ' .. address .. '\nYou can now use commands such as /weather and /location, without needing to specify a location - your location will be used by default. Giving a different location as the command argument will override this.'
     end
 end
 
@@ -85,7 +83,7 @@ function setloc:on_message(message, configuration)
         if not location then
             return mattata.send_reply(
                 message,
-                'You don\'t have a location set. Use \'' .. configuration.command_prefix .. 'setloc <location>\' to set one.'
+                'You don\'t have a location set. Use /setloc <location> to set one.'
             )
         end
         return mattata.send_reply(

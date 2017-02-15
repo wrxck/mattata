@@ -1,20 +1,19 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local qr = {}
 
 local mattata = require('mattata')
 local url = require('socket.url')
 
-function qr:init(configuration)
-    qr.arguments = 'qr <string>'
+function qr:init()
     qr.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('qr'):command('qrcode').table
-    qr.help = '/qr <string> - Converts the given string to an QR code. Alias: /qrcode.'
+        self.info.username
+    ):command('qr')
+     :command('qrcode').table
+    qr.help = [[/qr <text> - Converts the given string of text to a QR code. Alias: /qrcode.]]
 end
 
 function qr:on_message(message)

@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local synonym = {}
 
@@ -11,21 +11,17 @@ local url = require('socket.url')
 local json = require('dkjson')
 
 function synonym:init(configuration)
-
     assert(
         configuration.keys.synonym,
         'synonym.lua requires an API key, and you haven\'t got one configured!'
     )
-
-    synonym.arguments = 'synonym <word>'
     synonym.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('synonym').table
-    synonym.help = '/synonym <word> - Sends a synonym of the given word.'
+    synonym.help = [[/synonym <word> - Sends a word similar to the one given.]]
 end
 
-function synonym:on_message(message, configuration, language)
+function synonym:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -37,14 +33,14 @@ function synonym:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if jstr == '{"head":{},"def":[]}' then
         return mattata.send_message(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     return mattata.send_message(

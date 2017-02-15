@@ -1,16 +1,15 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local bash = {}
 
 local mattata = require('mattata')
 
-function bash:init(configuration)
+function bash:init()
     bash.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('bash').table
 end
 

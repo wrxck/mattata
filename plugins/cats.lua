@@ -2,7 +2,7 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local cats = {}
 
@@ -15,13 +15,11 @@ function cats:init(configuration)
         configuration.keys.cats,
         'cats.lua requires an API key, and you haven\'t got one configured!'
     )
-    cats.arguments = 'cat'
     cats.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('cat')
      :command('sarah').table -- Sarah likes cats!
-    cats.help = '/cat - A random picture of a cat!'
+    cats.help = [[/cat - Sends a random photo of a cat. Alias: /sarah.]]
 end
 
 function cats:on_inline_query(inline_query, configuration)
@@ -46,12 +44,12 @@ function cats:on_inline_query(inline_query, configuration)
     )
 end
 
-function cats:on_message(message, configuration, language)
+function cats:on_message(message, configuration)
     local str, res = http.request('http://thecatapi.com/api/images/get?format=html&type=jpg&api_key=' .. configuration.keys.cats)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     mattata.send_chat_action(

@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local plugins = {}
 
@@ -10,13 +10,11 @@ local json = require('dkjson')
 local redis = require('mattata-redis')
 local configuration = require('configuration')
 
-function plugins:init(configuration)
-    plugins.arguments = 'plugins'
+function plugins:init()
     plugins.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('plugins').table
-    plugins.help = '/plugins - Toggle the plugins you want to use in your chat with a slick inline keyboard, paginated and neatly formatted.'
+    plugins.help = [[/plugins - Toggle the plugins you want to use in your chat with a slick inline keyboard, paginated and neatly formatted.]]
 end
 
 function plugins.get_toggleable_plugins()
@@ -190,7 +188,9 @@ function plugins:on_callback_query(callback_query, message, configuration)
         return
     end
     local chat, callback_type, page = callback_query.data:match('^(.-)%:(.-)%:(.-)$')
-    if not mattata.is_group_admin(
+    if (
+        mattata.get_chat(chat) and mattata.get_chat(chat).result.type ~= 'private'
+    ) or not mattata.is_group_admin(
         chat,
         callback_query.from.id
     ) then
@@ -299,9 +299,7 @@ function plugins:on_callback_query(callback_query, message, configuration)
 end
 
 function plugins:on_message(message, configuration)
-    if message.chat.type == 'private' then
-        return
-    elseif not mattata.is_group_admin(
+    if message.chat.type ~= 'private' and not mattata.is_group_admin(
         message.chat.id,
         message.from.id
     ) then
@@ -329,12 +327,14 @@ function plugins:on_message(message, configuration)
         nil,
         json.encode(keyboard)
     )
-    if not success then
+    if message.chat.type == 'private' then
+        return
+    elseif not success then
         return mattata.send_reply(
             message,
             string.format(
                 'I couldn\'t send you the plugin management menu, you need to send me a [private message](https://t.me/%s) first, then try using /plugins again.',
-                configuration.info.username:lower()
+                self.info.username:lower()
             ),
             'markdown'
         )

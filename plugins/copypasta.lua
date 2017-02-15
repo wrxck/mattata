@@ -1,19 +1,18 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local copypasta = {}
 
 local mattata = require('mattata')
 
-function copypasta:init(configuration)
-    copypasta.arguments = 'copypasta'
+function copypasta:init()
     copypasta.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('copypasta'):command('😂').table
-    copypasta.help = '/copypasta - Riddles the replied-to message with cancerous emoji. Alias: /😂.'
+        self.info.username
+    ):command('copypasta')
+     :command('😂').table
+    copypasta.help = [[/copypasta - Riddles the replied-to message with cancerous emoji. Alias: /😂.]]
 end
 
 function copypasta.format_message(input)
@@ -34,7 +33,7 @@ function copypasta.format_message(input)
     return table.concat(output)
 end
 
-function copypasta:on_message(message, configuration, language)
+function copypasta:on_message(message, configuration)
     if not message.reply_to_message then
         return mattata.send_reply(
             message,
@@ -42,7 +41,10 @@ function copypasta:on_message(message, configuration, language)
         )
     end
     if message.reply_to_message.text:len() > tonumber(configuration.max_copypasta_length) then
-        local output = language.copypasta['45']:gsub('MAXIMUM', configuration.max_copypasta_length)
+        local output = string.format(
+            'The replied-to text musn\'t be any longer than %s characters!',
+            configuration.max_copypasta_length
+        )
     end
     mattata.send_chat_action(
         message.chat.id,
@@ -50,7 +52,7 @@ function copypasta:on_message(message, configuration, language)
     )
     return mattata.send_message(
         message.chat.id,
-        copypasta.format_message(message.reply_to_message.text_upper)
+        copypasta.format_message(message.reply_to_message.text:upper())
     )
 end
 

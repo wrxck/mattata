@@ -1,19 +1,17 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local avatar = {}
 
 local mattata = require('mattata')
 
-function avatar:init(configuration)
-    avatar.arguments = 'avatar'
+function avatar:init()
     avatar.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('avatar').table
-    avatar.help = '/avatar <user> - Sends the profile photos of the given user, of which can be specified by username or numerical ID. If a number is given after the username, then the nth profile photo is sent (if available).'
+    avatar.help = [[/avatar <user> [offset] - Sends the profile photos of the given user, of which can be specified by username or numerical ID. If an offset is given after the username (which must be a numerical value), then the nth profile photo is sent (if available).]]
 end
 
 function avatar:on_message(message)

@@ -1,48 +1,46 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
-local gsearch = {}
+local google = {}
 
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function gsearch:init(configuration)
-    gsearch.arguments = 'google <query>'
-    gsearch.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+function google:init()
+    google.commands = mattata.commands(
+        self.info.username
     ):command('google').table
-    gsearch.help = '/google <query> - Displays the top results from Google for the given search query.'
+    google.help = [[/google <query> - Searches Google for the given search query and returns the most relevant result(s). Alias: /g.]]
 end
 
-function gsearch:on_message(message, configuration, language)
+function google:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
             message,
-            gsearch.help
+            google.help
         )
     end
     local amount = 8
     if message.chat.type ~= 'private' then
         amount = 4
     end
-    local jstr, res = https.request('https://www.googleapis.com/customsearch/v1/?key=' .. configuration.keys.gsearch.api_key .. '&cx=' .. configuration.keys.gsearch.cse_key .. '&gl=en&num=' .. amount .. '&fields=items%28title,link%29&q=' .. url.escape(input))
+    local jstr, res = https.request('https://www.googleapis.com/customsearch/v1/?key=' .. configuration.keys.google.api_key .. '&cx=' .. configuration.keys.google.cse_key .. '&gl=en&num=' .. amount .. '&fields=items%28title,link%29&q=' .. url.escape(input))
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if not jdat.items then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local results = {}
@@ -66,4 +64,4 @@ function gsearch:on_message(message, configuration, language)
     )
 end
 
-return gsearch
+return google

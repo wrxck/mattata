@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local administration = {}
 
@@ -11,10 +11,8 @@ local redis = require('mattata-redis')
 local configuration = require('configuration')
 
 function administration:init(configuration)
-    administration.arguments = 'administration'
     administration.commands = mattata.commands(
-        configuration.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('administration')
      :command('antispam')
      :command('mod')
@@ -464,23 +462,23 @@ function administration.check_links(message, process_type)
     if message.entities then
         for i = 1, #message.entities do
             if message.entities[i].type == 'text_link' then
-                message.text_lower = message.text_lower .. ' ' .. message.entities[i].url
+                message.text = message.text .. ' ' .. message.entities[i].url
             end
         end
     end
-    for n in message.text_lower:gmatch('%@[%w%_]+') do
+    for n in message.text:lower():gmatch('%@[%w%_]+') do
         table.insert(
             links,
             n:match('^%@([%w%_]+)$')
         )
     end
-    for n in message.text_lower:gmatch('t%.me%/joinchat/[%w%_]+') do
+    for n in message.text:lower():gmatch('t%.me%/joinchat/[%w%_]+') do
         table.insert(
             links,
             n:match('%/(joinchat%/[%w%_]+)$')
         )
     end
-    for n in message.text_lower:gmatch('t%.me%/[%w%_]+') do
+    for n in message.text:lower():gmatch('t%.me%/[%w%_]+') do
         if not n:match('%/joinchat$') then
             table.insert(
                 links,
@@ -488,13 +486,13 @@ function administration.check_links(message, process_type)
             )
         end
     end
-    for n in message.text_lower:gmatch('telegram%.me%/joinchat/[%w%_]+') do
+    for n in message.text:lower():gmatch('telegram%.me%/joinchat/[%w%_]+') do
         table.insert(
             links,
             n:match('%/(joinchat%/[%w%_]+)$')
         )
     end
-    for n in message.text_lower:gmatch('telegram%.me%/[%w%_]+') do
+    for n in message.text:lower():gmatch('telegram%.me%/[%w%_]+') do
         if not n:match('%/joinchat$') then
             table.insert(
                 links,
@@ -502,13 +500,13 @@ function administration.check_links(message, process_type)
             )
         end
     end
-    for n in message.text_lower:gmatch('telegram%.dog%/joinchat/[%w%_]+') do
+    for n in message.text:lower():gmatch('telegram%.dog%/joinchat/[%w%_]+') do
         table.insert(
             links,
             n:match('%/(joinchat%/[%w%_]+)$')
         )
     end
-    for n in message.text_lower:gmatch('telegram%.dog%/[%w%_]+') do
+    for n in message.text:lower():gmatch('telegram%.dog%/[%w%_]+') do
         if not n:match('%/joinchat$') then
             table.insert(
                 links,
@@ -1500,8 +1498,10 @@ function administration.warn(message)
     end
     local difference = maximum - amount
     text = '*%s* has been warned `[`%d/%d`]`'
-    if message.text ~= configuration.command_prefix .. 'warn' then
-        text = text .. '\n*Reason:* ' .. mattata.escape_markdown(message.text_lower:gsub('^/warn ', ''))
+    if message.text ~= '/warn' then
+        text = text .. '\n*Reason:* ' .. mattata.escape_markdown(
+            message.text:lower():gsub('^/warn ', '')
+        )
     end
     text = text:format(
         mattata.escape_markdown(name),
@@ -2092,7 +2092,7 @@ function administration.get_welcome_message(message)
     return welcome_message
 end
 
-function administration:on_new_chat_member(message, configuration, language)
+function administration:on_new_chat_member(message, configuration)
     if message.new_chat_member.id == configuration.info.id then
         return mattata.send_message(
             message.chat.id,
@@ -2150,7 +2150,7 @@ function administration:on_new_chat_member(message, configuration, language)
     end
     local welcome_message = administration.get_welcome_message(message)
     if not welcome_message then
-        local join_messages = language.join_messages
+        local join_messages = configuration.join_messages
         local name = message.new_chat_member.first_name:gsub('%%', '%%%%')
         local output = join_messages[math.random(#join_messages)]:gsub('NAME', name)
         if redis:get(
@@ -2386,7 +2386,7 @@ function administration.mod(message)
     )
     return mattata.send_reply(
         message,
-        'This user is now a moderator in this chat. They have access to administrative commands such as ' .. configuration.command_prefix .. 'ban and ' .. configuration.command_prefix .. 'kick. To demote them, just reply to one of their messages with ' .. configuration.command_prefix .. 'demod.'
+        'This user is now a moderator in this chat. They have access to administrative commands such as /ban, /kick and /unban. To demote them, just reply to one of their messages with /demod.'
     )
 end
 
@@ -2431,7 +2431,7 @@ function administration.demod(message)
     redis:del('mods:' .. message.chat.id .. ':' .. message.reply_to_message.from.id)
     return mattata.send_reply(
         message,
-        'This user is no longer a moderator in this chat. They no longer have access to administrative commands such as ' .. configuration.command_prefix .. 'ban and ' .. configuration.command_prefix .. 'kick. To promote them again, just reply to one of their messages with ' .. configuration.command_prefix .. 'mod.'
+        'This user is no longer a moderator in this chat. They no longer have access to administrative commands such as /ban, /kick and /unban. To promote them again, just reply to one of their messages with /mod.'
     )
 end
 
@@ -2792,7 +2792,12 @@ function administration.whitelist_links(message)
 end
 
 function administration:on_message(message, configuration)
-    if not mattata.is_group_admin(
+    if message.chat.type == 'private' then
+        return mattata.send_reply(
+            message,
+            'My administrative functionality can only be used in groups/channels! If you\'re looking for help with using my administrative functionality, check out the "Administration" section of /help!'
+        )
+    elseif not mattata.is_group_admin(
         message.chat.id,
         message.from.id
     ) then

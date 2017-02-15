@@ -2,7 +2,7 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local pokedex = {}
 
@@ -11,17 +11,16 @@ local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function pokedex:init(configuration)
-    pokedex.arguments = 'pokedex <query>'
+function pokedex:init()
     pokedex.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('pokedex'):command('dex').table
-    pokedex.help = '/pokedex <query> - Returns a Pokedex entry from pokeapi.co. Alias: /dex.'
+        self.info.username
+    ):command('pokedex')
+     :command('dex').table
+    pokedex.help = [[/pokedex <query> - Returns a Pokedex entry from pokeapi.co. Alias: /dex.]]
 end
 
-function pokedex:on_message(message, language)
-    local input = mattata.input(message.text_lower)
+function pokedex:on_message(message)
+    local input = mattata.input(message.text:lower())
     if not input then
         return mattata.send_reply(
             message,
@@ -32,7 +31,7 @@ function pokedex:on_message(message, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
@@ -43,7 +42,7 @@ function pokedex:on_message(message, language)
     if description_res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     mattata.send_chat_action(

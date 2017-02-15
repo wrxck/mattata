@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local canitrust = {}
 
@@ -17,16 +17,14 @@ function canitrust:init(configuration)
         configuration.keys.canitrust,
         'canitrust.lua requires an API key, and you haven\'t got one configured!'
     )
-    canitrust.arguments = 'canitrust <url>'
     canitrust.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('canitrust').table
-    canitrust.help = '/canitrust <url> - Tells you of any known security issues with a website.'
+    canitrust.help = [[/canitrust <url> - Reveals any known security issues with a website.]]
 end
 
-function canitrust:on_message(message, configuration, language)
-    local input = mattata.input(message.text_lower)
+function canitrust:on_message(message, configuration)
+    local input = mattata.input(message.text:lower())
     if not input then
         return mattata.send_reply(
             message,
@@ -37,7 +35,7 @@ function canitrust:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
@@ -45,7 +43,7 @@ function canitrust:on_message(message, configuration, language)
     if not isup.is_site_up(input) then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     if jstr:match('^process%({ "' .. input .. '": { "target": "' .. input .. '" } } %)$') then

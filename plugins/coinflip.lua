@@ -1,23 +1,22 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local coinflip = {}
 
 local mattata = require('mattata')
 
-function coinflip:init(configuration)
-    coinflip.arguments = 'coinflip <guess>'
+function coinflip:init()
     coinflip.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('coinflip'):command('cf').table
-    coinflip.help = '/coinflip <guess> - Flips a coin and returns the result! If no arguments are given, the result of a random coin flip is returned; if, however, an argument is given, the result of the random coin flip tests against your guess and returns the result and whether your guess was correct. Alias: /cf.'
+        self.info.username
+    ):command('coinflip')
+     :command('cf').table
+    coinflip.help = [[/coinflip [guess] - Flips a coin and returns the result! If a guess is given, the result is tested against it and reveals the accuracy accordingly. Alias: /cf.]]
 end
 
 function coinflip:on_message(message)
-    local input = mattata.input(message.text_lower)
+    local input = mattata.input(message.text:lower())
     local result = 'Heads.'
     local flip = math.random(2)
     if not input then

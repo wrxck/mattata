@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local dictionary = {}
 
@@ -11,18 +11,16 @@ local url = require('socket.url')
 local ltn12 = require('ltn12')
 local json = require('dkjson')
 
-function dictionary:init(configuration)
-    dictionary.arguments = 'dictionary <word>'
+function dictionary:init()
     dictionary.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('dictionary')
      :command('define').table
-    dictionary.help = '/dictionary <word> - Searches the Oxford Dictionary for the given word and returns the definition. Alias: /define.'
+    dictionary.help = [[/dictionary <word> - Looks up the given word in the Oxford Dictionary and returns the relevant definition(s). Alias: /define.]]
 end
 
-function dictionary:on_message(message, configuration, language)
-    local input = mattata.input(message.text_lower)
+function dictionary:on_message(message, configuration)
+    local input = mattata.input(message.text:lower())
     if not input then
         return mattata.send_reply(
             message,
@@ -43,7 +41,7 @@ function dictionary:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(table.concat(body))

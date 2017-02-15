@@ -1,20 +1,18 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local binary = {}
 
 local mattata = require('mattata')
 
-function binary:init(configuration)
-    binary.arguments = 'binary <number>'
+function binary:init()
     binary.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('binary')
      :command('bin').table
-    binary.help = '/binary <number> - Converts the given number to binary. Alias: /bin.'
+    binary.help = [[/binary <text> - Converts a numerical value into binary. Alias: /bin.]]
 end
 
 function binary:on_message(message, configuration)

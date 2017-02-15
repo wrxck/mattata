@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local rss = {}
 
@@ -13,15 +13,12 @@ local ltn12 = require('ltn12')
 local json = require('dkjson')
 local redis = require('mattata-redis')
 local feedparser = require('feedparser')
-local configuration = require('configuration')
 
-function rss:init(configuration)
-    rss.arguments = 'rss <sub | del> <url>'
+function rss:init()
     rss.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('rss').table
-    rss.help = '/rss <sub | del> <url> - Subscribe or unsubscribe from the given RSS feed.'
+    rss.help = [[/rss <sub/del> <url> - Manage your RSS feed subscriptions.]]
 end
 
 function rss.tail(n, k)
@@ -227,7 +224,7 @@ function rss.get_subs(id)
         table.insert(
             buttons,
             {
-                ['text'] = configuration.command_prefix .. 'rss del ' .. k
+                ['text'] = '/rss del ' .. k
             }
         )
     end
@@ -242,29 +239,12 @@ function rss.get_subs(id)
     return text, json.encode(keyboard)
 end
 
-function rss:on_message(message, configuration)
+function rss:on_message(message)
     if message.chat.type == 'private' or not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) then
         return
-    elseif message.text_lower:match('^' .. configuration.command_prefix .. 'rss sub') and not message.text_lower:match('^' .. configuration.command_prefix .. 'rss sub$') then
-        return mattata.send_message(
-            message.chat.id,
-            rss.subscribe(message.chat.id, message.text_lower:gsub('^' .. configuration.command_prefix .. 'rss sub ', '')),
-            'html'
-        )
-    elseif message.text_lower:match('^' .. configuration.command_prefix .. 'rss sub$') then
-        return mattata.send_reply(
-            message,
-            'Please specify the url of the RSS feed you would like to receive updates from.'
-        )
-    elseif message.text_lower:match('^' .. configuration.command_prefix .. 'rss del') and not message.text_lower:match('^' .. configuration.command_prefix .. 'rss del$') then
-        mattata.send_message(
-            message.chat.id,
-            rss.unsubscribe(
-                message.chat.id,
-                message.text_lower:gsub('^' .. configuration.command_prefix .. 'rss del ', '')
-            )
-        )
-    elseif message.text_lower == configuration.command_prefix .. 'rss' or message.text_lower:match('^' .. configuration.command_prefix .. 'rss del$') then
+    end
+    local input = mattata.input(message.text)
+    if not input or input == 'del' then
         local output, keyboard = rss.get_subs(message.chat.id)
         return mattata.send_message(
             message.chat.id,
@@ -275,19 +255,38 @@ function rss:on_message(message, configuration)
             nil,
             keyboard
         )
-    elseif mattata.is_global_admin(message.from.id) and message.text_lower == configuration.command_prefix .. 'rss reload' then
-        local success = rss:cron()
-        if success then
-            return mattata.send_message(
-                message.chat.id,
-                'Checking for RSS updates...'
-            )
-        end
-        return
-    else
+    elseif input == 'sub' then
+        return mattata.send_reply(
+            message,
+            'Please specify the RSS feed you would like to subscribe to using /rss sub <url>.'
+        )
+    elseif input:match('^sub ') then
         return mattata.send_message(
             message.chat.id,
-            configuration.command_prefix .. rss.arguments
+            rss.subscribe(
+                message.chat.id,
+                message.text:match('^sub (.-)$')
+            ),
+            'html'
+        )
+    elseif input:match('^del %d*$') then
+        return mattata.send_message(
+            message.chat.id,
+            rss.unsubscribe(
+                message.chat.id,
+                message.text:match('^del (%d*)$')
+            )
+        )
+    elseif mattata.is_global_admin(message.from.id) and input == 'reload' then
+        rss:cron()
+        return mattata.send_message(
+            message.chat.id,
+            'Checking for RSS updates...'
+        )
+    else
+        return mattata.send_reply(
+            message,
+            rss.help
         )
     end
 end

@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local steam = {}
 
@@ -12,14 +12,12 @@ local url = require('socket.url')
 local json = require('dkjson')
 local redis = require('mattata-redis')
 
-function steam:init(configuration)
-    steam.arguments = 'steam'
+function steam:init()
     steam.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('steam')
      :command('setsteam').table
-    steam.help = '/steam <username> - Display information about the given Steam user. If no username is specified then information about your Steam account (if applicable) is sent. Use /setsteam <username> to set your username.'
+    steam.help = [[/steam [username] - Displays information about the given Steam user. If no username is specified then information about your Steam account (if applicable) is sent.]]
 end
 
 function steam.search(input, key)
@@ -56,7 +54,7 @@ function steam.get_username(id)
     )
 end
 
-function steam.set_username(message, configuration, language)
+function steam.set_username(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -110,7 +108,7 @@ function steam.format_output(jdat)
     return output
 end
 
-function steam:on_message(message, configuration, language)
+function steam:on_message(message, configuration)
     if message.text:match('^%/se') then
         return steam.set_username(message)
     end
@@ -133,7 +131,7 @@ function steam:on_message(message, configuration, language)
     if not output then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     elseif not res then
         return mattata.send_reply(

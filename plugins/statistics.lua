@@ -1,16 +1,15 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local statistics = {}
 
 local mattata = require('mattata')
 local redis = require('mattata-redis')
 
-function statistics:init(configuration)
-    statistics.arguments = 'statistics'
-    statistics.help = '/statistics - View statistics about the chat you are in. Only the top 10, most-talkative users are listed.'
+function statistics:init()
+    statistics.help = [[/statistics - Shows statistical information about the current chat's top ten users (ordered by message count). Alias: /stats.]]
 end
 
 function statistics.get_name(user)

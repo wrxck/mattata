@@ -2,7 +2,7 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local hackernews = {}
 
@@ -10,13 +10,12 @@ local mattata = require('mattata')
 local https = require('ssl.https')
 local json = require('dkjson')
 
-function hackernews:init(configuration)
-    hackernews.arguments = 'hackernews'
+function hackernews:init()
     hackernews.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('hackernews'):command('hn').table
-    hackernews.help = '/hackernews - Sends the top stories from Hacker News. Alias: /hn.'
+        self.info.username
+    ):command('hackernews')
+     :command('hn').table
+    hackernews.help = [[/hackernews - Sends the top stories from Hacker News. Alias: /hn.]]
 end
 
 function hackernews.get_results(hackernews_topstories, hackernews_result, hackernews_article)
@@ -57,12 +56,12 @@ function hackernews.get_results(hackernews_topstories, hackernews_result, hacker
     return results
 end
 
-function hackernews:on_message(message, configuration, language)
+function hackernews:on_message(message, configuration)
     local results = hackernews.get_results('https://hacker-news.firebaseio.com/v0/topstories.json', 'https://hacker-news.firebaseio.com/v0/item/%s.json', 'https://news.ycombinator.com/item?id=%s')
     if not results then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local result_count = message.chat.id == message.from.id and 8 or 4

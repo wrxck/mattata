@@ -2,20 +2,17 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local lua = {}
 
 local mattata = require('mattata')
 local url = require('socket.url')
-local utf8 = require('lua-utf8')
 local json = require('serpent')
-local users, groups
 
-function lua:init(configuration)
+function lua:init()
     lua.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('lua').table
     json = require('dkjson')
     lua.serialise = function(input)
@@ -26,11 +23,9 @@ function lua:init(configuration)
             }
         )
     end
-    lua.loadstring = load or loadstring
     lua.error_message = function(x)
         return 'Error:\n' .. tostring(x)
     end
-    groups = self.groups
 end
 
 function lua:on_message(message, configuration)
@@ -44,20 +39,7 @@ function lua:on_message(message, configuration)
             'Please enter a string of Lua to execute!'
         )
     end
-    local output, success = loadstring(
-        [[
-            local mattata = require('mattata')
-            local https = require('ssl.https')
-            local http = require('socket.http')
-            local url = require('socket.url')
-            local ltn12 = require('ltn12')
-            local json = require('dkjson')
-            local utf8 = require('lua-utf8')
-            local redis = require('mattata-redis')
-            local socket = require('socket')
-            return function (message, configuration, self)
-        ]] .. input .. ' end'
-    )
+    local output, success = load('local mattata = require(\'mattata\')\nlocal https = require(\'ssl.https\')\nlocal http = require(\'socket.http\')\nlocal url = require(\'socket.url\')\nlocal ltn12 = require(\'ltn12\')\nlocal json = require(\'dkjson\')\nlocal utf8 = require(\'lua-utf8\')\nlocal redis = require(\'mattata-redis\')\nlocal socket = require(\'socket\')\nreturn function (message, configuration, self)\n' .. input .. '\nend')
     if success == nil then
         success, output = xpcall(
             output(),
@@ -71,7 +53,9 @@ function lua:on_message(message, configuration)
     end
     return mattata.send_message(
         message.chat.id,
-        '<pre>' .. mattata.escape_html(tostring(output)) .. '</pre>',
+        '<pre>' .. mattata.escape_html(
+            tostring(output)
+        ) .. '</pre>',
         'html'
     )
 end

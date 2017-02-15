@@ -1,25 +1,24 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local gif = {}
+
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function gif:init(configuration)
-    gif.arguments = 'gif <query>'
+function gif:init()
     gif.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('gif')
      :command('giphy').table
-    gif.help = '/gif <query> - Searches Giphy for the given query and returns a random result. Alias: /giphy.'
+    gif.help = [[/gif <query> - Searches GIPHY for the given search query and returns a random, relevant result. Alias: /giphy.]]
 end
 
-function gif:on_inline_query(inline_query, configuration, language)
+function gif:on_inline_query(inline_query, configuration)
     local input = mattata.input(inline_query.query)
     if not input then
         return
@@ -40,7 +39,7 @@ function gif:on_inline_query(inline_query, configuration, language)
     )
 end
 
-function gif:on_message(message, configuration, language)
+function gif:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -52,14 +51,14 @@ function gif:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if not jdat.data or not jdat.data[1] then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     mattata.send_chat_action(

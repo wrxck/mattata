@@ -1,66 +1,47 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local faces = {}
 
 local mattata = require('mattata')
 
 function faces:init(configuration)
-    faces.command = 'faces'
     faces.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('faces').table
-    faces.help = '<b>Faces:</b>\n'
+    faces.help = 'Faces:\n'
     for k, v in pairs(configuration.faces) do
-        faces.help = faces.help .. '• ' .. configuration.command_prefix .. k .. ': ' .. v .. '\n'
+        faces.help = faces.help .. '• /' .. k .. ': ' .. v .. '\n'
         table.insert(
             faces.commands,
-            '^' .. configuration.command_prefix .. k
+            '^[/!$]' .. k
         )
         table.insert(
             faces.commands,
-            '^' .. configuration.command_prefix .. k .. '@' .. self.info.username
+            '^[/!$]%@' .. self.info.username
         )
         table.insert(
             faces.commands,
-            configuration.command_prefix .. k .. '$'
+            '[/!$]' .. k .. '$'
         )
         table.insert(
             faces.commands,
-            configuration.command_prefix .. k .. '@' .. self.info.username .. '$'
-        )
-        table.insert(
-            faces.commands,
-            '\n' .. configuration.command_prefix .. k
-        )
-        table.insert(
-            faces.commands,
-            '\n' .. configuration.command_prefix .. k .. '@' .. self.info.username
-        )
-        table.insert(
-            faces.commands,
-            configuration.command_prefix .. k .. '\n'
-        )
-        table.insert(
-            faces.commands,
-            configuration.command_prefix .. k .. '@' .. self.info.username .. '\n'
+            '[/!$]' .. k .. '%@' .. self.info.username .. '$'
         )
     end
 end
 
 function faces:on_message(message, configuration)
-    if message.text_lower:match('^' .. configuration.command_prefix .. 'faces') then
+    if message.text:match('^%/faces') then
         return mattata.send_reply(
             message,
-            faces.help,
-            'html'
+            faces.help
         )
     end
     for k, v in pairs(configuration.faces) do
-        if message.text_lower == configuration.command_prefix .. k or message.text_lower:match(' ' .. configuration.command_prefix .. k) or message.text_lower:match(configuration.command_prefix .. k .. ' ') then
+        if message.text:match('[/!$]' .. k) then
             return mattata.send_message(
                 message.chat.id,
                 v,

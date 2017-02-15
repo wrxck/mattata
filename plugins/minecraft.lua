@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local minecraft = {}
 
@@ -10,13 +10,12 @@ local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function minecraft:init(configuration)
-    minecraft.arguments = 'minecraft <username>'
+function minecraft:init()
     minecraft.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('minecraft').table
-    minecraft.help = '/minecraft <username> - Get information about the given Minecraft player.'
+        self.info.username
+    ):command('minecraft')
+     :command('mc').table
+    minecraft.help = [[/minecraft <Minecraft username> - Sends information about the given Minecraft user.]]
 end
 
 function minecraft.get_uuid(username)
@@ -101,12 +100,12 @@ function minecraft.get_avatar(username)
     return '<a href="https://mcapi.ca/avatar/' .. url.escape(username) .. '/128">' .. mattata.escape_html(username) .. '</a>'
 end
 
-function minecraft:on_callback_query(callback_query, message, configuration, language)
-    if callback_query.data:match('^uuid:(.-)$') then
-        local input = callback_query.data:match('^uuid:(.-)$')
+function minecraft:on_callback_query(callback_query, message, configuration)
+    if callback_query.data:match('^uuid%:.-$') then
+        local input = callback_query.data:match('^uuid%:(.-)$')
         local output = minecraft.get_uuid(input)
         if not output then
-            output = language.errors.results
+            output = configuration.errors.results
         end
         local keyboard = {}
         keyboard.inline_keyboard = {
@@ -125,8 +124,8 @@ function minecraft:on_callback_query(callback_query, message, configuration, lan
             true,
             json.encode(keyboard)
         )
-    elseif callback_query.data:match('^avatar:(.-)$') then
-        local input = callback_query.data:match('^avatar:(.-)$')
+    elseif callback_query.data:match('^avatar%:.-$') then
+        local input = callback_query.data:match('^avatar%:(.-)$')
         local keyboard = {}
         keyboard.inline_keyboard = {
             {
@@ -144,15 +143,15 @@ function minecraft:on_callback_query(callback_query, message, configuration, lan
             false,
             json.encode(keyboard)
         )
-    elseif callback_query.data:match('^history:(.-)$') then
-        local input = callback_query.data:match('^history:(.-):')
+    elseif callback_query.data:match('^history%:.-%:%d*$') then
+        local input = callback_query.data:match('^history%:(.-)%:%d*$')
         local output, amount, usernames = minecraft.get_username_history(input)
         local keyboard = {}
         keyboard.inline_keyboard = {}
         if not output then
-            output = language.errors.results
+            output = configuration.errors.results
         else
-            local new_page = callback_query.data:match(':(%d+)$')
+            local new_page = callback_query.data:match('^history%:.-%:(%d*)$')
             local page_count = math.floor(tonumber(amount) / 5) + 1
             if tonumber(new_page) > tonumber(page_count) then
                 new_page = 1
@@ -199,8 +198,8 @@ function minecraft:on_callback_query(callback_query, message, configuration, lan
             true,
             json.encode(keyboard)
         )
-    elseif callback_query.data:match('^back:(.-)$') then
-        local input = callback_query.data:match('^back:(.-)$')
+    elseif callback_query.data:match('^back%:.-$') then
+        local input = callback_query.data:match('^back%:(.-)$')
         local keyboard = {}
         keyboard.inline_keyboard = {
             {
@@ -231,7 +230,7 @@ function minecraft:on_callback_query(callback_query, message, configuration, lan
     end
 end
 
-function minecraft:on_message(message, configuration, language)
+function minecraft:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(

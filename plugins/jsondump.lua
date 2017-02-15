@@ -1,20 +1,19 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local jsondump = {}
 
 local mattata = require('mattata')
 local json = require('serpent')
 
-function jsondump:init(configuration)
-    jsondump.arguments = 'jsondump'
+function jsondump:init()
     jsondump.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('jsondump').table
-    jsondump.help = '/jsondump - Returns the raw json of your message.'
+        self.info.username
+    ):command('jsondump')
+     :command('json').table
+    jsondump.help = [[/jsondump - Returns the raw JSON of your message. Alias: /json.]]
     json = require('dkjson')
     jsondump.serialise = function(input)
         return json.encode(
@@ -33,7 +32,9 @@ function jsondump:on_message(message)
     end
     return mattata.send_message(
         message.chat.id,
-        '<pre>' .. mattata.escape_html(tostring(output)) .. '</pre>',
+        '<pre>' .. mattata.escape_html(
+            tostring(output)
+        ) .. '</pre>',
         'html'
     )
 end

@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local whois = {}
 
@@ -9,16 +9,14 @@ local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 
-function whois:init(configuration)
-    whois.arguments = 'whois <IP address>'
+function whois:init()
     whois.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('whois').table
-    whois.help = '/whois <IP address> - Displays the WHOIS look-up result for the given IP address.'
+    whois.help = [[/whois <IP address> - Performs a WHOIS lookup for the given IP address and returns the result.]]
 end
 
-function whois:on_message(message, configuration, language)
+function whois:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -30,14 +28,14 @@ function whois:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local output = str:match('%<pre%>(.-)%<%/pre%>')
     if not output or output:match('^No match found') then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     return mattata.send_message(

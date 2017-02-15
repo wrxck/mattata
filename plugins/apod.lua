@@ -1,4 +1,10 @@
+--[[
+    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
 local apod = {}
+
 local mattata = require('mattata')
 local https = require('ssl.https')
 local json = require('dkjson')
@@ -8,12 +14,10 @@ function apod:init(configuration)
         configuration.keys.apod,
         'apod.lua requires an API key, and you haven\'t got one configured!'
     )
-    apod.arguments = 'apod <DD/MM/YYYY>'
     apod.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('apod').table
-    apod.help = '/apod <DD/MM/YYYY> - Sends the Astronomy Picture of the Day.'
+    apod.help = [[/apod [dd/mm/yyyy] - Sends the Astronomy Picture of the Day via NASA's API. If a date is given, the Astronomy Picture for that date is returned.]]
 end
 
 function apod:on_inline_query(inline_query, configuration)
@@ -38,7 +42,7 @@ function apod:on_inline_query(inline_query, configuration)
     )
 end
 
-function apod:on_message(message, configuration, language)
+function apod:on_message(message, configuration)
     local input = mattata.input(message.text)
     local url = 'https://api.nasa.gov/planetary/apod?api_key=' .. configuration.keys.apod
     local date = os.date('%Y-%m-%d')
@@ -51,7 +55,7 @@ function apod:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)

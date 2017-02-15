@@ -1,19 +1,17 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local me = {}
 
 local mattata = require('mattata')
 
-function me:init(configuration)
-    me.arguments = 'me'
+function me:init()
     me.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('me').table
-    me.help = '/me <emote message> - Allows you to emote.'
+    me.help = [[/me <emote message> - Allows you to emote.]]
 end
 
 function me:on_message(message)

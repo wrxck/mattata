@@ -8,7 +8,7 @@ local ai = {}
 local mattata = require('mattata')
 local cleverbot = require('mattata-ai')
 
-function ai:on_message(message, configuration, language)
+function ai:on_message(message, configuration)
     mattata.send_chat_action(
         message.chat.id,
         'typing'

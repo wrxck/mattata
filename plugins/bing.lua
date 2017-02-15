@@ -2,7 +2,7 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local bing = {}
 
@@ -18,15 +18,13 @@ function bing:init(configuration)
         configuration.keys.bing,
         'bing.lua requires an API key, and you haven\'t got one configured!'
     )
-    bing.arguments = 'bing <query>'
     bing.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('bing').table
-    bing.help = '/bing <query> - Returns Bing\'s top search results for the given query.'
+    bing.help = [[/bing <query> - Searches Bing for the given search query and returns the top results.]]
 end
 
-function bing:on_message(message, configuration, language)
+function bing:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -47,7 +45,7 @@ function bing:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(table.concat(body))
@@ -55,7 +53,7 @@ function bing:on_message(message, configuration, language)
     if limit > #jdat.d.results and #jdat.d.results or limit == 0 then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local results = {}

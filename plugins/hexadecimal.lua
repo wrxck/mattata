@@ -1,19 +1,18 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local hexadecimal = {}
 
 local mattata = require('mattata')
 
-function hexadecimal:init(configuration)
-    hexadecimal.arguments = 'hexadecimal <string>'
+function hexadecimal:init()
     hexadecimal.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('hexadecimal'):command('hex').table
-    hexadecimal.help = '/hexadecimal <string> - Converts the given string to hexadecimal. Alias: /hex.'
+        self.info.username
+    ):command('hexadecimal')
+     :command('hex').table
+    hexadecimal.help = [[/hexadecimal <text> - Converts the given string of text into hexadecimal. Alias: /hex.]]
 end
 
 function hexadecimal.num_to_hex(num)

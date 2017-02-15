@@ -1,17 +1,16 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local gblacklist = {}
 
 local mattata = require('mattata')
 local redis = require('mattata-redis')
 
-function gblacklist:init(configuration)
+function gblacklist:init()
     gblacklist.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('gblacklist').table
 end
 

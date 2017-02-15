@@ -1,20 +1,18 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local unicode = {}
 
 local mattata = require('mattata')
 local json = require('dkjson')
 
-function unicode:init(configuration)
-    unicode.arguments = 'unicode <text>'
+function unicode:init()
     unicode.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('unicode').table
-    unicode.help = '/unicode <text> - Returns the given text as a json-encoded table of Unicode (UTF-32) values.'
+    unicode.help = [[/unicode <text> - Returns the given text as a JSON-encoded table of Unicode (UTF-32) values.]]
 end
 
 function unicode:on_message(message)

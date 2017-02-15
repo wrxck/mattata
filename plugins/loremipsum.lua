@@ -1,28 +1,26 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local loremipsum = {}
 
 local mattata = require('mattata')
 local http = require('socket.http')
 
-function loremipsum:init(configuration)
-    loremipsum.arguments = 'loremipsum'
+function loremipsum:init()
     loremipsum.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('loremipsum').table
-    loremipsum.help = '/loremipsum - Generates a few Lorem Ipsum sentences!'
+    loremipsum.help = [[/loremipsum - Generates a paragraph of Lorem Ipsum text.]]
 end
 
-function loremipsum:on_message(message, configuration, language)
+function loremipsum:on_message(message, configuration)
     local str, res = http.request('http://loripsum.net/api/1/medium/plaintext')
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     return mattata.send_message(

@@ -1,25 +1,23 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local snapchat = {}
 
 local mattata = require('mattata')
 local url = require('socket.url')
 
-function snapchat:init(configuration)
-    snapchat.arguments = 'snapchat <username>'
+function snapchat:init()
     snapchat.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('snapchat')
      :command('snap')
      :command('sc').table
-    snapchat.help = '/snapchat <username> - Sends the Snap code for the given Snapchat username. Aliases: /snap, /sc.'
+    snapchat.help = [[/snapchat <Snapchat username> - Sends the "Snap" code for the given Snapchat username. Aliases: /snap, /sc.]]
 end
 
-function snapchat:on_message(message, configuration, language)
+function snapchat:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -37,7 +35,7 @@ function snapchat:on_message(message, configuration, language)
     if not success then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
 end

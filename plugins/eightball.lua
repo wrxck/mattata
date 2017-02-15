@@ -1,25 +1,26 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local eightball = {}
 
 local mattata = require('mattata')
 
-function eightball:init(configuration)
-    eightball.arguments = 'eightball'
+function eightball:init()
     eightball.commands = mattata.commands(
         self.info.username,
-        configuration.command_prefix,
-        { '[Yy]/[Nn]%p*$' }
-    ):command('eightball'):command('8ball').table
-    eightball.help = '/eightball - Returns your destined decision through mattata\'s sixth sense. Alias: /8ball.'
+        {
+            '[Yy]/[Nn]%p*$'
+        }
+    ):command('eightball')
+     :command('8ball').table
+    eightball.help = [[/eightball - Makes a decision for you using the (virtual) magic 8 ball! Alias: /8ball.]]
 end
 
 function eightball:on_message(message, configuration)
     local output
-    if message.text_lower:match('y/n%p?$') then
+    if message.text:lower():match('y/n%p?$') then
         local random = math.random(6)
         if random == 1 then
             output = '👍'

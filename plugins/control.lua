@@ -1,17 +1,17 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local control = {}
 
 local mattata = require('mattata')
 
-function control:init(configuration)
+function control:init()
     control.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('reload'):command('reboot').table
+        self.info.username
+    ):command('reload')
+     :command('reboot').table
 end
 
 function control:on_message(message, configuration)
@@ -34,7 +34,7 @@ function control:on_message(message, configuration)
     )
     return mattata.send_message(
         message.chat.id,
-        self.info.first_name .. ' is reloading...'
+        self.info.name .. ' is reloading...'
     )
 end
 

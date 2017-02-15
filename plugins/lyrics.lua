@@ -19,12 +19,10 @@ function lyrics:init(configuration)
         configuration.keys.lyrics,
         'lyrics.lua requires an API key, and you haven\'t got one configured!'
     )
-    lyrics.arguments =  'lyrics <query>'
     lyrics.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('lyrics').table
-    lyrics.help = '/lyrics <query> - Find the lyrics to the specified song.'
+    lyrics.help = [[/lyrics <query> - Finds the lyrics to the given track.]]
 end
 
 function lyrics.search_lyrics_wikia(artist, track)
@@ -62,7 +60,6 @@ function lyrics.search_az_lyrics(artist, track)
                 ['Accept-Language'] = 'en-US,en;q=0.8',
                 ['Cache-Control'] = 'max-age=0',
                 ['Connection'] = 'keep-alive',
-                ['Cookie'] = '__utma=190584827.1320932754.1464087709.1474798020.1475005190.4; __utmz=190584827.1475005190.4.4.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); __atuvc=0%7C49%2C0%7C50%2C0%7C1%2C1%7C52%2C1%7C2; __atuvs=5877c3ffd3f17411000',
                 ['DNT'] = '1',
                 ['Host'] = 'www.azlyrics.com',
                 ['Upgrade-Insecure-Requests'] = '1',
@@ -253,7 +250,7 @@ function lyrics.get_keyboard(artist, track)
     return nil
 end
 
-function lyrics:on_inline_query(inline_query, configuration, language)
+function lyrics:on_inline_query(inline_query, configuration)
     local input = mattata.input(inline_query.query)
     if not input then
         return
@@ -286,7 +283,7 @@ function lyrics:on_inline_query(inline_query, configuration, language)
     )
 end
 
-function lyrics:on_message(message, configuration, language)
+function lyrics:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -302,7 +299,7 @@ function lyrics:on_message(message, configuration, language)
     if not output then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local keyboard = lyrics.get_keyboard(artist, track)

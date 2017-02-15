@@ -1,17 +1,15 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local ping = {}
 
 local mattata = require('mattata')
 
-function ping:init(configuration)
-    ping.arguments = 'ping'
+function ping:init()
     ping.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('ping').table
 end
 

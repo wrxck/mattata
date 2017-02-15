@@ -1,19 +1,17 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local dice = {}
 
 local mattata = require('mattata')
 
-function dice:init(configuration)
-    dice.arguments = 'dice <number of dice> <range of numbers>'
+function dice:init()
     dice.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('dice').table
-    dice.help = '/dice <number of dice to roll> <range of numbers on the dice> - Rolls a die a given amount of times, with a given range.'
+    dice.help = [[/dice <number> <range> - Rolls a die - returning random numbers between 1 and the given range the given number of times.]]
 end
 
 function dice:on_message(message, configuration)

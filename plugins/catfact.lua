@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local catfact = {}
 
@@ -9,13 +9,11 @@ local mattata = require('mattata')
 local http = require('socket.http')
 local json = require('dkjson')
 
-function catfact:init(configuration)
-    catfact.arguments = 'catfact'
+function catfact:init()
     catfact.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('catfact').table
-    catfact.help = '/catfact - Sends a random cat-related fact!'
+    catfact.help = [[/catfact - Sends a random, cat-themed fact.]]
 end
 
 function catfact:on_inline_query(inline_query)
@@ -42,12 +40,12 @@ function catfact:on_inline_query(inline_query)
     )
 end
 
-function catfact:on_message(message, configuration, language)
+function catfact:on_message(message, configuration)
     local jstr, res = http.request('http://catfacts-api.appspot.com/api/facts')
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)

@@ -1,25 +1,25 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local instagram = {}
 
 local mattata = require('mattata')
-local https = require('ssl.https')
+local http = require('socket.http')
 local url = require('socket.url')
+local ltn12 = require('ltn12')
 local json = require('dkjson')
 
-function instagram:init(configuration)
-    instagram.arguments = 'instagram <user>'
+function instagram:init()
     instagram.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('instagram'):command('ig').table
-    instagram.help = '/instagram <user> - Sends the profile picture of the given Instagram user. Alias: /ig.'
+        self.info.username
+    ):command('instagram')
+     :command('ig').table
+    instagram.help = [[/instagram <Instagram username> - Sends the profile picture of the given Instagram user. Alias: /ig.]]
 end
 
-function instagram:on_message(message, configuration, language)
+function instagram:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -27,18 +27,31 @@ function instagram:on_message(message, configuration, language)
             instagram.help
         )
     end
+    local body = 'instagram_name=' .. input
     local response = {}
-
-    local str, res = https.request('https://vibbi.com/' .. url.escape(input))
+    local _, res = http.request{
+        ['url'] = 'http://instadp.com/run.php',
+        ['method'] = 'POST',
+        ['headers'] = {
+            ['Content-Length'] = body:len(),
+            ['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8',
+            ['Cookie'] = '_asomcnc=1',
+            ['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+            ['X-Requested-With'] = 'XMLHttpRequest'
+        },
+        ['source'] = ltn12.source.string(body),
+        ['sink'] = ltn12.sink.table(response)
+    }
+    local str = table.concat(response)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
-    elseif not str:match('%<img src%=%"https%:%/%/(.-)%"') then
+    elseif not str:match('%<a href%=%"%#%" onclick%=%"window%.open%(%\'(https%:%/%/scontent%.cdninstagram%.com%/.-)%\'%, %\'%_blank%\'%)%;%"%>') then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local keyboard = json.encode(
@@ -55,7 +68,7 @@ function instagram:on_message(message, configuration, language)
     )
     return mattata.send_photo(
         message.chat.id,
-        str:match('%<img src%=%"https%:%/%/(.-)%"'):gsub('%/s150x150%/', '/s320x320/'),
+        str:match('%<a href%=%"%#%" onclick%=%"window%.open%(%\'(https%:%/%/scontent%.cdninstagram%.com%/.-)%\'%, %\'%_blank%\'%)%;%"%>'),
         nil,
         false,
         nil,

@@ -1,19 +1,17 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local msglink = {}
 
 local mattata = require('mattata')
 
-function msglink:init(configuration)
-    msglink.arguments = 'msglink'
+function msglink:init()
     msglink.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('msglink').table
-    msglink.help = '/msglink - Gets the link to the replied-to message.'
+    msglink.help = [[/msglink - Gets the link to the replied-to message.]]
 end
 
 function msglink:on_message(message)
@@ -35,7 +33,7 @@ function msglink:on_message(message)
     end
     return mattata.send_message(
         message.chat.id,
-        't.me/' .. message.chat.username .. '/' .. message.reply_to_message.message_id,
+        'https://t.me/' .. message.chat.username .. '/' .. message.reply_to_message.message_id,
         nil,
         true,
         false,

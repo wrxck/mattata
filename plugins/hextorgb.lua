@@ -1,19 +1,18 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local hextorgb = {}
 
 local mattata = require('mattata')
 
-function hextorgb:init(configuration)
-    hextorgb.arguments = 'hextorgb <colour hex>'
+function hextorgb:init()
     hextorgb.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('hextorgb').table
-    hextorgb.help = '/hextorgb <colour hex> - Converts the given colour hex to its RGB format.'
+        self.info.username
+    ):command('hextorgb')
+     :command('hrgb').table
+    hextorgb.help = [[/hextorgb <hex code> - Converts the given hex colour code into its RGB format. Alias: /hrgb.]]
 end
 
 function hextorgb:on_message(message)

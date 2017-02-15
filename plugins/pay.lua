@@ -1,22 +1,20 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local pay = {}
 
 local mattata = require('mattata')
 local redis = require('mattata-redis')
 
-function pay:init(configuration)
-    pay.arguments = 'pay'
+function pay:init()
     pay.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('pay')
      :command('bal')
      :command('balance').table
-    pay.help = '/pay <amount> - Sends the replied-to user the given amount of mattacoins. Use /balance (or /bal) to view your current balance.'
+    pay.help = [[/pay <amount> - Sends the replied-to user the given amount of mattacoins. Use /balance (or /bal) to view your current balance.]]
 end
 
 function pay.set_balance(user_id, new_balance)

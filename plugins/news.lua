@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local news = {}
 
@@ -10,19 +10,17 @@ local https = require('ssl.https')
 local json = require('dkjson')
 local redis = require('mattata-redis')
 
-function news:init(configuration)
-    news.arguments = 'news'
+function news:init()
     news.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('news')
      :command('nsources')
      :command('setnews').table
-    news.help = '/news <source> - Sends the current top story from the given news source. Use /nsources to view a list of available sources.'
+    news.help = [[/news <news source> - Sends the current top story from the given news source. Use /nsources to view a list of available sources. Use /setnews <news source> to set your preferred news source, and be able to use /news without giving any arguments.]]
 end
 
 function news.send_sources(message)
-    local input = mattata.input(message.text_lower)
+    local input = mattata.input(message.text:lower())
     if not input then
         input = false
     else
@@ -73,7 +71,7 @@ function news.send_sources(message)
 end
 
 function news.set_news(message)
-    local input = mattata.input(message.text_lower)
+    local input = mattata.input(message.text:lower())
     if input then
         input = input:gsub('%-', ' ')
     end
@@ -158,13 +156,13 @@ function news.get_sources(input)
     return sources
 end
 
-function news:on_message(message, configuration, language)
+function news:on_message(message, configuration)
     if message.text:match('^%/nsources') then
         return news.send_sources(message)
     elseif message.text:match('^%/setnews') then
         return news.set_news(message)
     end
-    local input = mattata.input(message.text_lower)
+    local input = mattata.input(message.text:lower())
     if not input then
         local preferred_source = redis:get(
             string.format(
@@ -193,14 +191,14 @@ function news:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if not jdat.articles[1] then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     jdat.articles[1].publishedAt = jdat.articles[1].publishedAt:gsub('T.-$', '')

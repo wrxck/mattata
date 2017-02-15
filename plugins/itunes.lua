@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local itunes = {}
 
@@ -10,13 +10,11 @@ local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function itunes:init(configuration)
-    itunes.arguments = 'itunes <song>'
+function itunes:init()
     itunes.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('itunes').table
-    itunes.help = '/itunes <song> - Returns information about the given song, from iTunes.'
+    itunes.help = [[/itunes <query> - Searches iTunes for the given search query and returns the most relevant result.]]
 end
 
 function itunes.get_output(jdat)
@@ -73,7 +71,7 @@ function itunes.get_output(jdat)
     )
 end
 
-function itunes:on_callback_query(callback_query, message, configuration, language)
+function itunes:on_callback_query(callback_query, message, configuration)
     if not message.reply_to_message then
 	    return mattata.answer_callback_query(
 		    callback_query.id,
@@ -106,7 +104,7 @@ function itunes:on_callback_query(callback_query, message, configuration, langua
     end
 end
 
-function itunes:on_message(message, configuration, language)
+function itunes:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -122,14 +120,14 @@ function itunes:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if not jdat.results[1] then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local keyboard = {

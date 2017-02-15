@@ -1,20 +1,18 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local fact = {}
 
 local mattata = require('mattata')
 local json = require('dkjson')
 
-function fact:init(configuration)
-    fact.arguments = 'fact'
+function fact:init()
     fact.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('fact').table
-    fact.help = '/fact - Returns a random fact, which probably isn\'t even going to be factual but what the heck!'
+    fact.help = [[/fact - Returns a random (and somewhat-false!) fact.]]
 end
 
 local facts = {
@@ -1054,7 +1052,7 @@ function fact:on_callback_query(callback_query, message)
     )
 end
 
-function fact:on_message(message, configuration, language)
+function fact:on_message(message)
     local keyboard = fact.get_keyboard()
     return mattata.send_message(
         message.chat.id,

@@ -1,20 +1,18 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local lmgtfy = {}
 
 local mattata = require('mattata')
 local url = require('socket.url')
 
-function lmgtfy:init(configuration)
-    lmgtfy.arguments = 'lmgtfy <query>'
+function lmgtfy:init()
     lmgtfy.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('lmgtfy').table
-    lmgtfy.help = '/lmgtfy <query> - Sends a LMGTFY link for the given search query.'
+    lmgtfy.help = [[/lmgtfy <query> - Sends a LMGTFY link for the given search query.]]
 end
 
 function lmgtfy:on_message(message)

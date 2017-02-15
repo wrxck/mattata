@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local appstore = {}
 
@@ -10,14 +10,12 @@ local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function appstore:init(configuration)
-    appstore.arguments = 'appstore <query>'
+function appstore:init()
     appstore.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('appstore')
      :command('app').table
-    appstore.help = '/appstore <query> - Returns the first app that iTunes returns for the given search query. Alias: /app.'
+    appstore.help = [[/appstore <query> - Displays information about the first app returned by iTunes for the given search query. Alias: /app.]]
 end
 
 function appstore.get_app_info(jdat)
@@ -67,7 +65,7 @@ function appstore.get_app_info(jdat)
     )
 end
 
-function appstore:on_message(message, configuration, language)
+function appstore:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -77,22 +75,21 @@ function appstore:on_message(message, configuration, language)
     end
     local jstr, res = https.request(
         string.format(
-            'https://itunes.apple.com/search?term=%s&lang=%s&entity=software',
-            url.escape(input),
-            language.locale
+            'https://itunes.apple.com/search?term=%s&lang=en&entity=software',
+            url.escape(input)
         )
     )
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if jdat.resultCount == 0 then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     return mattata.send_message(

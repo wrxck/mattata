@@ -1,17 +1,16 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local gwhitelist = {}
 
 local mattata = require('mattata')
 local redis = require('mattata-redis')
 
-function gwhitelist:init(configuration)
+function gwhitelist:init()
     gwhitelist.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('gwhitelist').table
 end
 

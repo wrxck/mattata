@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local duckduckgo = {}
 
@@ -10,17 +10,15 @@ local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function duckduckgo:init(configuration)
-    duckduckgo.arguments = 'duckduckgo'
+function duckduckgo:init()
     duckduckgo.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('duckduckgo')
      :command('ddg').table
-    duckduckgo.help = '/duckduckgo <query> - Searches DuckDuckGo\'s Instant Results for the given query. Alias: /ddg.'
+    duckduckgo.help = [[/duckduckgo <query> - Searches DuckDuckGo's instant results for the given search query and returns the most relevant result. Alias: /ddg.]]
 end
 
-function duckduckgo:on_message(message, configuration, language)
+function duckduckgo:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -32,7 +30,7 @@ function duckduckgo:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)

@@ -2,23 +2,21 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local shout = {}
 
 local mattata = require('mattata')
 
-function shout:init(configuration)
-    shout.arguments = 'shout <text>'
+function shout:init()
     shout.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('shout').table
-    shout.help = '/shout <text> - Shout something in multiple directions.'
+    shout.help = [[/shout <text> - Shouts the given text in multiple directions!]]
 end
 
 function shout:on_message(message)
-    local input = mattata.input(message.text_upper)
+    local input = mattata.input(message.text:upper())
     if not input then
         return mattata.send_reply(
             message,

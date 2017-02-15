@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local captionbotai = {}
 
@@ -17,7 +17,7 @@ function captionbotai.conversation()
     if res ~= 200 then
         return false
     end
-    return str:match('%"(.-)%"')
+    return str:match('%"(.-)%"') or str
 end
 
 function captionbotai.request(input, id)
@@ -52,12 +52,13 @@ function captionbotai.request(input, id)
         return false
     end
     local jstr, res = https.request('https://www.captionbot.ai/api/message?waterMark=&conversationId=' .. url.escape(id))
-    jstr = jstr:gsub(configuration.bot_token, ''):gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"'):gsub('"' .. input .. '",', '')
+    jstr = jstr:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"'):gsub(configuration.bot_token, '')
+    print(jstr)
     local jdat = json.decode(jstr)
     return jdat.BotMessages[2]:gsub('\\n', ' ')
 end
 
-function captionbotai:on_message(message, configuration, language)
+function captionbotai:on_message(message, configuration)
     local file = mattata.get_file(message.photo[#message.photo].file_id) -- Gets the highest resolution available for the best result.
     if not file then
         return
@@ -70,7 +71,7 @@ function captionbotai:on_message(message, configuration, language)
     if not init then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local output = captionbotai.request(
@@ -81,16 +82,16 @@ function captionbotai:on_message(message, configuration, language)
         ),
         init
     )
-    if not output then
+    if not output or output:lower():match('^https%:%/%/') then
         return mattata.send_reply(
             message,
-            'I REALLY CANNOT DESCRIBE THAT PICTURE 😳'
+            'I really cannot describe that picture 😳'
         )
     end
     output = output:match('%, but (.-)$') or output
     return mattata.send_reply(
         message,
-        string.upper(output)
+        output:gsub('%.$', '')
     )
 end
 

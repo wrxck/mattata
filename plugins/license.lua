@@ -1,24 +1,22 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local license = {}
 
 local mattata = require('mattata')
 
-function license:init(configuration)
-    license.arguments = 'license'
+function license:init()
     license.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('license').table
-    license.help = '/license - View mattata\'s license.'
+    license.help = [[/license - View mattata's license.]]
 end
 
 function license:on_message(message)
     local output = io.popen('cat LICENSE'):read('*all')
-    if output == 'cat: LICENSE: No such file or directory' then
+    if output:match('^cat%:') then
         return
     end
     return mattata.send_message(

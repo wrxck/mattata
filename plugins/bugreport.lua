@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local bugreport = {}
 
@@ -12,14 +12,12 @@ function bugreport:init(configuration)
         configuration.bug_reports_chat,
         'Please specify a chat ID to send all bug reports to!'
     )
-    bugreport.arguments = 'bugreport <message>'
     bugreport.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('bugreport')
      :command('bug')
      :command('br').table
-    bugreport.help = '/bugreport <message> - Report a bug to the developer. Aliases: /bug, /br.'
+    bugreport.help = [[/bugreport <text> - Reports a bug to the configured developer. Aliases: /bug, /br.]]
 end
 
 function bugreport:on_message(message, configuration)

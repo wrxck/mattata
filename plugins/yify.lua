@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local yify = {}
 
@@ -10,13 +10,11 @@ local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function yify:init(configuration)
-    yify.arguments = 'yify <query>'
+function yify:init()
     yify.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('yify').table
-    yify.help = '/yify <query> - Searches Yify torrents for the given query.'
+    yify.help = [[/yify <query> - Searches Yify Torrents for the given search query and returns the most relevant result(s).]]
 end
 
 function yify.get_result_count(input)
@@ -131,7 +129,7 @@ function yify:on_callback_query(callback_query, message, configuration)
     end
 end
 
-function yify:on_message(message, configuration, language)
+function yify:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -143,7 +141,7 @@ function yify:on_message(message, configuration, language)
     if not output then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     table.insert(

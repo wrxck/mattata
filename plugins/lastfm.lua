@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local lastfm = {}
 
@@ -16,14 +16,13 @@ function lastfm:init(configuration)
     assert(
         configuration.keys.lastfm,
         'lastfm.lua requires an API key, and you haven\'t got one configured!'
-    
     )
-    lastfm.arguments = 'lastfm'
     lastfm.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('lastfm'):command('np'):command('fmset').table
-    lastfm.help = '/np <username> - Returns what you are or were last listening to. If you specify a username, info will be returned for that username.' .. configuration.command_prefix .. 'fmset <username> - Sets your last.fm username. Use ' .. configuration.command_prefix .. 'fmset -del to delete your current username.'
+        self.info.username
+    ):command('lastfm')
+     :command('np')
+     :command('fmset').table
+    lastfm.help = [[/np <username> - Returns what you are or were last listening to. If you specify a username, info will be returned for that username. /fmset <username> - Sets your last.fm username. Use /fmset -del to delete your current username.]]
 end
 
 function lastfm.set_username(user, name)
@@ -66,11 +65,11 @@ function lastfm.get_username(user)
     end
 end
 
-function lastfm:on_inline_query(inline_query, configuration, language)
+function lastfm:on_inline_query(inline_query, configuration)
     local input = mattata.input(inline_query.query)
     local lastfm_url = 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&format=json&limit=1&api_key=' .. configuration.keys.lastfm .. '&user='
     local username, results, output
-    if inline_query.query == configuration.command_prefix .. 'np' then
+    if inline_query.query == '/np' then
         if not lastfm.get_username(inline_query.from) then
             local results = json.encode(
                 {
@@ -78,9 +77,9 @@ function lastfm:on_inline_query(inline_query, configuration, language)
                         ['type'] = 'article',
                         ['id'] = '1',
                         ['title'] = 'An error occured!',
-                        ['description'] = 'Please send ' .. configuration.command_prefix .. 'fmset <username> to me via private chat!',
+                        ['description'] = 'Please send /fmset <username> to me via private chat!',
                         ['input_message_content'] = {
-                            ['message_text'] = 'An error occured!\nPlease send ' .. configuration.command_prefix .. 'fmset <username> to me via private chat!'
+                            ['message_text'] = 'An error occured!\nPlease send /fmset <username> to me via private chat!'
                         }
                     }
                 }
@@ -98,7 +97,7 @@ function lastfm:on_inline_query(inline_query, configuration, language)
     local jstr, res = http.request(lastfm_url)
     local jdat = json.decode(jstr)
     jdat = jdat.recenttracks.track[1] or jdat.recenttracks.track
-    if inline_query.query == configuration.command_prefix .. 'np' then
+    if inline_query.query == '/np' then
         output =  inline_query.from.first_name .. ' (last.fm/user/' .. username .. ')'
     else
         output = username
@@ -146,14 +145,14 @@ function lastfm:on_inline_query(inline_query, configuration, language)
     )
 end
 
-function lastfm:on_message(message, configuration, language)
+function lastfm:on_message(message, configuration)
     local input = mattata.input(message.text)
-    if message.text_lower:match('^' .. configuration.command_prefix .. 'lastfm$') then
+    if message.text:match('^%/lastfm$') then
         return mattata.send_reply(
             message,
             lastfm.help
         )
-    elseif message.text_lower:match('^' .. configuration.command_prefix .. 'fmset') then
+    elseif message.text:match('^%/fmset') then
         if not input then
             return mattata.send_reply(
                 message,
@@ -178,21 +177,21 @@ function lastfm:on_message(message, configuration, language)
     else
         return mattata.send_reply(
             message,
-            'Please specify your last.fm username or set it with ' .. configuration.command_prefix .. 'fmset.'
+            'Please specify your last.fm username or set it with /fmset.'
         )
     end
     local jstr, res = http.request('http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&format=json&limit=1&api_key=' .. configuration.keys.lastfm .. '&user=' .. url.escape(username))
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if jdat.error then
         return mattata.send_reply(
             message,
-            'Please specify your last.fm username or set it with ' .. configuration.command_prefix .. 'fmset.'
+            'Please specify your last.fm username or set it with /fmset.'
         )
     end
     jdat = jdat.recenttracks.track[1] or jdat.recenttracks.track

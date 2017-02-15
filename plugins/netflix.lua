@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local netflix = {}
 
@@ -10,13 +10,12 @@ local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function netflix:init(configuration)
-    netflix.arguments = 'netflix <query>'
+function netflix:init()
     netflix.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('netflix').table
-    netflix.help = '/netflix <query> - Search Netflix for the given query.'
+        self.info.username
+    ):command('netflix')
+     :command('nf').table
+    netflix.help = [[/netflix <query> - Searches Netflix for the given search query and returns the most relevant result. Alias: /nf.]]
 end
 
 function netflix.send_request(input)
@@ -51,7 +50,7 @@ function netflix.send_request(input)
     )
 end
 
-function netflix:on_message(message, configuration, language)
+function netflix:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -63,7 +62,7 @@ function netflix:on_message(message, configuration, language)
     if not output then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     return mattata.send_message(

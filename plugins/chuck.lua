@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local chuck = {}
 
@@ -9,16 +9,14 @@ local mattata = require('mattata')
 local http = require('socket.http')
 local json = require('dkjson')
 
-function chuck:init(configuration)
-    chuck.arguments = 'chuck'
+function chuck:init()
     chuck.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('chuck').table
-    chuck.help = '/chuck - Generates a Chuck Norris joke!'
+    chuck.help = [[/chuck - Sends a random Chuck Norris joke.]]
 end
 
-function chuck:on_inline_query(inline_query, configuration, language)
+function chuck:on_inline_query(inline_query, configuration)
     local jstr, res = http.request('http://api.icndb.com/jokes/random')
     if res ~= 200 then
         return
@@ -43,12 +41,12 @@ function chuck:on_inline_query(inline_query, configuration, language)
     )
 end
 
-function chuck:on_message(message, configuration, language)
+function chuck:on_message(message, configuration)
     local jstr, res = http.request('http://api.icndb.com/jokes/random')
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)

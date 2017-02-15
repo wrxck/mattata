@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local githubfeed = {}
 
@@ -13,20 +13,28 @@ local json = require('dkjson')
 local redis = require('mattata-redis')
 local configuration = require('configuration')
 
-function githubfeed:init(configuration)
-    githubfeed.arguments = 'gh <sub | del> <username> <repository name>'
+function githubfeed:init()
     githubfeed.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('gh').table
+        self.info.username
+    ):command('githubfeed')
+     :command('ghfeed').table
+    githubfeed.help = [[/githubfeed <sub/del> <GitHub username> <GitHub repository name> - Manage your subscriptions to updates from GitHub repositories. Alias: /ghfeed.]]
 end
 
 function githubfeed.get_redis_hash(id, option, extra)
     local ex = ''
     if option ~= nil then
-        ex = ex .. ':' .. option
+        ex = string.format(
+            '%s:%s',
+            ex,
+            option
+        )
         if extra ~= nil then
-            ex = ex .. ':' .. extra
+            ex = string.format(
+                '%s:%s',
+                ex,
+                extra
+            )
         end
     end
     return 'github:' .. id .. ex
@@ -120,12 +128,30 @@ function githubfeed.subscribe(id, repo)
     local last_commit = ''
     local pushed_at = jdat.pushed_at
     local name = jdat.full_name
-    redis:set(last_hash, last_commit)
-    redis:set(last_date, pushed_at)
-    redis:set(last_etag, etag)
-    redis:sadd(subscriptions, id)
-    redis:sadd(chat, repo)
-    return 'Subscribed to <b>' .. mattata.escape_html(name) .. '</b>! You will now receive updates for this repository right here, in this chat.'
+    redis:set(
+        last_hash,
+        last_commit
+    )
+    redis:set(
+        last_date,
+        pushed_at
+    )
+    redis:set(
+        last_etag,
+        etag
+    )
+    redis:sadd(
+        subscriptions,
+        id
+    )
+    redis:sadd(
+        chat,
+        repo
+    )
+    return string.format(
+        'Subscribed to <b>%s</b>! You will now receive updates for this repository right here, in this chat.',
+        mattata.escape_html(name)
+    )
 end
 
 function githubfeed.unsubscribe(id, n)
@@ -139,7 +165,10 @@ function githubfeed.unsubscribe(id, n)
         return 'That\'s not a valid subscription ID.'
     end
     local sub = subs[n]
-    local subscriptions = githubfeed.get_redis_hash(sub, 'subs')
+    local subscriptions = githubfeed.get_redis_hash(
+        sub,
+        'subs'
+    )
     redis:srem(
         chat,
         sub
@@ -166,14 +195,17 @@ function githubfeed.unsubscribe(id, n)
         redis:del(last_commit)
         redis:del(last_date)
     end
-    return 'You will no longer receive updates from <b>' .. mattata.escape_html(sub) .. '</b>!'
+    return string.format(
+        'You will no longer receive updates from <b>%s</b>!',
+        mattata.escape_html(sub)
+    )
 end
 
 function githubfeed.get_subs(id)
     local chat = githubfeed.get_redis_hash(id)
     local subs = redis:smembers(chat)
     if not subs[1] then
-        return 'You don\'t appear to be subscribed to any GitHub repositories. Use \'' .. configuration.command_prefix .. 'gh sub <username>/<repository>\' to set up your first subscription!'
+        return 'You don\'t appear to be subscribed to any GitHub repositories. Use /githubfeed sub &lt;username&gt; &lt;repository&gt; to set up your first subscription!', nil
     end
     local keyboard = {
         ['one_time_keyboard'] = true,
@@ -192,7 +224,7 @@ function githubfeed.get_subs(id)
         table.insert(
             buttons,
             {
-                ['text'] = configuration.command_prefix .. 'gh del ' .. k
+                ['text'] = '/githubfeed del ' .. k
             }
         )
     end
@@ -204,40 +236,64 @@ function githubfeed.get_subs(id)
             }
         }
     }
-    return text, keyboard
+    return text, json.encode(keyboard)
 end
 
 function githubfeed:on_message(message, configuration)
-    if message.chat.type == 'private' and not mattata.is_global_admin(message.from.id) then
+    if message.chat.type == 'private' then
         return mattata.send_reply(
             message,
             'You can\'t use this command in private chat!'
         )
-    elseif not mattata.is_global_admin(message.from.id) and not mattata.is_group_admin(message.chat.id, message.from.id) then
+    elseif not mattata.is_group_admin(
+        message.chat.id,
+        message.from.id
+    ) then
         return mattata.send_reply(
             message,
-            'You must be an administrator of this chat to use this command!'
+            'You must be an administrator of this chat in order to use this command!'
         )
-    elseif message.text_lower:match('^' .. configuration.command_prefix .. 'gh sub') and not message.text_lower:match('^' .. configuration.command_prefix .. 'gh sub$') then
+    end
+    local input = mattata.input(message.text)
+    if not input then
+        local output, keyboard = githubfeed.get_subs(message.chat.id)
+        return mattata.send_message(
+            message.chat.id,
+            output,
+            'html',
+            true,
+            false,
+            message.message_id,
+            keyboard
+        )
+    elseif input:match('^sub .- .-$') then
+        local github_user, github_repo = input:match('^sub (.-) (.-)$')
         return mattata.send_reply(
             message,
             githubfeed.subscribe(
                 message.chat.id,
-                message.text_lower:match('^' .. configuration.command_prefix .. 'gh sub (.-)$'):gsub(' ', '/')
+                string.format(
+                    '%s/%s',
+                    github_user,
+                    github_repo
+                )
             ),
             'html'
         )
-    elseif message.text_lower:match('^' .. configuration.command_prefix .. 'gh del') then
+    elseif input:match('^sub ') or input == 'sub' then
+        return mattata.send_reply(
+            message,
+            'Please specify the GitHub repository you would like to subscribe to, using /githubfeed sub <GitHub username> <GitHub repository name>.'
+        )
+    elseif input:match('^del %d*$') then
         return mattata.send_reply(
             message,
             githubfeed.unsubscribe(
                 message.chat.id,
-                message.text_lower:match('^' .. configuration.command_prefix .. 'gh del (.-)$'):gsub(' ', '')
+                input:match('^del (%d*)$')
             ),
             'html'
         )
-    elseif mattata.is_global_admin(message.from.id) and message.text_lower:match('^' .. configuration.command_prefix .. 'gh reload') then
-        return githubfeed:cron()
     else
         local output, keyboard = githubfeed.get_subs(message.chat.id)
         return mattata.send_message(
@@ -247,7 +303,7 @@ function githubfeed:on_message(message, configuration)
             true,
             false,
             message.message_id,
-            json.encode(keyboard)
+            keyboard
         )
     end
 end
@@ -292,7 +348,7 @@ function githubfeed:cron()
             for n in ipairs(jdat) do
                 if jdat[n].sha ~= last_commit then
                     text = text .. string.format(
-                        '<b>%s has committed on</b> <a href="%s">%s</a>!\n<pre>%s</pre>\n\n',
+                        '<b>%s has committed on</b> <a href="%s">%s</a>!\n<code>%s</code>\n\n',
                         mattata.escape_html(jdat[n].commit.author.name),
                         jdat[n].html_url,
                         mattata.escape_html(repo),

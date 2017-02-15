@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local help = {}
 
@@ -12,93 +12,55 @@ local redis = require('mattata-redis')
 local json = require('dkjson')
 local configuration = require('configuration')
 
-function help:init(configuration)
-    help.arguments_list = {}
-    for _, plugin in ipairs(self.plugins) do
-        if plugin.arguments then
-            table.insert(
-                help.arguments_list,
-                '• ' .. configuration.command_prefix .. plugin.arguments
-            )
-            if plugin.help then
-                plugin.help_word = mattata.get_word(plugin.arguments)
-            end
-        end
-    end
-    table.insert(
-        help.arguments_list,
-        '• ' .. configuration.command_prefix .. 'help <plugin>'
-    )
-    table.sort(help.arguments_list)
+function help:init()
     help.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('help'):command('start').table
-    help.help = '/help <plugin> - Usage information for the given plugin.'
+        self.info.username
+    ):command('help')
+     :command('start').table
+    help.help = [[/help [plugin] - A help-orientated menu is sent if no arguments are given. If arguments are given, usage information for the given plugin is sent instead. Alias: /start.]]
+end
+
+function help.get_initial_keyboard()
+    return json.encode(
+        {
+            ['inline_keyboard'] = {
+                {
+                    {
+                        ['text'] = 'Links',
+                        ['callback_data'] = 'help:links'
+                    },
+                    {
+                        ['text'] = 'Administration',
+                        ['callback_data'] = 'help:ahelp'
+                    },
+                    {
+                        ['text'] = 'Commands',
+                        ['callback_data'] = 'help:cmds'
+                    }
+                }
+            }
+        }
+    )
 end
 
 function help.get_plugin_page(arguments_list, page)
     local plugin_count = #arguments_list
     local page_begins_at = tonumber(page) * 10 - 9
     local page_ends_at = tonumber(page_begins_at) + 9
-    if tonumber(page_ends_at) > tonumber(plugin_count) then page_ends_at = tonumber(plugin_count) end
-    local pagePlugins = {}
-    for i = tonumber(page_begins_at), tonumber(page_ends_at) do table.insert(pagePlugins, arguments_list[i]) end
-    return table.concat(pagePlugins, '\n')
-end
-
-function help.get_initial_message(message, is_edit, from)
-    local keyboard = {
-        ['inline_keyboard'] = {}
-    }
-    keyboard = help.get_keyboard_row(keyboard, 'Links', 'help:links', 'Administration', 'help:ahelp', 'Commands', 'help:cmds')
-    keyboard = help.get_keyboard_row(keyboard, 'FAQ', 'help:faq', 'Plugins', 'help:plugins', 'About', 'help:about')
-    local text = string.format(
-        'Hi *%s*, I\'m %s - a multi-purpose & administrative bot written in Lua.\nUse the buttons below to discover what I can do for you!',
-        from,
-        configuration.info.first_name
-    )
-    keyboard = json.encode(keyboard)
-    if is_edit then
-        return mattata.edit_message_text(
-            message.chat.id,
-            message.message_id,
-            text,
-            'markdown',
-            true,
-            keyboard
+    if tonumber(page_ends_at) > tonumber(plugin_count) then
+        page_ends_at = tonumber(plugin_count)
+    end
+    local page_plugins = {}
+    for i = tonumber(page_begins_at), tonumber(page_ends_at) do
+        table.insert(
+            page_plugins,
+            arguments_list[i]
         )
     end
-    return mattata.send_message(
-        message.chat.id,
-        text,
-        'markdown',
-        true,
-        false,
-        message.message_id,
-        keyboard
+    return table.concat(
+        page_plugins,
+        '\n'
     )
-end
-
-function help.get_keyboard_row(keyboard, text1, callback1, text2, callback2, text3, callback3)
-    table.insert(
-        keyboard.inline_keyboard,
-        {
-            {
-                ['text'] = text1,
-                ['callback_data'] = callback1
-            },
-            {
-                ['text'] = text2,
-                ['callback_data'] = callback2
-            },
-            {
-                ['text'] = text3,
-                ['callback_data'] = callback3
-            }
-        }
-    )
-    return keyboard
 end
 
 function help.get_back_keyboard()
@@ -117,152 +79,47 @@ function help.get_back_keyboard()
 end
 
 function help:on_inline_query(inline_query, configuration)
-    local results = json.encode({
-        {
-            ['type'] = 'article',
-            ['id'] = '1',
-            ['title'] = 'Begin typing to speak with ' .. self.info.first_name .. '!',
-            ['description'] = '@' .. self.info.username .. ' <text> - Speak with ' .. self.info.first_name .. '!',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' <text> - Speak with ' .. self.info.first_name .. '!'
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/mattata.png'
-        },
-        {
-            ['type'] = 'article',
-            ['id'] = '2',
-            ['title'] = configuration.command_prefix .. 'id',
-            ['description'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'id <user/group> - Get information about a user/group.',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'id <user/group> - Get information about a user/group.'
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/id.png'
-        },
-        {
-            ['type'] = 'article',
-            ['id'] = '3',
-            ['title'] = configuration.command_prefix .. 'apod',
-            ['description'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'apod - Astronomical photo of the day, from NASA.',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'apod - Astronomical photo of the day, from NASA.' 
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/apod.jpg'
-        },
-        {
-            ['type'] = 'article',
-            ['id'] = '4',
-            ['title'] = configuration.command_prefix .. 'gif',
-            ['description'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'gif <query> - Search for a gif on GIPHY.',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'gif <query> - Search for a gif on GIPHY.'
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/giphy.png'
-        },
-        {
-            ['type'] = 'article',
-            ['id'] = '5',
-            ['title'] = configuration.command_prefix .. 'np',
-            ['description'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'np - See what you last listened to on last.fm.',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'np - See what you last listened to on last.fm.'
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/lastfm.png'
-        },
-        {
-            ['type'] = 'article',
-            ['id'] = '6',
-            ['title'] = configuration.command_prefix .. 'translate',
-            ['description'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'translate <language> <text> - Translate text between different languages.',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'translate <language> <text> - Translate text between different languages.'
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/translate.jpg'
-        },
-        {
-            ['type'] = 'article',
-            ['id'] = '7',
-            ['title'] = configuration.command_prefix .. 'lyrics',
-            ['description'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'lyrics <song> - Get the lyrics to a song.',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'lyrics <song> - Get the lyrics to a song.'
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/lyrics.png'
-        },
-        {
-            ['type'] = 'article',
-            ['id'] = '8',
-            ['title'] = configuration.command_prefix .. 'catfact',
-            ['description'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'catfact - Discover something new about cats.',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'catfact - Discover something new about cats.'
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/catfact.jpg'
-        },
-        {
-            ['type'] = 'article',
-            ['id'] = '9',
-            ['title'] = configuration.command_prefix .. 'ninegag',
-            ['description'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'ninegag - View the latest images on 9gag.',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'ninegag - View the latest images on 9gag.'
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/ninegag.png'
-        },
-        {
-            ['type'] = 'article',
-            ['id'] = '10',
-            ['title'] = configuration.command_prefix .. 'urban',
-            ['description'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'urban <query> - Search the urban dictionary.',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'urban <query> - Search the urban dictionary.'
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/urbandictionary.jpg'
-        },
-        {
-            ['type'] = 'article',
-            ['id'] = '11',
-            ['title'] = configuration.command_prefix .. 'cat',
-            ['description'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'cat - Get a random photo of a cat. Meow!',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'cat - Get a random photo of a cat. Meow!'
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/cats.png'
-        },
-        {
-            ['type'] = 'article',
-            ['id'] = '12',
-            ['title'] = configuration.command_prefix .. 'flickr <query>',
-            ['description'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'flickr <query> - Search for an image on Flickr.',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'flickr <query> - Search for an image on Flickr.'
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/flickr.png'
-        },
-        {
-            ['type'] = 'article',
-            ['id'] = '13',
-            ['title'] = configuration.command_prefix .. 'location <query>',
-            ['description'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'location <query> - Sends a location from Google Maps.',
-            ['input_message_content'] = {
-                ['message_text'] = '@' .. self.info.username .. ' ' .. configuration.command_prefix .. 'location <query> - Sends a location from Google Maps.'
-            },
-            ['thumb_url'] = 'http://matthewhesketh.com/mattata/location.png'
-        }
-    })
-    return mattata.answer_inline_query(
+    local output = mattata.get_inline_help(inline_query.query)
+    local success = mattata.answer_inline_query(
         inline_query.id,
-        results
+        json.encode(
+            output
+        )
     )
+    if not success then
+        return mattata.answer_inline_query(
+            inline_query.id,
+            json.encode(
+                {
+                    ['type'] = 'article',
+                    ['id'] = '1',
+                    ['title'] = 'No results found!',
+                    ['description'] = string.format(
+                        'There were not enough, either that or there were too many, results found for "%s", please try and be more specific!',
+                        inline_query.query
+                    ),
+                    ['input_message_content'] = {
+                        ['message_text'] = string.format(
+                            'There were not enough, either that or there were too many, results found for "%s", please try and be more specific!',
+                            inline_query.query
+                        )
+                    }
+                }
+            )
+        )
+    end
 end
 
-function help:on_callback_query(callback_query, message, configuration, language)
-    if not message.reply_to_message then
-        return
-    end
+function help:on_callback_query(callback_query, message, configuration)
     if callback_query.data == 'cmds' then
-        local plugin_count = #help.arguments_list
-        local page_count = math.floor(tonumber(plugin_count) / 10)
-        if math.floor(tonumber(plugin_count) / 10) ~= tonumber(plugin_count) / 10 then
+        local arguments_list = mattata.get_help()
+        local plugin_count = #arguments_list
+        local page_count = math.floor(
+            tonumber(plugin_count) / 10
+        )
+        if math.floor(
+            tonumber(plugin_count) / 10
+        ) ~= tonumber(plugin_count) / 10 then
             page_count = page_count + 1
         end
         local keyboard = {
@@ -292,16 +149,24 @@ function help:on_callback_query(callback_query, message, configuration, language
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
-            help.get_plugin_page(help.arguments_list, 1),
+            help.get_plugin_page(
+                arguments_list,
+                1
+            ) .. '\n\nArguments: <required> [optional]\n\nSearch for a feature or get help with a command by using my inline search functionality - just mention me in any chat using the syntax @' .. self.info.username .. ' <search query>.',
             nil,
             true,
             json.encode(keyboard)
         )
-    elseif callback_query.data:match('^results:(.-)$') then
-        local new_page = callback_query.data:match('^results:(.-)$')
-        local plugin_count = #help.arguments_list
-        local page_count = math.floor(tonumber(plugin_count) / 10)
-        if math.floor(tonumber(plugin_count) / 10) ~= tonumber(plugin_count) / 10 then
+    elseif callback_query.data:match('^results%:%d*$') then
+        local new_page = callback_query.data:match('^results%:(%d*)$')
+        local arguments_list = mattata.get_help()
+        local plugin_count = #arguments_list
+        local page_count = math.floor(
+            tonumber(plugin_count) / 10
+        )
+        if math.floor(
+            tonumber(plugin_count) / 10
+        ) ~= tonumber(plugin_count) / 10 then
             page_count = page_count + 1
         end
         if tonumber(new_page) > tonumber(page_count) then
@@ -314,7 +179,9 @@ function help:on_callback_query(callback_query, message, configuration, language
                 {
                     {
                         ['text'] = '← Previous',
-                        ['callback_data'] = 'help:results:' .. math.floor(tonumber(new_page) - 1)
+                        ['callback_data'] = 'help:results:' .. math.floor(
+                            tonumber(new_page) - 1
+                        )
                     },
                     {
                         ['text'] = new_page .. '/' .. page_count,
@@ -322,7 +189,9 @@ function help:on_callback_query(callback_query, message, configuration, language
                     },
                     {
                         ['text'] = 'Next →',
-                        ['callback_data'] = 'help:results:' .. math.floor(tonumber(new_page) + 1)
+                        ['callback_data'] = 'help:results:' .. math.floor(
+                            tonumber(new_page) + 1
+                        )
                     }
                 },
                 {
@@ -336,13 +205,16 @@ function help:on_callback_query(callback_query, message, configuration, language
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
-            help.get_plugin_page(help.arguments_list, new_page),
+            help.get_plugin_page(
+                arguments_list,
+                new_page
+            ) .. '\n\nArguments: <required> [optional]\n\nSearch for a feature or get help with a command by using my inline search functionality - just mention me in any chat using the syntax @' .. self.info.username .. ' <search query>.',
             nil,
             true,
             json.encode(keyboard)
         )
-    elseif callback_query.data:match('^pages:(.-):(.-)$') then
-        local current_page, total_pages = callback_query.data:match('^pages:(.-):(.-)$')
+    elseif callback_query.data:match('^pages%:%d*%:%d*$') then
+        local current_page, total_pages = callback_query.data:match('^pages%:(%d*)%:(%d*)$')
         return mattata.answer_callback_query(
             callback_query.id,
             'You are on page ' .. current_page .. ' of ' .. total_pages .. '!'
@@ -358,129 +230,80 @@ function help:on_callback_query(callback_query, message, configuration, language
             help.get_back_keyboard()
         )
     elseif callback_query.data == 'links' then
-        local help_links = language.official_links
-        local keyboard = {}
-        keyboard.inline_keyboard = {
-            {
+        local keyboard = {
+            ['inline_keyboard'] = {
                 {
-                    ['text'] = 'Development',
-                    ['url'] = 'https://telegram.me/joinchat/DTcYUEDWD1IgrvQDrkKH0w'
+                    {
+                        ['text'] = 'mattata Development',
+                        ['url'] = 'https://t.me/joinchat/AAAAAEDWD1KbS5gSkP3pSA'
+                    },
+                    {
+                        ['text'] = 'mattata\'s Channel',
+                        ['url'] = 'https://t.me/mattata'
+                    }
                 },
                 {
-                    ['text'] = 'Channel',
-                    ['url'] = 'https://telegram.me/mattata'
-                }
-            },
-            {
-                {
-                    ['text'] = 'Source',
-                    ['url'] = 'https://github.com/matthewhesketh/mattata'
+                    {
+                        ['text'] = 'Source Code',
+                        ['url'] = 'https://github.com/wrxck/mattata'
+                    },
+                    {
+                        ['text'] = 'Donate',
+                        ['url'] = 'https://paypal.me/wrxck'
+                    },
+                    {
+                        ['text'] = 'Rate Me',
+                        ['url'] = 'https://t.me/storebot?start=mattatabot'
+                    }
                 },
                 {
-                    ['text'] = 'Donate',
-                    ['url'] = 'https://paypal.me/wrxck'
-                },
-                {
-                    ['text'] = 'Rate',
-                    ['url'] = 'https://telegram.me/storebot?start=mattatabot'
-                }
-            },
-            {
-                {
-                    ['text'] = 'Back',
-                    ['callback_data'] = 'help:back'
+                    {
+                        ['text'] = 'Back',
+                        ['callback_data'] = 'help:back'
+                    }
                 }
             }
         }
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
-            help_links,
-            'markdown',
+            'Below are some links you might find useful:',
+            nil,
             true,
             json.encode(keyboard)
         )
-    elseif callback_query.data == 'plugins' then
-        return mattata.edit_message_text(
-            message.chat.id,
-            message.message_id,
-            '<b>Hello, ' .. mattata.escape_html(message.reply_to_message.from.first_name) .. '!</b>\n\nTo disable a specific plugin, use \'/plugins disable &lt;plugin&gt;\'. To enable a specific plugin, use \'/plugins enable &lt;plugin&gt;\'.\n\nFor the sake of convenience, you can disable all of my non-core plugins by using \'/plugins disable all\'. To disable all of my non-core plugins, you can use \'/plugins disable all\'.\n\nTo see a list of plugins you\'ve disabled, use \'/plugins disabled\'. For a list of plugins that can be toggled and haven\'t been disabled in this chat yet, use \'/plugins enabled\'.\n\nA list of all toggleable plugins can be viewed by using \'/plugins list\'.',
-            'html',
-            true,
-            help.get_back_keyboard()
-        )
     elseif callback_query.data == 'back' then
-        return help.get_initial_message(message, true, mattata.escape_markdown(callback_query.from.first_name))
-    elseif callback_query.data == 'faq' then
-        return mattata.edit_message_text(message.chat.id, message.message_id, language.help_confused:gsub('COMMANDPREFIX', configuration.command_prefix), 'markdown', true, help.get_back_keyboard())
-    elseif callback_query.data == 'about' then
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
-            language.help_about,
+            string.format(
+                [[Hi *%s*, I'm %s - a multi-purpose bot written in Lua by [Matthew Hesketh](https://t.me/wrxck), with many features including the ability to talk to you and administrate your chats. Use the buttons below to discover more about what I can do for you. For help with commands, you can use my interactive inline help menu - just mention me in any chat using the following syntax: `@%s <search query/pattern>`. To keep up-to-date with the latest news about me, feel free to join [my channel.](https://t.me/mattata)]],
+                mattata.escape_markdown(callback_query.from.first_name),
+                mattata.escape_markdown(self.info.name),
+                self.info.username
+            ),
             'markdown',
             true,
-            help.get_back_keyboard()
+            help.get_initial_keyboard()
         )
     end
 end
 
-function help:on_message(message, configuration, language)
-    local input = mattata.input(message.text)
-    if input then
-        for _, plugin in ipairs(self.plugins) do
-            if plugin.help_word == input:gsub('^' .. configuration.command_prefix, '') then
-                return mattata.send_message(
-                    message.chat.id,
-                    '*Help for* ' .. mattata.escape_markdown(plugin.help_word) .. '*:*\n' .. plugin.help,
-                    'markdown'
-                )
-            end
-        end
-        return mattata.send_message(
-            message.chat.id,
-            language.no_documented_help,
-            'markdown'
-        )
-    end
-    local keyboard = {}
-    keyboard.inline_keyboard = {
-        {
-            {
-                ['text'] = 'Links',
-                ['callback_data'] = 'help:links'
-            },
-            {
-                ['text'] = 'Administration',
-                ['callback_data'] = 'help:administration'
-            },
-            {
-                ['text'] = 'Commands',
-                ['callback_data'] = 'help:commands'
-            }
-        },
-        {
-            {
-                ['text'] = 'Help',
-                ['callback_data'] = 'help:help'
-            },
-            {
-                ['text'] = 'Plugins',
-                ['callback_data'] = 'help:plugins'
-            },
-            {
-                ['text'] = 'About',
-                ['callback_data'] = 'help:about'
-            }
-        },
-        {
-            {
-                ['text'] = 'Add me to a group!',
-                ['url'] = 'https://telegram.me/' .. self.info.username .. '?startgroup=c'
-            }
-        }
-    }
-    return help.get_initial_message(message, false, mattata.escape_markdown(message.from.first_name))
+function help:on_message(message, configuration)
+    return mattata.send_message(
+        message.chat.id,
+        string.format(
+            [[Hi *%s*, I'm %s - a multi-purpose bot written in Lua by [Matthew Hesketh](https://t.me/wrxck), with many features including the ability to talk to you and administrate your chats. Use the buttons below to discover more about what I can do for you. For help with commands, you can use my interactive inline help menu - just mention me in any chat using the following syntax: `@%s <search query/pattern>`. To keep up-to-date with the latest news about me, feel free to join [my channel.](https://t.me/mattata)]],
+            mattata.escape_markdown(message.from.first_name),
+            mattata.escape_markdown(self.info.name),
+            self.info.username
+        ),
+        'markdown',
+        true,
+        false,
+        nil,
+        help.get_initial_keyboard()
+    )
 end
 
 return help

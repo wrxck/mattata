@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local flickr = {}
 
@@ -13,14 +13,12 @@ local json = require('dkjson')
 function flickr:init(configuration)
     assert(
         configuration.keys.flickr,
-        [[flickr.lua requires an API key, and you haven't got one configured!]]
+        'flickr.lua requires an API key, and you haven\'t got one configured!'
     )
-    flickr.arguments = 'flickr <query>'
     flickr.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('flickr').table
-    flickr.help = '/flickr <query> - Sends the first result for the given query from Flickr.'
+    flickr.help = [[/flickr <query> - Searches Flickr for a photo matching the given search query and returns the most relevant result.]]
 end
 
 function flickr:on_inline_query(inline_query, configuration)
@@ -55,7 +53,7 @@ function flickr:on_inline_query(inline_query, configuration)
     )
 end
 
-function flickr:on_message(message, configuration, language)
+function flickr:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -73,14 +71,14 @@ function flickr:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if jdat.photos.total == '0' then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     mattata.send_chat_action(

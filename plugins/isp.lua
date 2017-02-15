@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local isp = {}
 
@@ -10,16 +10,14 @@ local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function isp:init(configuration)
-    isp.arguments = 'isp <url>'
+function isp:init()
     isp.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('isp').table
-    isp.help = '/isp <url> - Sends information about the given url\'s ISP.'
+    isp.help = [[/isp <url> - Sends information about the given url's ISP.]]
 end
 
-function isp:on_message(message, configuration, language)
+function isp:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -31,36 +29,29 @@ function isp:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if jdat.status == 'fail' then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
-    local output = ''
-    if jdat.isp ~= '' then
-        output = '<b>' .. mattata.escape_html(jdat.isp) .. '</b>\n'
-    end
-    if jdat.zip ~= '' then
-        output = output .. jdat.zip .. '\n'
-    end
-    if jdat.city ~= '' then
-        output = output .. mattata.escape_html(jdat.city) .. '\n'
-    end
-    if jdat.regionName ~= '' then
-        output = output .. mattata.escape_html(jdat.regionName) .. '\n'
-    end
-    if jdat.country ~= '' then
-        output = output .. mattata.escape(jdat.country) .. '\n'
-    end
+    local output = {
+        jdat.isp,
+        jdat.zip,
+        jdat.city,
+        jdat.regionName,
+        jdat.country
+    }
     return mattata.send_message(
         message.chat.id,
-        '<pre>' .. mattata.escape_html(input) .. ':</pre>\n' .. output,
-        'html'
+        table.concat(
+            output,
+            '\n'
+        )
     )
 end
 

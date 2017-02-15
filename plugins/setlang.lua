@@ -1,7 +1,7 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local setlang = {}
 
@@ -9,13 +9,11 @@ local mattata = require('mattata')
 local redis = require('mattata-redis')
 local json = require('dkjson')
 
-function setlang:init(configuration)
-    setlang.arguments = 'setlang'
+function setlang:init()
     setlang.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('setlang').table
-    setlang.help = '/setlang - Set your language.'
+    setlang.help = [[/setlang - Allows you to select your language.]]
 end
 
 setlang.languages = {
@@ -152,7 +150,7 @@ function setlang:on_callback_query(callback_query, message)
     )
 end
 
-function setlang:on_message(message, configuration, language)
+function setlang:on_message(message, configuration)
     local keyboard = setlang.get_keyboard(message.from.id)
     local current = setlang.get_lang(message.from.id)
     return mattata.send_message(

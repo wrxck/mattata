@@ -2,7 +2,7 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See ./LICENSE for details.
-]]--
+]]
 
 local wikipedia = {}
 
@@ -11,16 +11,16 @@ local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function wikipedia:init(configuration)
-    wikipedia.arguments = 'wikipedia <query>'
+function wikipedia:init()
     wikipedia.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
-    ):command('wikipedia'):command('wiki'):command('w').table
-    wikipedia.help = '/wikipedia <query> - Returns an article from Wikipedia. Aliases: ' .. configuration.command_prefix .. 'wiki, ' .. configuration.command_prefix .. 'w.'
+        self.info.username
+    ):command('wikipedia')
+     :command('wiki')
+     :command('w').table
+    wikipedia.help = [[/wikipedia <query> - Searches Wikipedia for the given search query and returns the most relevant article. Aliases: /wiki, /w.]]
 end
 
-function wikipedia:on_message(message, configuration, language)
+function wikipedia:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -28,18 +28,18 @@ function wikipedia:on_message(message, configuration, language)
             wikipedia.help
         )
     end
-    local jstr, res = https.request('https://' .. configuration.language .. '.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=' .. url.escape(input))
+    local jstr, res = https.request('https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=' .. url.escape(input))
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local jdat = json.decode(jstr)
     if jdat.query.searchinfo.totalhits == 0 then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     local title
@@ -52,21 +52,21 @@ function wikipedia:on_message(message, configuration, language)
     if not title then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
-    local res_jstr, res_code = https.request('https://' .. configuration.language .. '.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exchars=4000&explaintext=&titles=' .. url.escape(title))
+    local res_jstr, res_code = https.request('https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exchars=4000&explaintext=&titles=' .. url.escape(title))
     if res_code ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     local _, text = next(json.decode(res_jstr).query.pages)
     if not text then
         return mattata.send_reply(
             message,
-            language.errors.results
+            configuration.errors.results
         )
     end
     text = text.extract
@@ -74,7 +74,7 @@ function wikipedia:on_message(message, configuration, language)
     if l then
         text = text:sub(1, l - 1)
     end
-    local final_url = 'https://' .. configuration.language .. '.wikipedia.org/wiki/' .. url.escape(title)
+    local final_url = 'https://en.wikipedia.org/wiki/' .. url.escape(title)
     title = mattata.escape_html(title)
     local short_title = title:gsub('%(.+%)', '')
     local combined_text, count = text:gsub('^' .. short_title, '<b>' .. short_title .. '</b>')

@@ -1,19 +1,18 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local sed = {}
 
 local mattata = require('mattata')
 local json = require('dkjson')
 
-function sed:init(configuration)
-    sed.arguments = 's/<pattern>/<substitution>'
+function sed:init()
     sed.commands = {
         '^%/?[sS]%/.-%/.-%/?$'
     }
-    sed.help = 's/<pattern>/<substitution> - Replaces all occurences, of text matching a given Lua pattern, with the given substitution.'
+    sed.help = [[/s/<pattern>/<substitution> - Replaces all occurences, of text matching a given Lua pattern, with the given substitution.]]
 end
 
 function sed:on_callback_query(callback_query, message, configuration)

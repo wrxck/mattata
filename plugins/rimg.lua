@@ -1,19 +1,17 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local rimg = {}
 
 local mattata = require('mattata')
 
-function rimg:init(configuration)
-    rimg.arguments = 'rimg'
+function rimg:init()
     rimg.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('rimg').table
-    rimg.help = '/rimg <width> <height> - Sends a random image which matches the dimensions provided, in pixels. If only 1 dimension is given, the other is assumed to be the same. Append -g to the end of your message to return a grayscale photo, or append -b to the end of your message to return a blurred photo. The maximum value for each dimension is 5000, and the minimum for each is 250.'
+    rimg.help = [[/rimg <width> [height] [-g/-b] - Sends a random image which matches the dimensions provided, in pixels. If only 1 dimension is given, the other is assumed to be the same. Append -g to the end of your message to return a grayscale photo, or append -b to the end of your message to return a blurred photo. The maximum value for each dimension is 5000, and the minimum for each is 250.]]
 end
 
 function rimg:on_message(message)

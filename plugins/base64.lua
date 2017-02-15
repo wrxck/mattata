@@ -1,20 +1,18 @@
 --[[
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local base64 = {}
 
 local mattata = require('mattata')
 
-function base64:init(configuration)
-    base64.arguments = 'base64 <string>'
+function base64:init()
     base64.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('base64')
-    :command('b64').table
-    base64.help = '/base64 <string> - Converts the given string to base64. Alias: /b64.'
+     :command('b64').table
+    base64.help = [[/base64 <text> - Converts a string of text into base64-encoded text. Alias: /b64.]]
 end
 
 function base64.encode(str)

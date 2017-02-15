@@ -2,7 +2,7 @@
     Based on a plugin by topkecleon.
     Copyright 2017 wrxck <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
-]]--
+]]
 
 local calc = {}
 
@@ -11,13 +11,11 @@ local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 
-function calc:init(configuration)
-    calc.arguments = 'calc <expression>'
+function calc:init()
     calc.commands = mattata.commands(
-        self.info.username,
-        configuration.command_prefix
+        self.info.username
     ):command('calc').table
-    calc.help = '/calc <expression> - Calculates solutions to mathematical expressions. The results are provided by mathjs.org.'
+    calc.help = [[/calc <expression> - Solves the given mathematical expression using mathjs.org.]]
 end
 
 function calc:on_inline_query(inline_query)
@@ -47,7 +45,7 @@ function calc:on_inline_query(inline_query)
     )
 end
 
-function calc:on_message(message, configuration, language)
+function calc:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -60,7 +58,7 @@ function calc:on_message(message, configuration, language)
     if res ~= 200 then
         return mattata.send_reply(
             message,
-            language.errors.connection
+            configuration.errors.connection
         )
     end
     return mattata.send_message(
