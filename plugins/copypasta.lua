@@ -41,7 +41,6 @@ function copypasta:on_message(message, configuration)
         )
     end
     mattata.send_chat_action(message.chat.id)
-    )
     if message.reply_to_message.text:len() > tonumber(configuration.max_copypasta_length) then
         return mattata.send_reply(
             message,
