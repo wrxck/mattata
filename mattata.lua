@@ -9,7 +9,7 @@
         Copyright (c) 2017 Matthew Hesketh
         See './LICENSE' for details
 
-        Current version: v13
+        Current version: v13.1
 
 ]]
 
@@ -62,7 +62,7 @@ function mattata:init(configuration, token)
             self.info.id
         )
     )
-    self.version = 'v13'
+    self.version = 'v13.1'
     self.last_update = self.last_update or 0
     self.last_cron = self.last_cron or os.date('%H')
     return true
@@ -927,7 +927,7 @@ function mattata:on_message_misc(message, configuration)
 end
 
 function mattata:on_inline_query(inline_query, configuration)
-    if not inline_query.from or not inline_query.query or redis:get('global_blacklist:' .. inline_query.from.id) then
+    if not inline_query.from or redis:get('global_blacklist:' .. inline_query.from.id) then
         return
     end
     for _, plugin in ipairs(self.plugins) do
@@ -2284,6 +2284,9 @@ function mattata.get_inline_help(input)
     local count = 1
     table.sort(plugin_list)
     for k, v in pairs(plugin_list) do
+        if count > 50 then -- The bot API only accepts a maximum of 50 results.
+            break
+        end
         v = v:gsub('\n', ' ')
         if v:match('^%/.- %- .-$') and v:lower():match(input) then
             table.insert(

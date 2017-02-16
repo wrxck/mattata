@@ -80,34 +80,34 @@ end
 
 function help:on_inline_query(inline_query, configuration)
     local output = mattata.get_inline_help(inline_query.query)
-    local success = mattata.answer_inline_query(
-        inline_query.id,
-        json.encode(
-            output
-        )
-    )
-    if not success then
+    if #output == 0 then
         return mattata.answer_inline_query(
             inline_query.id,
             json.encode(
                 {
-                    ['type'] = 'article',
-                    ['id'] = '1',
-                    ['title'] = 'No results found!',
-                    ['description'] = string.format(
-                        'There were not enough, either that or there were too many, results found for "%s", please try and be more specific!',
-                        inline_query.query
-                    ),
-                    ['input_message_content'] = {
-                        ['message_text'] = string.format(
-                            'There were not enough, either that or there were too many, results found for "%s", please try and be more specific!',
+                    {
+                        ['type'] = 'article',
+                        ['id'] = '1',
+                        ['title'] = 'No results found!',
+                        ['description'] = string.format(
+                            'There were no features found matching "%s", please try and be more specific!',
                             inline_query.query
-                        )
+                        ),
+                        ['input_message_content'] = {
+                            ['message_text'] = string.format(
+                                'There were no features found matching "%s", please try and be more specific!',
+                                inline_query.query
+                            )
+                        }
                     }
                 }
             )
         )
     end
+    mattata.answer_inline_query(
+        inline_query.id,
+        json.encode(output)
+    )
 end
 
 function help:on_callback_query(callback_query, message, configuration)

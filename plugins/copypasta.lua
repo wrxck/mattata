@@ -40,16 +40,17 @@ function copypasta:on_message(message, configuration)
             copypasta.help
         )
     end
+    mattata.send_chat_action(message.chat.id)
+    )
     if message.reply_to_message.text:len() > tonumber(configuration.max_copypasta_length) then
-        local output = string.format(
-            'The replied-to text musn\'t be any longer than %s characters!',
-            configuration.max_copypasta_length
+        return mattata.send_reply(
+            message,
+            string.format(
+                'The replied-to text musn\'t be any longer than %s characters!',
+                configuration.max_copypasta_length
+            )
         )
     end
-    mattata.send_chat_action(
-        message.chat.id,
-        'typing'
-    )
     return mattata.send_message(
         message.chat.id,
         copypasta.format_message(message.reply_to_message.text:upper())
