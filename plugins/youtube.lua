@@ -13,7 +13,7 @@ local configuration = require('configuration')
 
 function youtube:init(configuration)
     assert(
-        configuration.keys.google,
+        configuration.keys.youtube,
         'youtube.lua requires an API key, and you haven\'t got one configured!'
     )
     youtube.commands = mattata.commands(
@@ -24,7 +24,7 @@ function youtube:init(configuration)
 end
 
 function youtube.get_result_count(input)
-    local jstr, res = https.request('https://www.googleapis.com/youtube/v3/search?key=' .. configuration.keys.google .. '&type=video&part=snippet&q=' .. url.escape(input))
+    local jstr, res = https.request('https://www.googleapis.com/youtube/v3/search?key=' .. configuration.keys.youtube .. '&type=video&part=snippet&q=' .. url.escape(input))
     if res ~= 200 then
         return 0
     end
@@ -37,7 +37,7 @@ end
 
 function youtube.get_result(input, n)
     n = n or 1
-    local jstr, res = https.request('https://www.googleapis.com/youtube/v3/search?key=' .. configuration.keys.google .. '&type=video&part=snippet&q=' .. url.escape(input))
+    local jstr, res = https.request('https://www.googleapis.com/youtube/v3/search?key=' .. configuration.keys.youtube .. '&type=video&part=snippet&q=' .. url.escape(input))
     if res ~= 200 then
         return false
     end
@@ -45,7 +45,7 @@ function youtube.get_result(input, n)
     if jdat.pageInfo.total_results == 0 then
         return false
     end
-    local jstr_info, res_info = https.request('https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&key=' .. configuration.keys.google .. '&id=' .. jdat.items[n].id.videoId .. '&fields=items(id,snippet(publishedAt,channelTitle,localized(title,description)),statistics(viewCount,likeCount,dislikeCount,commentCount),contentDetails(duration,regionRestriction(blocked)))')
+    local jstr_info, res_info = https.request('https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&key=' .. configuration.keys.youtube .. '&id=' .. jdat.items[n].id.videoId .. '&fields=items(id,snippet(publishedAt,channelTitle,localized(title,description)),statistics(viewCount,likeCount,dislikeCount,commentCount),contentDetails(duration,regionRestriction(blocked)))')
     if res_info ~= 200 then
         return false
     end

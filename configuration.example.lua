@@ -67,6 +67,7 @@ return { -- rename this file to configuration.lua for the bot to work
         'copypasta',
         'counter',
         'currency',
+        'developer',
         'dice',
         'dictionary',
         'dns',
@@ -139,6 +140,7 @@ return { -- rename this file to configuration.lua for the bot to work
         'statistics',
         'steam',
         'synonym',
+        'theme',
         'time',
         'translate',
         'twitch',
@@ -187,7 +189,7 @@ return { -- rename this file to configuration.lua for the bot to work
 
         ['weather'] = '', -- https://darksky.net/dev/register
 
-        ['google'] = '', -- https://console.developers.google.com/apis
+        ['youtube'] = '', -- https://console.developers.google.com/apis
 
         ['bing'] = '', -- https://datamarket.azure.com/account/keys
 
@@ -219,7 +221,7 @@ return { -- rename this file to configuration.lua for the bot to work
 
         ['pasteee'] = '',
 
-        ['google'] = {
+        ['google'] = { -- https://console.developers.google.com/apis
 
             ['api_key'] = '',
 

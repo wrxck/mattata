@@ -265,7 +265,7 @@ function rss:on_message(message)
             message.chat.id,
             rss.subscribe(
                 message.chat.id,
-                message.text:match('^sub (.-)$')
+                input:match('^sub (.-)$')
             ),
             'html'
         )
@@ -274,7 +274,7 @@ function rss:on_message(message)
             message.chat.id,
             rss.unsubscribe(
                 message.chat.id,
-                message.text:match('^del (%d*)$')
+                input:match('^del (%d*)$')
             )
         )
     elseif mattata.is_global_admin(message.from.id) and input == 'reload' then
