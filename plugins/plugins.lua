@@ -190,7 +190,7 @@ function plugins:on_callback_query(callback_query, message, configuration)
     local chat, callback_type, page = callback_query.data:match('^(.-)%:(.-)%:(.-)$')
     if (
         mattata.get_chat(chat) and mattata.get_chat(chat).result.type ~= 'private'
-    ) or not mattata.is_group_admin(
+    ) and not mattata.is_group_admin(
         chat,
         callback_query.from.id
     ) then

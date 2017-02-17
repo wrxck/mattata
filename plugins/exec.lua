@@ -51,8 +51,21 @@ function exec:on_message(message, configuration)
         message.chat.id,
         'typing'
     )
-    local language = input:match('^(%a+) '):lower()
-    local code = input:match('^%a+ (.-)$')
+    local language = input:match('^([%a%+]+) .-$') or input:match('^([%a%+]+)\n.-$')
+    if not language then
+        return mattata.send_reply(
+            message,
+            'Please specify a language to execute your snippet of code in, using the syntax /exec <language> <code>.'
+        )
+    end
+    language = language:lower()
+    local code = input:match('^[%a%+]+ (.-)$') or input:match('^[%a%+]+\n(.-)$')
+    if not code then
+        return mattata.send_reply(
+            message,
+            'Please specify a snippet of code to execute, using the syntax /exec <language> <code>.'
+        )
+    end
     local args = exec.get_arguments(language)
     local parameters = {
         ['LanguageChoice'] = language,
@@ -63,7 +76,7 @@ function exec:on_message(message, configuration)
     local response = {}
     local body, boundary = multipart.encode(parameters)
     local old_timeout = http.TIMEOUT
-    http.TIMEOUT = 2
+    http.TIMEOUT = 2 -- Set the timeout to 2 seconds to prevent people from making the bot lag.
     local jstr, res = http.request(
         {
             ['url'] = 'http://rextester.com/rundotnet/api/',
