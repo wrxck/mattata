@@ -232,9 +232,8 @@ function mattata:run(configuration, token)
                     if configuration.debug then
                         print(
                             string.format(
-                                '[Update #%s] Edited channel post from %s to %s',
+                                '[Update #%s] Edited channel post from %s',
                                 update.update_id,
-                                update.edited_channel_post.from.id,
                                 update.edited_channel_post.chat.id
                             )
                         )
