@@ -39,33 +39,7 @@ function exec.get_arguments(language)
     return ''
 end
 
-function exec:on_message(message, configuration)
-    local input = mattata.input(message.text)
-    if not input then
-        return mattata.send_reply(
-            message,
-            exec.help
-        )
-    end
-    mattata.send_chat_action(
-        message.chat.id,
-        'typing'
-    )
-    local language = input:match('^([%a%+]+) .-$') or input:match('^([%a%+]+)\n.-$')
-    if not language then
-        return mattata.send_reply(
-            message,
-            'Please specify a language to execute your snippet of code in, using the syntax /exec <language> <code>.'
-        )
-    end
-    language = language:lower()
-    local code = input:match('^[%a%+]+ (.-)$') or input:match('^[%a%+]+\n(.-)$')
-    if not code then
-        return mattata.send_reply(
-            message,
-            'Please specify a snippet of code to execute, using the syntax /exec <language> <code>.'
-        )
-    end
+function exec.make_request(language, code)
     local args = exec.get_arguments(language)
     local parameters = {
         ['LanguageChoice'] = language,
@@ -91,10 +65,7 @@ function exec:on_message(message, configuration)
     )
     http.TIMEOUT = old_timeout
     if res ~= 200 then
-        return mattata.send_reply(
-            message,
-            'Timed out.'
-        )
+        return false
     end
     local jdat = json.decode(table.concat(response))
     local output = {}
@@ -124,12 +95,93 @@ function exec:on_message(message, configuration)
             )
         )
     end
-    return mattata.send_message(
-        message.chat.id,
-        table.concat(
-            output,
-            '\n'
-        ),
+    table.insert(
+        output,
+        '\n<i>Made a mistake? Edit your message and I\'ll amend mine accordingly!</i>'
+    )
+    return table.concat(
+        output,
+        '\n'
+    )
+end
+
+function exec:on_edited_message(edited_message, configuration)
+    local input = mattata.input(edited_message.text)
+    if not input then
+        return mattata.edit_message_text(
+            edited_message.chat.id,
+            edited_message.original_message_id,
+            exec.help
+        )
+    end
+    mattata.send_chat_action(edited_message.chat.id)
+    local language = input:match('^([%a%+]+) .-$') or input:match('^([%a%+]+)\n.-$')
+    if not language then
+        return mattata.edit_message_text(
+            edited_message.chat.id,
+            edited_message.original_message_id,
+            'Please specify a language to execute your snippet of code in, using the syntax /exec <language> <code>.'
+        )
+    end
+    language = language:lower()
+    local code = input:match('^[%a%+]+ (.-)$') or input:match('^[%a%+]+\n(.-)$')
+    if not code then
+        return mattata.edit_message_text(
+            edited_message.chat.id,
+            edited_message.original_message_id,
+            'Please specify a snippet of code to execute, using the syntax /exec <language> <code>.'
+        )
+    end
+    local output = exec.make_request(language, code)
+    if not output then
+        return mattata.edit_message_text(
+            edited_message.chat.id,
+            edited_message.original_message_id,
+            'Timed out.'
+        )
+    end
+    return mattata.edit_message_text(
+        edited_message.chat.id,
+        edited_message.original_message_id,
+        output,
+        'html'
+    )
+end
+
+function exec:on_message(message, configuration)
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(
+            message,
+            exec.help
+        )
+    end
+    mattata.send_chat_action(message.chat.id)
+    local language = input:match('^([%a%+]+) .-$') or input:match('^([%a%+]+)\n.-$')
+    if not language then
+        return mattata.send_reply(
+            message,
+            'Please specify a language to execute your snippet of code in, using the syntax /exec <language> <code>.'
+        )
+    end
+    language = language:lower()
+    local code = input:match('^[%a%+]+ (.-)$') or input:match('^[%a%+]+\n(.-)$')
+    if not code then
+        return mattata.send_reply(
+            message,
+            'Please specify a snippet of code to execute, using the syntax /exec <language> <code>.'
+        )
+    end
+    local output = exec.make_request(language, code)
+    if not output then
+        return mattata.send_reply(
+            message,
+            'Timed out.'
+        )
+    end
+    return mattata.send_reply(
+        message,
+        output,
         'html'
     )
 end

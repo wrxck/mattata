@@ -37,7 +37,7 @@ return { -- rename this file to configuration.lua for the bot to work
 
     ['download_location'] = '/tmp/', -- The location to save all downloaded media to.
 
-    ['respond_to_misc'] = true, -- This setting determines whether your copy of mattata will respond to certain miscellaneous triggers. It MUST be a boolean value.
+    ['respond_to_misc'] = true, -- This setting determines whether your bot will respond to certain miscellaneous triggers. It MUST be a boolean value.
 
     ['max_copypasta_length'] = 300, -- The maximum number of characters a message can have to be able to have /copypasta used on it.
 
@@ -91,6 +91,7 @@ return { -- rename this file to configuration.lua for the bot to work
         'google',
         'gwhitelist',
         'hackernews',
+        'help',
         'hexadecimal',
         'hextorgb',
         'id',
@@ -154,8 +155,7 @@ return { -- rename this file to configuration.lua for the bot to work
         'xkcd',
         'yify',
         'yomama',
-        'youtube',
-        'help'
+        'youtube'
 
     },
 

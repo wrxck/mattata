@@ -8,7 +8,6 @@ local rss = {}
 local mattata = require('mattata')
 local https = require('ssl.https')
 local http = require('socket.http')
-local url = require('socket.url')
 local ltn12 = require('ltn12')
 local json = require('dkjson')
 local redis = require('mattata-redis')

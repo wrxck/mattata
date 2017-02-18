@@ -33,19 +33,13 @@ function ispwned:on_message(message, configuration)
         )
     end
     local jdat = json.decode(jstr)
-    local output = {}
+    local output = ''
     for n in pairs(jdat) do
-        table.insert(
-            output,
-            mattata.escape_html(jdat[n].Title)
-        )
+        output = output .. '\n' .. mattata.escape_html(jdat[n].Title)
     end
     return mattata.send_message(
         message.chat.id,
-        '<b>That account was found in the following links:</b>\n' .. table.concat(
-            output,
-            '\n'
-        ),
+        '<b>That account was found in the following leaks:</b>\n' .. output,
         'html'
     )
 end

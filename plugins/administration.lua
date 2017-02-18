@@ -679,7 +679,7 @@ function administration.blacklist(message)
         if tonumber(input) == nil and not input:match('^@') then
             input = '@' .. input
         end
-        local resolved = mattata.get_chat_pwr(input)
+        local resolved = mattata.get_user(input)
         if not resolved then
             return mattata.send_reply(
                 message,
@@ -776,7 +776,7 @@ function administration.whitelist(message)
         if tonumber(input) == nil and not input:match('^@') then
             input = '@' .. input
         end
-        local resolved = mattata.get_chat_pwr(input)
+        local resolved = mattata.get_user(input)
         if not resolved then
             return mattata.send_reply(
                 message,
@@ -989,6 +989,10 @@ function administration.kick(message)
                 true,
                 true
             )
+            mattata.unban_chat_member(
+                message.chat.id,
+                message.reply_to_message.from.id
+            )
         else
             return mattata.send_reply(message, 'I couldn\'t kick ' .. message.reply_to_message.from.first_name .. ' because I\'m not an administrator in this chat.')
         end
@@ -1020,7 +1024,7 @@ function administration.kick(message)
         if tonumber(input) == nil and not input:match('^@') then
             input = '@' .. input
         end
-        local resolved = mattata.get_chat_pwr(input)
+        local resolved = mattata.get_user(input)
         if not resolved then
             return mattata.send_reply(
                 message,
@@ -1059,6 +1063,10 @@ function administration.kick(message)
                 message,
                 true,
                 true
+            )
+            mattata.unban_chat_member(
+                message.chat.id,
+                user
             )
         end
         local output = message.from.first_name .. ' [' .. message.from.id .. '] has kicked ' .. resolved.result.first_name .. ' [' .. resolved.result.id .. '] from ' .. message.chat.title .. ' [' .. message.chat.id .. '].'
@@ -1151,7 +1159,7 @@ function administration.ban(message)
         if tonumber(input) == nil and not input:match('^@') then
             input = '@' .. input
         end
-        local resolved = mattata.get_chat_pwr(input)
+        local resolved = mattata.get_user(input)
         if not resolved then
             return mattata.send_reply(
                 message, 
@@ -1398,7 +1406,7 @@ function administration.unban(message, is_silent, force_admin)
         if tonumber(input) == nil and not input:match('^@') then
             input = '@' .. input
         end
-        local resolved = mattata.get_chat_pwr(input)
+        local resolved = mattata.get_user(input)
         if not resolved then
             return mattata.send_reply(
                 message, 

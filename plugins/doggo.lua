@@ -11,8 +11,9 @@ function doggo:init()
     doggo.commands = mattata.commands(
         self.info.username
     ):command('doggo')
-     :command('dog').table
-    doggo.help = [[/doggo - Sends a random photo of a dog. Alias: /dog.]]
+     :command('dog')
+     :command('josh').table
+    doggo.help = [[/doggo - Sends a random photo of a dog. Aliases: /dog, /josh.]]
 end
 
 function doggo:on_message(message, configuration)

@@ -29,7 +29,9 @@ end
 function statistics.get_messages(id, chat)
     local info = {}
     local user = redis:hgetall('user:' .. id)
-    info.messages = tonumber(redis:get('messages:' .. id .. ':' .. chat)) or 0
+    info.messages = tonumber(
+        redis:get('messages:' .. id .. ':' .. chat)
+    ) or 0
     info.name = statistics.get_name(user)
     return info
 end
@@ -74,7 +76,7 @@ function statistics.get_statistics(chat, title, total)
         local message_count = v.messages
         local percent = tostring(
             mattata.round(
-                message_count / total * 100,
+                (message_count / total) * 100,
                 1
             )
         )
