@@ -970,7 +970,9 @@ function administration.do_action(message, action)
                 action
             )
         )
-    elseif input:match('^.- .-$') then
+    end
+    input = tostring(input)
+    if input:match('^.- .-$') then
         input, reason = input:match('^(.-) (.-)$')
     end
     if not mattata.is_group_admin(
