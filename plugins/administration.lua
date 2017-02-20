@@ -1002,12 +1002,9 @@ function administration.do_action(message, action)
             'I don\'t recognise that user! To teach me who they are, ask them to send me a message, or you can forward a message from them to me.'
         )
     end
-    if user.result.id == mattata.get_me().result.id or not mattata.get_chat_member(
-        message.chat.id,
-        user.result.id
-    ) then
+    if user.result.id == mattata.get_me().result.id then
         return
-    elseif mattata.is_group_admin(
+    elseif action ~= 'unban' and mattata.is_group_admin(
         message.chat.id,
         user.result.id
     ) then
@@ -1015,6 +1012,31 @@ function administration.do_action(message, action)
             message,
             string.format(
                 'I can\'t %s %s%s because they have administrator privileges in this chat.',
+                action,
+                user.result.username and '@' or '',
+                user.result.username or user.result.first_name
+            )
+        )
+    elseif action == 'unban' and mattata.get_chat_member(
+        message.chat.id,
+        user.result.id
+    ) then
+        return mattata.send_reply(
+            message,
+            string.format(
+                '%s%s doesn\'t need to be unbanned because they\'re still in the chat!',
+                user.result.username and '@' or '',
+                user.result.username or user.result.first_name
+            )
+        )
+    elseif action ~= 'unban' and not mattata.get_chat_member(
+        message.chat.id,
+        user.result.id
+    ) then
+        return mattata.send_reply(
+            message,
+            string.format(
+                'I can\'t %s %s%s because they\'re not a member of this chat!',
                 action,
                 user.result.username and '@' or '',
                 user.result.username or user.result.first_name
