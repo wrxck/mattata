@@ -4,7 +4,7 @@ read
 sudo wget "https://raw.githubusercontent.com/wrxck/mattata-redis/master/mattata-redis.lua" -O mattata-redis.lua
 sudo wget "https://raw.githubusercontent.com/wrxck/mattata-ai/master/mattata-ai.lua" -O mattata-ai.lua
 sudo apt-get update
-sudo apt-get install -y lua5.3 liblua5.3-dev git redis-server libssl-dev fortune-mod fortunes cowsay fortune unzip make
+sudo apt-get install -y lua5.3 liblua5.3-dev git redis-server libssl-dev fortune-mod fortunes cowsay fortune unzip make libexpat1-dev
 git clone http://github.com/keplerproject/luarocks
 cd luarocks
 ./configure --lua-version=5.3 --versioned-rocks-dir --lua-suffix=5.3
