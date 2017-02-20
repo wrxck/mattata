@@ -21,23 +21,28 @@ function apod:init(configuration)
 end
 
 function apod:on_inline_query(inline_query, configuration)
-    local jstr, res = https.request('https://api.nasa.gov/planetary/apod?api_key=' .. configuration.keys.apod)
+    local input = mattata.input(inline_query.query)
+    local url = 'https://api.nasa.gov/planetary/apod?api_key=' .. configuration.keys.apod
+    local day, month, year = os.date('%d/%m/%Y'):match('^(%d%d)%/(%d%d)%/(%d%d%d%d)$')
+    if input and input:match('^(%d%d)[%/%-](%d%d)[%/%-](%d%d%d%d)$') then
+        day, month, year = input:match('^(%d%d)[%/%-](%d%d)[%/%-](%d%d%d%d)$')
+        url = url .. '&date=' .. year .. '-' .. month .. '-' .. day
+    end
+    local jstr, res = https.request(url)
     if res ~= 200 then
         return
     end
-    local jdat = json.decode('[' .. jstr .. ']')
+    local jdat = json.decode(jstr)
     return mattata.answer_inline_query(
         inline_query.id,
-        json.encode(
-            {
-                {
-                    ['type'] = 'photo',
-                    ['id'] = '1',
-                    ['photo_url'] = jdat[1].url,
-                    ['thumb_url'] = jdat[1].url,
-                    ['caption'] = jdat[1].title:gsub('"', '\\"')
-                }
-            }
+        mattata.inline_result():id():type('photo'):photo_url(jdat.hdurl or jdat.url):thumb_url(jdat.url):caption(
+            string.format(
+                '%s - %s/%s/%s',
+                jdat.title,
+                day,
+                month,
+                year
+            )
         )
     )
 end
@@ -45,11 +50,10 @@ end
 function apod:on_message(message, configuration)
     local input = mattata.input(message.text)
     local url = 'https://api.nasa.gov/planetary/apod?api_key=' .. configuration.keys.apod
-    local date = os.date('%Y-%m-%d')
-    if input and input:match('^(%d%d)/(%d%d)/(%d%d%d%d)$') then
-        local day, month, year = input:match('^(%d%d)/(%d%d)/(%d%d%d%d)$')
-        url = url .. year .. '-' .. month .. '-' .. day
-        date = input
+    local day, month, year = os.date('%d/%m/%Y'):match('^(%d%d)%/(%d%d)%/(%d%d%d%d)$')
+    if input and input:match('^(%d%d)[%/%-](%d%d)[%/%-](%d%d%d%d)$') then
+        day, month, year = input:match('^(%d%d)[%/%-](%d%d)[%/%-](%d%d%d%d)$')
+        url = url .. '&date=' .. year .. '-' .. month .. '-' .. day
     end
     local jstr, res = https.request(url)
     if res ~= 200 then
@@ -59,7 +63,6 @@ function apod:on_message(message, configuration)
         )
     end
     local jdat = json.decode(jstr)
-    local year, month, day = jdat.date:match('^(%d%d%d%d)%-(%d%d)%-(%d%d)$')
     mattata.send_chat_action(
         message.chat.id,
         'upload_photo'
@@ -67,7 +70,13 @@ function apod:on_message(message, configuration)
     return mattata.send_photo(
         message.chat.id,
         jdat.url,
-        '\'' .. jdat.title .. '\' - ' .. day .. '/' .. month .. '/' .. year
+        string.format(
+            '%s - %s/%s/%s',
+            jdat.title,
+            day,
+            month,
+            year
+        )
     )
 end
 

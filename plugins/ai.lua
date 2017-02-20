@@ -10,7 +10,7 @@ local cleverbot = require('mattata-ai')
 local redis = require('mattata-redis')
 local json = require('dkjson')
 
-function ai.process(message)
+function ai.process(message, reply)
     if not message then
         return ai.unsure()
     end
@@ -27,7 +27,10 @@ function ai.process(message)
     elseif message:match('^how%s*a?re?%s*y?o?u.?') or message:match('.?how%s*a?re?%s*y?o?u%s*') or message:match('.?how%s*a?re?%s*y?o?u.?$') or message:match('^a?re?%s*y?o?u%s*oka?y?.?$') or message:match('%s*a?re?%s*y?o?u%s*oka?y?.?$') then
         return ai.feeling()
     else
-        local response = cleverbot.talk(original_message)
+        local response = cleverbot.talk(
+            original_message,
+            reply
+        )
         if not response then
             if redis:hget(
                 'ai',
@@ -183,18 +186,10 @@ function ai:on_edited_message(edited_message, configuration)
         edited_message.chat.id,
         'typing'
     )
-    local output = ai.process(edited_message.text)
-    if not output then
-        return mattata.edit_message_text(
-            edited_message.chat.id,
-            edited_message.original_message_id,
-            ai.offline()
-        )
-    end
     return mattata.edit_message_text(
         edited_message.chat.id,
         edited_message.original_message_id,
-        output
+        ai.process(edited_message.text) or ai.offline()
     )
 end
 
@@ -203,16 +198,18 @@ function ai:on_message(message, configuration)
         message.chat.id,
         'typing'
     )
-    local output = ai.process(message.text)
-    if not output then
-        return mattata.send_reply(
-            message,
-            ai.offline()
+    local output
+    if message.reply_to_message and message.reply_to_message.text:len() > 0 and message.reply_to_message.from.id == self.info.id then
+        output = ai.process(
+            message.text,
+            message.reply_to_message.text
         )
+    else
+        output = ai.process(message.text)
     end
     return mattata.send_reply(
         message,
-        output
+        output or ai.offline()
     )
 end
 

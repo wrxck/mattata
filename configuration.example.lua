@@ -9,20 +9,6 @@ return { -- rename this file to configuration.lua for the bot to work
 
     },
 
-    ['info'] = {
-
-        ['name'] = 'mattata', -- The name of your bot.
-
-        ['first_name'] = 'mattata',
-
-        ['last_name'] = nil,
-
-        ['username'] = 'mattatabot', -- The @username of your bot (this can be found through @BotFather).
-
-        ['id'] = 268302625 -- The numerical ID of your bot (this is the preceding string of numbers before the : in your bot API token).
-
-    },
-
     ['language'] = 'en', -- Two character locale, this is the default language for all users who haven't adjusted their language.
 
     ['log_chat'] = -1001053691206, -- This needs to be the numerical identifier of the chat you wish to log errors into. If it's not a private chat it should begin with a '-' symbol.
@@ -43,7 +29,7 @@ return { -- rename this file to configuration.lua for the bot to work
 
     ['debug'] = false, -- If set to true, information about each API update will be printed to the console.
 
-    ['plugins'] = { -- This table lists the plugins which your bot will load upon each instance.
+    ['plugins'] = { -- This table lists the plugins which your copy of mattata will load upon each instance.
 
         'control',
         -- To allow things to work properly, you MUST place all new plugins BELOW this line. It is recommended to keep the list clean by ensuring it keeps its alphabetical order.
@@ -128,6 +114,7 @@ return { -- rename this file to configuration.lua for the bot to work
         'qr',
         'randomword',
         'reddit',
+        'remind',
         'rimg',
         'rss',
         'sed',
@@ -142,6 +129,7 @@ return { -- rename this file to configuration.lua for the bot to work
         'steam',
         'synonym',
         'theme',
+        'thoughts',
         'time',
         'translate',
         'twitch',
@@ -149,6 +137,7 @@ return { -- rename this file to configuration.lua for the bot to work
         'upload',
         'urbandictionary',
         'uuid',
+        'version',
         'weather',
         'whois',
         'wikipedia',

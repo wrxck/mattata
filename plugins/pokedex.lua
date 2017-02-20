@@ -19,7 +19,7 @@ function pokedex:init()
     pokedex.help = [[/pokedex <query> - Returns a Pokedex entry from pokeapi.co. Alias: /dex.]]
 end
 
-function pokedex:on_message(message)
+function pokedex:on_message(message, configuration)
     local input = mattata.input(message.text:lower())
     if not input then
         return mattata.send_reply(
@@ -50,7 +50,7 @@ function pokedex:on_message(message)
         'upload_photo'
     )
     local description_jdat = json.decode(description_jstr)
-    local description = description_jdat.description:gsub('POKMON', 'Pokémon'):gsub('Pokmon', 'Pokémon'):gsub('Pokemon', 'Pokémon')
+    local description = description_jdat.description:gsub('POKMON', 'Pokémon'):gsub('Pokmon', 'Pokémon'):gsub('Pokemon', 'Pokémon'):gsub('POKéMON', 'Pokémon')
     local poke_type
     for _, v in ipairs(jdat.types) do
         local type_name = v.name:gsub('^%l', string.upper)
@@ -64,7 +64,13 @@ function pokedex:on_message(message)
     return mattata.send_photo(
         message.chat.id,
         'https://img.pokemondb.net/artwork/' .. name:gsub('^%u', string.lower) .. '.jpg',
-        'Name: ' .. name .. '\nID: ' .. id .. '\nType: ' .. poke_type .. '\nDescription: ' .. description
+        string.format(
+            'Name: %s\nID: %s\nType: %s\nDescription: %s',
+            name,
+            id,
+            poke_type,
+            description
+        )
     )
 end
 

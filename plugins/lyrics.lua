@@ -144,8 +144,12 @@ function lyrics.send_request(input)
         search_url = string.format(
             '%s&q_artist=%s&q_track=%s',
             search_url,
-            url.escape(input:match('^(.-) %- .-$')),
-            url.escape(input:match('^.- %- (.-)$'))
+            url.escape(
+                input:match('^(.-) %- .-$')
+            ),
+            url.escape(
+                input:match('^.- %- (.-)$')
+            )
         )
     else
         search_url = string.format(
@@ -245,7 +249,7 @@ function lyrics.get_keyboard(artist, track)
                 }
             }
         )
-        return json.encode(keyboard)
+        return keyboard
     end
     return nil
 end
@@ -263,23 +267,13 @@ function lyrics:on_inline_query(inline_query, configuration)
         artist,
         track
     )
-    return mattata.answer_inline_query(
+    return mattata.send_inline_article(
         inline_query.id,
-        json.encode(
-            {
-                {
-                    ['type'] = 'article',
-                    ['id'] = '1',
-                    ['title'] = track,
-                    ['description'] = artist,
-                    ['input_message_content'] = {
-                        ['message_text'] = output,
-                        ['parse_mode'] = 'html'
-                    },
-                    ['reply_markup'] = keyboard
-                }
-            }
-        )
+        track,
+        artist,
+        output,
+        'html',
+        keyboard
     )
 end
 
@@ -302,7 +296,12 @@ function lyrics:on_message(message, configuration)
             configuration.errors.results
         )
     end
-    local keyboard = lyrics.get_keyboard(artist, track)
+    local keyboard = json.encode(
+        lyrics.get_keyboard(
+            artist,
+            track
+        )
+    )
     return mattata.send_message(
         message.chat.id,
         output,

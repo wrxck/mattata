@@ -68,9 +68,9 @@ function plugins.get_keyboard(user_id, chat, page, columns, per_page)
                 v,
                 chat
             ) then
-                status = '✅'
+                status = utf8.char(9989)
             else
-                status = '❌'
+                status = utf8.char(10060)
             end
             table.insert(
                 output,
@@ -134,7 +134,7 @@ function plugins.get_keyboard(user_id, chat, page, columns, per_page)
         keyboard.inline_keyboard,
         {
             {
-                ['text'] = '← Previous',
+                ['text'] = utf8.char(8592) .. ' Previous',
                 ['callback_data'] = string.format(
                     'plugins:%s:page:%s',
                     chat,
@@ -150,7 +150,7 @@ function plugins.get_keyboard(user_id, chat, page, columns, per_page)
                 ['callback_data'] = 'plugins:nil'
             },
             {
-                ['text'] = 'Next →',
+                ['text'] = 'Next ' .. utf8.char(8594),
                 ['callback_data'] = string.format(
                     'plugins:%s:page:%s',
                     chat,
@@ -307,6 +307,30 @@ function plugins:on_message(message, configuration)
             message,
             'You must be an administrator to use this!'
         )
+    elseif message.chat.type == 'private' then
+        local input = mattata.input(message.text)
+        if input then
+            if tonumber(input) == nil and not input:match('^%@') then
+                input = '@' .. input
+            end
+            local resolved = mattata.get_chat(input)
+            if resolved and mattata.is_group_admin(
+                resolved.result.id,
+                message.from.id
+            ) then
+                message.chat = resolved.result
+            elseif not resolved then
+                return mattata.send_reply(
+                    message,
+                    'That\'s not a valid chat!'
+                )
+            else
+                return mattata.send_reply(
+                    message,
+                    'You don\'t appear to be an administrator in that chat!'
+                )
+            end
+        end
     end
     local keyboard = plugins.get_keyboard(
         message.from.id,

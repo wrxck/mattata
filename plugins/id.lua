@@ -13,13 +13,15 @@ function id:init()
         self.info.username
     ):command('id')
      :command('whoami').table
-    id.help = [[/id [chat] - Sends information about the given chat. Input is also accepted via reply. Alias: /whoami.]]
+    id.help = '/id [chat] - Sends information about the given chat. Input is also accepted via reply. Alias: /whoami.'
 end
 
 function id.resolve_chat(message)
+    if not message.query then
+        mattata.send_chat_action(message.chat.id)
+    end
     local output = {}
-    local input = message.text or message.query
-    input = mattata.input(input)
+    local input = mattata.input(message.text) or message.query
     if not input and not message.reply_to_message then
         input = message.from.id
     elseif message.reply_to_message then
@@ -45,19 +47,19 @@ function id.resolve_chat(message)
     if success.id then
         table.insert(
             output,
-            '🆔 ' .. success.id
+            utf8.char(127380) .. ' ' .. success.id
         )
     end
     if success.type then
         table.insert(
             output,
-            '➡️ ' .. success.type:gsub('^%l', string.upper)
+            utf8.char(10145) .. ' ' .. success.type:gsub('^%l', string.upper)
         )
     end
     if success.username then
         table.insert(
             output,
-            'ℹ️ @' .. success.username
+            utf8.char(8505) .. ' @' .. success.username
         )
     end
     if success.type == 'private' then
@@ -70,12 +72,12 @@ function id.resolve_chat(message)
         end
         table.insert(
             output,
-            '👤 ' .. mattata.escape_html(success.first_name)
+            utf8.char(128101) .. ' ' .. mattata.escape_html(success.first_name)
         )
     else
         table.insert(
             output,
-            '👤 ' .. mattata.escape_html(success.title)
+            utf8.char(128101) .. ' ' .. mattata.escape_html(success.title)
         )
     end
     if message.chat and message.chat.type and message.chat.type ~= 'private' then
@@ -85,16 +87,16 @@ function id.resolve_chat(message)
         )
         table.insert(
             output,
-            '👥 ' .. mattata.escape_html(message.chat.title)
+            utf8.char(128101) .. ' ' .. mattata.escape_html(message.chat.title)
         )
         table.insert(
             output,
-            '🆔 ' .. message.chat.id
+            utf8.char(127380) .. ' ' .. message.chat.id
         )
         if message.chat.username then
             table.insert(
                 output,
-                'ℹ️ @' .. message.chat.username
+                utf8.char(8505) .. ' @' .. message.chat.username
             )
         end
     end
@@ -104,35 +106,26 @@ function id.resolve_chat(message)
     )
 end
 
-function id:on_inline_query(inline_query, configuration)
-    local input = mattata.input(inline_query.query)
-    if not input then
-        input = inline_query.from.id
-    end
-    local output = id.resolve_chat(inline_query)
-    local results = json.encode(
-        {
-            {
-                ['type'] = 'article',
-                ['id'] = '1',
-                ['title'] = tostring(input),
-                ['description'] = 'Click to send the result!',
-                ['input_message_content'] = {
-                    ['message_text'] = tostring(output),
-                    ['parse_mode'] = 'html'
-                }
-            }
-        }
-    )
+function id:on_inline_query(inline_query)
+    inline_query.query = mattata.input(inline_query.query) or inline_query.from.username or inline_query.from.id
     return mattata.answer_inline_query(
         inline_query.id,
-        results
+        mattata.inline_result():id():type('article'):title(
+            tostring(inline_query.query)
+        ):description('Click to send the result!'):input_message_content(
+            mattata.input_text_message_content(
+                tostring(
+                    id.resolve_chat(inline_query)
+                ),
+                'html'
+            )
+        )
     )
 end
 
 function id:on_message(message)
     return mattata.send_message(
-        message.chat.id,
+        message,
         id.resolve_chat(message),
         'html'
     )

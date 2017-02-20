@@ -14,56 +14,38 @@ function game:init()
     game.commands = mattata.commands(
         self.info.username
     ):command('game').table
-    game.help = [[/game [stats] - Play a game of Tic-Tac-Toe. Use /game stats to view your current game statistics.]]
+    game.help = [[/game - View your current game statistics.]]
 end
 
-function game.get_stats(user_id, chat_id)
+function game.get_stats(user_id)
     local user_won = redis:get('games_won:' .. user_id)
     if not user_won then
         user_won = 0
     end
-    local chat_won = redis:get('games_won:' .. chat_id .. ':' .. user_id)
-    if not chat_won then
-        chat_won = 0
-    end
     local user_lost = redis:get('games_lost:' .. user_id)
     if not user_lost then
         user_lost = 0
-    end
-    local chat_lost = redis:get('games_lost:' .. chat_id .. ':' .. user_id)
-    if not chat_lost then
-        chat_lost = 0
     end
     local balance = redis:get('balance:' .. user_id)
     if not balance then
         balance = 0
     end
     return string.format(
-        'Total wins: %s\nTotal wins in this chat: %s\nTotal losses: %s\nTotal losses in this chat: %s\nBalance: %s mattacoins',
+        'Total wins: %s\nTotal losses: %s\nBalance: %s mattacoins',
         user_won,
-        chat_won,
         user_lost,
-        chat_lost,
         balance
     )
 end
 
-function game.set_stats(user_id, chat_id, set_type)
+function game.set_stats(user_id, set_type)
     local user_won = redis:get('games_won:' .. user_id)
     if not user_won then
         user_won = 0
     end
-    local chat_won = redis:get('games_won:' .. chat_id .. ':' .. user_id)
-    if not chat_won then
-        chat_won = 0
-    end
     local user_lost = redis:get('games_lost:' .. user_id)
     if not user_lost then
         user_lost = 0
-    end
-    local chat_lost = redis:get('games_lost:' .. chat_id .. ':' .. user_id)
-    if not chat_lost then
-        chat_lost = 0
     end
     local balance = redis:get('balance:' .. user_id)
     if not balance then
@@ -75,11 +57,6 @@ function game.set_stats(user_id, chat_id, set_type)
             'games_won:' .. user_id,
             user_won
         )
-        chat_won = tonumber(chat_won) + 1
-        redis:set(
-            'games_won:' .. chat_id .. ':' .. user_id,
-            chat_won
-        )
         balance = tonumber(balance) + 100
         redis:set(
             'balance:' .. user_id,
@@ -90,11 +67,6 @@ function game.set_stats(user_id, chat_id, set_type)
         redis:set(
             'games_lost:' .. user_id,
             user_lost
-        )
-        chat_lost = tonumber(chat_lost) + 1
-        redis:set(
-            'games_lost:' .. chat_id .. ':' .. user_id,
-            chat_lost
         )
         balance = tonumber(balance) - 50
         redis:set(
@@ -175,7 +147,7 @@ end
 function game:on_callback_query(callback_query, message, configuration)
     local session_id = callback_query.data:match('^(%d+)%:')
     local g = redis:get('games:noughts_and_crosses:' .. session_id)
-    if not g then
+    if not g or not callback_query.inline_message_id then
         return
     end
     g = json.decode(g)
@@ -221,14 +193,14 @@ function game:on_callback_query(callback_query, message, configuration)
         end
         if not move then
             return
-        elseif g.moves[pos] ~= '-' then
+        elseif g.moves[pos] ~= utf8.char(65039) then
             return mattata.answer_callback_query(
                 callback_query.id,
                 'You cannot go here!'
             )
         end
         g.moves[pos] = move
-        if g.moves.a1 == g.moves.a2 and g.moves.a2 == g.moves.a3 and g.moves.a2 ~= '-' then
+        if g.moves.a1 == g.moves.a2 and g.moves.a2 == g.moves.a3 and g.moves.a2 ~= utf8.char(65039) then
             g.winner = g.opponent.id
             g.loser = g.player.id
             if g.player.move == g.moves.a1 then
@@ -237,7 +209,7 @@ function game:on_callback_query(callback_query, message, configuration)
             end
             g.is_over = true
             g.was_won = true
-        elseif g.moves.b1 == g.moves.b2 and g.moves.b2 == g.moves.b3 and g.moves.b2 ~= '-' then
+        elseif g.moves.b1 == g.moves.b2 and g.moves.b2 == g.moves.b3 and g.moves.b2 ~= utf8.char(65039) then
             g.winner = g.opponent.id
             g.loser = g.player.id
             if g.player.move == g.moves.b1 then
@@ -246,7 +218,7 @@ function game:on_callback_query(callback_query, message, configuration)
             end
             g.is_over = true
             g.was_won = true
-        elseif g.moves.c1 == g.moves.c2 and g.moves.c2 == g.moves.c3 and g.moves.c2 ~= '-' then
+        elseif g.moves.c1 == g.moves.c2 and g.moves.c2 == g.moves.c3 and g.moves.c2 ~= utf8.char(65039) then
             g.winner = g.opponent.id
             g.loser = g.player.id
             if g.player.move == g.moves.c1 then
@@ -255,7 +227,7 @@ function game:on_callback_query(callback_query, message, configuration)
             end
             g.is_over = true
             g.was_won = true
-        elseif g.moves.a1 == g.moves.b2 and g.moves.b2 == g.moves.c3 and g.moves.b2 ~= '-' then
+        elseif g.moves.a1 == g.moves.b2 and g.moves.b2 == g.moves.c3 and g.moves.b2 ~= utf8.char(65039) then
             g.winner = g.opponent.id
             g.loser = g.player.id
             if g.player.move == g.moves.a1 then
@@ -264,7 +236,7 @@ function game:on_callback_query(callback_query, message, configuration)
             end
             g.is_over = true
             g.was_won = true
-        elseif g.moves.a3 == g.moves.b2 and g.moves.b2 == g.moves.c1 and g.moves.b2 ~= '-' then
+        elseif g.moves.a3 == g.moves.b2 and g.moves.b2 == g.moves.c1 and g.moves.b2 ~= utf8.char(65039) then
             g.winner = g.opponent.id
             g.loser = g.player.id
             if g.player.move == g.moves.a3 then
@@ -273,7 +245,7 @@ function game:on_callback_query(callback_query, message, configuration)
             end
             g.is_over = true
             g.was_won = true
-        elseif g.moves.a2 == g.moves.b2 and g.moves.b2 == g.moves.c2 and g.moves.b2 ~= '-' then
+        elseif g.moves.a2 == g.moves.b2 and g.moves.b2 == g.moves.c2 and g.moves.b2 ~= utf8.char(65039) then
             g.winner = g.opponent.id
             g.loser = g.player.id
             if g.player.move == g.moves.a2 then
@@ -282,7 +254,7 @@ function game:on_callback_query(callback_query, message, configuration)
             end
             g.is_over = true
             g.was_won = true
-        elseif g.moves.b1 == g.moves.b2 and g.moves.b2 == g.moves.b3 and g.moves.b2 ~= '-' then
+        elseif g.moves.b1 == g.moves.b2 and g.moves.b2 == g.moves.b3 and g.moves.b2 ~= utf8.char(65039) then
             g.winner = g.opponent.id
             g.loser = g.player.id
             if g.player.move == g.moves.b1 then
@@ -291,7 +263,34 @@ function game:on_callback_query(callback_query, message, configuration)
             end
             g.is_over = true
             g.was_won = true
-        elseif g.moves.a1 ~= '-' and g.moves.a2 ~= '-' and g.moves.a3 ~= '-' and g.moves.b1 ~= '-' and g.moves.b2 ~= '-' and g.moves.b3 ~= '-' and g.moves.c1 ~= '-' and g.moves.c2 ~= '-' and g.moves.c3 ~= '-' then
+        elseif g.moves.a1 == g.moves.b1 and g.moves.b1 == g.moves.c1 and g.moves.b1 ~= utf8.char(65039) then
+            g.winner = g.opponent.id
+            g.loser = g.player.id
+            if g.player.move == g.moves.a1 then
+                g.winner = g.player.id
+                g.loser = g.opponent.id
+            end
+            g.is_over = true
+            g.was_won = true
+        elseif g.moves.a2 == g.moves.b2 and g.moves.b2 == g.moves.c2 and g.moves.b2 ~= utf8.char(65039) then
+            g.winner = g.opponent.id
+            g.loser = g.player.id
+            if g.player.move == g.moves.a2 then
+                g.winner = g.player.id
+                g.loser = g.opponent.id
+            end
+            g.is_over = true
+            g.was_won = true
+        elseif g.moves.a3 == g.moves.b3 and g.moves.b3 == g.moves.c3 and g.moves.b3 ~= utf8.char(65039) then
+            g.winner = g.opponent.id
+            g.loser = g.player.id
+            if g.player.move == g.moves.a3 then
+                g.winner = g.player.id
+                g.loser = g.opponent.id
+            end
+            g.is_over = true
+            g.was_won = true
+        elseif g.moves.a1 ~= utf8.char(65039) and g.moves.a2 ~= utf8.char(65039) and g.moves.a3 ~= utf8.char(65039) and g.moves.b1 ~= utf8.char(65039) and g.moves.b2 ~= utf8.char(65039) and g.moves.b3 ~= utf8.char(65039) and g.moves.c1 ~= utf8.char(65039) and g.moves.c2 ~= utf8.char(65039) and g.moves.c3 ~= utf8.char(65039) then
             g.is_over = true
         end
         redis:set(
@@ -330,12 +329,10 @@ function game:on_callback_query(callback_query, message, configuration)
         if g.was_won == true then
             game.set_stats(
                 g.winner,
-                message.chat.id,
                 'won'
             )
             game.set_stats(
                 g.loser,
-                message.chat.id,
                 'lost'
             )
             output = mattata.get_linked_name(g.winner) .. ' won the game against ' .. mattata.get_linked_name(g.loser) .. '!'
@@ -344,102 +341,112 @@ function game:on_callback_query(callback_query, message, configuration)
         end
     end
     return mattata.edit_message_text(
-        message.chat.id,
-        message.message_id,
+        nil,
+        nil,
         output,
         'html',
         true,
-        json.encode(keyboard)
+        json.encode(keyboard),
+        callback_query.inline_message_id
     )
 end
 
-function game:on_message(message)
-    if message.chat.type == 'private' then
-        return mattata.send_reply(
-            message,
-            'You can\'t use this command in private chat!'
-        )
-    elseif mattata.input(message.text) == 'stats' then
-        local stats = game.get_stats(
-            message.from.id,
-            message.chat.id
-        )
-        return mattata.send_reply(
-            message,
-            stats
-        )
-    end
-    local session_id = tostring(socket.gettime())
-    session_id = session_id:gsub('%.', '')
+function game:on_inline_query(inline_query)
+    local session_id = tostring(
+        socket.gettime()
+    ):gsub('%D', '')
     local rnd = math.random(10)
     local g = {
         is_over = false,
         was_won = false,
         has_opponent = false,
         player = {
-            id = message.from.id,
+            id = inline_query.from.id,
             move = '❌',
             is_go = true
         },
         opponent = {
-            id = '-',
+            id = utf8.char(65039),
             move = '⭕',
             is_go = false
         },
         moves = {
-            a1 = '-',
-            a2 = '-',
-            a3 = '-',
-            b1 = '-',
-            b2 = '-',
-            b3 = '-',
-            c1 = '-',
-            c2 = '-',
-            c3 = '-'
+            a1 = utf8.char(65039),
+            a2 = utf8.char(65039),
+            a3 = utf8.char(65039),
+            b1 = utf8.char(65039),
+            b2 = utf8.char(65039),
+            b3 = utf8.char(65039),
+            c1 = utf8.char(65039),
+            c2 = utf8.char(65039),
+            c3 = utf8.char(65039)
         }
     }
+    if math.random(2) == 1 then
+        g.player.is_go = false
+        g.opponent.is_go = true
+    end
     if rnd == 2 then
-        g.player.move = '😂'
-        g.opponent.move = '😱'
+        g.player.move = utf8.char(128514)
+        g.opponent.move = utf8.char(128561)
     elseif rnd == 3 then
-        g.player.move = '🍆'
-        g.opponent.move = '🍑'
+        g.player.move = utf8.char(127814)
+        g.opponent.move = utf8.char(127825)
     elseif rnd == 4 then
-        g.player.move = '❤'
-        g.opponent.move = '🖤'
+        g.player.move = utf8.char(10084)
+        g.opponent.move = utf8.char(128420)
     elseif rnd == 5 then
-        g.player.move = '🙈'
-        g.opponent.move = '🙉'
+        g.player.move = utf8.char(128584)
+        g.opponent.move = utf8.char(128585)
     elseif rnd == 6 then
-        g.player.move = '🌚'
-        g.opponent.move = '🌝'
+        g.player.move = utf8.char(127770)
+        g.opponent.move = utf8.char(127773)
     elseif rnd == 7 then
-        g.player.move = '🔥'
-        g.opponent.move = '❄'
+        g.player.move = utf8.char(128293)
+        g.opponent.move = utf8.char(10052)
     elseif rnd == 8 then
-        g.player.move = '🍏'
-        g.opponent.move = '🍍'
+        g.player.move = utf8.char(127823)
+        g.opponent.move = utf8.char(127821)
     elseif rnd == 9 then
         g.player.move = 'Ayy'
         g.opponent.move = 'Lmao'
     elseif rnd == 10 then
-        g.player.move = '💦'
-        g.opponent.move = '😈'
+        g.player.move = utf8.char(128166)
+        g.opponent.move = utf8.char(128520)
     end
     redis:set(
         'games:noughts_and_crosses:' .. session_id,
         json.encode(g)
     )
     local status = 'Waiting for opponent...'
-    local keyboard = game.get_keyboard(session_id, true)
+    local keyboard = game.get_keyboard(
+        session_id,
+        true
+    )
+    return mattata.send_inline_article(
+        inline_query.id,
+        'Tic-Tac-Toe',
+        'Click to send the game to your chat!',
+        status,
+        nil,
+        keyboard
+    )
+end
+
+function game:on_message(message)
     return mattata.send_message(
         message.chat.id,
-        status,
+        'Statistics for ' .. message.from.name .. ':\n' .. game.get_stats(message.from.id),
         nil,
         true,
         false,
-        message.message_id,
-        json.encode(keyboard)
+        nil,
+        mattata.inline_keyboard():row(
+            mattata.row():switch_inline_query_current_chat_button(
+                'Play Tic-Tac-Toe!',
+                '/game'
+            )
+        )
     )
 end
 

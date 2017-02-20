@@ -8,7 +8,6 @@ local facebook = {}
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
-local json = require('dkjson')
 
 function facebook:init()
     facebook.commands = mattata.commands(
@@ -37,6 +36,25 @@ function facebook.get_avatar(user)
     return res.location
 end
 
+function facebook:on_inline_query(inline_query, configuration)
+    local input = mattata.input(inline_query.query)
+    if not input then
+        return
+    end
+    local output = facebook.get_avatar(input)
+    if not output then
+        return mattata.send_inline_article(
+            inline_query.id,
+            'An error occured!',
+            configuration.errors.results
+        )
+    end
+    return mattata.send_inline_photo(
+        inline_query.id,
+        output
+    )
+end
+
 function facebook:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
@@ -52,22 +70,21 @@ function facebook:on_message(message, configuration)
             configuration.errors.results
         )
     end
-    local keyboard = {}
-    keyboard.inline_keyboard = {
-        {
-            {
-                ['text'] = 'View @' .. input .. ' on Facebook',
-                ['url'] = 'https://www.facebook.com/' .. url.escape(input)
-            }
-        }
-    }
     return mattata.send_photo(
         message.chat.id,
         output,
         nil,
         false,
         message.message_id,
-        json.encode(keyboard)
+        mattata.inline_keyboard():row(
+            mattata.row():url_button(
+                string.format(
+                    'View @%s on Facebook',
+                    input
+                ),
+                'https://www.facebook.com/' .. url.escape(input)
+            )
+        )
     )
 end
 

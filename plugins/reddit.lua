@@ -52,20 +52,20 @@ function reddit:on_message(message, configuration)
         text = message.text:lower():gsub('^%/r%/', '/r r/')
     end
     local input = mattata.input(text)
-    local source, url
+    local source, request_url
     if input then
         if not string.match(input, '/random') then
             if input:match('^r/.') then
                 input = mattata.get_word(input)
-                url = 'https://www.reddit.com/%s/.json?limit='
-                url = url:format(input) .. limit
+                request_url = 'https://www.reddit.com/%s/.json?limit='
+                request_url = request_url:format(input) .. limit
                 source = '*/' .. mattata.escape_markdown(input):gsub('\\', '') .. '*\n'
             else
                 input = mattata.input(message.text)
                 source = '*Results for* ' .. mattata.escape_markdown(input) .. '*:*\n'
                 input = url.escape(input)
-                url = 'https://www.reddit.com/search.json?q=%s&limit='
-                url = url:format(input) .. limit
+                request_url = 'https://www.reddit.com/search.json?q=%s&limit='
+                request_url = request_url:format(input) .. limit
             end
         else
             return mattata.send_reply(
@@ -74,10 +74,10 @@ function reddit:on_message(message, configuration)
             )
         end
     else
-        url = 'https://www.reddit.com/.json?limit=' .. limit
+        request_url = 'https://www.reddit.com/.json?limit=' .. limit
         source = '*/r/all*\n'
     end
-    local jstr, res = https.request(url)
+    local jstr, res = https.request(request_url)
     if res ~= 200 then
         return mattata.send_reply(
             message,

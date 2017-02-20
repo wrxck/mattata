@@ -9,7 +9,6 @@ local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local redis = require('mattata-redis')
-local json = require('dkjson')
 local configuration = require('configuration')
 
 function help:init()
@@ -21,25 +20,22 @@ function help:init()
 end
 
 function help.get_initial_keyboard()
-    return json.encode(
-        {
-            ['inline_keyboard'] = {
-                {
-                    {
-                        ['text'] = 'Links',
-                        ['callback_data'] = 'help:links'
-                    },
-                    {
-                        ['text'] = 'Administration',
-                        ['callback_data'] = 'help:ahelp'
-                    },
-                    {
-                        ['text'] = 'Commands',
-                        ['callback_data'] = 'help:cmds'
-                    }
-                }
-            }
-        }
+    return mattata.inline_keyboard():row(
+        mattata.row():callback_data_button(
+            'Links',
+            'help:links'
+        ):callback_data_button(
+            'Administration',
+            'help:ahelp'
+        ):callback_data_button(
+            'Commands',
+            'help:cmds'
+        )
+    ):row(
+        mattata.row():switch_inline_query_button(
+            'Use Inline Mode 🔎',
+            '/'
+        )
     )
 end
 
@@ -64,49 +60,29 @@ function help.get_plugin_page(arguments_list, page)
 end
 
 function help.get_back_keyboard()
-    return json.encode(
-        {
-            ['inline_keyboard'] = {
-                {
-                    {
-                        ['text'] = 'Back',
-                        ['callback_data'] = 'help:back'
-                    }
-                }
-            }
-        }
+    return mattata.inline_keyboard():row(
+        mattata.row():callback_data_button(
+            'Back',
+            'help:back'
+        )
     )
 end
 
 function help:on_inline_query(inline_query, configuration)
     local output = mattata.get_inline_help(inline_query.query)
     if #output == 0 then
-        return mattata.answer_inline_query(
+        return mattata.send_inline_article(
             inline_query.id,
-            json.encode(
-                {
-                    {
-                        ['type'] = 'article',
-                        ['id'] = '1',
-                        ['title'] = 'No results found!',
-                        ['description'] = string.format(
-                            'There were no features found matching "%s", please try and be more specific!',
-                            inline_query.query
-                        ),
-                        ['input_message_content'] = {
-                            ['message_text'] = string.format(
-                                'There were no features found matching "%s", please try and be more specific!',
-                                inline_query.query
-                            )
-                        }
-                    }
-                }
+            'No results found!',
+            string.format(
+                'There were no features found matching "%s", please try and be more specific!',
+                inline_query.query
             )
         )
     end
     mattata.answer_inline_query(
         inline_query.id,
-        json.encode(output)
+        output
     )
 end
 
@@ -122,30 +98,6 @@ function help:on_callback_query(callback_query, message, configuration)
         ) ~= tonumber(plugin_count) / 10 then
             page_count = page_count + 1
         end
-        local keyboard = {
-            ['inline_keyboard'] = {
-                {
-                    {
-                        ['text'] = '← Previous',
-                        ['callback_data'] = 'help:results:0'
-                    },
-                    {
-                        ['text'] = '1/' .. page_count,
-                        ['callback_data'] = 'help:pages:1:' .. page_count
-                    },
-                    {
-                        ['text'] = 'Next →',
-                        ['callback_data'] = 'help:results:2'
-                    }
-                },
-                {
-                    {
-                        ['text'] = 'Back',
-                        ['callback_data'] = 'help:back'
-                    }
-                }
-            }
-        }
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
@@ -155,7 +107,26 @@ function help:on_callback_query(callback_query, message, configuration)
             ) .. '\n\nArguments: <required> [optional]\n\nSearch for a feature or get help with a command by using my inline search functionality - just mention me in any chat using the syntax @' .. self.info.username .. ' <search query>.',
             nil,
             true,
-            json.encode(keyboard)
+            mattata.inline_keyboard():row(
+                mattata.row():callback_data_button(
+                    '← Previous',
+                    'help:results:0'
+                ):callback_data_button(
+                    '1/' .. page_count,
+                    'help:pages:1:' .. page_count
+                ):callback_data_button(
+                    'Next →',
+                    'help:results:2'
+                )
+            ):row(
+                mattata.row():callback_data_button(
+                    'Back',
+                    'help:back'
+                ):switch_inline_query_current_chat_button(
+                    '🔎 Search',
+                    '/'
+                )
+            )
         )
     elseif callback_query.data:match('^results%:%d*$') then
         local new_page = callback_query.data:match('^results%:(%d*)$')
@@ -174,34 +145,6 @@ function help:on_callback_query(callback_query, message, configuration)
         elseif tonumber(new_page) < 1 then
             new_page = tonumber(page_count)
         end
-        local keyboard = {
-            ['inline_keyboard'] = {
-                {
-                    {
-                        ['text'] = '← Previous',
-                        ['callback_data'] = 'help:results:' .. math.floor(
-                            tonumber(new_page) - 1
-                        )
-                    },
-                    {
-                        ['text'] = new_page .. '/' .. page_count,
-                        ['callback_data'] = 'help:pages:' .. new_page .. ':' .. page_count
-                    },
-                    {
-                        ['text'] = 'Next →',
-                        ['callback_data'] = 'help:results:' .. math.floor(
-                            tonumber(new_page) + 1
-                        )
-                    }
-                },
-                {
-                    {
-                        ['text'] = 'Back',
-                        ['callback_data'] = 'help:back'
-                    }
-                }
-            }
-        }
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
@@ -211,7 +154,30 @@ function help:on_callback_query(callback_query, message, configuration)
             ) .. '\n\nArguments: <required> [optional]\n\nSearch for a feature or get help with a command by using my inline search functionality - just mention me in any chat using the syntax @' .. self.info.username .. ' <search query>.',
             nil,
             true,
-            json.encode(keyboard)
+            mattata.inline_keyboard():row(
+                mattata.row():callback_data_button(
+                    '← Previous',
+                    'help:results:' .. math.floor(
+                        tonumber(new_page) - 1
+                    )
+                ):callback_data_button(
+                    new_page .. '/' .. page_count,
+                    'help:pages:' .. new_page .. ':' .. page_count
+                ):callback_data_button(
+                    'Next →',
+                    'help:results:' .. math.floor(
+                        tonumber(new_page) + 1
+                    )
+                )
+            ):row(
+                mattata.row():callback_data_button(
+                    'Back',
+                    'help:back'
+                ):switch_inline_query_current_chat_button(
+                    '🔎 Search',
+                    '/'
+                )
+            )
         )
     elseif callback_query.data:match('^pages%:%d*%:%d*$') then
         local current_page, total_pages = callback_query.data:match('^pages%:(%d*)%:(%d*)$')
@@ -230,47 +196,37 @@ function help:on_callback_query(callback_query, message, configuration)
             help.get_back_keyboard()
         )
     elseif callback_query.data == 'links' then
-        local keyboard = {
-            ['inline_keyboard'] = {
-                {
-                    {
-                        ['text'] = 'mattata Development',
-                        ['url'] = 'https://t.me/joinchat/AAAAAEDWD1KbS5gSkP3pSA'
-                    },
-                    {
-                        ['text'] = 'mattata\'s Channel',
-                        ['url'] = 'https://t.me/mattata'
-                    }
-                },
-                {
-                    {
-                        ['text'] = 'Source Code',
-                        ['url'] = 'https://github.com/wrxck/mattata'
-                    },
-                    {
-                        ['text'] = 'Donate',
-                        ['url'] = 'https://paypal.me/wrxck'
-                    },
-                    {
-                        ['text'] = 'Rate Me',
-                        ['url'] = 'https://t.me/storebot?start=mattatabot'
-                    }
-                },
-                {
-                    {
-                        ['text'] = 'Back',
-                        ['callback_data'] = 'help:back'
-                    }
-                }
-            }
-        }
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
             'Below are some links you might find useful:',
             nil,
             true,
-            json.encode(keyboard)
+            mattata.inline_keyboard():row(
+                mattata.row():url_button(
+                    'mattata Development',
+                    'https://t.me/joinchat/AAAAAEDWD1KbS5gSkP3pSA'
+                ):url_button(
+                    'mattata\'s Channel',
+                    'https://t.me/mattata'
+                )
+            ):row(
+                mattata.row():url_button(
+                    'Source Code',
+                    'https://github.com/wrxck/mattata'
+                ):url_button(
+                    'Donate',
+                    'https://paypal.me/wrxck'
+                ):url_button(
+                    'Rate Me',
+                    'https://t.me/storebot?start=mattatabot'
+                )
+            ):row(
+                mattata.row():callback_data_button(
+                    'Back',
+                    'help:back'
+                )
+            )
         )
     elseif callback_query.data == 'back' then
         return mattata.edit_message_text(
