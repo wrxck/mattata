@@ -72,7 +72,7 @@ function rss.get_redis_hash(id, option, extra)
 end
 
 function rss.get_url_protocol(url)
-    local feed_url, is_http = url:gsub('http://', '')
+    local url, is_http = url:gsub('http://', '')
     local url, is_https = url:gsub('https://', '')
     local protocol = 'http'
     if is_https == 1 then
@@ -239,7 +239,10 @@ function rss.get_subs(id)
 end
 
 function rss:on_message(message)
-    if message.chat.type == 'private' or not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) then
+    if message.chat.type == 'private' and not mattata.is_group_admin(
+        message.chat.id,
+        message.from.id
+    ) and not mattata.is_global_admin(message.from.id) then
         return
     end
     local input = mattata.input(message.text)
@@ -312,6 +315,7 @@ function rss:cron()
             )
         )
         base_url = protocol .. '://' .. base_url
+        print(base_url)
         local parsed, res = rss.get_parsed_feed(base_url, protocol)
         if res ~= nil then
             return
@@ -342,8 +346,8 @@ function rss:cron()
             else
                 content = ''
             end
-            text = text .. '#' .. n .. ': <b>' .. mattata.escape_html(title) .. '</b>\n<i>' .. mattata.escape_html(mattata.trim(content)) .. '</i>\n<a href="' .. link .. '">Read more.</a>\n\n'
-            if n == 5 then
+            text = text .. '<b>' .. mattata.escape_html(title) .. '</b>\n<i>' .. mattata.escape_html(mattata.trim(content)) .. '</i>\n<a href="' .. link .. '">Read more.</a>'
+            if n > 1 then
                 break
             end
         end
@@ -356,16 +360,29 @@ function rss:cron()
                 ),
                 last_entry
             )
-            for _, recipient in pairs(redis:smembers(v)) do
+            for _, recipient in pairs(
+                redis:smembers(v)
+            ) do
                 mattata.send_chat_action(
                     recipient,
                     'typing'
                 )
-                mattata.send_message(
+                local success = mattata.send_message(
                     recipient,
                     text,
                     'html'
                 )
+                if not success then
+                    print('Deleting ' .. recipient .. ' from the database under subscriptions to ' .. base_url)
+                    redis:srem(
+                        v,
+                        recipient
+                    )
+                    redis:srem(
+                        'rss:' .. recipient,
+                        base_url
+                    )
+                end
             end
         end
     end

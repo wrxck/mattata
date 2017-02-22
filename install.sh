@@ -4,14 +4,15 @@ read
 sudo wget "https://raw.githubusercontent.com/wrxck/mattata-redis/master/mattata-redis.lua" -O mattata-redis.lua
 sudo wget "https://raw.githubusercontent.com/wrxck/mattata-ai/master/mattata-ai.lua" -O mattata-ai.lua
 sudo apt-get update
-sudo apt-get install -y lua5.3 liblua5.3-dev git redis-server libssl-dev fortune-mod fortunes cowsay fortune unzip make libexpat1-dev
+sudo apt-get install -y lua5.3 liblua5.3-dev git redis-server libssl-dev fortune-mod fortunes cowsay fortune unzip make libexpat1-dev libcurl3 libcurl3-gnutls libcurl4-openssl-dev ruby ruby-dev
+sudo gem install redis-dump
 git clone http://github.com/keplerproject/luarocks
 cd luarocks
 ./configure --lua-version=5.3 --versioned-rocks-dir --lua-suffix=5.3
 make build
 sudo make install
 sudo luarocks-5.3 install --server=http://luarocks.org/dev openssl
-rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem oauth uuid html-entities luaossl feedparser"
+rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem oauth uuid html-entities luaossl feedparser lua-curl"
 for rock in $rocklist; do
     sudo luarocks-5.3 install $rock
 done

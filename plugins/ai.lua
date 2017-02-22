@@ -6,7 +6,8 @@
 local ai = {}
 
 local mattata = require('mattata')
-local cleverbot = require('mattata-ai')
+local mattata_ai = require('mattata-ai')
+local url = require('socket.url')
 local redis = require('mattata-redis')
 local json = require('dkjson')
 
@@ -27,9 +28,10 @@ function ai.process(message, reply)
     elseif message:match('^how%s*a?re?%s*y?o?u.?') or message:match('.?how%s*a?re?%s*y?o?u%s*') or message:match('.?how%s*a?re?%s*y?o?u.?$') or message:match('^a?re?%s*y?o?u%s*oka?y?.?$') or message:match('%s*a?re?%s*y?o?u%s*oka?y?.?$') then
         return ai.feeling()
     else
-        local response = cleverbot.talk(
+        local response = mattata_ai.talk(
             original_message,
-            reply
+            reply or false,
+            true
         )
         if not response then
             if redis:hget(
@@ -181,35 +183,47 @@ function ai.offline()
     return responses[math.random(#responses)]
 end
 
-function ai:on_edited_message(edited_message, configuration)
-    mattata.send_chat_action(
-        edited_message.chat.id,
-        'typing'
-    )
-    return mattata.edit_message_text(
-        edited_message.chat.id,
-        edited_message.original_message_id,
-        ai.process(edited_message.text) or ai.offline()
-    )
-end
-
 function ai:on_message(message, configuration)
     mattata.send_chat_action(
         message.chat.id,
         'typing'
     )
     local output
-    if message.reply_to_message and message.reply_to_message.text:len() > 0 and message.reply_to_message.from.id == self.info.id then
-        output = ai.process(
-            message.text,
-            message.reply_to_message.text
-        )
+    if redis:get('ai:' .. message.from.id .. ':use_cleverbot') then
+        if message.reply_to_message and message.reply_to_message.text:len() > 0 then
+            output = ai.process(
+                message.text,
+                message.reply_to_message.text,
+                true
+            )
+        else
+            output = ai.process(message.text)
+        end
     else
-        output = ai.process(message.text)
+        output = mattata_ai.talk(
+            message.text,
+            false,
+            false,
+            message.from.id
+        )
+    end
+    if not output and not redis:get('ai:' .. message.from.id .. ':use_cleverbot') then
+        if message.reply_to_message and message.reply_to_message.text:len() > 0 then
+            output = ai.process(
+                message.text,
+                message.reply_to_message.text,
+                true
+            )
+        else
+            output = ai.process(message.text)
+        end
     end
     return mattata.send_reply(
         message,
-        output or ai.offline()
+        '<pre>' .. mattata.escape_html(output) .. '</pre>' or '<pre>' .. mattata.escape_html(
+            ai.offline()
+        ) .. '</pre>',
+        'html'
     )
 end
 

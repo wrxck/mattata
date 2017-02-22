@@ -37,12 +37,16 @@ function xkcd:on_message(message, configuration)
         input = tonumber(input)
     else
         input = 'inurl:xkcd.com ' .. input
-        local search = https.request('https://www.google.co.uk/search?num=20&q= ' .. url.escape(input))
-        if not search:match('https?://xkcd[^/]+/%d+') then
-            input = xkcd.latest
-        else
-            input = search:match('https?://xkcd[^/]+/(%d+)')
+        local search, res = https.request('https://relevantxkcd.appspot.com/process?action=xkcd&query=' .. url.escape(input))
+        if res ~= 200 then
+            return mattata.send_reply(
+                message,
+                configuration.errors.results
+            )
         end
+        input = tonumber(
+            search:match('^.-\n.-\n(%d*) %/')
+        )
     end
     local url = string.format(
         'https://xkcd.com/%s/info.0.json',
@@ -74,7 +78,8 @@ function xkcd:on_message(message, configuration)
             jdat.year,
             mattata.escape_html(jdat.alt)
         ),
-        'html'
+        'html',
+        false
     )
 end
 

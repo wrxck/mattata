@@ -10,6 +10,7 @@ local http = require('socket.http')
 local ltn12 = require('ltn12')
 local multipart = require('multipart-post')
 local json = require('dkjson')
+local redis = require('mattata-redis')
 
 function exec:init()
     exec.commands = mattata.commands(
@@ -18,28 +19,92 @@ function exec:init()
     exec.help = [[/exec <language> <code> - Executes the specified code in the given language and returns the output.]]
 end
 
+exec.languages = {
+    ['C#'] = '1',
+    ['VB.NET'] = '2',
+    ['Java'] = '4',
+    ['Python'] = '5',
+    ['PHP'] = '8',
+    ['Pascal'] = '9',
+    ['Objective-C'] = '10',
+    ['Haskell'] = '11',
+    ['Ruby'] = '12',
+    ['Perl'] = '13',
+    ['Lua'] = '14',
+    ['JavaScript'] = '17',
+    ['GoLang'] = '20',
+    ['Node.js'] = '23',
+    ['Python 3'] = '24',
+    ['C'] = '26',
+    ['C++'] = '27',
+    ['MySQL'] = '33',
+    ['Swift'] = '37',
+    ['Bash'] = '38'
+}
+
+function exec.get_keyboard(user_id)
+    local keyboard = {
+        ['inline_keyboard'] = {
+            {}
+        }
+    }
+    local total = 0
+    for _, v in pairs(exec.languages) do
+        total = total + 1
+    end
+    local count = 0
+    local rows = math.floor(total / 8)
+    if rows ~= total then
+        rows = rows + 1
+    end
+    local row = 1
+    for k, v in pairs(exec.languages) do
+        count = count + 1
+        if count == rows * row then
+            row = row + 1
+            table.insert(
+                keyboard.inline_keyboard,
+                {}
+            )
+        end
+        local last_used = redis:get('exec:' .. user_id .. ':last_used')
+        if last_used and last_used == v then
+            k = utf8.char(9889) .. ' ' .. k
+        end
+        table.insert(
+            keyboard.inline_keyboard[row],
+            {
+                ['text'] = k,
+                ['callback_data'] = 'exec:' .. user_id .. ':' .. v .. ':n'
+            }
+        )
+    end
+    return keyboard
+end
+
 function exec.get_arguments(language)
-    if language == 'c_gcc' or language == 'gcc' or language == 'c' or language == 'c_clang' or language == 'clang' then
+    if language == '6' or language == '26' then
         return '-Wall -std=gnu99 -O2 -o a.out source_file.c'
-    elseif language == 'cpp' or language == 'cplusplus_clang' or language == 'cpp_clang' or language == 'clangplusplus' or language == 'clang++' then
+    elseif language == '7' or language == '27' then
         return '-Wall -std=c++14 -O2 -o a.out source_file.cpp'
-    elseif language == 'visual_cplusplus' or language == 'visual_cpp' or language == 'vc++' or language == 'msvc' then
+    elseif language == '28' then
         return 'source_file.cpp -o a.exe /EHsc /MD /I C:\\\\boost_1_60_0 /link /LIBPATH:C:\\\\boost_1_60_0\\\\stage\\\\lib'
-    elseif language == 'visual_c' then
+    elseif language == '29' then
         return 'source_file.c -o a.exe'
-    elseif language == 'd' then
+    elseif language == '30' then
         return 'source_file.d -ofa.out'
-    elseif language == 'golang' or language == 'go' then
+    elseif language == '20' then
         return '-o a.out source_file.go'
-    elseif language == 'haskell' then
+    elseif language == '11' then
         return '-o a.out source_file.hs'
-    elseif language == 'objective_c' or language == 'objc' then
+    elseif language == '10' then
         return '-MMD -MP -DGNUSTEP -DGNUSTEP_BASE_LIBRARY=1 -DGNU_GUI_LIBRARY=1 -DGNU_RUNTIME=1 -DGNUSTEP_BASE_LIBRARY=1 -fno-strict-aliasing -fexceptions -fobjc-exceptions -D_NATIVE_OBJC_EXCEPTIONS -pthread -fPIC -Wall -DGSWARN -DGSDIAGNOSE -Wno-import -g -O2 -fgnu-runtime -fconstant-string-class=NSConstantString -I. -I /usr/include/GNUstep -I/usr/include/GNUstep -o a.out source_file.m -lobjc -lgnustep-base'
     end
     return ''
 end
 
 function exec.make_request(language, code)
+    language = language:lower()
     local args = exec.get_arguments(language)
     local parameters = {
         ['LanguageChoice'] = language,
@@ -105,6 +170,67 @@ function exec.make_request(language, code)
     )
 end
 
+function exec:on_callback_query(callback_query, message)
+    local user_id, language, confirmed = callback_query.data:match('^(.-)%:(.-)%:(.-)$')
+    if not user_id or not language or not message.reply_to_message then
+        return
+    elseif tostring(callback_query.from.id) ~= user_id then
+        return
+    elseif language == 'back' then
+        return mattata.edit_message_text(
+            message.chat.id,
+            message.message_id,
+            'Please select the language you would like to execute your code in:',
+            nil,
+            true,
+            exec.get_keyboard(user_id)
+        )
+    end
+    local code = mattata.input(message.reply_to_message.text)
+    if not code then
+        return
+    end
+    local language_name
+    for k, v in pairs(exec.languages) do
+        if v == language then
+            language_name = k
+        end
+    end
+    if not language_name then
+        return
+    elseif confirmed == 'y' then
+        redis:set(
+            'exec:' .. user_id .. ':last_used',
+            language
+        )
+        return mattata.edit_message_text(
+            message.chat.id,
+            message.message_id,
+            exec.make_request(
+                language,
+                code
+            ),
+            'html'
+        )
+    end        
+    return mattata.edit_message_text(
+        message.chat.id,
+        message.message_id,
+        'You have selected "' .. language_name .. '" - are you sure?',
+        nil,
+        true,
+        mattata.inline_keyboard():row(
+            mattata.row():callback_data_button(
+                'Back',
+                'exec:' .. user_id .. ':back:n'
+            ):callback_data_button(
+                'I\'m sure',
+                'exec:' .. user_id .. ':' .. language .. ':y'
+            )
+        )
+    )
+end
+
 function exec:on_edited_message(edited_message, configuration)
     local input = mattata.input(edited_message.text)
     if not input then
@@ -115,40 +241,17 @@ function exec:on_edited_message(edited_message, configuration)
         )
     end
     mattata.send_chat_action(edited_message.chat.id)
-    local language = input:match('^([%a%+]+) .-$') or input:match('^([%a%+]+)\n.-$')
-    if not language then
-        return mattata.edit_message_text(
-            edited_message.chat.id,
-            edited_message.original_message_id,
-            'Please specify a language to execute your snippet of code in, using the syntax /exec <language> <code>.'
-        )
-    end
-    language = language:lower()
-    local code = input:match('^[%a%+]+ (.-)$') or input:match('^[%a%+]+\n(.-)$')
-    if not code then
-        return mattata.edit_message_text(
-            edited_message.chat.id,
-            edited_message.original_message_id,
-            'Please specify a snippet of code to execute, using the syntax /exec <language> <code>.'
-        )
-    end
-    local output = exec.make_request(language, code)
-    if not output then
-        return mattata.edit_message_text(
-            edited_message.chat.id,
-            edited_message.original_message_id,
-            'Timed out.'
-        )
-    end
     return mattata.edit_message_text(
         edited_message.chat.id,
         edited_message.original_message_id,
-        output,
-        'html'
+        'Please select the language you would like to execute your code in:',
+        'html',
+        true,
+        exec.get_keyboard(edited_message.from.id)
     )
 end
 
-function exec:on_message(message, configuration)
+function exec:on_message(message)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(
@@ -157,32 +260,14 @@ function exec:on_message(message, configuration)
         )
     end
     mattata.send_chat_action(message.chat.id)
-    local language = input:match('^([%a%+]+) .-$') or input:match('^([%a%+]+)\n.-$')
-    if not language then
-        return mattata.send_reply(
-            message,
-            'Please specify a language to execute your snippet of code in, using the syntax /exec <language> <code>.'
-        )
-    end
-    language = language:lower()
-    local code = input:match('^[%a%+]+ (.-)$') or input:match('^[%a%+]+\n(.-)$')
-    if not code then
-        return mattata.send_reply(
-            message,
-            'Please specify a snippet of code to execute, using the syntax /exec <language> <code>.'
-        )
-    end
-    local output = exec.make_request(language, code)
-    if not output then
-        return mattata.send_reply(
-            message,
-            'Timed out.'
-        )
-    end
-    return mattata.send_reply(
+    return mattata.send_message(
         message,
-        output,
-        'html'
+        'Please select the language you would like to execute your code in:',
+        'html',
+        true,
+        false,
+        message.message_id,
+        exec.get_keyboard(message.from.id)
     )
 end
 

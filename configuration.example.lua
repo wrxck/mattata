@@ -1,4 +1,4 @@
-return { -- rename this file to configuration.lua for the bot to work
+return { -- Rename this file to configuration.lua for the bot to work.
 
     ['bot_token'] = '', -- In order for your bot to actually work, you MUST insert the Telegram bot API token you received from @BotFather.
 
@@ -29,7 +29,7 @@ return { -- rename this file to configuration.lua for the bot to work
 
     ['debug'] = false, -- If set to true, information about each API update will be printed to the console.
 
-    ['plugins'] = { -- This table lists the plugins which your copy of mattata will load upon each instance.
+    ['plugins'] = { -- This table lists the plugins which your bot will load upon each instance.
 
         'control',
         -- To allow things to work properly, you MUST place all new plugins BELOW this line. It is recommended to keep the list clean by ensuring it keeps its alphabetical order.
@@ -118,6 +118,7 @@ return { -- rename this file to configuration.lua for the bot to work
         'rimg',
         'rss',
         'sed',
+        'setai',
         'setlang',
         'setloc',
         'shorten',
@@ -224,9 +225,9 @@ return { -- rename this file to configuration.lua for the bot to work
 
     ['errors'] = { -- Messages to provide a more user-friendly approach to instances of errors.
 
-        ['connection'] = 'I\'m sorry, but there was an error whilst I was processing your request, please try again later.',
+        ['connection'] = 'Connection error.',
 
-        ['results'] = 'I\'m sorry, but I couldn\'t find any results for that.'
+        ['results'] = 'I couldn\'t find any results for that.'
 
     },
 

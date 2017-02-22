@@ -9,7 +9,7 @@
         Copyright (c) 2017 Matthew Hesketh
         See './LICENSE' for details
 
-        Current version: v15
+        Current version: v16
 
 ]]
 
@@ -75,7 +75,7 @@ function mattata:init()
             self.info.id
         )
     )
-    self.version = 'v15'
+    self.version = 'v16'
     if not redis:get('mattata:version') or redis:get('mattata:version') ~= self.version then -- Make necessary database changes.
         for k, v in pairs(
             redis:keys('user:*:info')
@@ -84,12 +84,13 @@ function mattata:init()
                 redis:hgetall(v)
             )
         end
+        redis:set(
+            'mattata:version',
+            self.version
+        )
     end
-    redis:set(
-        'mattata:version',
-        self.version
-    )
     self.last_update = self.last_update or 0
+    self.last_backup = self.last_backup or os.date('%V')
     self.last_cron = self.last_cron or os.date('%H')
     self.last_m_cron = self.last_m_cron or os.date('%M')
     return true
@@ -301,6 +302,12 @@ function mattata:run(configuration, token)
             end
         else
             print('There was an error retrieving updates from the Telegram bot API!')
+        end
+        if self.last_backup ~= os.date('%V') then
+            self.last_backup = os.date('%V')
+            print(
+                io.popen('./backup.sh'):read('*all')
+            )
         end
         if self.last_cron ~= os.date('%H') then
             self.last_cron = os.date('%H')
@@ -711,15 +718,21 @@ function mattata:on_message(message, configuration)
     ) and not message.text:match('^Cancel$') and not message.text:match('^%/?s%/.-%/.-%/?$') and not message.photo and not message.text:match('^%/') and not message.forward_from then
         if (
             message.text:lower():match('^' .. self.info.name:lower() .. '.? .-$') or message.text:match('^.-%,? ' .. self.info.name:lower() .. '%??%.?%!?$') or message.chat.type == 'private' or (
-            message.reply_to_message and message.reply_to_message.from.id == self.info.id
-        )
-    ) and message.text:lower() ~= self.info.name:lower() then
+                message.reply_to_message and message.reply_to_message.from.id == self.info.id
+            )
+        ) and message.text:lower() ~= self.info.name:lower() then
             message.text = message.text:lower():gsub(self.info.name:lower(), '')
             local ai = require('plugins.ai')
             return ai.on_message(
                 self,
                 message,
                 configuration
+            )
+        elseif message.text:lower() == self.info.name:lower() then
+            mattata.send_chat_action(message.chat.id)
+            return mattata.send_reply(
+                message,
+                'Yes?'
             )
         end
     end
@@ -1142,24 +1155,6 @@ function mattata:on_edited_message(edited_message, configuration)
             end
         end
     end
-    if not mattata.is_plugin_disabled(
-        'ai',
-        edited_message
-    ) and not edited_message.text:match('^Cancel$') and not edited_message.text:match('^%/?s%/.-%/.-%/?$') and not edited_message.photo and not edited_message.text:match('^%/') and not edited_message.forward_from then
-        if (
-            edited_message.text:lower():match('^' .. self.info.name:lower() .. '.? .-$') or edited_message.text:match('^.-%,? ' .. self.info.name:lower() .. '%??%.?%!?$') or edited_message.chat.type == 'private' or (
-            edited_message.reply_to_message and edited_message.reply_to_message.from.id == self.info.id
-        )
-    ) and edited_message.text:lower() ~= self.info.name:lower() then
-            edited_message.text = edited_message.text:lower():gsub(self.info.name:lower(), '')
-            local ai = require('plugins.ai')
-            return ai.on_edited_message(
-                self,
-                edited_message,
-                configuration
-            )
-        end
-    end
 end
 
 function mattata:on_inline_query(inline_query, configuration)
@@ -1217,7 +1212,7 @@ function mattata:on_callback_query(callback_query, message, configuration)
     if redis:get('global_blacklist:' .. callback_query.from.id) then
         return
     elseif message then
-        if message.reply_to_message and message.chat.type ~= 'channel' and callback_query.from.id ~= message.reply_to_message.from.id and not callback_query.data:match('^game%:') then
+        if message.reply_to_message and message.chat.type ~= 'channel' and callback_query.from.id ~= message.reply_to_message.from.id and not callback_query.data:match('^game%:') and not mattata.is_global_admin(callback_query.from.id) then
             return mattata.answer_callback_query(
                 callback_query.id,
                 string.format(
@@ -2497,7 +2492,15 @@ function mattata.get_user(input)
     input = tostring(input):match('^%@(.-)$') or tostring(input)
     local user = redis:hgetall('user:' .. input .. ':info')
     if user.username and user.username:lower() == input:lower() then
-        return mattata.get_chat(user.id)
+        user.type = 'private'
+        user.name = user.first_name
+        if user.last_name then
+            user.name = user.name .. ' ' .. user.last_name
+        end
+        return {
+            ['ok'] = true,
+            ['result'] = user
+        }
     end
     return false
 end

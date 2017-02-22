@@ -18,7 +18,11 @@ end
 function sed:on_callback_query(callback_query, message, configuration)
     if not message.reply_to_message then
         return
-    elseif message.reply_to_message.from.id ~= callback_query.from.id then
+    end
+    if mattata.is_global_admin(callback_query.from.id) then
+        callback_query.from = message.reply_to_message.from
+    end
+    if message.reply_to_message.from.id ~= callback_query.from.id then
         return
     end
     local output = string.format(

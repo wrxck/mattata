@@ -93,13 +93,13 @@ function setlang.get_keyboard(user_id)
                 {}
             )
         end
-		table.insert(
-			keyboard.inline_keyboard[row],
-			{
-				['text'] = v,
-				['callback_data'] = 'setlang:' .. user_id .. ':' .. k
-			}
-		)
+        table.insert(
+            keyboard.inline_keyboard[row],
+            {
+                ['text'] = v,
+                ['callback_data'] = 'setlang:' .. user_id .. ':' .. k
+            }
+        )
     end
     return keyboard
 end
