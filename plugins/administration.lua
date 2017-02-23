@@ -995,7 +995,7 @@ function administration.do_action(message, action)
     if tonumber(input) == nil and not input:match('^%@') then
         input = '@' .. input
     end
-    local user = mattata.get_user(input)
+    local user = mattata.get_user(input) or mattata.get_chat(input)
     if not user then
         return mattata.send_reply(
             message,
