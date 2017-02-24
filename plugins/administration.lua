@@ -1836,17 +1836,17 @@ function administration:process_message(message)
             message.chat.id
         )
     ) then
-        success = mattata.kick_chat_member(
-            message.chat.id,
-            message.from.id
-        )
-        executed_action = 'kicked'
-    else
         success = mattata.ban_chat_member(
             message.chat.id,
             message.from.id
         )
         executed_action = 'banned'
+    else
+        success = mattata.kick_chat_member(
+            message.chat.id,
+            message.from.id
+        )
+        executed_action = 'kicked'
     end
     if configuration.log_admin_actions and configuration.log_channel ~= '' then
         mattata.send_message(
