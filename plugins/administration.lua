@@ -1020,7 +1020,10 @@ function administration.do_action(message, action)
     elseif action == 'unban' and mattata.get_chat_member(
         message.chat.id,
         user.result.id
-    ) then
+    ) and mattata.get_chat_member(
+        message.chat.id,
+        user.result.id
+    ).result.status ~= 'kicked' then
         return mattata.send_reply(
             message,
             string.format(
