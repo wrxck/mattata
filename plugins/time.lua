@@ -45,8 +45,8 @@ function time:on_message(message, configuration)
     local input = mattata.input(message.text)
     local lat, lon, address
     if not input then
-        if message.reply_to_message then
-            message.from = message.reply_to_message.from
+        if message.reply then
+            message.from = message.reply.from
         end
         local location = setloc.get_loc(message.from)
         if not location then

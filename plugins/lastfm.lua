@@ -71,23 +71,7 @@ function lastfm:on_inline_query(inline_query, configuration)
     local username, results, output
     if inline_query.query == '/np' then
         if not lastfm.get_username(inline_query.from) then
-            local results = json.encode(
-                {
-                    {
-                        ['type'] = 'article',
-                        ['id'] = '1',
-                        ['title'] = 'An error occured!',
-                        ['description'] = 'Please send /fmset <username> to me via private chat!',
-                        ['input_message_content'] = {
-                            ['message_text'] = 'An error occured!\nPlease send /fmset <username> to me via private chat!'
-                        }
-                    }
-                }
-            )
-            return mattata.answer_inline_query(
-                inline_query.id,
-                results
-            )
+            return
         end
         username = lastfm.get_username(inline_query.from)
     else
@@ -113,7 +97,7 @@ function lastfm:on_inline_query(inline_query, configuration)
         artist = jdat.artist['#text']
     end
     output = output .. artist .. ' - ' .. title
-    if jdat.image[4]['#text'] == '' then
+    if jdat.image and jdat.image[4]['#text'] == '' then
         local results = json.encode(
             {
                 {
@@ -226,7 +210,7 @@ function lastfm:on_message(message, configuration)
             output .. artist .. ' - ' .. title
         )
     end
-    if jdat.image[1]['#text'] == '' then
+    if jdat.image and jdat.image[1]['#text'] == '' then
         return mattata.send_message(
             message.chat.id,
             output .. artist .. ' - ' .. title

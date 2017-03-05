@@ -16,7 +16,7 @@ function counter:init()
 end
 
 function counter:on_message(message, configuration)
-    if not message.reply_to_message then
+    if not message.reply then
         return mattata.send_reply(
             message,
             counter.help
@@ -26,7 +26,7 @@ function counter:on_message(message, configuration)
         configuration.counter_channel,
         message.chat.id,
         true,
-        message.reply_to_message.message_id
+        message.reply.message_id
     )
     if not success then
         return mattata.send_reply(

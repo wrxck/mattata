@@ -22,10 +22,10 @@ function id.resolve_chat(message)
     end
     local output = {}
     local input = mattata.input(message.text) or message.query
-    if not input and not message.reply_to_message then
+    if not input and not message.reply then
         input = message.from.id
-    elseif message.reply_to_message then
-        input = message.reply_to_message.from.id
+    elseif message.reply then
+        input = message.reply.from.id
     end
     if tonumber(input) == nil and not input:match('^%@') then
         input = '@' .. input

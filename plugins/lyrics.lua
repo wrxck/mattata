@@ -12,6 +12,8 @@ local url = require('socket.url')
 local ltn12 = require('ltn12')
 local json = require('dkjson')
 local html = require('htmlEntities')
+local redis = require('mattata-redis')
+local socket = require('socket')
 local configuration = require('configuration')
 
 function lyrics:init(configuration)
@@ -135,7 +137,7 @@ function lyrics.search_lyrics(artist, track)
     return success
 end
 
-function lyrics.send_request(input)
+function lyrics.send_request(input, inline)
     local search_url = string.format(
         'https://api.musixmatch.com/ws/1.1/track.search?apikey=%s&s_track_rating=desc',
         configuration.keys.lyrics
@@ -178,6 +180,9 @@ function lyrics.send_request(input)
         if jdat.message.header.available == 0 then
             return false
         end
+    end
+    if inline then
+        return jdat
     end
     local artist = jdat.message.body.track_list[1].track.artist_name
     local track = jdat.message.body.track_list[1].track.track_name
@@ -259,21 +264,114 @@ function lyrics:on_inline_query(inline_query, configuration)
     if not input then
         return
     end
-    local output, artist, track = lyrics.send_request(input)
+    local output = lyrics.send_request(
+        input,
+        true
+    )
     if not output then
         return
     end
-    local keyboard = lyrics.get_keyboard(
-        artist,
-        track
-    )
-    return mattata.send_inline_article(
+    local results = {}
+    local count = 0
+    for n in pairs(output.message.body.track_list) do
+        local artist = output.message.body.track_list[n].track.artist_name
+        local track = output.message.body.track_list[n].track.track_name
+        local track_id = output.message.body.track_list[n].track.track_id
+        local track_length = output.message.body.track_list[n].track.track_length
+        if artist and track and track_id and track_length then 
+            count = count + 1
+            local id = socket.gettime() * 10000
+            redis:set(
+                'lyrics:' .. id,
+                json.encode(
+                    {
+                        ['artist'] = artist,
+                        ['track'] = track,
+                        ['track_id'] = track_id,
+                        ['track_length'] = track_length
+                    }
+                )
+            )
+            table.insert(
+                results,
+                mattata.inline_result():type('article'):id(count):title(track):description(artist):input_message_content(
+                    mattata.input_text_message_content(
+                        string.format(
+                            '%s - %s',
+                            track,
+                            artist
+                        )
+                    )
+                ):reply_markup(
+                    mattata.inline_keyboard():row(
+                        mattata.row():callback_data_button(
+                            'Show Lyrics',
+                            'lyrics:' .. id
+                        )
+                    )
+                )
+            )
+        end
+    end
+    if not results or results == {} then
+        return
+    end
+    return mattata.answer_inline_query(
         inline_query.id,
-        track,
-        artist,
+        results
+    )
+end
+
+function lyrics:on_callback_query(callback_query, message, configuration)
+    local data = redis:get('lyrics:' .. callback_query.data)
+    if not data or not json.decode(data) then
+        return
+    end
+    local output = lyrics.search_lyrics(
+        json.decode(data).artist,
+        json.decode(data).track
+    )
+    if not output then
+        local jstr_lyrics, res_lyrics = https.request(
+            string.format(
+                'https://api.musixmatch.com/ws/1.1/track.lyrics.get?apikey=%s&track_id=%s',
+                configuration.keys.lyrics,
+                json.decode(data).track_id
+            )
+        )
+        if res_lyrics ~= 200 then
+            return
+        end
+        local jdat_lyrics = json.decode(jstr_lyrics)
+        if jdat_lyrics.message.header.status_code ~= 200 then
+            return
+        end
+        output = jdat_lyrics.message.body.lyrics.lyrics_body:match('^(.-)\n\n[%*]+') or jdat_lyrics.message.body.lyrics.lyrics_body
+    end
+    if output:len() > 4000 then -- If the lyrics are REALLY long, trim them so they'll fit in a single message (this is only a temporary solution)
+        output = output:sub(1, 4000) .. '...'
+    end
+    output = output:gsub('\\', '')
+    output = string.format(
+        '<b>%s</b> %s\n🕓 %s\n\n%s',
+        mattata.escape_html(json.decode(data).track),
+        mattata.escape_html(json.decode(data).artist),
+        mattata.format_ms(math.floor(tonumber(json.decode(data).track_length) * 1000)):gsub('^%d%d:', ''):gsub('^0', ''),
+        mattata.escape_html(output)
+    )
+    local keyboard = lyrics.get_keyboard(
+        json.decode(data).artist,
+        json.decode(data).track
+    )
+    redis:del('lyrics:' .. callback_query.data)
+    return mattata.edit_message_text(
+        nil,
+        nil,
         output,
         'html',
-        keyboard
+        true,
+        json.encode(keyboard),
+        callback_query.inline_message_id
     )
 end
 
@@ -296,11 +394,9 @@ function lyrics:on_message(message, configuration)
             configuration.errors.results
         )
     end
-    local keyboard = json.encode(
-        lyrics.get_keyboard(
-            artist,
-            track
-        )
+    local keyboard = lyrics.get_keyboard(
+        artist,
+        track
     )
     return mattata.send_message(
         message.chat.id,

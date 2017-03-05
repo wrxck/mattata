@@ -123,9 +123,9 @@ function slap:on_message(message)
     local victor = ''
     local victim = ''
     if not input then
-        if message.reply_to_message then
+        if message.reply then
             victor = message.from.first_name:gsub('%%', '%%%%')
-            victim = message.reply_to_message.from.first_name:gsub('%%', '%%%%')
+            victim = message.reply.from.first_name:gsub('%%', '%%%%')
         else
             victor = self.info.first_name:gsub('%%', '%%%%')
             victim = message.from.first_name:gsub('%%', '%%%%')

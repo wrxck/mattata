@@ -16,13 +16,13 @@ function sed:init()
 end
 
 function sed:on_callback_query(callback_query, message, configuration)
-    if not message.reply_to_message then
+    if not message.reply then
         return
     end
     if mattata.is_global_admin(callback_query.from.id) then
-        callback_query.from = message.reply_to_message.from
+        callback_query.from = message.reply.from
     end
-    if message.reply_to_message.from.id ~= callback_query.from.id then
+    if message.reply.from.id ~= callback_query.from.id then
         return
     end
     local output = string.format(
@@ -60,9 +60,9 @@ end
 function sed:on_message(message)
     message.text = message.text:gsub('\\%/', '%%fwd_slash%%')
     local matches, substitution = message.text:match('^%/?[sS]%/(.-)%/(.-)%/?$')
-    if not substitution or not message.reply_to_message then
+    if not substitution or not message.reply then
         return
-    elseif message.reply_to_message.from.id == self.info.id then
+    elseif message.reply.from.id == self.info.id then
         return mattata.send_reply(
             message,
             'Screw you, <i>when am I ever wrong?</i>',
@@ -73,7 +73,7 @@ function sed:on_message(message)
     substitution = substitution:gsub('\\n', '\n'):gsub('\\/', '/'):gsub('\\1', '%%1')
     local success, output = pcall(
         function()
-            return message.reply_to_message.text:gsub(matches, substitution)
+            return message.reply.text:gsub(matches, substitution)
         end
     )
     if not success then
@@ -109,13 +109,13 @@ function sed:on_message(message)
         message.chat.id,
         string.format(
             '<b>Hi, %s, did you mean:</b>\n<i>%s</i>',
-            mattata.escape_html(message.reply_to_message.from.first_name),
+            mattata.escape_html(message.reply.from.first_name),
             mattata.escape_html(output)
         ),
         'html',
         true,
         false,
-        message.reply_to_message.message_id,
+        message.reply.message_id,
         json.encode(keyboard)
     )
 end

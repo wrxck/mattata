@@ -7,6 +7,7 @@ local avatar = {}
 
 local mattata = require('mattata')
 local json = require('dkjson')
+local redis = require('mattata-redis')
 
 function avatar:init()
     avatar.commands = mattata.commands(
@@ -44,7 +45,7 @@ function avatar:on_inline_query(inline_query, configuration)
             'An error occured!',
             [[I couldn't retrieve the profile photos for that user, please ensure you specified a valid username or numerical ID.]]
         )
-    elseif success.result.total_count == 0 then
+    elseif success.result.total_count == 0 or redis:get('user:' .. input .. ':opt_out') then
         return mattata.send_inline_article(
             inline_query.id,
             'An error occured!',
@@ -94,6 +95,22 @@ function avatar:on_message(message)
             avatar.help
         )
     end
+    if input == '-r' then
+        local users = redis:keys('user:*:info')
+        local id, photos
+        repeat
+            id = redis:hget(
+                users[math.random(#users)],
+                'id'
+            )
+            photos = mattata.get_user_profile_photos(id)
+        until photos and photos.result and photos.result.total_count > 0 and not redis:get('user:' .. id .. ':opt_out')
+        local random_photo = math.random(photos.result.total_count)
+        return mattata.send_photo(
+            message.chat.id,
+            photos.result.photos[random_photo][#photos.result.photos[random_photo]].file_id
+        )
+    end
     local selected_photo = 1
     if input:match(' %d*$') then
         selected_photo = tonumber(input:match(' (%d*)$'))
@@ -117,7 +134,7 @@ function avatar:on_message(message)
             message,
             [[I couldn't retrieve the profile photos for that user, please ensure you specified a valid username or numerical ID.]]
         )
-    elseif success.result.total_count == 0 then
+    elseif success.result.total_count == 0 or redis:get('user:' .. input .. ':opt_out') then
         return mattata.send_reply(
             message,
             [[That user doesn't have any profile photos.]]

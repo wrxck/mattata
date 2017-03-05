@@ -20,7 +20,9 @@ function dictionary:init()
 end
 
 function dictionary:on_message(message, configuration)
-    local input = mattata.input(message.text:lower())
+    local input = mattata.input(
+        message.text:lower()
+    )
     if not input then
         return mattata.send_reply(
             message,
@@ -39,12 +41,20 @@ function dictionary:on_message(message, configuration)
         }
     )
     if res ~= 200 then
-        return mattata.send_reply(
+        return methods.send_reply(
             message,
             configuration.errors.connection
         )
     end
-    local jdat = json.decode(table.concat(body))
+    local jdat = json.decode(
+        table.concat(body)
+    )
+    if not jdat or not jdat.results then
+        return mattata.send_reply(
+            message,
+            configuration.errors.results
+        )
+    end
     local word = jdat.results[1].word
     word = mattata.escape_html(word)
     local results = #jdat.results[1].lexicalEntries
@@ -54,10 +64,9 @@ function dictionary:on_message(message, configuration)
     local definitions = {}
     for i = 1, results do
         local entry = jdat.results[1].lexicalEntries[i].entries[1].senses[1].definitions[1]:gsub(':$', ''):gsub('%.$', '')
-        entry = mattata.escape_html(entry)
         table.insert(
             definitions,
-            '• ' .. entry
+            '• ' .. mattata.escape_html(entry)
         )
     end
     local output = '<b>' .. word .. '</b>\n\n' .. table.concat(

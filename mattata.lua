@@ -9,7 +9,7 @@
         Copyright (c) 2017 Matthew Hesketh
         See './LICENSE' for details
 
-        Current version: v16
+        Current version: v17
 
 ]]
 
@@ -23,14 +23,13 @@ local multipart = require('multipart-post')
 local json = require('dkjson')
 local redis = require('mattata-redis')
 local configuration = require('configuration')
+local api = require('telegram-bot-lua.core').configure(configuration.bot_token)
+local tools = require('telegram-bot-lua.tools')
 local plugin_list = {}
 local inline_plugin_list = {}
 
 function mattata:init()
-    repeat
-        self.info = mattata.get_me()
-    until self.info
-    self.info = self.info.result
+    self.info = api.info
     self.plugins = {}
     plugin_list = {}
     inline_plugin_list = {}
@@ -66,7 +65,6 @@ function mattata:init()
         end
     end
     print('Connected to the Telegram bot API!')
-    self.info.name = self.info.first_name
     print(
         string.format(
             '\n          Username: @%s\n          Name: %s\n          ID: %s\n',
@@ -75,7 +73,7 @@ function mattata:init()
             self.info.id
         )
     )
-    self.version = 'v16'
+    self.version = 'v17'
     if not redis:get('mattata:version') or redis:get('mattata:version') ~= self.version then -- Make necessary database changes.
         for k, v in pairs(
             redis:keys('user:*:info')
@@ -96,88 +94,7 @@ function mattata:init()
     return true
 end
 
---[[
-
-    Function to make POST requests to the Telegram bot API.
-    A custom API can be specified, such as the PWRTelegram API,
-    using the 'api' parameter.
-]]
-
-function mattata.request(endpoint, parameters, file)
-    assert(
-        endpoint,
-        'You must specify an endpoint to make this request to!'
-    )
-    parameters = parameters or {}
-    for k, v in pairs(parameters) do
-        parameters[k] = tostring(v)
-    end
-    if file and next(file) ~= nil then
-        local file_type, file_name = next(file)
-        if not file_name then
-            return false
-        end
-        if file_name:match(configuration.download_location) then
-            local file_res = io.open(
-                file_name,
-                'r'
-            )
-            local file_data = {
-                filename = file_name,
-                data = file_res:read('*a')
-            }
-            file_res:close()
-            parameters[file_type] = file_data
-        else
-            local file_type, file_name = next(file)
-            parameters[file_type] = file_name
-        end
-    end
-    if next(parameters) == nil then
-        parameters = {
-            ''
-        }
-    end
-    local response = {}
-    local body, boundary = multipart.encode(parameters)
-    local success, code = https.request(
-        {
-            ['url'] = endpoint,
-            ['method'] = 'POST',
-            ['headers'] = {
-                ['Content-Type'] = 'multipart/form-data; boundary=' .. boundary,
-                ['Content-Length'] = #body
-            },
-            ['source'] = ltn12.source.string(body),
-            ['sink'] = ltn12.sink.table(response)
-        }
-    )
-    if not success then
-        print(
-            string.format(
-                'Connection error [%s]',
-                code
-            )
-        )
-        return false, code
-    end
-    local jdat = table.concat(response)
-    if not json.decode(jdat) then
-        return jdat, code
-    end
-    jdat = json.decode(jdat)
-    if jdat.ok == true then
-        return jdat, code
-    end
-    print(
-        string.format(
-            '%s [%s]',
-            jdat.description,
-            jdat.error_code
-        )
-    )
-    return false, jdat
-end
+mattata.request = api.request
 
 --[[
 
@@ -196,7 +113,7 @@ function mattata:run(configuration, token)
     )
     local init = mattata.init(self)
     while init do
-        local res = mattata.get_updates(
+        local res = api.get_updates(
             5, -- Limit
             self.last_update + 1 -- Offset
         )
@@ -204,6 +121,10 @@ function mattata:run(configuration, token)
             for _, update in ipairs(res.result) do
                 self.last_update = update.update_id
                 if update.message then
+                    if update.message.reply_to_message then
+                        update.message.reply = update.message.reply_to_message
+                        update.message.reply_to_message = nil
+                    end
                     mattata.on_message(
                         self,
                         update.message,
@@ -220,6 +141,10 @@ function mattata:run(configuration, token)
                         )
                     end
                 elseif update.edited_message then
+                    if update.edited_message.reply_to_message then
+                        update.edited_message.reply = update.edited_message.reply_to_message
+                        update.edited_message.reply_to_message = nil
+                    end
                     mattata.on_edited_message(
                         self,
                         update.edited_message,
@@ -236,6 +161,10 @@ function mattata:run(configuration, token)
                         )
                     end
                 elseif update.channel_post then
+                    if update.channel_post.reply_to_message then
+                        update.channel_post.reply = update.channel_post.reply_to_message
+                        update.channel_post.reply_to_message = nil
+                    end
                     mattata.on_message(
                         self,
                         update.channel_post,
@@ -251,6 +180,10 @@ function mattata:run(configuration, token)
                         )
                     end
                 elseif update.edited_channel_post then
+                    if update.edited_channel_post.reply_to_message then
+                        update.edited_channel_post.reply = update.edited_channel_post.reply_to_message
+                        update.edited_channel_post.reply_to_message = nil
+                    end
                     mattata.on_edited_message(
                         self,
                         update.edited_channel_post,
@@ -281,6 +214,10 @@ function mattata:run(configuration, token)
                         )
                     end
                 elseif update.callback_query then
+                    if update.callback_query.message and update.callback_query.message.reply_to_message then
+                        update.callback_query.message.reply = update.callback_query.message.reply_to_message
+                        update.callback_query.message.reply_to_message = nil
+                    end
                     mattata.on_callback_query(
                         self,
                         update.callback_query,
@@ -297,7 +234,9 @@ function mattata:run(configuration, token)
                         )
                     end
                 else
-                    print(json.encode(update))
+                    print(
+                        json.encode(update)
+                    )
                 end
             end
         else
@@ -410,8 +349,13 @@ function mattata:on_message(message, configuration)
         )
     ) or 'mattata'
     message = mattata.process_message(message) -- Process the message.
-    if message.reply_to_message then
-        message.reply_to_message = mattata.process_message(message.reply_to_message)
+    if message.reply then
+        message.reply = mattata.process_message(message.reply)
+    end
+    if redis:get('nick:' .. message.from.id) then
+        message.from.first_name = redis:get('nick:' .. message.from.id)
+        message.from.last_name = nil
+        message.from.name = message.from.first_name
     end
     if message.text:match('^%/start .-$') then -- Allow deep-linking through the /start command.
         message.text = message.text:match('^%/start (.-)$')
@@ -420,6 +364,67 @@ function mattata:on_message(message, configuration)
         return
     end
     message.chat.title = message.chat.title or message.from.name
+    local messages = tonumber(
+        redis:get('antispam:' .. message.from.id)
+    ) or 1
+    redis:setex(
+        'antispam:' .. message.from.id,
+        5,
+        messages + 1
+    )
+    if messages == 7 then
+        mattata.send_reply(
+            message,
+            'Please don\'t spam messages, or you will be forbidden to use me for 24 hours!'
+        )
+    elseif messages == 15 then
+        redis:setex(
+            'global_blacklist:' .. message.from.id,
+            86400,
+            true
+        )
+        return mattata.send_reply(
+            message,
+            'You have been blacklisted from using me for 24 hours.'
+        )
+    elseif message.chat.type == 'supergroup' and message.sticker then
+        for k, v in pairs(configuration.stickers.ban) do
+            if message.file_id == v then
+                message.text = '/ban'
+            end
+        end
+        for k, v in pairs(configuration.stickers.warn) do
+            if message.file_id == v then
+                message.text = '/warn'
+            end
+        end
+        for k, v in pairs(configuration.stickers.kick) do
+            if message.file_id == v then
+                message.text = '/kick'
+            end
+        end
+    end
+    if not mattata.is_plugin_disabled(
+        'github',
+        message
+    ) and message.text:match('h?t?t?p?s?%:?%/?%/?w?w?w?%.?github%.com%/[A-Z%-%_a-z]+/[A-Z%-%_a-z]+') and message.entities then
+        for k, v in pairs(message.entities) do
+            if v.type == 'url' and message.text:match('(h?t?t?p?s?%:?%/?%/?w?w?w?%.?github%.com%/[A-Z%-%_a-z]+/[A-Z%-%_a-z]+)'):len() == v.length then
+                if not https.request(
+                    message.text:match('(h?t?t?p?s?%:?%/?%/?w?w?w?%.?github%.com%/[A-Z%-%_a-z]+/[A-Z%-%_a-z]+)')
+                ):lower():match('%<title%>page not found') then
+                    message.text = string.format(
+                        '/github %s %s',
+                        message.text:match('h?t?t?p?s?%:?%/?%/?w?w?w?%.?github%.com%/([A-Z%-%_a-z]+)/[A-Z%-%_a-z]+'),
+                        message.text:match('h?t?t?p?s?%:?%/?%/?w?w?w?%.?github%.com%/[A-Z%-%_a-z]+/([A-Z%-%_a-z]+)')
+                    )
+                end
+            end
+        end
+    end
+    if message.text == '/exec' and message.reply and message.reply.text then
+        message.text = '/exec ' .. message.reply.text
+    end
     if mattata.is_global_admin(message.from.id) and message.text:match(' %-%-switch%-chat$') then
         message.text = message.text:match('^(.-) %-%-switch%-chat$')
         local old_id = message.from.id
@@ -669,11 +674,11 @@ function mattata:on_message(message, configuration)
         message
     ) and (
         message.photo or (
-            message.reply_to_message and message.reply_to_message.photo
+            message.reply and message.reply.photo
         )
     ) then
-        if message.reply_to_message then
-            message = message.reply_to_message
+        if message.reply then
+            message = message.reply
         end
         if message.text:lower():match('^wh?at .- th[ia][st].-') or message.text:lower():match('^who .- th[ia][st].-') then
             local captionbotai = require('plugins.captionbotai')
@@ -694,7 +699,7 @@ function mattata:on_message(message, configuration)
             message,
             configuration
         )
-        if message.text:match('^%/statistics$') or message.text:match('^%/statistics@' .. self.info.username:lower()) or message.text:match('^%/stats$') or message.text:match('^%/stats@' .. self.info.username:lower()) then 
+        if message.text:match('^%/statistics$') or message.text:match('^%/statistics@' .. self.info.username:lower()) or message.text:match('^%/stats$') or message.text:match('^%/stats@' .. self.info.username:lower()) then
             return statistics.on_message(
                 self,
                 message,
@@ -702,12 +707,12 @@ function mattata:on_message(message, configuration)
             )
         end
     end
-    if mattata.is_global_admin(message.from.id) and message.chat.id == configuration.bug_reports_chat and message.reply_to_message and message.reply_to_message.forward_from and not message.text:match('^%/') then
+    if mattata.is_global_admin(message.from.id) and message.chat.id == configuration.bug_reports_chat and message.reply and message.reply.forward_from and not message.text:match('^%/') then
         return mattata.send_message(
-            message.reply_to_message.forward_from.id,
+            message.reply.forward_from.id,
             string.format(
                 'Message from the developer regarding bug report #%s:\n<pre>%s</pre>',
-                message.reply_to_message.forward_date,
+                message.reply.forward_date,
                 mattata.escape_html(message.text)
             ),
             'html'
@@ -715,10 +720,12 @@ function mattata:on_message(message, configuration)
     elseif not mattata.is_plugin_disabled(
         'ai',
         message
-    ) and not message.text:match('^Cancel$') and not message.text:match('^%/?s%/.-%/.-%/?$') and not message.photo and not message.text:match('^%/') and not message.forward_from then
+    ) and not message.text:match('^Cancel$') and not message.text:match('^%/?s%/.-%/.-%/?$') and not message.photo and not message.text:match('^%/') and not message.forward_from and (
+        message.text:lower():gsub('%W', '') ~= ''
+    ) then
         if (
             message.text:lower():match('^' .. self.info.name:lower() .. '.? .-$') or message.text:match('^.-%,? ' .. self.info.name:lower() .. '%??%.?%!?$') or message.chat.type == 'private' or (
-                message.reply_to_message and message.reply_to_message.from.id == self.info.id
+                message.reply and message.reply.from.id == self.info.id
             )
         ) and message.text:lower() ~= self.info.name:lower() then
             message.text = message.text:lower():gsub(self.info.name:lower(), '')
@@ -1081,12 +1088,12 @@ function mattata:on_message_misc(message, configuration)
             message,
             choices[math.random(#choices)]
         )
-    elseif message.reply_to_message and message.reply_to_message.text and message.text:lower():match('^wh?at would ' .. self.info.name:lower() .. ' say%??%.?%!?$') and not mattata.is_plugin_disabled(
+    elseif message.reply and message.reply.text and message.text:lower():match('^wh?at would ' .. self.info.name:lower() .. ' say%??%.?%!?$') and not mattata.is_plugin_disabled(
         'ai',
         message
     ) then
         local old_from = message.from
-        message = message.reply_to_message
+        message = message.reply
         message.from = old_from
         local ai = require('plugins.ai')
         return ai.on_message(
@@ -1165,6 +1172,9 @@ function mattata:on_inline_query(inline_query, configuration)
         local plugins = plugin.commands or {}
         for i = 1, #plugins do
             local command = plugin.commands[i]
+            if not inline_query then
+                return
+            end
             if inline_query.query:match(command) and plugin.on_inline_query then
                 local success, result = pcall(
                     function()
@@ -1186,8 +1196,14 @@ function mattata:on_inline_query(inline_query, configuration)
                         ),
                         configuration.log_chat
                     )
-                    message = nil
-                    return
+                    inline_query = nil
+                elseif not result then
+                    return api.answer_inline_query(
+                        inline_query.id,
+                        api.inline_result():id():type('article'):title(configuration.errors.results):description(plugin.help):input_message_content(
+                            api.input_text_message_content(plugin.help)
+                        )
+                    )
                 end
             end
         end
@@ -1212,12 +1228,12 @@ function mattata:on_callback_query(callback_query, message, configuration)
     if redis:get('global_blacklist:' .. callback_query.from.id) then
         return
     elseif message then
-        if message.reply_to_message and message.chat.type ~= 'channel' and callback_query.from.id ~= message.reply_to_message.from.id and not callback_query.data:match('^game%:') and not mattata.is_global_admin(callback_query.from.id) then
+        if message.reply and message.chat.type ~= 'channel' and callback_query.from.id ~= message.reply.from.id and not callback_query.data:match('^game%:') and not mattata.is_global_admin(callback_query.from.id) then
             return mattata.answer_callback_query(
                 callback_query.id,
                 string.format(
                     'Only %s can use this!',
-                    message.reply_to_message.from.first_name
+                    message.reply.from.first_name
                 )
             )
         end
@@ -1291,32 +1307,16 @@ function mattata.get_updates(timeout, offset, token) -- https://core.telegram.or
     )
 end
 
-function mattata.send_message(message, text, parse_mode, disable_web_page_preview, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendmessage
-    token = token or configuration.bot_token
-    if disable_web_page_preview == nil then
-        disable_web_page_preview = true
-    end
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    local chat_id = message
-    if type(message) == 'table' then
-        chat_id = message.chat.id
-    end
-    local success = mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendMessage',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['text'] = text,
-            ['parse_mode'] = parse_mode,
-            ['disable_web_page_preview'] = disable_web_page_preview,
-            ['disable_notification'] = disable_notification or false,
-            ['reply_to_message_id'] = reply_to_message_id,
-            ['reply_markup'] = reply_markup
-        }
+function mattata.send_message(message, text, parse_mode, disable_web_page_preview, disable_notification, reply_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendmessage
+    local success = api.send_message(
+        message,
+        text,
+        parse_mode,
+        disable_web_page_preview,
+        disable_notification,
+        reply_id,
+        reply_markup,
+        token
     )
     if success and type(message) == 'table' then
         redis:set(
@@ -1328,27 +1328,15 @@ function mattata.send_message(message, text, parse_mode, disable_web_page_previe
 end
 
 function mattata.send_reply(message, text, parse_mode, disable_web_page_preview, reply_markup, token) -- A variant of mattata.send_message(), optimised for sending a message as a reply.
-    token = token or configuration.bot_token
-    if disable_web_page_preview == nil then
-        disable_web_page_preview = true
-    end
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    local success = mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendMessage',
-            token
-        ),
-        {
-            ['chat_id'] = message.chat.id,
-            ['text'] = text,
-            ['parse_mode'] = parse_mode,
-            ['disable_web_page_preview'] = disable_web_page_preview,
-            ['disable_notification'] = false,
-            ['reply_to_message_id'] = message.message_id,
-            ['reply_markup'] = reply_markup
-        }
+    local success = api.send_message(
+        message,
+        text,
+        parse_mode,
+        disable_web_page_preview,
+        false,
+        message.message_id,
+        reply_markup,
+        token
     )
     if success then
         redis:set(
@@ -1359,551 +1347,39 @@ function mattata.send_reply(message, text, parse_mode, disable_web_page_preview,
     return success
 end
 
-function mattata.forward_message(chat_id, from_chat_id, disable_notification, message_id, token) -- https://core.telegram.org/bots/api#forwardmessage
-    token = token or configuration.bot_token
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/forwardMessage',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['from_chat_id'] = from_chat_id,
-            ['disable_notification'] = disable_notification or false,
-            ['message_id'] = message_id
-        }
-    )
-end
+mattata.forward_message = api.forward_message
+mattata.send_photo = api.send_photo
+mattata.send_audio = api.send_audio
+mattata.send_document = api.send_document
+mattata.send_sticker = api.send_sticker
+mattata.send_video = api.send_video
+mattata.send_voice = api.send_voice
+mattata.send_location = api.send_location
+mattata.send_venue = api.send_venue
+mattata.send_contact = api.send_contact
+mattata.send_chat_action = api.send_chat_action
+mattata.get_user_profile_photos = api.get_user_profile_photos
+mattata.get_file = api.get_file
+mattata.ban_chat_member = api.ban_chat_member
+mattata.kick_chat_member = api.kick_chat_member
+mattata.unban_chat_member = api.unban_chat_member
+mattata.leave_chat = api.leave_chat
+mattata.get_chat_administrators = api.get_chat_administrators
+mattata.get_chat_members_count = api.get_chat_members_count
+mattata.get_chat_member = api.get_chat_member
+mattata.answer_callback_query = api.answer_callback_query
+mattata.edit_message_text = api.edit_message_text
+mattata.edit_message_caption = api.edit_message_caption
+mattata.edit_message_reply_markup = api.edit_message_reply_markup
+mattata.answer_inline_query = api.answer_inline_query
+mattata.send_game = api.send_game
+mattata.set_game_score = api.set_game_score
+mattata.get_game_high_scores = api.get_game_high_scores
 
-function mattata.send_photo(chat_id, photo, caption, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendphoto
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendPhoto',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['caption'] = caption,
-            ['disable_notification'] = disable_notification or false,
-            ['reply_to_message_id'] = reply_to_message_id,
-            ['reply_markup'] = reply_markup
-        },
-        {
-            ['photo'] = photo
-        }
-    )
-end
-
-function mattata.send_audio(chat_id, audio, caption, duration, performer, title, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendaudio
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendAudio',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['caption'] = caption,
-            ['duration'] = duration,
-            ['performer'] = performer,
-            ['title'] = title,
-            ['disable_notification'] = disable_notification or false,
-            ['reply_to_message_id'] = reply_to_message_id,
-            ['reply_markup'] = reply_markup
-        },
-        {
-            ['audio'] = audio
-        }
-    )
-end
-
-function mattata.send_document(chat_id, document, caption, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#senddocument
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendDocument',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['caption'] = caption,
-            ['disable_notification'] = disable_notification or false,
-            ['reply_to_message_id'] = reply_to_message_id,
-            ['reply_markup'] = reply_markup
-        },
-        {
-            ['document'] = document
-        }
-    )
-end
-
-function mattata.send_sticker(chat_id, sticker, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendsticker
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendSticker',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['disable_notification'] = disable_notification or false,
-            ['reply_to_message_id'] = reply_to_message_id,
-            ['reply_markup'] = reply_markup
-        },
-        {
-            ['sticker'] = sticker
-        }
-    )
-end
-
-function mattata.send_video(chat_id, video, duration, width, height, caption, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendvideo
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendVideo',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['duration'] = duration,
-            ['width'] = width,
-            ['height'] = height,
-            ['caption'] = caption,
-            ['disable_notification'] = disable_notification or false,
-            ['reply_to_message_id'] = reply_to_message_id,
-            ['reply_markup'] = reply_markup
-        },
-        {
-            ['video'] = video
-        }
-    )
-end
-
-function mattata.send_voice(chat_id, voice, caption, duration, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendvoice
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendVoice',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['caption'] = caption,
-            ['duration'] = duration,
-            ['disable_notification'] = disable_notification,
-            ['reply_to_message_id'] = reply_to_message_id,
-            ['reply_markup'] = reply_markup
-        },
-        {
-            ['voice'] = voice
-        }
-    )
-end
-
-function mattata.send_location(chat_id, latitude, longitude, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendlocation
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendLocation',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['latitude'] = latitude,
-            ['longitude'] = longitude,
-            ['disable_notification'] = disable_notification or false,
-            ['reply_to_message_id'] = reply_to_message_id,
-            ['reply_markup'] = reply_markup
-        }
-    )
-end
-
-function mattata.send_venue(chat_id, latitude, longitude, title, address, foursquare_id, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendvenue
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendVenue',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['latitude'] = latitude,
-            ['longitude'] = longitude,
-            ['title'] = title,
-            ['address'] = address,
-            ['foursquare_id'] = foursquare_id,
-            ['disable_notification'] = disable_notification or false,
-            ['reply_to_message_id'] = reply_to_message_id,
-            ['reply_markup'] = reply_markup
-        }
-    )
-end
-
-function mattata.send_contact(chat_id, phone_number, first_name, last_name, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendcontact
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendContact',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['phone_number'] = phone_number,
-            ['first_name'] = first_name,
-            ['last_name'] = last_name,
-            ['disable_notification'] = disable_notification or false,
-            ['reply_to_message_id'] = reply_to_message_id,
-            ['reply_markup'] = reply_markup
-        }
-    )
-end
-
-function mattata.send_chat_action(chat_id, action, token) -- https://core.telegram.org/bots/api#sendchataction
-    token = token or configuration.bot_token
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendChatAction',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['action'] = action or 'typing'
-        }
-    )
-end
-
-function mattata.get_user_profile_photos(user_id, offset, limit, token) -- https://core.telegram.org/bots/api#getuserprofilephotos
-    token = token or configuration.bot_token
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/getUserProfilePhotos',
-            token
-        ),
-        {
-            ['user_id'] = user_id,
-            ['offset'] = offset,
-            ['limit'] = limit
-        }
-    )
-end
-
-function mattata.get_file(file_id, token) -- https://core.telegram.org/bots/api#getfile
-    token = token or configuration.bot_token
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/getFile',
-            token
-        ),
-        {
-            ['file_id'] = file_id
-        }
-    )
-end
-
-function mattata.ban_chat_member(chat_id, user_id, token) -- https://core.telegram.org/bots/api#kickchatmember
-    token = token or configuration.bot_token
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/kickChatMember',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['user_id'] = user_id
-        }
-    )
-end
-
-function mattata.kick_chat_member(chat_id, user_id, token)
-    token = token or configuration.bot_token
-    local success = mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/kickChatMember',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['user_id'] = user_id
-        }
-    )
-    if not success then
-        return success
-    end
-    return mattata.unban_chat_member(
+function mattata.get_chat(chat_id, token)
+    local success = api.get_chat(
         chat_id,
-        user_id,
         token
-    )
-end
-
-function mattata.unban_chat_member(chat_id, user_id, token) -- https://core.telegram.org/bots/api#unbanchatmember
-    token = token or configuration.bot_token
-    local success
-    for i = 1, 3 do
-        success = mattata.request(
-            string.format(
-                'https://api.telegram.org/bot%s/unbanChatMember',
-                token
-            ),
-            {
-                ['chat_id'] = chat_id,
-                ['user_id'] = user_id
-            }
-        )
-    end
-    return success
-end
-
-function mattata.leave_chat(chat_id, token) -- https://core.telegram.org/bots/api#leavechat
-    token = token or configuration.bot_token
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/leaveChat',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id
-        }
-    )
-end
-
-function mattata.get_chat_administrators(chat_id, token) -- https://core.telegram.org/bots/api#getchatadministrators
-    token = token or configuration.bot_token
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/getChatAdministrators',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id
-        }
-    )
-end
-
-function mattata.get_chat_members_count(chat_id, token) -- https://core.telegram.org/bots/api#getchatmemberscount
-    token = token or configuration.bot_token
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/getChatMembersCount',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id
-        }
-    )
-end
-
-function mattata.get_chat_member(chat_id, user_id, token) -- https://core.telegram.org/bots/api#getchatmember
-    token = token or configuration.bot_token
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/getChatMember',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['user_id'] = user_id
-        }
-    )
-end
-
-function mattata.answer_callback_query(callback_query_id, text, show_alert, url, token) -- https://core.telegram.org/bots/api#answercallbackquery
-    token = token or configuration.bot_token
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/answerCallbackQuery',
-            token
-        ),
-        {
-            ['callback_query_id'] = callback_query_id,
-            ['text'] = text,
-            ['show_alert'] = show_alert or false,
-            ['url'] = url
-        }
-    )
-end
-
-function mattata.edit_message_text(chat_id, message_id, text, parse_mode, disable_web_page_preview, reply_markup, inline_message_id, token) -- https://core.telegram.org/bots/api#editmessagetext
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/editMessageText',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['message_id'] = message_id,
-            ['inline_message_id'] = inline_message_id,
-            ['text'] = text,
-            ['parse_mode'] = parse_mode,
-            ['disable_web_page_preview'] = disable_web_page_preview,
-            ['reply_markup'] = reply_markup
-        }
-    )
-end
-
-function mattata.edit_message_caption(chat_id, message_id, inline_message_id, caption, reply_markup, token) -- https://core.telegram.org/bots/api#editmessagecaption
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/editMessageCaption',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['message_id'] = message_id,
-            ['inline_message_id'] = inline_message_id,
-            ['caption'] = caption,
-            ['reply_markup'] = reply_markup
-        }
-    )
-end
-
-function mattata.edit_message_reply_markup(chat_id, message_id, inline_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#editmessagereplymarkup
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/editMessageReplyMarkup',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['message_id'] = message_id,
-            ['inline_message_id'] = inline_message_id,
-            ['reply_markup'] = reply_markup
-        }
-    )
-end
-
-function mattata.answer_inline_query(inline_query_id, results, cache_time, is_personal, next_offset, switch_pm_text, switch_pm_parameter, token) -- https://core.telegram.org/bots/api#answerinlinequery
-    token = token or configuration.bot_token
-    if type(results) == 'table' then
-        if results.id then
-            results = {
-                results
-            }
-        end
-        results = json.encode(results)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/answerInlineQuery',
-            token
-        ),
-        {
-            ['inline_query_id'] = inline_query_id,
-            ['results'] = results,
-            ['switch_pm_text'] = switch_pm_text or 'More features!',
-            ['switch_pm_parameter'] = switch_pm_parameter,
-            ['cache_time'] = cache_time or 0,
-            ['is_personal'] = is_personal or false,
-            ['next_offset'] = next_offset
-        }
-    )
-end
-
-function mattata.send_game(chat_id, game_short_name, disable_notification, reply_to_message_id, reply_markup, token) -- https://core.telegram.org/bots/api#sendgame
-    token = token or configuration.bot_token
-    if type(reply_markup) == 'table' then
-        reply_markup = json.encode(reply_markup)
-    end
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/sendGame',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id,
-            ['game_short_name'] = game_short_name,
-            ['disable_notification'] = disable_notification or false,
-            ['reply_to_message_id'] = reply_to_message_id,
-            ['reply_markup'] = reply_markup
-        }
-    )
-end
-
-function mattata.set_game_score(chat_id, user_id, message_id, score, force, disable_edit_message, inline_message_id, token) -- https://core.telegram.org/bots/api#setgamescore
-    token = token or configuration.bot_token
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/setGameScore',
-            token
-        ),
-        {
-            ['user_id'] = user_id,
-            ['score'] = score,
-            ['force'] = force or false,
-            ['disable_edit_message'] = disable_edit_message or false,
-            ['chat_id'] = chat_id,
-            ['message_id'] = message_id,
-            ['inline_message_id'] = inline_message_id
-        }
-    )
-end
-
-function mattata.get_game_high_scores(user_id, chat_id, message_id, inline_message_id, token) -- https://core.telegram.org/bots/api#getgamehighscores
-    token = token or configuration.bot_token
-    return mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/getGameHighScores',
-            token
-        ),
-        {
-            ['user_id'] = user_id,
-            ['chat_id'] = chat_id,
-            ['message_id'] = message_id,
-            ['inline_message_id'] = inline_message_id
-        }
-    )
-end
-
-function mattata.get_chat(chat_id, token) -- https://core.telegram.org/bots/api#getchat
-    token = token or configuration.bot_token
-    local success = mattata.request(
-        string.format(
-            'https://api.telegram.org/bot%s/getChat',
-            token
-        ),
-        {
-            ['chat_id'] = chat_id
-        }
     )
     if success and success.result.type == 'private' then
         mattata.process_user(success.result)
@@ -1912,13 +1388,6 @@ function mattata.get_chat(chat_id, token) -- https://core.telegram.org/bots/api#
     end
     return success
 end
-
---[[
-
-    General functions for general use throughout mattata's
-    framework and plugins.
-
-]]
 
 function mattata.is_plugin_disabled(plugin, message)
     if type(message) == 'table' then
@@ -1987,10 +1456,7 @@ function mattata.input(s)
     return s:sub(input + 1)
 end
 
-function mattata.trim(str)
-    str = str:gsub('^%s*(.-)%s*$', '%1')
-    return str
-end
+mattata.trim = tools.trim
 
 function mattata:exception(err, message, log_chat)
     local output = string.format(
@@ -2012,39 +1478,7 @@ function mattata:exception(err, message, log_chat)
     end
 end
 
-function mattata.download_file(url, name)
-    name = name or string.format(
-        '%s.%s',
-        os.time(),
-        url:match('.+%/%.(.-)$')
-    )
-    local body = {}
-    local protocol = http
-    local redirect = true
-    if url:match('^https') then
-        protocol = https
-        redirect = false
-    end
-    local _, res = protocol.request(
-        {
-            ['url'] = url,
-            ['sink'] = ltn12.sink.table(body),
-            ['redirect'] = redirect
-        }
-    )
-    if res ~= 200 then
-        return false
-    end
-    local file = io.open(
-        configuration.download_location .. name,
-        'w+'
-    )
-    file:write(
-        table.concat(body)
-    )
-    file:close()
-    return configuration.download_location .. name
-end
+mattata.download_file = tools.download_file
 
 function mattata.is_group_admin(chat_id, user_id, is_real_admin)
     if mattata.is_global_admin(chat_id) or mattata.is_global_admin(user_id) then
@@ -2094,89 +1528,8 @@ function mattata.is_group_owner(chat_id, user_id)
     return false
 end
 
-function mattata.get_linked_name(id)
-    local success = mattata.get_chat(id)
-    if not success then
-        return false
-    end
-    local output = mattata.escape_html(success.result.first_name)
-    if success.result.username then
-        output = string.format(
-            '<a href="https://t.me/%s">%s</a>',
-            success.result.username,
-            output
-        )
-    end
-    return output
-end
-
-function mattata.escape_markdown(str)
-    return tostring(str):gsub('%_', '\\_'):gsub('%[', '\\['):gsub('%*', '\\*'):gsub('%`', '\\`')
-end
-
-function mattata.escape_html(str)
-    return tostring(str):gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;')
-end
-
-function mattata.escape_bash(str)
-    return tostring(str):gsub('$', ''):gsub('%^', ''):gsub('&', ''):gsub('|', ''):gsub(';', '')
-end
-
-mattata.commands_meta = {}
-
-mattata.commands_meta.__index = mattata.commands_meta
-
-function mattata.commands_meta:command(command)
-    table.insert(
-        self.table,
-        string.format(
-            '^[%%/%%!%%$%%^%%?%%&%%%%]%s$',
-            command
-        )
-    )
-    table.insert(
-        self.table,
-        string.format(
-            '^[%%/%%!%%$%%^%%?%%&%%%%]%s@%s$',
-            command,
-            self.username
-        )
-    )
-    table.insert(
-        self.table,
-        string.format(
-            '^[%%/%%!%%$%%^%%?%%&%%%%]%s%%s+[^%%s]*',
-            command
-        )
-    )
-    table.insert(
-        self.table,
-        string.format(
-            '^[%%/%%!%%$%%^%%?%%&%%%%]%s@%s%%s+[^%%s]*',
-            command,
-            self.username
-        )
-    )
-    return self
-end
-
-function mattata.commands(username, command_table)
-    local self = setmetatable(
-        {},
-        mattata.commands_meta
-    )
-    self.username = username:lower()
-    self.table = command_table or {}
-    return self
-end
-
-function mattata.table_size(t)
-    local i = 0
-    for _ in pairs(t) do
-        i = i + 1
-    end
-    return i
-end
+mattata.get_linked_name = tools.get_linked_name
+mattata.table_size = tools.table_size
 
 function mattata.is_service_message(message)
     if message.new_chat_member or message.left_chat_member or message.new_chat_title or message.new_chat_photo or message.delete_chat_photo or message.group_chat_created or message.supergroup_chat_created or message.channel_chat_created or message.migrate_to_chat_id or message.migrate_from_chat_id or message.pinned_message then
@@ -2265,16 +1618,7 @@ function mattata.file_id(message)
     return ''
 end
 
-function mattata.utf8_len(str)
-    local chars = 0
-    for i = 1, str:len() do
-        local byte = str:byte(i)
-        if byte < 128 or byte >= 192 then
-            chars = chars + 1
-        end
-    end
-    return chars
-end
+mattata.utf8_len = tools.utf8_len
 
 function mattata.process_chat(chat)
     chat.id_str = tostring(chat.id)
@@ -2442,7 +1786,7 @@ function mattata.process_message(message)
     message.chat = mattata.process_chat(message.chat)
     if message.forward_from_chat then
         mattata.process_chat(message.forward_from_chat)
-    end 
+    end
     return message
 end
 
@@ -2455,38 +1799,9 @@ function mattata.is_global_admin(id)
     return false
 end
 
-function mattata.comma_value(amount)
-    amount = tostring(amount)
-    while true do
-        amount, k = amount:gsub('^(-?%d+)(%d%d%d)', '%1,%2')
-        if k == 0 then
-            break
-        end
-    end
-    return amount
-end
-
-function mattata.format_ms(milliseconds)
-    local total_seconds = math.floor(milliseconds / 1000)
-    local seconds = total_seconds % 60
-    local minutes = math.floor(total_seconds / 60)
-    local hours = math.floor(minutes / 60)
-    minutes = minutes % 60
-    return string.format(
-        '%02d:%02d:%02d',
-        hours,
-        minutes,
-        seconds
-    )
-end
-
-function mattata.round(num, idp)
-    if idp and idp > 0 then
-        local mult = 10 ^ idp
-        return math.floor(num * mult + .5) / mult
-    end
-    return math.floor(num + .5)
-end
+mattata.comma_value = tools.comma_value
+mattata.format_ms = tools.format_ms
+mattata.round = tools.round
 
 function mattata.get_user(input)
     input = tostring(input):match('^%@(.-)$') or tostring(input)
@@ -2601,544 +1916,25 @@ function mattata.get_chat_id(chat)
     return mattata.get_chat(chat).result.id
 end
 
---[[
-
-    Functions for handling and generating InputMessageContent objects, for use with the series of inline result objects.
-
-    This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 4 types:
-
-        InputTextMessageContent         => mattata.input_text_message_content()
-        InputLocationMessageContent     => mattata.input_location_message_content()
-        InputVenueMessageContent        => mattata.input_venue_message_content()
-        InputContactMessageContent      => mattata.input_contact_message_content()
-
-]]
-
-function mattata.input_text_message_content(message_text, parse_mode, disable_web_page_preview, encoded)
-    local input_message_content = {
-        ['message_text'] = tostring(message_text),
-        ['parse_mode'] = parse_mode,
-        ['disable_web_page_preview'] = disable_web_page_preview
-    }
-    if encoded then
-        input_message_content = json.encode(input_message_content)
-    end
-    return input_message_content
-end
-
-function mattata.input_location_message_content(latitude, longitude, encoded)
-    local input_message_content = {
-        ['latitude'] = tonumber(latitude),
-        ['longitude'] = tonumber(longitude)
-    }
-    if encoded then
-        input_message_content = json.encode(input_message_content)
-    end
-    return input_message_content
-end
-
-function mattata.input_venue_message_content(latitude, longitude, title, address, foursquare_id, encoded)
-    local input_message_content = {
-        ['latitude'] = tonumber(latitude),
-        ['longitude'] = tonumber(longitude),
-        ['title'] = tostring(title),
-        ['address'] = tostring(address),
-        ['foursquare_id'] = foursquare_id
-    }
-    if encoded then
-        input_message_content = json.encode(input_message_content)
-    end
-    return input_message_content
-end
-
-function mattata.input_contact_message_content(phone_number, first_name, last_name, encoded)
-    local input_message_content = {
-        ['phone_number'] = tostring(phone_number),
-        ['first_name'] = tonumber(first_name),
-        ['last_name'] = last_name
-    }
-    if encoded then
-        input_message_content = json.encode(input_message_content)
-    end
-    return input_message_content
-end
-
---[[
-
-    Functions for handling inline objects to use with mattata.answer_inline_query()
-
-]]
-
-function mattata.send_inline_article(inline_query_id, title, description, message_text, parse_mode, reply_markup)
-    description = description or title
-    message_text = message_text or description
-    return mattata.answer_inline_query(
-        inline_query_id,
-        json.encode(
-            {
-                {
-                    ['type'] = 'article',
-                    ['id'] = '1',
-                    ['title'] = title,
-                    ['description'] = description,
-                    ['input_message_content'] = {
-                        ['message_text'] = message_text,
-                        ['parse_mode'] = parse_mode
-                    },
-                    ['reply_markup'] = reply_markup
-                }
-            }
-        )
-    )
-end
-
-function mattata.send_inline_article_url(inline_query_id, title, url, hide_url, input_message_content, reply_markup, id)
-    if id then
-        id = tostring(id)
-    end
-    return mattata.answer_inline_query(
-        inline_query_id,
-        json.encode(
-            {
-                {
-                    ['type'] = 'article',
-                    ['id'] = id or '1',
-                    ['title'] = tostring(title),
-                    ['url'] = tostring(url),
-                    ['hide_url'] = hide_url or false,
-                    ['input_message_content'] = input_message_content,
-                    ['reply_markup'] = reply_markup
-                }
-            }
-        )
-    )
-end
-
-mattata.inline_result_meta = {}
-
-mattata.inline_result_meta.__index = mattata.inline_result_meta
-
-function mattata.inline_result_meta:type(type)
-    self['type'] = tostring(type)
-    return self
-end
-
-function mattata.inline_result_meta:id(id)
-    if id then
-        id = tostring(id)
-    end
-    self['id'] = id or '1'
-    return self
-end
-
-function mattata.inline_result_meta:title(title)
-    self['title'] = tostring(title)
-    return self
-end
-
-function mattata.inline_result_meta:input_message_content(input_message_content)
-    self['input_message_content'] = input_message_content
-    return self
-end
-
-function mattata.inline_result_meta:reply_markup(reply_markup)
-    self['reply_markup'] = reply_markup
-    return self
-end
-
-function mattata.inline_result_meta:url(url)
-    self['url'] = tostring(url)
-    return self
-end
-
-function mattata.inline_result_meta:hide_url(hide_url)
-    self['hide_url'] = hide_url or false
-    return self
-end
-
-function mattata.inline_result_meta:description(description)
-    self['description'] = tostring(description)
-    return self
-end
-
-function mattata.inline_result_meta:thumb_url(thumb_url)
-    self['thumb_url'] = tostring(thumb_url)
-    return self
-end
-
-function mattata.inline_result_meta:thumb_width(thumb_width)
-    self['thumb_width'] = tonumber(thumb_width)
-    return self
-end
-
-function mattata.inline_result_meta:thumb_height(thumb_height)
-    self['thumb_height'] = tonumber(thumb_height)
-    return self
-end
-
-function mattata.inline_result_meta:photo_url(photo_url)
-    self['photo_url'] = tostring(photo_url)
-    return self
-end
-
-function mattata.inline_result_meta:photo_width(photo_width)
-    self['photo_width'] = tonumber(photo_width)
-    return self
-end
-
-function mattata.inline_result_meta:photo_height(photo_height)
-    self['photo_height'] = tonumber(photo_height)
-    return self
-end
-
-function mattata.inline_result_meta:caption(caption)
-    self['caption'] = tostring(caption)
-    return self
-end
-
-function mattata.inline_result_meta:gif_url(gif_url)
-    self['gif_url'] = tostring(gif_url)
-    return self
-end
-
-function mattata.inline_result_meta:gif_width(gif_width)
-    self['gif_width'] = tonumber(gif_width)
-    return self
-end
-
-function mattata.inline_result_meta:gif_height(gif_height)
-    self['gif_height'] = tonumber(gif_height)
-    return self
-end
-
-function mattata.inline_result_meta:mpeg4_url(mpeg4_url)
-    self['mpeg4_url'] = tostring(mpeg4_url)
-    return self
-end
-
-function mattata.inline_result_meta:mpeg4_width(mpeg4_width)
-    self['mpeg4_width'] = tonumber(mpeg4_width)
-    return self
-end
-
-function mattata.inline_result_meta:mpeg4_height(mpeg4_height)
-    self['mpeg4_height'] = tonumber(mpeg4_height)
-    return self
-end
-
-function mattata.inline_result_meta:video_url(video_url)
-    self['video_url'] = tostring(video_url)
-    return self
-end
-
-function mattata.inline_result_meta:mime_type(mime_type)
-    self['mime_type'] = tostring(mime_type)
-    return self
-end
-
-function mattata.inline_result_meta:video_width(video_width)
-    self['video_width'] = tonumber(video_width)
-    return self
-end
-
-function mattata.inline_result_meta:video_height(video_height)
-    self['video_height'] = tonumber(video_height)
-    return self
-end
-
-function mattata.inline_result_meta:video_duration(video_duration)
-    self['video_duration'] = tonumber(video_duration)
-    return self
-end
-
-function mattata.inline_result_meta:audio_url(audio_url)
-    self['audio_url'] = tostring(audio_url)
-    return self
-end
-
-function mattata.inline_result_meta:performer(performer)
-    self['performer'] = tostring(performer)
-    return self
-end
-
-function mattata.inline_result_meta:audio_duration(audio_duration)
-    self['audio_duration'] = tonumber(audio_duration)
-    return self
-end
-
-function mattata.inline_result_meta:voice_url(voice_url)
-    self['voice_url'] = tostring(voice_url)
-    return self
-end
-
-function mattata.inline_result_meta:voice_duration(voice_duration)
-    self['voice_duration'] = tonumber(voice_duration)
-    return self
-end
-
-function mattata.inline_result_meta:document_url(document_url)
-    self['document_url'] = tostring(document_url)
-    return self
-end
-
-function mattata.inline_result_meta:latitude(latitude)
-    self['latitude'] = tonumber(latitude)
-    return self
-end
-
-function mattata.inline_result_meta:longitude(longitude)
-    self['longitude'] = tonumber(longitude)
-    return self
-end
-
-function mattata.inline_result_meta:address(address)
-    self['address'] = tostring(address)
-    return self
-end
-
-function mattata.inline_result_meta:foursquare_id(foursquare_id)
-    self['foursquare_id'] = tostring(foursquare_id)
-    return self
-end
-
-function mattata.inline_result_meta:phone_number(phone_number)
-    self['phone_number'] = tostring(phone_number)
-    return self
-end
-
-function mattata.inline_result_meta:first_name(first_name)
-    self['first_name'] = tostring(first_name)
-    return self
-end
-
-function mattata.inline_result_meta:last_name(last_name)
-    self['last_name'] = tostring(last_name)
-    return self
-end
-
-function mattata.inline_result_meta:game_short_name(game_short_name)
-    self['game_short_name'] = tostring(game_short_name)
-    return self
-end
-
-function mattata.inline_result()
-    local output = setmetatable(
-        {},
-        mattata.inline_result_meta
-    )
-    return output
-end
-
-function mattata.send_inline_photo(inline_query_id, photo_url, caption, reply_markup)
-    return mattata.answer_inline_query(
-        inline_query_id,
-        json.encode(
-            {
-                {
-                    ['type'] = 'photo',
-                    ['id'] = '1',
-                    ['photo_url'] = photo_url,
-                    ['thumb_url'] = photo_url,
-                    ['caption'] = caption,
-                    ['reply_markup'] = reply_markup
-                }
-            }
-        )
-    )
-end
-
-function mattata.send_inline_cached_photo(inline_query_id, photo_file_id, caption, reply_markup)
-    return mattata.answer_inline_query(
-        inline_query_id,
-        json.encode(
-            {
-                {
-                    ['type'] = 'photo',
-                    ['id'] = '1',
-                    ['photo_file_id'] = photo_file_id,
-                    ['caption'] = caption,
-                    ['reply_markup'] = reply_markup
-                }
-            }
-        )
-    )
-end
-
-function mattata.url_button(text, url, encoded)
-    if not text or not url then
-        return false
-    end
-    local button = {
-        ['text'] = tostring(text),
-        ['url'] = tostring(url)
-    }
-    if encoded then
-        button = json.encode(button)
-    end
-    return button
-end
-
-function mattata.callback_data_button(text, callback_data, encoded)
-    if not text or not callback_data then
-        return false
-    end
-    local button = {
-        ['text'] = tostring(text),
-        ['callback_data'] = tostring(callback_data)
-    }
-    if encoded then
-        button = json.encode(button)
-    end
-    return button
-end
-
-function mattata.switch_inline_query_button(text, switch_inline_query, encoded)
-    if not text or not switch_inline_query then
-        return false
-    end
-    local button = {
-        ['text'] = tostring(text),
-        ['switch_inline_query'] = tostring(switch_inline_query)
-    }
-    if encoded then
-        button = json.encode(button)
-    end
-    return button
-end
-
-function mattata.switch_inline_query_current_chat_button(text, switch_inline_query_current_chat, encoded)
-    if not text or not switch_inline_query_current_chat then
-        return false
-    end
-    local button = {
-        ['text'] = tostring(text),
-        ['switch_inline_query_current_chat'] = tostring(switch_inline_query_current_chat)
-    }
-    if encoded then
-        button = json.encode(button)
-    end
-    return button
-end
-
-function mattata.callback_game_button(text, callback_game, encoded)
-    if not text or not callback_game then
-        return false
-    end
-    local button = {
-        ['text'] = tostring(text),
-        ['callback_game'] = tostring(callback_game)
-    }
-    if encoded then
-        button = json.encode(button)
-    end
-    return button
-end
-
-mattata.row_meta = {}
-
-mattata.row_meta.__index = mattata.row_meta
-
-function mattata.row_meta:url_button(text, url)
-    table.insert(
-        self,
-        {
-            ['text'] = tostring(text),
-            ['url'] = tostring(url)
-        }
-    )
-    return self
-end
-
-function mattata.row_meta:callback_data_button(text, callback_data)
-    table.insert(
-        self,
-        {
-            ['text'] = tostring(text),
-            ['callback_data'] = tostring(callback_data)
-        }
-    )
-    return self
-end
-
-function mattata.row_meta:switch_inline_query_button(text, switch_inline_query)
-    table.insert(
-        self,
-        {
-            ['text'] = tostring(text),
-            ['switch_inline_query'] = tostring(switch_inline_query)
-        }
-    )
-    return self
-end
-
-function mattata.row_meta:switch_inline_query_current_chat_button(text, switch_inline_query_current_chat)
-    table.insert(
-        self,
-        {
-            ['text'] = tostring(text),
-            ['switch_inline_query_current_chat'] = tostring(switch_inline_query_current_chat)
-        }
-    )
-    return self
-end
-
-function mattata.row(buttons)
-    return setmetatable(
-        {},
-        mattata.row_meta
-    )
-end
-
-mattata.inline_keyboard_meta = {}
-
-mattata.inline_keyboard_meta.__index = mattata.inline_keyboard_meta
-
-function mattata.inline_keyboard_meta:row(row)
-    table.insert(
-        self.inline_keyboard,
-        row
-    )
-    return self
-end
-
-function mattata.inline_keyboard()
-    return setmetatable(
-        {
-            ['inline_keyboard'] = {}
-        },
-        mattata.inline_keyboard_meta
-    )
-end
-
-mattata.keyboard_meta = {}
-
-mattata.keyboard_meta.__index = mattata.keyboard_meta
-
-function mattata.keyboard_meta:row(row)
-    table.insert(
-        self.keyboard,
-        row
-    )
-    return self
-end
-
-function mattata.keyboard(resize_keyboard, one_time_keyboard, selective)
-    return setmetatable(
-        {
-            ['keyboard'] = {},
-            ['resize_keyboard'] = resize_keyboard or false,
-            ['one_time_keyboard'] = one_time_keyboard or false,
-            ['selective'] = selective or false
-        },
-        mattata.keyboard_meta
-    )
-end
-
-function mattata.remove_keyboard(selective)
-    return {
-        ['remove_keyboard'] = true,
-        ['selective'] = selective or false
-    }
-end
+mattata.input_text_message_content = api.input_text_message_content
+mattata.input_location_message_content = api.input_location_message_content
+mattata.input_venue_message_content = api.input_venue_message_content
+mattata.input_contact_message_content = api.input_contact_message_content
+mattata.url_button = api.url_button
+mattata.callback_data_button = api.callback_data_button
+mattata.switch_inline_query_button = api.switch_inline_query_button
+mattata.switch_inline_query_current_chat_button = api.switch_inline_query_current_chat_button
+mattata.callback_game_button = api.callback_game_button
+mattata.row = api.row
+mattata.inline_keyboard = api.inline_keyboard
+mattata.keyboard = api.keyboard
+mattata.remove_keyboard = api.remove_keyboard
+mattata.commands = tools.commands
+mattata.escape_markdown = tools.escape_markdown
+mattata.escape_html = tools.escape_html
+mattata.escape_bash = tools.escape_bash
+mattata.send_inline_article = api.send_inline_article
+mattata.send_inline_photo = api.send_inline_photo
+mattata.inline_result = api.inline_result
 
 return mattata

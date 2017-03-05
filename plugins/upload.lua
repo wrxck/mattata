@@ -16,18 +16,18 @@ end
 function upload:on_message(message, configuration)
     if not mattata.is_global_admin(message.from.id) then
         return
-    elseif not message.reply_to_message or not message.reply_to_message.document then
+    elseif not message.reply or not message.reply.document then
         return mattata.send_reply(
             message,
             'Please reply to the file you\'d like to download to the server. It must be <= 20 MB.'
         )
-    elseif tonumber(message.reply_to_message.document.file_size) > 20971520 then
+    elseif tonumber(message.reply.document.file_size) > 20971520 then
         return mattata.send_reply(
             message,
             'That file is too large. It must be <= 20 MB.'
         )
     end
-    local file = mattata.get_file(message.reply_to_message.document.file_id)
+    local file = mattata.get_file(message.reply.document.file_id)
     if not file then
         return mattata.send_reply(
             message,
@@ -36,7 +36,7 @@ function upload:on_message(message, configuration)
     end
     local success = mattata.download_file(
         'https://api.telegram.org/file/bot' .. configuration.bot_token .. '/' .. file.result.file_path:gsub('//', '/'):gsub('/$', ''),
-        message.reply_to_message.document.file_name
+        message.reply.document.file_name
     )
     if not success then
         return mattata.send_reply(
@@ -46,7 +46,7 @@ function upload:on_message(message, configuration)
     end
     return mattata.send_reply(
         message,
-        'Successfully downloaded the file to the server - it can be found at <code>' .. mattata.escape_html(configuration.download_location .. message.reply_to_message.document.file_name) .. '</code>!',
+        'Successfully downloaded the file to the server - it can be found at <code>' .. mattata.escape_html(configuration.download_location .. message.reply.document.file_name) .. '</code>!',
         'html'
     )
 end

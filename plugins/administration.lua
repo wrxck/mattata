@@ -537,7 +537,12 @@ function administration.check_links(message, process_type)
                 count = count + 1
             end
         end
-        return count .. ' links have been whitelisted in this chat!'
+        return string.format(
+            '%s link%s ha%s been whitelisted in this chat!',
+            count,
+            count == 1 and '' or 's',
+            count == 1 and 's' or 've'
+        )
     elseif process_type == 'check' then
         for k, v in pairs(links) do
             if not redis:get('whitelisted_links:' .. message.chat.id .. ':' .. v) then
@@ -556,6 +561,12 @@ function administration.check_links(message, process_type)
 end
 
 function administration.is_user_spamming(message) -- Checks if a user is spamming and return two boolean values
+    if mattata.is_group_admin(
+        message.chat.id,
+        message.from.id
+    ) then
+        return false
+    end
     local messages = redis:get('administration:text:' .. message.chat.id .. ':' .. message.from.id)
     local forwarded = redis:get('administration:forwarded:' .. message.chat.id .. ':' .. message.from.id)
     local stickers = redis:get('administration:stickers:' .. message.chat.id .. ':' .. message.from.id)
@@ -630,30 +641,33 @@ function administration.blacklist(message, bot_info)
         message.from.id
     ) then
         return
-    elseif not message.reply_to_message and not input then
+    elseif not message.reply and not input then
         return mattata.send_reply(
             message,
             [[Please reply-to the user you'd like to blacklist, or specify them by username/ID.]]
         )
-    elseif message.reply_to_message then
-        if mattata.is_group_admin(message.chat.id, message.reply_to_message.from.id) then
+    elseif message.reply then
+        if mattata.is_group_admin(
+            message.chat.id,
+            message.reply.from.id
+        ) then
             return mattata.send_reply(
                 message,
                 [[I can't blacklist that user, they're an administrator in this chat.]]
             )
-        elseif message.reply_to_message.from.id == username then
+        elseif message.reply.from.id == username then
             return
         end
         redis:set(
-            'group_blacklist:' .. message.chat.id .. ':' .. message.reply_to_message.from.id,
+            'group_blacklist:' .. message.chat.id .. ':' .. message.reply.from.id,
             true
         )
         local output = string.format(
             '%s [%s] has blacklisted %s [%s] from using @%s in %s [%s].',
             message.from.first_name,
             message.from.id,
-            message.reply_to_message.from.first_name,
-            message.reply_to_message.from.id,
+            message.reply.from.first_name,
+            message.reply.from.id,
             bot_info.username:lower(),
             message.chat.title,
             message.chat.id
@@ -740,25 +754,25 @@ function administration.whitelist(message, bot_info)
         message.from.id
     ) then
         return
-    elseif not message.reply_to_message and not input then
+    elseif not message.reply and not input then
         return mattata.send_reply(
             message,
             [[Please reply-to the user you'd like to whitelist, or specify them by username/ID.]]
         )
-    elseif message.reply_to_message then
+    elseif message.reply then
         if mattata.is_group_admin(
             message.chat.id,
-            message.reply_to_message.from.id
+            message.reply.from.id
         ) then
             return mattata.send_reply(
                 message,
                 [[I can't whitelist that user, they're an administrator in this chat.]]
             )
-        elseif message.reply_to_message.from.id == bot_info.id then
+        elseif message.reply.from.id == bot_info.id then
             return
         end
-        redis:del('group_blacklist:' .. message.chat.id .. ':' .. message.reply_to_message.from.id)
-        local output = message.from.first_name .. ' [' .. message.from.id .. '] has whitelisted ' .. message.reply_to_message.from.first_name .. ' [' .. message.reply_to_message.from.id .. '] to use @' .. bot_info.username:lower() .. ' in ' .. message.chat.title .. ' [' .. message.chat.id .. '].'
+        redis:del('group_blacklist:' .. message.chat.id .. ':' .. message.reply.from.id)
+        local output = message.from.first_name .. ' [' .. message.from.id .. '] has whitelisted ' .. message.reply.from.first_name .. ' [' .. message.reply.from.id .. '] to use @' .. bot_info.username:lower() .. ' in ' .. message.chat.title .. ' [' .. message.chat.id .. '].'
         if input then
             output = output .. '\nReason: ' .. input
         end
@@ -961,7 +975,7 @@ function administration.do_action(message, action)
     if action ~= 'kick' and action ~= 'ban' and action ~= 'unban' then
         return
     end
-    local input, reason = message.reply_to_message and message.reply_to_message.from.id or mattata.input(message.text), false
+    local input, reason = message.reply and message.reply.from.id or mattata.input(message.text), false
     if not input then
         return mattata.send_reply(
             message,
@@ -1115,18 +1129,18 @@ end
 function administration.tempban(message)
     local input = mattata.input(message.text)
     if (
-        not input and not message.reply_to_message
+        not input and not message.reply
     ) or (
-        input and not message.reply_to_message and not input:match('^%@%a+ %d*')
+        input and not message.reply and not input:match('^%@%a+ %d*')
     ) or (
-        input and message.reply_to_message and not input:match('^%d*')
+        input and message.reply and not input:match('^%d*')
     ) then
         return mattata.send_reply(
             message,
             'Please specify the user you\'d like to temp-ban, and how long you\'d like to temp-ban them for. This must be sent in the format /tempban [user] <hours> [reason]. If a user isn\'t specified then you must use this command in reply to the user you\'d like to temp-ban.'
         )
     end
-    local user = input:match('^(%@%a+) %d*') or message.reply_to_message.from.id
+    local user = input:match('^(%@%a+) %d*') or message.reply.from.id
     if tonumber(user) == nil then
         user = mattata.get_user(user)
         if not user then
@@ -1249,35 +1263,40 @@ function administration.warn(message)
             message,
             'You must be an administrator to use this command!'
         )
-    elseif not message.reply_to_message then
+    elseif not message.reply then
         return mattata.send_reply(
             message,
             'You must use this command via reply to the targeted user\'s message.'
         )
     elseif mattata.is_group_admin(
         message.chat.id,
-        message.reply_to_message.from.id
+        message.reply.from.id
     ) then
         return mattata.send_reply(
             message,
             'The targeted user is an administrator in this chat.'
         )
     end
-    local name = message.reply_to_message.from.first_name
+    local name = message.reply.from.first_name
     local hash = 'chat:' .. message.chat.id .. ':warnings'
     local amount = redis:hincrby(
         hash,
-        message.reply_to_message.from.id,
+        message.reply.from.id,
         1
     )
-    local maximum = 3
+    local maximum = redis:get(
+        string.format(
+            'administration:%s:max_warnings',
+            message.chat.id
+        )
+    ) or 3
     local text, res
     amount, maximum = tonumber(amount), tonumber(maximum)
     if amount >= maximum then
-        text = message.reply_to_message.from.first_name .. ' was banned for reaching the maximum number of allowed warnings (' .. maximum .. ').'
+        text = message.reply.from.first_name .. ' was banned for reaching the maximum number of allowed warnings (' .. maximum .. ').'
         local success = mattata.ban_chat_member(
             message.chat.id,
-            message.reply_to_message.from.id
+            message.reply.from.id
         )
         if not success then
             return mattata.send_reply(
@@ -1287,7 +1306,7 @@ function administration.warn(message)
         end
         redis:hdel(
             'chat:' .. message.chat.id .. ':warnings',
-            message.reply_to_message.from.id
+            message.reply.from.id
         )
         return mattata.send_message(
             message,
@@ -1295,11 +1314,10 @@ function administration.warn(message)
         )
     end
     local difference = maximum - amount
-    text = '*%s* has been warned `[`%d/%d`]`'
-    if message.text ~= '/warn' then
-        text = text .. '\n*Reason:* ' .. mattata.escape_markdown(
-            message.text:lower():gsub('^/warn ', '')
-        )
+    text = '*%s* has been warned `[%d/%d]`'
+    local reason = mattata.input(message.text)
+    if reason then
+        text = text .. '\n*Reason:* ' .. mattata.escape_markdown(reason)
     end
     text = text:format(
         mattata.escape_markdown(name),
@@ -1315,7 +1333,7 @@ function administration.warn(message)
                         ['callback_data'] = string.format(
                             'administration:warn:reset:%s:%s',
                             message.chat.id,
-                            message.reply_to_message.from.id
+                            message.reply.from.id
                         )
                     },
                     {
@@ -1323,7 +1341,7 @@ function administration.warn(message)
                         ['callback_data'] = string.format(
                             'administration:warn:remove:%s:%s',
                             message.chat.id,
-                            message.reply_to_message.from.id
+                            message.reply.from.id
                         )
                     }
                 }
@@ -1342,7 +1360,7 @@ function administration.warn(message)
 end
 
 function administration.get_user(message)
-    if not message.reply_to_message then
+    if not message.reply then
         return mattata.send_reply(
             message,
             [[You must use this command in reply-to a message from the user you'd like to view information about.]]
@@ -1351,7 +1369,7 @@ function administration.get_user(message)
     local ban_count = redis:hget(
         string.format(
             'user:%s:ban_count',
-            message.reply_to_message.from.id
+            message.reply.from.id
         ),
         message.chat.id
     )
@@ -1370,7 +1388,7 @@ function administration.get_user(message)
     local kick_count = redis:hget(
         string.format(
             'user:%s:kick_count',
-            message.reply_to_message.from.id
+            message.reply.from.id
         ),
         message.chat.id
     )
@@ -1391,15 +1409,15 @@ function administration.get_user(message)
             'chat:%s:warnings',
             message.chat.id
         ),
-        message.reply_to_message.from.id
+        message.reply.from.id
     )
     if not warning_count then
         warning_count = 0
     end
     local output = string.format(
         '%s [%s]\n\nBanned %s\nKicked %s\n%s/3 warnings',
-        message.reply_to_message.from.first_name,
-        message.reply_to_message.from.id,
+        message.reply.from.first_name,
+        message.reply.from.id,
         ban_count,
         kick_count,
         warning_count
@@ -1413,7 +1431,7 @@ function administration.get_user(message)
                         ['callback_data'] = string.format(
                             'administration:warn:reset:%s:%s',
                             message.chat.id,
-                            message.reply_to_message.from.id
+                            message.reply.from.id
                         )
                     },
                     {
@@ -1421,7 +1439,7 @@ function administration.get_user(message)
                         ['callback_data'] = string.format(
                             'administration:warn:remove:%s:%s',
                             message.chat.id,
-                            message.reply_to_message.from.id
+                            message.reply.from.id
                         )
                     }
                 }
@@ -1698,19 +1716,25 @@ function administration:on_callback_query(callback_query, message, configuration
                 1
             )
         else
-            maximum = 3
+            maximum = redis:get(
+                string.format(
+                    'administration:%s:max_warnings',
+                    chat_id
+                )
+            ) or 3
             difference = tonumber(maximum) - tonumber(amount)
             text = string.format(
-                'Warning removed by %s! [%d/%d]',
-                callback_query.from.first_name,
-                tonumber(amount),
-                tonumber(maximum)
+                'Warning removed by %s! `[%d/%d]`',
+                mattata.escape_markdown(callback_query.from.first_name),
+                amount,
+                maximum
             )
         end
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
-            text
+            text,
+            'markdown'
         )
     elseif callback_query.data == 'dismiss_disabled_message' then
         redis:set(
@@ -1778,17 +1802,11 @@ function administration.pin(message)
         input,
         'markdown'
     )
-    if not success and redis:get(
-        string.format(
-            'administration:%s:pin',
-            message.chat.id
-        )
-    )then
+    if not success then
         mattata.send_reply(
             message,
             [[There was an error whilst updating your pin. Either the text you entered contained invalid Markdown syntax, or the pin has been deleted. I'm now going to try and send you a new pin, which you'll be able to find below - if you need to modify it then, after ensuring the message still exists, use /pin <text>.]]
         )
-    elseif not success then
         local new_pin = mattata.send_message(
             message,
             input,
@@ -2101,9 +2119,9 @@ function administration.on_help_callback_query(callback_query, message)
 end
 
 function administration.report(message, bot_id)
-    if not message.reply_to_message then
+    if not message.reply then
         return
-    elseif message.reply_to_message.from.id == message.from.id then
+    elseif message.reply.from.id == message.from.id then
         return
     end
     local admin_list = {}
@@ -2113,7 +2131,7 @@ function administration.report(message, bot_id)
         if admins.result[n].user.id ~= bot_id then
             local output = '<b>' .. mattata.escape_html(message.from.first_name) .. ' needs help in ' .. mattata.escape_html(message.chat.title) .. '!</b>'
             if message.chat.username then
-                output = output .. '\n<a href="https://t.me/' .. message.chat.username .. '/' .. message.reply_to_message.message_id .. '">Click here to view the reported message.</a>'
+                output = output .. '\n<a href="https://t.me/' .. message.chat.username .. '/' .. message.reply.message_id .. '">Click here to view the reported message.</a>'
             end
             local success = mattata.send_message(
                 admins.result[n].user.id,
@@ -2125,7 +2143,7 @@ function administration.report(message, bot_id)
                     admins.result[n].user.id,
                     message.chat.id,
                     false,
-                    message.reply_to_message.message_id
+                    message.reply.message_id
                 )
             end
             notified = notified + 1
@@ -2150,14 +2168,14 @@ function administration.mod(message)
         return
     end
     local input = mattata.input(message.text)
-    if not message.reply_to_message then
+    if not message.reply then
         return mattata.send_reply(
             message,
             'You must send this message in reply to the user you\'d like to promote.'
         )
     elseif mattata.is_group_admin(
         message.chat.id,
-        message.reply_to_message.from.id,
+        message.reply.from.id,
         true
     ) then
         return mattata.send_reply(
@@ -2166,7 +2184,7 @@ function administration.mod(message)
         )
     elseif mattata.is_group_mod(
         message.chat.id,
-        message.reply_to_message.from.id
+        message.reply.from.id
     ) then
         return mattata.send_reply(
             message,
@@ -2175,10 +2193,10 @@ function administration.mod(message)
     end
     redis:sadd(
         'administration:' .. message.chat.id .. ':mods',
-        message.reply_to_message.from.id
+        message.reply.from.id
     )
     redis:set(
-        'mods:' .. message.chat.id .. ':' .. message.reply_to_message.from.id,
+        'mods:' .. message.chat.id .. ':' .. message.reply.from.id,
         true
     )
     return mattata.send_reply(
@@ -2196,16 +2214,16 @@ function administration.demod(message)
         return
     end
     local input = mattata.input(message.text)
-    if not message.reply_to_message then
+    if not message.reply then
         return mattata.send_reply(
             message,
             'You must send this message in reply to the user you\'d like to demote.'
         )
-    elseif mattata.is_global_admin(message.reply_to_message.from.id) then
+    elseif mattata.is_global_admin(message.reply.from.id) then
         return
     elseif mattata.is_group_admin(
         message.chat.id,
-        message.reply_to_message.from.id,
+        message.reply.from.id,
         true
     ) then
         return mattata.send_reply(
@@ -2214,7 +2232,7 @@ function administration.demod(message)
         )
     elseif not mattata.is_group_mod(
         message.chat.id,
-        message.reply_to_message.from.id
+        message.reply.from.id
     ) then
         return mattata.send_reply(
             message,
@@ -2223,9 +2241,9 @@ function administration.demod(message)
     end
     redis:srem(
         'administration:' .. message.chat.id .. ':mods',
-        message.reply_to_message.from.id
+        message.reply.from.id
     )
-    redis:del('mods:' .. message.chat.id .. ':' .. message.reply_to_message.from.id)
+    redis:del('mods:' .. message.chat.id .. ':' .. message.reply.from.id)
     return mattata.send_reply(
         message,
         'This user is no longer a moderator in this chat. They no longer have access to administrative commands such as /ban, /kick and /unban. To promote them again, just reply to one of their messages with /mod.'

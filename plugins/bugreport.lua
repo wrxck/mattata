@@ -28,7 +28,7 @@ function bugreport:on_message(message, configuration)
             bugreport.help
         )
     end
-    if message.reply_to_message then
+    if message.reply then
         mattata.forward_message(
             configuration.bug_reports_chat,
             message.chat.id,

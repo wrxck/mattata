@@ -12,7 +12,7 @@ cd luarocks
 make build
 sudo make install
 sudo luarocks-5.3 install --server=http://luarocks.org/dev openssl
-rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem oauth uuid html-entities luaossl feedparser lua-curl"
+rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem oauth uuid html-entities luaossl feedparser lua-curl telegram-bot-lua"
 for rock in $rocklist; do
     sudo luarocks-5.3 install $rock
 done

@@ -11,7 +11,7 @@ function echo:init()
     echo.commands = mattata.commands(
         self.info.username
     ):command('echo').table
-    echo.help = [[/echo <text> - Repeats the given string of text.]]
+    echo.help = '/echo <text> - Repeats the given string of text.'
 end
 
 function echo:on_message(message, configuration)

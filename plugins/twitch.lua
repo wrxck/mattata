@@ -62,7 +62,7 @@ end
 function twitch:on_callback_query(callback_query, message, configuration)
     if callback_query.data:match('^results:(.-)$') then
         local result = callback_query.data:match('^results:(.-)$')
-        local input = mattata.input(message.reply_to_message.text)
+        local input = mattata.input(message.reply.text)
         local total_results = twitch.get_result_count(input)
         if tonumber(result) > tonumber(total_results) then
             result = 1

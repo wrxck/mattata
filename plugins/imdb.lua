@@ -50,9 +50,11 @@ function imdb.get_result(input, n)
 end
 
 function imdb:on_callback_query(callback_query, message, configuration)
-    if callback_query.data:match('^results:(.-)$') then
+    if not message.reply then
+        return
+    elseif callback_query.data:match('^results:(.-)$') then
         local result = callback_query.data:match('^results:(.-)$')
-        local input = mattata.input(message.reply_to_message.text)
+        local input = mattata.input(message.reply.text)
         local total_results = imdb.get_result_count(input)
         if tonumber(result) > tonumber(total_results) then
             result = 1

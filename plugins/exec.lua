@@ -149,7 +149,7 @@ function exec.make_request(language, code)
     if jdat.Result and jdat.Result ~= '' then
         table.insert(
             output,
-            '<b>Result</b>\n' .. mattata.escape_html(jdat.Result)
+            '<b>Result</b>\n<pre>' .. mattata.escape_html(jdat.Result) .. '</pre>'
         )
     end
     if jdat.Stats and jdat.Stats ~= '' then
@@ -172,7 +172,7 @@ end
 
 function exec:on_callback_query(callback_query, message)
     local user_id, language, confirmed = callback_query.data:match('^(.-)%:(.-)%:(.-)$')
-    if not user_id or not language or not message.reply_to_message then
+    if not user_id or not language or not message.reply then
         return
     elseif tostring(callback_query.from.id) ~= user_id then
         return
@@ -186,7 +186,7 @@ function exec:on_callback_query(callback_query, message)
             exec.get_keyboard(user_id)
         )
     end
-    local code = mattata.input(message.reply_to_message.text)
+    local code = mattata.input(message.reply.text)
     if not code then
         return
     end
@@ -212,7 +212,7 @@ function exec:on_callback_query(callback_query, message)
             ),
             'html'
         )
-    end        
+    end
     return mattata.edit_message_text(
         message.chat.id,
         message.message_id,

@@ -55,13 +55,13 @@ end
 function translate:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
-        if not message.reply_to_message then
+        if not message.reply then
             return mattata.send_reply(
                 message,
                 translate.help
             )
         end
-        local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text=' .. url.escape(message.reply_to_message.text))
+        local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text=' .. url.escape(message.reply.text))
         if res ~= 200 then
             return mattata.send_reply(
                 message,

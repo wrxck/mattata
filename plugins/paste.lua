@@ -142,7 +142,7 @@ function paste.pastacf(input)
 end
 
 function paste:on_callback_query(callback_query, message, configuration)
-    local input = mattata.input(message.reply_to_message.text)
+    local input = mattata.input(message.reply.text)
     if not input then
         return false
     end

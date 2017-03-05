@@ -91,7 +91,7 @@ function shorten.adfly(input)
 end
     
 function shorten:on_callback_query(callback_query, message)
-    local input = mattata.input(message.reply_to_message.text)
+    local input = mattata.input(message.reply.text)
     if not input then
         return false
     end

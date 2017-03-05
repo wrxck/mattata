@@ -17,6 +17,43 @@ function google:init()
     google.help = [[/google <query> - Searches Google for the given search query and returns the most relevant result(s). Alias: /g.]]
 end
 
+function google:on_inline_query(inline_query, configuration)
+    local input = mattata.input(inline_query.query)
+    if not input then
+        return
+    end
+    local jstr, res = https.request('https://www.googleapis.com/customsearch/v1/?key=' .. configuration.keys.google.api_key .. '&cx=' .. configuration.keys.google.cse_key .. '&gl=en&fields=items%28title,link%29&q=' .. url.escape(input))
+    if res ~= 200 then
+        return
+    end
+    local jdat = json.decode(jstr)
+    if not jdat.items then
+        return
+    end
+    local results = {}
+    local id = 0
+    for _, v in ipairs(jdat.items) do
+        id = id + 1
+        table.insert(
+            results,
+            mattata.inline_result():id(id):type('article'):title(v.title):url(v.link):input_message_content(
+                mattata.input_text_message_content(
+                    string.format(
+                        '<a href="%s">%s</a>',
+                        mattata.escape_html(v.link),
+                        mattata.escape_html(v.title)
+                    ),
+                    'html'
+                )
+            )
+        )
+    end
+    return mattata.answer_inline_query(
+        inline_query.id,
+        results
+    )
+end
+
 function google:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then

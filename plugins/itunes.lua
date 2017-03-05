@@ -71,15 +71,53 @@ function itunes.get_output(jdat)
     )
 end
 
+function itunes:on_inline_query(inline_query)
+    local input = mattata.input(inline_query.query)
+    if not input then
+        return
+    end
+    local jstr, res = https.request('https://itunes.apple.com/search?term=' .. url.escape(input))
+    if res ~= 200 then
+        return
+    end
+    local jdat = json.decode(jstr)
+    if not jdat.results[1] then
+        return
+    end
+    local count = 0
+    local results = {}
+    local temp = {}
+    for k, v in pairs(jdat.results) do
+        if v.artworkUrl100 and not temp[v.collectionId] then
+            count = count + 1
+            table.insert(
+                results,
+                mattata.inline_result():type('photo'):id(count):photo_url(
+                    v.artworkUrl100:gsub('%/100x100bb%.jpg', '/10000x10000bb.jpg')
+                ):thumb_url(v.artworkUrl100)
+            )
+            table.insert(
+                temp,
+                v.collectionId
+            )
+        end
+    end
+    temp = nil
+    return mattata.answer_inline_query(
+        inline_query.id,
+        results
+    )
+end
+
 function itunes:on_callback_query(callback_query, message, configuration)
-    if not message.reply_to_message then
+    if not message.reply then
         return mattata.answer_callback_query(
             callback_query.id,
             'The original query could not be found, you\'ve probably deleted the original message.',
             true
         )
     end
-    local input = mattata.input(message.reply_to_message.text)
+    local input = mattata.input(message.reply.text)
     if callback_query.data == 'artwork' then
         local jstr, res = https.request('https://itunes.apple.com/search?term=' .. url.escape(input))
         if res ~= 200 then
@@ -130,16 +168,6 @@ function itunes:on_message(message, configuration)
             configuration.errors.results
         )
     end
-    local keyboard = {
-        ['inline_keyboard'] = {
-            {
-                {
-                    ['text'] = 'Get Album Artwork',
-                    ['callback_data'] = 'itunes:artwork'
-                }
-            }
-        }
-    }
     return mattata.send_message(
         message.chat.id,
         itunes.get_output(jdat),
@@ -147,7 +175,12 @@ function itunes:on_message(message, configuration)
         true,
         false,
         message.message_id,
-        json.encode(keyboard)
+        mattata.inline_keyboard():row(
+            mattata.row():callback_data_button(
+                'Get Album Artwork',
+                'itunes:artwork'
+            )
+        )
     )
 end
 

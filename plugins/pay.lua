@@ -33,7 +33,7 @@ function pay.get_balance(user_id)
 end
 
 function pay:on_message(message)
-    if not message.reply_to_message then
+    if not message.reply then
         if message.text:match('^%/bal') then
             local balance = pay.get_balance(message.from.id)
             return mattata.send_reply(
@@ -50,21 +50,21 @@ function pay:on_message(message)
     if not input then
         return mattata.send_reply(
             message,
-            'Please specify the amount of mattacoins you\'d like to give ' .. message.reply_to_message.from.first_name .. '.'
+            'Please specify the amount of mattacoins you\'d like to give ' .. message.reply.from.first_name .. '.'
         )
     elseif tonumber(input) == nil or tonumber(input) < 0 then
         return mattata.send_reply(
             message,
             'The amount specified should be a numerical value, of which can be no less than 0.'
         )
-    elseif message.reply_to_message.from.id == message.from.id then
+    elseif message.reply.from.id == message.from.id then
         return mattata.send_reply(
             message,
             'You can\'t send money to yourself!'
         )
     end
     local current_user_balance = pay.get_balance(message.from.id)
-    local current_recipient_balance = pay.get_balance(message.reply_to_message.from.id)
+    local current_recipient_balance = pay.get_balance(message.reply.from.id)
     local new_user_balance = tonumber(current_user_balance) - tonumber(input)
     local new_recipient_balance = tonumber(current_recipient_balance) + tonumber(input)
     if new_user_balance < 0 then
@@ -78,12 +78,12 @@ function pay:on_message(message)
         new_user_balance
     )
     pay.set_balance(
-        message.reply_to_message.from.id,
+        message.reply.from.id,
         new_recipient_balance
     )
     return mattata.send_reply(
         message,
-        input .. ' mattacoins have been sent to ' .. message.reply_to_message.from.first_name .. '. Your new balance is ' .. new_user_balance .. ' mattacoins.'
+        input .. ' mattacoins have been sent to ' .. message.reply.from.first_name .. '. Your new balance is ' .. new_user_balance .. ' mattacoins.'
     )
 end
 

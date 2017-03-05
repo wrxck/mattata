@@ -25,7 +25,7 @@ function msglink:on_message(message)
             message,
             'This ' .. message.chat.type .. ' must be public, with a @username.'
         )
-    elseif not message.reply_to_message then
+    elseif not message.reply then
         return mattata.send_reply(
             message,
             'Please reply to the message you\'d like to get a link for.'
@@ -33,11 +33,11 @@ function msglink:on_message(message)
     end
     return mattata.send_message(
         message.chat.id,
-        'https://t.me/' .. message.chat.username .. '/' .. message.reply_to_message.message_id,
+        'https://t.me/' .. message.chat.username .. '/' .. message.reply.message_id,
         nil,
         true,
         false,
-        message.reply_to_message.message_id
+        message.reply.message_id
     )
 end
 

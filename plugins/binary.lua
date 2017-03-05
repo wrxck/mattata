@@ -15,6 +15,37 @@ function binary:init()
     binary.help = [[/binary <text> - Converts a numerical value into binary. Alias: /bin.]]
 end
 
+function binary.convert(input)
+    local result = ''
+    local split, integer, fraction
+    repeat
+        split = tonumber(input) / 2
+        integer, fraction = math.modf(split)
+        input = integer
+        result = math.ceil(fraction) .. result
+    until input == 0
+    local str = result:format('s')
+    local zero = 16 - str:len()
+    return string.rep('0', zero) .. str
+end
+
+function binary:on_inline_query(inline_query)
+    local input = mattata.input(inline_query.query)
+    if not input or tonumber(input) == nil then
+        return
+    end
+    return mattata.answer_inline_query(
+        inline_query.id,
+        mattata.inline_result():id():type('article'):title('Click to send the result!'):description(
+            binary.convert(input)
+        ):input_message_content(
+            mattata.input_text_message_content(
+                binary.convert(input)
+            )
+        )
+    )
+end
+
 function binary:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
@@ -28,19 +59,9 @@ function binary:on_message(message, configuration)
             'You must enter a numerical value!'
         )
     end
-    local result = ''
-    local split, integer, fraction
-    repeat
-        split = tonumber(input) / 2
-        integer, fraction = math.modf(split)
-        input = integer
-        result = math.ceil(fraction) .. result
-    until input == 0
-    local str = result:format('s')
-    local zero = 16 - str:len()
     return mattata.send_message(
         message.chat.id,
-        '<pre>' .. string.rep('0', zero) .. str .. '</pre>',
+        '<pre>' .. binary.convert(input) .. '</pre>',
         'html'
     )
 end

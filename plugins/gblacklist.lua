@@ -18,13 +18,13 @@ function gblacklist:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not mattata.is_global_admin(message.from.id) then
         return
-    elseif not message.reply_to_message and not input then
+    elseif not message.reply and not input then
         return mattata.send_reply(
             message,
             'Please reply-to the user you\'d like to blacklist, or specify them by username/ID.'
         )
-    elseif message.reply_to_message then
-        input = message.reply_to_message.from.id
+    elseif message.reply then
+        input = message.reply.from.id
     end
     if tonumber(input) == nil and not input:match('^@') then
         input = '@' .. input

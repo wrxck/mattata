@@ -45,16 +45,10 @@ function name:on_message(message)
             )
         )
     end
-    local is_admin = false
-    if message.chat.type == 'private' then
-        is_admin = true
-    elseif mattata.is_group_admin(
+    if message.chat.type ~= 'private' and not mattata.is_group_admin(
         message.chat.id,
         message.from.id
     ) then
-        is_admin = true
-    end
-    if is_admin == false then
         return mattata.send_reply(
             message,
             'I\'m sorry, but you need to be an administrator of this chat to be able to use this command!'

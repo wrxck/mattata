@@ -34,14 +34,14 @@ function copypasta.format_message(input)
 end
 
 function copypasta:on_message(message, configuration)
-    if not message.reply_to_message then
+    if not message.reply then
         return mattata.send_reply(
             message,
             copypasta.help
         )
     end
     mattata.send_chat_action(message.chat.id)
-    if message.reply_to_message.text:len() > tonumber(configuration.max_copypasta_length) then
+    if message.reply.text:len() > tonumber(configuration.max_copypasta_length) then
         return mattata.send_reply(
             message,
             string.format(
@@ -52,7 +52,7 @@ function copypasta:on_message(message, configuration)
     end
     return mattata.send_message(
         message.chat.id,
-        copypasta.format_message(message.reply_to_message.text:upper())
+        copypasta.format_message(message.reply.text:upper())
     )
 end
 
