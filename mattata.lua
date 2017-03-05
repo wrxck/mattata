@@ -9,7 +9,7 @@
         Copyright (c) 2017 Matthew Hesketh
         See './LICENSE' for details
 
-        Current version: v17
+        Current version: v17.1
 
 ]]
 
@@ -73,7 +73,7 @@ function mattata:init()
             self.info.id
         )
     )
-    self.version = 'v17'
+    self.version = 'v17.1'
     if not redis:get('mattata:version') or redis:get('mattata:version') ~= self.version then -- Make necessary database changes.
         for k, v in pairs(
             redis:keys('user:*:info')

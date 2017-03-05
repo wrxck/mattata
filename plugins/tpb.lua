@@ -10,8 +10,9 @@ local mattata = require('mattata')
 function tpb:init()
     tpb.commands = mattata.commands(
         self.info.username
-    ):command('tpb').table
-    tpb.help = [[/tpb - Sends a list of working Pirate Bay proxies.]]
+    ):command('tpb')
+     :command('thepiratebay').table
+    tpb.help = [[/tpb - Sends a list of working Pirate Bay proxies. Alias: /thepiratebay.]]
 end
 
 function tpb:on_message(message, configuration)
