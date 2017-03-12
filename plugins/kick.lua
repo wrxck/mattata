@@ -35,7 +35,7 @@ function kick:on_message(message, configuration)
     if not input then
         local success = mattata.send_force_reply(
             message,
-            'What user would you like me to kick? You can specify this user by their @username or numerical ID.'
+            'Which user would you like me to kick? You can specify this user by their @username or numerical ID.'
         )
         if success then
             redis:set(

@@ -9,13 +9,14 @@ local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
+local redis = require('mattata-redis')
 
 function minecraft:init()
     minecraft.commands = mattata.commands(
         self.info.username
     ):command('minecraft')
      :command('mc').table
-    minecraft.help = [[/minecraft <Minecraft username> - Sends information about the given Minecraft user.]]
+    minecraft.help = '/minecraft <Minecraft username> - Sends information about the given Minecraft user. Alias: /mc.'
 end
 
 function minecraft.get_uuid(username)
@@ -233,35 +234,27 @@ end
 function minecraft:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
-        return mattata.send_reply(
+        local success = mattata.send_force_reply(
             message,
-            minecraft.help
+            'Please enter the username of the Minecraft player you would like to view information about (i.e. sending "Notch" will view information about the player Notch).'
         )
+        if success then
+            redis:set(
+                string.format(
+                    'action:%s:%s',
+                    message.chat.id,
+                    success.result.message_id
+                ),
+                '/minecraft'
+            )
+        end
+        return
     elseif input:len() > 16 or input:len() < 3 then
         return mattata.send_reply(
             message,
             'Minecraft usernames are between 3 and 16 characters long.'
         )
     end
-    local keyboard = {}
-    keyboard.inline_keyboard = {
-        {
-            {
-                ['text'] = 'UUID',
-                ['callback_data'] = 'minecraft:uuid:' .. input
-            },
-            {
-                ['text'] = 'Avatar',
-                ['callback_data'] = 'minecraft:avatar:' .. input
-            }
-        },
-        {
-            {
-                ['text'] = 'Username History',
-                ['callback_data'] = 'minecraft:history:' .. input .. ':1'
-            }
-        }
-    }
     return mattata.send_message(
         message.chat.id,
         'Please select an option:',
@@ -269,7 +262,23 @@ function minecraft:on_message(message, configuration)
         true,
         false,
         message.message_id,
-        json.encode(keyboard)
+        mattata.inline_keyboard():row(
+            mattata.row():callback_data_button(
+                'UUID',
+                'minecraft:uuid:' .. input
+            ):callback_data_button(
+                'Avatar',
+                'minecraft:avatar:' .. input
+            )
+        ):row(
+            mattata.row():callback_data_button(
+                'Username History',
+                string.format(
+                    'minecraft:history:%s:1',
+                    input
+                )
+            )
+        )
     )
 end
 

@@ -34,12 +34,22 @@ function demote:on_message(message, configuration)
     end
     local input = message.reply and tostring(message.reply.from.id) or mattata.input(message.text)
     if not input then
-        return mattata.send_reply(
+        local success = mattata.send_force_reply(
             message,
-            demote.help
+            'Which user would you like me to demote? You can specify this user by their @username or numerical ID.'
         )
-    end
-    if tonumber(input) == nil and not input:match('^%@') then
+        if success then
+            redis:set(
+                string.format(
+                    'action:%s:%s',
+                    message.chat.id,
+                    success.result.message_id
+                ),
+                '/demote'
+            )
+        end
+        return
+    elseif tonumber(input) == nil and not input:match('^%@') then
         input = '@' .. input
     end
     local user = mattata.get_user(input) or mattata.get_chat(input) -- Resolve the username/ID to a user object.

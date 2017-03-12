@@ -9,7 +9,7 @@
         Copyright (c) 2017 Matthew Hesketh
         See './LICENSE' for details
 
-        Current version: v18
+        Current version: v18.1
 
 ]]
 
@@ -73,24 +73,14 @@ function mattata:init()
             self.info.id
         )
     )
-    self.version = 'v18'
+    self.version = 'v18.1'
     if not redis:get('mattata:version') or redis:get('mattata:version') ~= self.version then -- Make necessary database changes if the version has changed.
-        for k, v in pairs(
-            redis:keys('user:*:info')
-        ) do
-            mattata.process_user(
-                redis:hget(
-                    v,
-                    'id'
-                )
-            )
-        end
         redis:set(
             'mattata:version',
             self.version
         )
     end
-    self.last_update = self.last_update or 0
+    self.last_update = self.last_update or 0 -- If there is no last update known, make it 0 so the bot doesn't crash when it tries to increase it.
     self.last_backup = self.last_backup or os.date('%V')
     self.last_cron = self.last_cron or os.date('%H')
     self.last_m_cron = self.last_m_cron or os.date('%M')
@@ -253,10 +243,10 @@ function mattata:run(configuration, token)
         else
             print(
                 string.format(
-            		'%s[31m[Error] There was an error retrieving updates from the Telegram bot API!%s[0m',
-            		string.char(27),
-            		string.char(27)
-            	)
+                    '%s[31m[Error] There was an error retrieving updates from the Telegram bot API!%s[0m',
+                    string.char(27),
+                    string.char(27)
+                )
             )
         end
         if self.last_backup ~= os.date('%V') then -- If it's been a week since the last backup, perform another backup.
@@ -688,8 +678,7 @@ function mattata:on_message(message, configuration)
         local plugins = plugin.commands or {}
         for i = 1, #plugins do
             local command = plugin.commands[i]
-            if message.text:match(command) then
-                print(command)
+            if message.text:lower():match(command) then
                 if not plugin.on_message then
                     return
                 elseif (
@@ -1448,6 +1437,18 @@ function mattata.send_message(message, text, parse_mode, disable_web_page_previe
         reply_markup or '{"remove_keyboard":true}',
         token
     )
+    if not success then
+        success = api.send_message(
+            message,
+            text,
+            parse_mode,
+            disable_web_page_preview,
+            disable_notification,
+            reply_id,
+            reply_markup,
+            token
+        )
+    end
     if success and type(message) == 'table' then
         redis:set(
             'message:' .. message.chat.id .. ':' .. message.message_id,
@@ -1468,6 +1469,18 @@ function mattata.send_reply(message, text, parse_mode, disable_web_page_preview,
         reply_markup or '{"remove_keyboard":true}',
         token
     )
+    if not success then
+        success = api.send_message(
+            message,
+            text,
+            parse_mode,
+            disable_web_page_preview,
+            false,
+            message.message_id,
+            reply_markup,
+            token
+        )
+    end
     if success then
         redis:set(
             'message:' .. message.chat.id .. ':' .. message.message_id,

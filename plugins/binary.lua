@@ -6,13 +6,14 @@
 local binary = {}
 
 local mattata = require('mattata')
+local redis = require('mattata-redis')
 
 function binary:init()
     binary.commands = mattata.commands(
         self.info.username
     ):command('binary')
      :command('bin').table
-    binary.help = [[/binary <text> - Converts a numerical value into binary. Alias: /bin.]]
+    binary.help = '/binary <text> - Converts a numerical value into binary. Alias: /bin.'
 end
 
 function binary.convert(input)
@@ -49,10 +50,21 @@ end
 function binary:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
-        return mattata.send_reply(
+        local success = mattata.send_force_reply(
             message,
-            binary.help
+            'Please enter a number you would like to convert to binary.'
         )
+        if success then
+            redis:set(
+                string.format(
+                    'action:%s:%s',
+                    message.chat.id,
+                    success.result.message_id
+                ),
+                '/binary'
+            )
+        end
+        return
     elseif tonumber(input) == nil then
         return mattata.send_reply(
             message,
