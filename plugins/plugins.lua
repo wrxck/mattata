@@ -41,7 +41,7 @@ function plugins.get_toggleable_plugins()
     return toggleable
 end
 
-function plugins.get_keyboard(user_id, chat, page, columns, per_page)
+function plugins.get_keyboard(chat, page, columns, per_page)
     page = page or 1
     local toggleable = plugins.get_toggleable_plugins()
     local page_count = math.floor(#toggleable / per_page)
@@ -180,14 +180,23 @@ function plugins.get_keyboard(user_id, chat, page, columns, per_page)
             }
         }
     )
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = 'Back',
+                ['callback_data'] = 'help:settings'
+            }
+        }
+    )
     return keyboard
 end
 
 function plugins:on_callback_query(callback_query, message, configuration)
-    if not callback_query.data:match('^.-%:.-%:.-$') then
+    if not callback_query.data:match('^.-:.-:.-$') then
         return
     end
-    local chat, callback_type, page = callback_query.data:match('^(.-)%:(.-)%:(.-)$')
+    local chat, callback_type, page = callback_query.data:match('^(.-):(.-):(.-)$')
     if (
         mattata.get_chat(chat) and mattata.get_chat(chat).result.type ~= 'private'
     ) and not mattata.is_group_admin(
@@ -278,11 +287,10 @@ function plugins:on_callback_query(callback_query, message, configuration)
         end
     end
     local keyboard = plugins.get_keyboard(
-        callback_query.from.id,
         chat,
         tonumber(page),
         2,
-        20
+        10
     )
     local success = mattata.edit_message_reply_markup(
         message.chat.id,
@@ -333,11 +341,10 @@ function plugins:on_message(message, configuration)
         end
     end
     local keyboard = plugins.get_keyboard(
-        message.from.id,
         message.chat.id,
         1,
         2,
-        20
+        10
     )
     local success = mattata.send_message(
         message.from.id,

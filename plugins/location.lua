@@ -10,6 +10,7 @@ local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 local setloc = require('plugins.setloc')
+local redis = require('mattata-redis')
 
 function location:init()
     location.commands = mattata.commands(
@@ -68,14 +69,24 @@ end
 
 function location:on_message(message, configuration)
     local input = mattata.input(message.text:lower())
-    if not input then
-        local loc = setloc.get_loc(message.from)
-        if not loc then
-            return mattata.send_reply(
-                message,
-                'You don\'t have a location set. Use /setloc <location> to set one.'
+    if not input and not setloc.get_loc(message.from) then
+        local success = mattata.send_force_reply(
+            message,
+            'You don\'t have a location set. What would you like your new location to be?.'
+        )
+        if success then
+            redis:set(
+                string.format(
+                    'action:%s:%s',
+                    message.chat.id,
+                    success.result.message_id
+                ),
+                '/setloc'
             )
         end
+        return
+    elseif not input then
+        local loc = setloc.get_loc(message.from)
         return mattata.send_location(
             message.chat.id,
             json.decode(loc).latitude,

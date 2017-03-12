@@ -30,18 +30,16 @@ function dictionary:on_message(message, configuration)
         )
     end
     local body = {}
-    local _, res = https.request(
-        {
-            ['url'] = 'https://od-api.oxforddictionaries.com/api/v1/entries/en/' .. url.escape(input),
-            ['headers'] = {
-                ['app_id'] = configuration.keys.dictionary.id,
-                ['app_key'] = configuration.keys.dictionary.key
-            },
-            ['sink'] = ltn12.sink.table(body),
-        }
-    )
+    local _, res = https.request{
+        ['url'] = 'https://od-api.oxforddictionaries.com/api/v1/entries/en/' .. url.escape(input),
+        ['headers'] = {
+            ['app_id'] = configuration.keys.dictionary.id,
+            ['app_key'] = configuration.keys.dictionary.key
+        },
+        ['sink'] = ltn12.sink.table(body),
+    }
     if res ~= 200 then
-        return methods.send_reply(
+        return mattata.send_reply(
             message,
             configuration.errors.connection
         )

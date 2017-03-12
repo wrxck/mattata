@@ -22,7 +22,14 @@ function google:on_inline_query(inline_query, configuration)
     if not input then
         return
     end
-    local jstr, res = https.request('https://www.googleapis.com/customsearch/v1/?key=' .. configuration.keys.google.api_key .. '&cx=' .. configuration.keys.google.cse_key .. '&gl=en&fields=items%28title,link%29&q=' .. url.escape(input))
+    local jstr, res = https.request(
+        string.format(
+            'https://www.googleapis.com/customsearch/v1/?key=%s&cx=%s&gl=en&fields=items%%28title,link%%29&q=%s',
+            configuration.keys.google.api_key,
+            configuration.keys.google.cse_key,
+            url.escape(input)
+        )
+    )
     if res ~= 200 then
         return
     end
@@ -66,7 +73,14 @@ function google:on_message(message, configuration)
     if message.chat.type ~= 'private' then
         amount = 4
     end
-    local jstr, res = https.request('https://www.googleapis.com/customsearch/v1/?key=' .. configuration.keys.google.api_key .. '&cx=' .. configuration.keys.google.cse_key .. '&gl=en&num=' .. amount .. '&fields=items%28title,link%29&q=' .. url.escape(input))
+    local jstr, res = https.request(
+        string.format(
+            'https://www.googleapis.com/customsearch/v1/?key=%s&cx=%s&gl=en&fields=items%%28title,link%%29&q=%s',
+            configuration.keys.google.api_key,
+            configuration.keys.google.cse_key,
+            url.escape(input)
+        )
+    )
     if res ~= 200 then
         return mattata.send_reply(
             message,

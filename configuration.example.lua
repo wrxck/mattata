@@ -1,42 +1,28 @@
 return { -- Rename this file to configuration.lua for the bot to work.
-
-    ['bot_token'] = '', -- In order for your bot to actually work, you MUST insert the Telegram bot API token you received from @BotFather.
-
+    ['bot_token'] = '', -- In order for the bot to actually work, you MUST insert the Telegram bot API token you received from @BotFather.
     ['admins'] = {  -- Here you need to specify the numerical ID of the users who shall have FULL control over the bot, this includes access to server files via the lua and shell plugins.
-
-        221714512,
-        280653891
-
+        221714512
     },
-
-    ['language'] = 'en', -- Two character locale, this is the default language for all users who haven't adjusted their language.
-
+    ['language'] = 'en', -- The two character locale to set your default language to, this is also the default language for all users who haven't adjusted their language
     ['log_chat'] = -1001053691206, -- This needs to be the numerical identifier of the chat you wish to log errors into. If it's not a private chat it should begin with a '-' symbol.
-
-    ['log_admin_actions'] = true, -- If set to true, administrative actions will be logged in the configured channel (the numerical ID should be set as the value of log_channel).
-
-    ['log_channel'] = -1001086181358, -- THe numerical ID of the chat to (if applicable) log administrative actions to.
-
-    ['bug_reports_chat'] = -188808248, -- The numerical ID of the chat to send bug reports to.
-
-    ['counter_channel'] = -1001081940117, -- The numerical ID of the channel to use in order for /counter to work.
-
+    ['log_admin_actions'] = true,
+    ['log_channel'] = -1001086181358,
+    ['admin_log_chat'] = -1001086181358,
+    ['bug_reports_chat'] = -188808248,
+    ['counter_channel'] = -1001081940117,
     ['download_location'] = '/tmp/', -- The location to save all downloaded media to.
-
-    ['respond_to_misc'] = true, -- This setting determines whether your bot will respond to certain miscellaneous triggers. It MUST be a boolean value.
-
+    ['respond_to_misc'] = true,
     ['max_copypasta_length'] = 300, -- The maximum number of characters a message can have to be able to have /copypasta used on it.
-
-    ['debug'] = false, -- If set to true, information about each API update will be printed to the console.
-
-    ['plugins'] = { -- This table lists the plugins which your bot will load upon each instance.
-
+    ['debug'] = false,
+    ['plugins'] = { -- This table lists the plugins which the bot will load upon each instance.
         'control',
         -- To allow things to work properly, you MUST place all new plugins BELOW this line. It is recommended to keep the list clean by ensuring it keeps its alphabetical order.
         'administration',
+        'ahelp',
         'apod',
         'appstore',
         'avatar',
+        'ban',
         'base64',
         'bash',
         'belikebill',
@@ -54,6 +40,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'copypasta',
         'counter',
         'currency',
+        'demote',
         'developer',
         'dice',
         'dictionary',
@@ -92,6 +79,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'isup',
         'itunes',
         'jsondump',
+        'kick',
         'lastfm',
         'license',
         'lmgtfy',
@@ -114,9 +102,11 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'plugins',
         'pokedex',
         'prime',
+        'promote',
         'pun',
         'qr',
         'quote',
+        'quotes',
         'randomword',
         'reddit',
         'remind',
@@ -142,11 +132,14 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'tpb',
         'translate',
         'twitch',
+        'unban',
         'unicode',
         'upload',
         'urbandictionary',
+        'user',
         'uuid',
         'version',
+        'warn',
         'weather',
         'whois',
         'wikipedia',
@@ -154,103 +147,65 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'yify',
         'yomama',
         'youtube'
-
     },
-
-    ['redis'] = { -- Configurable options for connecting your bot to redis. Do NOT modify these settings if you don't know what you're doing!
-
+    ['redis'] = { -- Configurable options for connecting the bot to redis. Do NOT modify these settings if you don't know what you're doing!
         ['host'] = '127.0.0.1',
-
         ['port'] = 6379,
-
         ['password'] = nil,
-
-        ['db'] = 1
-
+        ['db'] = 2
     },
-
     ['keys'] = { -- API keys needed for the full functionality of several plugins.
-
         ['cats'] = '', -- http://thecatapi.com/api-key-registration.html
-
         ['translate'] = '', -- https://tech.yandex.com/keys/get/?service=trnsl
-
         ['lyrics'] = '', -- https://developer.musixmatch.com/admin/applications
-
         ['canitrust'] = '', -- https://www.mywot.com/en/signup
-
         ['apod'] = '', -- https://api.nasa.gov/index.html#apply-for-an-api-key
-
         ['synonym'] = '', -- https://tech.yandex.com/keys/get/?service=dict
-
         ['lastfm'] = '', -- http://www.last.fm/api/account/create
-
         ['weather'] = '', -- https://darksky.net/dev/register
-
         ['youtube'] = '', -- https://console.developers.google.com/apis
-
         ['bing'] = '', -- https://datamarket.azure.com/account/keys
-
         ['flickr'] = '', -- https://www.flickr.com/services/apps/create/noncommercial/?
-
         ['githubfeed'] = '',
-
         ['news'] = '',
-
+        ['witai'] = '',
         ['twitch'] = '',
-
         ['pastebin'] = '',
-
         ['dictionary'] = {
-
             ['id'] = '',
-
             ['key'] = ''
-
         },
-
         ['adfly'] = {
-
             ['apikey'] = '',
-
             ['userid'] = ''
-
         },
-
         ['pasteee'] = '',
-
-        ['google'] = { -- https://console.developers.google.com/apis
-
+        ['google'] = {
             ['api_key'] = '',
-
             ['cse_key'] = ''
-
         },
-
         ['steam'] = '' -- https://steamcommunity.com/dev/registerkey
-
     },
-
-    ['errors'] = { -- Messages to provide a more user-friendly approach to instances of errors.
-
+    ['errors'] = { -- Messages to provide a more user-friendly approach to errors.
         ['connection'] = 'Connection error.',
-
-        ['results'] = 'I couldn\'t find any results for that.'
-
+        ['results'] = 'I couldn\'t find any results for that.',
+        ['supergroup'] = 'This command can only be used in supergroups.',
+        ['admin'] = 'You need to be a moderator or an administrator in this chat in order to use this command.',
+        ['unknown'] = 'I don\'t recognise that user. If you would like to teach me who they are, forward a message from them to any chat that I\'m in.',
+        ['generic'] = 'An unexpected error occured. Please report this error using /bugreport.'
     },
-
     ['dice'] = {
-
         ['max_range'] = 200,
-
         ['max_count'] = 200,
-
         ['min_range'] = 2
-
     },
-
+    ['administration'] = {
+        ['warnings'] = {
+            ['maximum'] = 10,
+            ['minimum'] = 2
+        }
+    },
     ['eightball'] = {
-
         'It is certain.',
         'It has been confirmed.',
         'Without any doubts.',
@@ -272,52 +227,43 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'Outlook: very good.',
         'Very doubtful.',
         'Rowan\'s voice echoes: There is a time and place for everything, but not now.'
-
     },
-
     ['join_messages'] = {
-
         'Welcome, NAME!',
         'Hello, NAME!',
         'Enjoy your stay, NAME!',
         'I\'m glad you joined, NAME!',
         'Howdy, NAME!',
         'Hi, NAME!'
-
     },
-
     ['faces'] = { -- Expressive emoticon faces which can be triggered with /<name>.
-
         ['shrug'] = '¯\\_(ツ)_/¯',
-
         ['lenny'] = '( ͡° ͜ʖ ͡°)',
-
         ['flip'] = '(╯°□°）╯︵ ┻━┻',
-
         ['look'] = 'ಠ_ಠ',
-
         ['shots'] = 'SHOTS FIRED',
-
         ['facepalm'] = '(－‸ლ)',
-
         ['vibrator'] = 'ヽヽ༼༼ຈຈل͜ل͜ຈຈ༽༽ﾉﾉ TURN OFF THE VIBRATOR ヽヽ༼༼ຈຈل͜ل͜ຈຈ༽༽ﾉﾉ',
-
         ['africa'] = '( ͡° ͜ʖ ͡°) Every 60 seconds in Africa, a minute passes. Together we can stop this. Please spread the word ( ͡° ͜ʖ ͡°)',
-
         ['chocolate'] = '\n╔╦╦\n╠╬╬╬╣\n╠╬╬╬╣OK! WHO ATE MY\n╠╬╬╬╣CHOCOLATE!!\n╚╩╩╩╝',
-
         ['kirby'] = '(つ -‘ _ ‘- )つ',
-
         ['finger'] = '\n⁣               /´¯/)\n             ,/¯  /\n             /   /\n          /´¯/’  ’/´¯¯`·¸\n        /’/  /   /    /¨¯\\\n       (‘(   ´  ´   ¯~/’  ’)\n        \\          ’    /\n        \\   \\       _ ·´\n         \\          (\n          \\          \\,',
-
         ['rub'] = 'ヽ( ° ͜ʖ͡°)ﾉ ʀuʙ ᴍʏ ᴅᴏɴɢᴇʀ ヽ( ° ͜ʖ͡°)ﾉ',
-
         ['party'] = '୧༼ ͡◉ل͜ ͡◉༽୨ (ง ͠° ل͜ °)ง ヽ༼ຈل͜ຈ༽ﾉ ༼ ºل͟º ༽ Join da Party ୧༼ ͡◉ل͜ ͡◉༽୨ (ง ͠° ل͜ °)ง ヽ༼ຈل͜ຈ༽ﾉ ༼ ºل͟º ༽',
-
         ['lift'] = '\n❚█══█❚\nDo you even lift?',
-
         ['specs'] = 'ᒡ◯ᵔ◯ᒢ'
-
+    },
+    ['stickers'] = {
+        ['ban'] = {
+            'CAADBAADzwIAAlAYNw1h7nezc1nH7gI',
+            'CAADBAAD0AIAAlAYNw13TaMgAYaXywI'
+        },
+        ['warn'] = {
+            'CAADBAAD0QIAAlAYNw1wPS6g_arjDgI',
+            'CAADBAAD0gIAAlAYNw2-pLQLQonbCQI'
+        },
+        ['kick'] = {
+            'CAADBAAD0wIAAlAYNw3KIKm0bVviWwI'
+        }
     }
-
 } -- End of configuration, you're good to go. Use ./launch.sh to start the bot.

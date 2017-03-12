@@ -9,6 +9,7 @@ local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
+local redis = require('mattata-redis')
 
 function gif:init()
     gif.commands = mattata.commands(
@@ -42,10 +43,21 @@ end
 function gif:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
-        return mattata.send_reply(
+        local success = mattata.send_force_reply(
             message,
-            gif.help
+            'Please enter a search query (that is, what you want me to search GIPHY for, i.e. "cat" will return a GIF of a cat).'
         )
+        if success then
+            redis:set(
+                string.format(
+                    'action:%s:%s',
+                    message.chat.id,
+                    success.result.message_id
+                ),
+                '/gif'
+            )
+        end
+        return
     end
     local jstr, res = https.request('https://api.giphy.com/v1/gifs/search?q=' .. url.escape(input) .. '&api_key=dc6zaTOxFJmzC')
     if res ~= 200 then

@@ -9,6 +9,7 @@ local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
+local redis = require('mattata-redis')
 
 function flickr:init(configuration)
     assert(
@@ -56,10 +57,21 @@ end
 function flickr:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
-        return mattata.send_reply(
+        local success = mattata.send_force_reply(
             message,
-            flickr.help
+            'Please enter a search query (that is, what you want me to search Flickr for, i.e. "Big Ben" will return a photograph of Big Ben in London).'
         )
+        if success then
+            redis:set(
+                string.format(
+                    'action:%s:%s',
+                    message.chat.id,
+                    success.result.message_id
+                ),
+                '/flickr'
+            )
+        end
+        return
     end
     local jstr, res = https.request(
         string.format(
@@ -67,7 +79,7 @@ function flickr:on_message(message, configuration)
             configuration.keys.flickr,
             url.escape(input)
         )
-    )       
+    )
     if res ~= 200 then
         return mattata.send_reply(
             message,

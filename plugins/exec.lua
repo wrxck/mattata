@@ -71,6 +71,7 @@ function exec.get_keyboard(user_id)
         if last_used and last_used == v then
             k = utf8.char(9889) .. ' ' .. k
         end
+        print(user_id)
         table.insert(
             keyboard.inline_keyboard[row],
             {
@@ -186,7 +187,7 @@ function exec:on_callback_query(callback_query, message)
             exec.get_keyboard(user_id)
         )
     end
-    local code = mattata.input(message.reply.text)
+    local code = mattata.input(message.reply.text) or message.reply.text
     if not code then
         return
     end
@@ -209,14 +210,14 @@ function exec:on_callback_query(callback_query, message)
             exec.make_request(
                 language,
                 code
-            ),
+            ) or 'An error occured! The connection timed-out. Were you trying to make me lag? ' .. utf8.char(128527),
             'html'
         )
     end
     return mattata.edit_message_text(
         message.chat.id,
         message.message_id,
-        'You have selected "' .. language_name .. '" - are you sure?',
+        'You have selected "' .. language_name .. '" – are you sure?',
         nil,
         true,
         mattata.inline_keyboard():row(
@@ -254,10 +255,21 @@ end
 function exec:on_message(message)
     local input = mattata.input(message.text)
     if not input then
-        return mattata.send_reply(
+        local success = mattata.send_force_reply(
             message,
-            exec.help
+            'Please enter a snippet of code that you would like to run. You don\'t need to specify the language, we will do that afterwards!'
         )
+        if success then
+            redis:set(
+                string.format(
+                    'action:%s:%s',
+                    message.chat.id,
+                    success.result.message_id
+                ),
+                '/exec'
+            )
+        end
+        return
     end
     mattata.send_chat_action(message.chat.id)
     return mattata.send_message(

@@ -16,24 +16,19 @@ function shorten:init()
     shorten.commands = mattata.commands(
         self.info.username
     ):command('shorten').table
-    shorten.help = [[/shorten <url> - Shortens the given URL using one of the given URL shorteners.]]
+    shorten.help = '/shorten <url> - Shortens the given URL using one of the given URL shorteners.'
 end
 
 function shorten.get_keyboard()
-    local keyboard = {}
-    keyboard.inline_keyboard = {
-        {
-            {
-                ['text'] = 'goo.gl',
-                ['callback_data'] = 'shorten:googl'
-            },
-            {
-                ['text'] = 'adf.ly',
-                ['callback_data'] = 'shorten:adfly'
-            }
-        }
-    }
-    return keyboard
+    return mattata.inline_keyboard():row(
+        mattata.row():callback_data_button(
+            'goo.gl',
+            'shorten:googl'
+        ):callback_data_button(
+            'adf.ly',
+            'shorten:adfly'
+        )
+    )
 end
 
 function shorten.googl(input)
@@ -45,7 +40,7 @@ function shorten.googl(input)
     local response = {}
     local _, res = https.request(
         {
-            ['url'] = 'https://www.googleapis.com/urlshortener/v1/url?key=' .. configuration.keys.google,
+            ['url'] = 'https://www.googleapis.com/urlshortener/v1/url?key=' .. configuration.keys.google.api_key,
             ['method'] = 'POST',
             ['headers'] = {
                 ['Content-Type'] = 'application/json',
@@ -89,7 +84,7 @@ function shorten.adfly(input)
     end
     return jdat.data[1].short_url
 end
-    
+
 function shorten:on_callback_query(callback_query, message)
     local input = mattata.input(message.reply.text)
     if not input then

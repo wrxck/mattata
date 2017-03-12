@@ -11,12 +11,16 @@ function control:init()
     control.commands = mattata.commands(
         self.info.username
     ):command('reload')
-     :command('reboot').table
+     :command('reboot')
+     :command('icanhazreboot').table
 end
 
 function control:on_message(message, configuration)
     if not mattata.is_global_admin(message.from.id) then
-        return
+        return mattata.send_reply(
+            message,
+            'Pfft, you wish!'
+        )
     end
     for p, _ in pairs(package.loaded) do
         if p:match('^plugins%.') then

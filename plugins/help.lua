@@ -25,16 +25,19 @@ function help.get_initial_keyboard()
             'Links',
             'help:links'
         ):callback_data_button(
-            'Administration',
-            'help:ahelp'
+            'Admin Help',
+            'help:ahelp:1'
         ):callback_data_button(
             'Commands',
             'help:cmds'
         )
     ):row(
         mattata.row():switch_inline_query_button(
-            'Use Inline Mode 🔎',
+            'Inline Mode',
             '/'
+        ):callback_data_button(
+            'Settings',
+            'help:settings'
         )
     )
 end
@@ -128,8 +131,8 @@ function help:on_callback_query(callback_query, message, configuration)
                 )
             )
         )
-    elseif callback_query.data:match('^results%:%d*$') then
-        local new_page = callback_query.data:match('^results%:(%d*)$')
+    elseif callback_query.data:match('^results:%d*$') then
+        local new_page = callback_query.data:match('^results:(%d*)$')
         local arguments_list = mattata.get_help()
         local plugin_count = #arguments_list
         local page_count = math.floor(
@@ -179,21 +182,73 @@ function help:on_callback_query(callback_query, message, configuration)
                 )
             )
         )
-    elseif callback_query.data:match('^pages%:%d*%:%d*$') then
-        local current_page, total_pages = callback_query.data:match('^pages%:(%d*)%:(%d*)$')
+    elseif callback_query.data:match('^pages:%d*:%d*$') then
+        local current_page, total_pages = callback_query.data:match('^pages:(%d*):(%d*)$')
         return mattata.answer_callback_query(
             callback_query.id,
             'You are on page ' .. current_page .. ' of ' .. total_pages .. '!'
         )
-    elseif callback_query.data == 'ahelp' then
-        local administration_help_text = 'I can perform many administrative actions in your groups, just add me as an administrator and send /administration to adjust the settings for your group. Here are some administrative commands and a brief comment regarding what they do:\n\n- /pin <text> - Send a Markdown-formatted message which can be edited by using the same command with different text, to save you from having to re-pin a message if you can\'t edit it (which happens if the message is older than 48 hours)\n- /ban - Ban a user by replying to one of their messages, or by specifying them by username/ID\n- /kick - Kick (ban and then unban) a user by replying to one of their messages, or by specifying them by username/ID\n- /unban - Unban a user by replying to one of their messages, or by specifying them by username/ID\n- /setrules <text> - Set the given Markdown-formatted text as the group rules, which will be sent whenever somebody uses /rules\n- /setwelcome - Set the given Markdown-formatted text as a welcome message that will be sent every time a user joins your group (the welcome message can be disabled in the administration menu, accessible via /administration)\n- /warn - Warn a user, and ban them when they hit the maximum number of warnings\n- /mod - Promote the replied-to user, giving them access to administrative commands such as /ban, /kick, /warn etc. (this is useful when you don\'t want somebody to have the ability to delete messages!)\n- /demod - Demote the replied-to user, stripping them from their moderation status and revoking their ability to use administrative commands\n- /staff - View the group\'s creator, administrators, and moderators in a neatly-formatted list\n- /report - Forwards the replied-to message to all administrators and alerts them of the current situation\n- /setlink <URL> - Set the group\'s link to the given URL, which will be sent whenever somebody uses /link\n- /links <text> - Whitelists all of the Telegram links found in the given text (includes @username links)'
+    elseif callback_query.data == 'ahelp:1' then
+        local administration_help_text = [[
+I can perform many administrative actions in your groups, just add me as an administrator and send /administration to adjust the settings for your group.
+Here are some administrative commands and a brief comment regarding what they do:
+
+• /pin <text> - Send a Markdown-formatted message which can be edited by using the same command with different text, to save you from having to re-pin a message if you can't edit it (which happens if the message is older than 48 hours)
+
+• /ban - Ban a user by replying to one of their messages, or by specifying them by username/ID
+
+• /kick - Kick (ban and then unban) a user by replying to one of their messages, or by specifying them by username/ID
+
+• /unban - Unban a user by replying to one of their messages, or by specifying them by username/ID
+
+• /setrules <text> - Set the given Markdown-formatted text as the group rules, which will be sent whenever somebody uses /rules
+
+• /setwelcome - Set the given Markdown-formatted text as a welcome message that will be sent every time a user joins your group (the welcome message can be disabled in the administration menu, accessible via /administration)
+        ]]
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
             administration_help_text,
             'markdown',
             true,
-            help.get_back_keyboard()
+            mattata.inline_keyboard():row(
+                mattata.row():callback_data_button(
+                    'Back',
+                    'help:back'
+                ):callback_data_button(
+                    'Next',
+                    'help:ahelp:2'
+                )
+            )
+        )
+    elseif callback_query.data == 'ahelp:2' then
+        local administration_help_text = [[
+• /warn - Warn a user, and ban them when they hit the maximum number of warnings
+
+• /mod - Promote the replied-to user, giving them access to administrative commands such as /ban, /kick, /warn etc. (this is useful when you don't want somebody to have the ability to delete messages!)
+
+• /demod - Demote the replied-to user, stripping them from their moderation status and revoking their ability to use administrative commands
+
+• /staff - View the group's creator, administrators, and moderators in a neatly-formatted list
+
+• /report - Forwards the replied-to message to all administrators and alerts them of the current situation
+
+• /setlink <URL> - Set the group's link to the given URL, which will be sent whenever somebody uses /link
+
+• /links <text> - Whitelists all of the Telegram links found in the given text (includes @username links)
+        ]]
+        return mattata.edit_message_text(
+            message.chat.id,
+            message.message_id,
+            administration_help_text,
+            'markdown',
+            true,
+            mattata.inline_keyboard():row(
+                mattata.row():callback_data_button(
+                    'Back',
+                    'help:ahelp:1'
+                )
+            )
         )
     elseif callback_query.data == 'links' then
         return mattata.edit_message_text(
@@ -228,19 +283,84 @@ function help:on_callback_query(callback_query, message, configuration)
                 )
             )
         )
+    elseif callback_query.data == 'settings' then
+        if message.chat.type == 'supergroup' and not mattata.is_group_admin(
+            message.chat.id,
+            callback_query.from.id
+        ) then
+            return mattata.answer_callback_query(
+                callback_query.id,
+                configuration.errors.admin
+            )
+        end
+        return mattata.edit_message_reply_markup(
+            message.chat.id,
+            message.message_id,
+            nil,
+            (
+                message.chat.type == 'supergroup' and mattata.is_group_admin(
+                    message.chat.id,
+                    callback_query.from.id
+                )
+            ) and mattata.inline_keyboard():row(
+                mattata.row():callback_data_button(
+                    'Admin Settings',
+                    string.format(
+                        'administration:%s:back',
+                        message.chat.id
+                    )
+                ):callback_data_button(
+                    'Plugins',
+                    string.format(
+                        'plugins:%s:page:1',
+                        message.chat.id
+                    )
+                )
+            ):row(
+                mattata.row():callback_data_button(
+                    'Back',
+                    'help:back'
+                )
+            ) or mattata.inline_keyboard():row(
+                mattata.row():callback_data_button(
+                    'Plugins',
+                    string.format(
+                        'plugins:%s:page:1',
+                        message.chat.id
+                    )
+                )
+            ):row(
+                mattata.row():callback_data_button(
+                    'Back',
+                    'help:back'
+                )
+            )
+        )
     elseif callback_query.data == 'back' then
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
             string.format(
-                [[Hi *%s*, I'm %s - a multi-purpose bot written in Lua by [Matthew Hesketh](https://t.me/wrxck), with many features including the ability to talk to you and administrate your chats. Use the buttons below to discover more about what I can do for you. For help with commands, you can use my interactive inline help menu - just mention me in any chat using the following syntax: `@%s <search query/pattern>`. To keep up-to-date with the latest news about me, feel free to join [my channel.](https://t.me/mattata)]],
-                mattata.escape_markdown(callback_query.from.first_name),
-                mattata.escape_markdown(self.info.name),
-                self.info.username
+                [[
+<b>Hi %s! My name's %s, it's a pleasure to meet you</b> %s
+
+I'm a smart bot who is capable of having conversations with humans such as yourself, and I have the ability to administrate your groups too!
+
+I understand many commands, which you can learn more about by pressing the "Commands" button using the attached keyboard.
+
+%s <b>Tip:</b> Use the "Settings" button to change how I work%s!
+                ]],
+                mattata.escape_html(callback_query.from.first_name),
+                mattata.escape_html(
+                    mattata.get_me().result.first_name
+                ),
+                utf8.char(128513),
+                utf8.char(128161),
+                message.chat.type ~= 'private' and ' in ' .. mattata.escape_html(message.chat.title) or ''
             ),
-            'markdown',
+            'html',
             true,
-            help.get_initial_keyboard()
+            help.get_initial_keyboard(message.chat.type == 'supergroup' and message.chat.id or false)
         )
     end
 end
@@ -249,16 +369,28 @@ function help:on_message(message, configuration)
     return mattata.send_message(
         message.chat.id,
         string.format(
-            [[Hi *%s*, I'm %s - a multi-purpose bot written in Lua by [Matthew Hesketh](https://t.me/wrxck), with many features including the ability to talk to you and administrate your chats. Use the buttons below to discover more about what I can do for you. For help with commands, you can use my interactive inline help menu - just mention me in any chat using the following syntax: `@%s <search query/pattern>`. To keep up-to-date with the latest news about me, feel free to join [my channel.](https://t.me/mattata)]],
-            mattata.escape_markdown(message.from.first_name),
-            mattata.escape_markdown(self.info.name),
-            self.info.username
+            [[
+<b>Hi %s! My name's %s, it's a pleasure to meet you</b> %s
+
+I'm a smart bot who is capable of having conversations with humans such as yourself, and I have the ability to administrate your groups too!
+
+I understand many commands, which you can learn more about by pressing the "Commands" button using the attached keyboard.
+
+%s <b>Tip:</b> Use the "Settings" button to change how I work%s!
+            ]],
+            mattata.escape_html(message.from.first_name),
+            mattata.escape_html(
+                mattata.get_me().result.first_name
+            ),
+            utf8.char(128513),
+            utf8.char(128161),
+            message.chat.type ~= 'private' and ' in ' .. mattata.escape_html(message.chat.title) or ''
         ),
-        'markdown',
+        'html',
         true,
         false,
         nil,
-        help.get_initial_keyboard()
+        help.get_initial_keyboard(message.chat.type == 'supergroup' and message.chat.id or false)
     )
 end
 

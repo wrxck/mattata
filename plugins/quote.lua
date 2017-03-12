@@ -18,9 +18,25 @@ end
 
 function quote:on_message(message)
     if not message.reply then
+        local quotes = redis:keys('quotes:*')
+        local user, quote
+        repeat
+            quote = quotes[math.random(#quotes)]
+            user = quote:match(':(%d+)$')
+        until mattata.get_chat(user)
+        user = mattata.get_chat(user).result
+        quote = json.decode(
+            redis:get(quote)
+        )
         return mattata.send_reply(
             message,
-            quote.help
+            string.format(
+                '<i>%s</i>\n– %s%s',
+                mattata.escape_html(quote[math.random(#quote)]),
+                mattata.escape_html(user.name),
+                user.username and ' (@' .. user.username .. ')' or ''
+            ),
+            'html'
         )
     elseif redis:get('user:' .. message.reply.from.id .. ':opt_out') then
         redis:del('quotes:' .. message.reply.from.id)

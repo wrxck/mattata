@@ -278,7 +278,7 @@ function lyrics:on_inline_query(inline_query, configuration)
         local track = output.message.body.track_list[n].track.track_name
         local track_id = output.message.body.track_list[n].track.track_id
         local track_length = output.message.body.track_list[n].track.track_length
-        if artist and track and track_id and track_length then 
+        if artist and track and track_id and track_length then
             count = count + 1
             local id = socket.gettime() * 10000
             redis:set(
@@ -378,10 +378,21 @@ end
 function lyrics:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
-        return mattata.send_reply(
+        local success = mattata.send_force_reply(
             message,
-            lyrics.help
+            'Please enter a search query (that is, what song/artist/lyrics you want me to get lyrics for, i.e. "Green Day Basket Case" will return the lyrics for the song Basket Case by Green Day).'
         )
+        if success then
+            redis:set(
+                string.format(
+                    'action:%s:%s',
+                    message.chat.id,
+                    success.result.message_id
+                ),
+                '/lyrics'
+            )
+        end
+        return
     end
     mattata.send_chat_action(
         message.chat.id,

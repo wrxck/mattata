@@ -9,6 +9,7 @@ local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
+local redis = require('mattata-redis')
 
 function itunes:init()
     itunes.commands = mattata.commands(
@@ -145,10 +146,21 @@ end
 function itunes:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
-        return mattata.send_reply(
+        local success = mattata.send_force_reply(
             message,
-            itunes.help
+            'Please enter a search query (that is, what you want me to search iTunes for, i.e. "Green Day American Idiot" will return information about the first result for American Idiot by Green Day).'
         )
+        if success then
+            redis:set(
+                string.format(
+                    'action:%s:%s',
+                    message.chat.id,
+                    success.result.message_id
+                ),
+                '/itunes'
+            )
+        end
+        return
     end
     mattata.send_chat_action(
         message.chat.id,
