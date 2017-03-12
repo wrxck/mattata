@@ -33,10 +33,21 @@ function unban:on_message(message, configuration)
     local reason = false
     local input = message.reply and tostring(message.reply.from.id) or mattata.input(message.text)
     if not input then
-        return mattata.send_reply(
+        local success = mattata.send_force_reply(
             message,
-            unban.help
+            'Which user would you like me to unban? You can specify this user by their @username or numerical ID.'
         )
+        if success then
+            redis:set(
+                string.format(
+                    'action:%s:%s',
+                    message.chat.id,
+                    success.result.message_id
+                ),
+                '/unban'
+            )
+        end
+        return
     elseif not message.reply and input:match('^%@?%w+ ') then
         reason = input:match('^%@?%w+ (.-)$')
         input = input:match('^(%@?%w+) ')

@@ -9,7 +9,7 @@
         Copyright (c) 2017 Matthew Hesketh
         See './LICENSE' for details
 
-        Current version: v18.1
+        Current version: v18.2
 
 ]]
 
@@ -31,8 +31,6 @@ local inline_plugin_list = {}
 function mattata:init()
     self.info = api.info -- Set the bot's information to the object fetched from the Telegram bot API.
     self.plugins = {} -- Make a table for the bot's plugins.
-    plugin_list = {} -- Make a table for the plugin list used for help-related commands.
-    inline_plugin_list = {} -- Make a table for the inline plugin list used for help-related commands.
     for k, v in ipairs(configuration.plugins) do -- Iterate over all of the configured plugins.
         local plugin = require('plugins.' .. v) -- Load each plugin.
         self.plugins[k] = plugin
@@ -73,7 +71,7 @@ function mattata:init()
             self.info.id
         )
     )
-    self.version = 'v18.1'
+    self.version = 'v18.2'
     if not redis:get('mattata:version') or redis:get('mattata:version') ~= self.version then -- Make necessary database changes if the version has changed.
         redis:set(
             'mattata:version',
@@ -389,15 +387,13 @@ function mattata:on_message(message, configuration)
             message.reply.message_id
         )
     ) then
-        local new_text = redis:get(
+        message.text = redis:get(
             string.format(
                 'action:%s:%s',
                 message.chat.id,
                 message.reply.message_id
             )
         ) .. ' ' .. message.text
-        message.text = new_text
-        print(message.text)
         redis:del(
             string.format(
                 'action:%s:%s',
