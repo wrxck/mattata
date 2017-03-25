@@ -137,7 +137,7 @@ function lyrics.search_lyrics(artist, track)
     return success
 end
 
-function lyrics.send_request(input, inline)
+function lyrics.send_request(input, inline, no_html)
     local search_url = string.format(
         'https://api.musixmatch.com/ws/1.1/track.search?apikey=%s&s_track_rating=desc',
         configuration.keys.lyrics
@@ -213,8 +213,10 @@ function lyrics.send_request(input, inline)
     end
     output = output:gsub('\\', '')
     output = string.format(
-        '<b>%s</b> %s\n🕓 %s\n\n%s',
+        '%s%s%s %s\n🕓 %s\n\n%s',
+        not no_html and '<b>' or '',
         mattata.escape_html(track),
+        not no_html and '</b>' or '',
         mattata.escape_html(artist),
         mattata.format_ms(math.floor(tonumber(jdat.message.body.track_list[1].track.track_length) * 1000)):gsub('^%d%d:', ''):gsub('^0', ''),
         mattata.escape_html(output)

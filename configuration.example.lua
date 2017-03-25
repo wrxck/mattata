@@ -1,15 +1,15 @@
 return { -- Rename this file to configuration.lua for the bot to work.
     ['bot_token'] = '', -- In order for the bot to actually work, you MUST insert the Telegram bot API token you received from @BotFather.
     ['admins'] = {  -- Here you need to specify the numerical ID of the users who shall have FULL control over the bot, this includes access to server files via the lua and shell plugins.
-        221714512
+        nil
     },
     ['language'] = 'en', -- The two character locale to set your default language to, this is also the default language for all users who haven't adjusted their language
-    ['log_chat'] = -1001053691206, -- This needs to be the numerical identifier of the chat you wish to log errors into. If it's not a private chat it should begin with a '-' symbol.
+    ['log_chat'] = nil, -- This needs to be the numerical identifier of the chat you wish to log errors into. If it's not a private chat it should begin with a '-' symbol.
     ['log_admin_actions'] = true,
-    ['log_channel'] = -1001086181358,
-    ['admin_log_chat'] = -1001086181358,
-    ['bug_reports_chat'] = -188808248,
-    ['counter_channel'] = -1001081940117,
+    ['log_channel'] = nil,
+    ['admin_log_chat'] = nil,
+    ['bug_reports_chat'] = nil,
+    ['counter_channel'] = nil,
     ['download_location'] = '/tmp/', -- The location to save all downloaded media to.
     ['respond_to_misc'] = true,
     ['max_copypasta_length'] = 300, -- The maximum number of characters a message can have to be able to have /copypasta used on it.
@@ -26,8 +26,9 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'base64',
         'bash',
         'belikebill',
-        'binary',
         'bing',
+        'blacklist',
+        'blacklistchat',
         'bugreport',
         'calc',
         'canitrust',
@@ -40,6 +41,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'copypasta',
         'counter',
         'currency',
+        'custom',
         'demote',
         'developer',
         'dice',
@@ -57,6 +59,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'fact',
         'flickr',
         'fortune',
+        'frombinary',
         'game',
         'gblacklist',
         'gif',
@@ -95,6 +98,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'news',
         'nick',
         'ninegag',
+        'obama',
         'optout',
         'paste',
         'pay',
@@ -106,7 +110,6 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'pun',
         'qr',
         'quote',
-        'quotes',
         'randomword',
         'reddit',
         'remind',
@@ -118,6 +121,8 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'setlang',
         'setloc',
         'settings',
+        'setwelcome',
+        'share',
         'shorten',
         'shout',
         'slap',
@@ -129,6 +134,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'theme',
         'thoughts',
         'time',
+        'tobinary',
         'tpb',
         'translate',
         'twitch',
@@ -166,21 +172,21 @@ return { -- Rename this file to configuration.lua for the bot to work.
         ['youtube'] = '', -- https://console.developers.google.com/apis
         ['bing'] = '', -- https://datamarket.azure.com/account/keys
         ['flickr'] = '', -- https://www.flickr.com/services/apps/create/noncommercial/?
-        ['githubfeed'] = '',
-        ['news'] = '',
-        ['witai'] = '',
-        ['twitch'] = '',
-        ['pastebin'] = '',
-        ['dictionary'] = {
+        ['githubfeed'] = '', -- https://github.com/settings/tokens/new
+        ['news'] = '', -- https://newsapi.org/
+        ['witai'] = '', -- https://wit.ai/
+        ['twitch'] = '', -- https://twitchapps.com/tmi/
+        ['pastebin'] = '', -- https://pastebin.com/api
+        ['dictionary'] = {  -- https://developer.oxforddictionaries.com/
             ['id'] = '',
             ['key'] = ''
         },
-        ['adfly'] = {
+        ['adfly'] = { -- https://login.adf.ly/login
             ['apikey'] = '',
             ['userid'] = ''
         },
-        ['pasteee'] = '',
-        ['google'] = {
+        ['pasteee'] = '', -- https://paste.ee/
+        ['google'] = { -- https://console.developers.google.com/apis
             ['api_key'] = '',
             ['cse_key'] = ''
         },

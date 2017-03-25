@@ -15,8 +15,6 @@ function administration:init()
         self.info.username
     ):command('administration')
      :command('antispam')
-     :command('setwelcome')
-     :command('blacklist')
      :command('whitelist')
      :command('admins')
      :command('staff')
@@ -25,7 +23,6 @@ function administration:init()
      :command('links')
      :command('link')
      :command('setlink')
-     :command('custom')
      :command('rules')
      :command('setrules')
      :command('pin')
@@ -532,7 +529,13 @@ function administration.is_user_spamming(message) -- Checks if a user is spammin
     local messages = redis:get('administration:text:' .. message.chat.id .. ':' .. message.from.id)
     local forwarded = redis:get('administration:forwarded:' .. message.chat.id .. ':' .. message.from.id)
     local stickers = redis:get('administration:stickers:' .. message.chat.id .. ':' .. message.from.id)
-    if redis:get('administration:' .. message.chat.id .. ':antilink') and administration.check_links(
+    if redis:hget(
+        string.format(
+            'chat:%s:settings',
+            message.chat.id
+        ),
+        'antilink'
+    ) and administration.check_links(
         message,
         'check'
     ) then
@@ -594,119 +597,6 @@ function administration.is_user_spamming(message) -- Checks if a user is spammin
         return true, 'Arabic/RTL characters'
     end
     return false, nil
-end
-
-function administration.blacklist(message, bot_info)
-    local input = mattata.input(message.text)
-    if not mattata.is_group_admin(
-        message.chat.id,
-        message.from.id
-    ) then
-        return
-    elseif not message.reply and not input then
-        return mattata.send_reply(
-            message,
-            [[Please reply-to the user you'd like to blacklist, or specify them by username/ID.]]
-        )
-    elseif message.reply then
-        if mattata.is_group_admin(
-            message.chat.id,
-            message.reply.from.id
-        ) then
-            return mattata.send_reply(
-                message,
-                [[I can't blacklist that user, they're an administrator in this chat.]]
-            )
-        elseif message.reply.from.id == username then
-            return
-        end
-        redis:set(
-            'group_blacklist:' .. message.chat.id .. ':' .. message.reply.from.id,
-            true
-        )
-        local output = string.format(
-            '%s [%s] has blacklisted %s [%s] from using @%s in %s [%s].',
-            message.from.first_name,
-            message.from.id,
-            message.reply.from.first_name,
-            message.reply.from.id,
-            bot_info.username:lower(),
-            message.chat.title,
-            message.chat.id
-        )
-        if input then
-            output = string.format(
-                '%s\nReason: %s',
-                output,
-                input
-            )
-        end
-        if configuration.log_admin_actions and configuration.log_channel ~= '' then
-            mattata.send_message(
-                configuration.log_channel,
-                '<pre>' .. mattata.escape_html(output) .. '</pre>',
-                'html'
-            )
-        end
-        return mattata.send_message(
-            message,
-            '<pre>' .. mattata.escape_html(output) .. '</pre>',
-            'html'
-        )
-    else
-        if tonumber(input) == nil and not input:match('^@') then
-            input = '@' .. input
-        end
-        local resolved = mattata.get_user(input)
-        if not resolved then
-            return mattata.send_reply(
-                message,
-                'I couldn\'t get information about \'' .. input .. '\', please check it\'s a valid username/ID and try again.'
-            )
-        elseif resolved.result.type ~= 'private' then
-            return mattata.send_reply(
-                message,
-                'That\'s a ' .. resolved.result.type .. ', not a user!'
-            )
-        end
-        if mattata.is_group_admin(
-            message.chat.id,
-            resolved.result.id
-        ) then
-            return mattata.send_reply(
-                message,
-                'I can\'t blacklist that user, they\'re an administrator in this chat.'
-            )
-        elseif resolved.result.id == bot_info.id then
-            return
-        end
-        redis:set(
-            'group_blacklist:' .. message.chat.id .. ':' .. resolved.result.id,
-            true
-        )
-        local output = string.format(
-            '%s [%s] has blacklisted %s [%s] from using @%s in %s [%s].',
-            message.from.first_name,
-            message.from.id,
-            resolved.result.first_name,
-            resolved.result.id,
-            bot_info.username:lower(),
-            message.chat.title,
-            message.chat.id
-        )
-        if configuration.log_admin_actions and configuration.log_channel ~= '' then
-            mattata.send_message(
-                configuration.log_channel,
-                '<pre>' .. mattata.escape_html(output) .. '</pre>',
-                'html'
-            )
-        end
-        return mattata.send_message(
-            message,
-            '<pre>' .. mattata.escape_html(output) .. '</pre>',
-            'html'
-        )
-    end
 end
 
 function administration.whitelist(message, bot_info)
@@ -1456,11 +1346,12 @@ function administration:process_message(message)
         return
     end
     local success, executed_action
-    if redis:get(
+    if redis:hget(
         string.format(
-            'administration:%s:ban_not_kick',
+            'chat:%s:settings',
             message.chat.id
-        )
+        ),
+        'ban not kick'
     ) then
         success = mattata.ban_chat_member(
             message.chat.id,
@@ -1476,7 +1367,13 @@ function administration:process_message(message)
     end
     if not success then
         return
-    elseif configuration.log_admin_actions and configuration.log_channel ~= '' then
+    elseif redis:hget(
+        string.format(
+            'chat:%s:settings',
+            message.chat.id
+        ),
+        'log administrative actions'
+    ) then
         mattata.send_message(
             configuration.log_channel,
             string.format(
@@ -1505,19 +1402,11 @@ function administration:process_message(message)
     )
 end
 
-function administration.get_welcome_message(message)
-    local hash = mattata.get_redis_hash(
-        message,
-        'welcome_message'
+function administration.get_welcome_message(chat_id)
+    return redis:hget(
+        'chat:' .. chat_id .. ':values',
+        'welcome message'
     )
-    local welcome_message = redis:hget(
-        hash,
-        'welcome_message'
-    )
-    if not welcome_message or welcome_message == 'false' then
-        return false
-    end
-    return welcome_message
 end
 
 function administration:on_new_chat_member(message)
@@ -1525,7 +1414,7 @@ function administration:on_new_chat_member(message)
         return mattata.send_message(
             message,
             string.format(
-                'Thanks for adding me to %s, %s! I can be used the way I am, but if you want to enable my administration functionality, use /administration. To disable my AI functionality, use /plugins.',
+                'Thanks for adding me to %s, %s! I can be used just the way I am, but if you want to enable my administration functionality, use /administration. To disable my AI functionality, use /plugins.',
                 message.chat.title,
                 message.from.first_name
             )
@@ -1571,82 +1460,38 @@ function administration:on_new_chat_member(message)
     ) then
         return
     end
-    local welcome_message = administration.get_welcome_message(message)
-    if not welcome_message then
-        local join_messages = configuration.join_messages
-        local name = message.new_chat_member.first_name:gsub('%%', '%%%%')
-        local output = join_messages[math.random(#join_messages)]:gsub('NAME', name)
-        if administration.get_setting(
-            message.chat.id,
-            'rules on join'
-        ) then
-            return mattata.send_message(
-                message,
-                output,
-                'markdown',
-                true,
-                false,
-                nil,
-                json.encode(
-                    {
-                        ['inline_keyboard'] = {
-                            {
-                                {
-                                    ['text'] = utf8.char(128218) .. ' Group Rules',
-                                    ['url'] = string.format(
-                                        'https://telegram.me/%s?start=%s_rules',
-                                        self.info.username:lower(),
-                                        message.chat.id
-                                    )
-                                }
-                            }
-                        }
-                    }
-                )
-            )
-        else
-            return mattata.send_message(
-                message,
-                output,
-                'markdown',
-                true
-            )
-        end
-    else
-        local name = message.new_chat_member.first_name
-        if message.new_chat_member.last_name then
-            name = name .. ' ' .. message.new_chat_member.last_name
-        end
-        name = name:gsub('%%', '%%%%')
-        name = mattata.escape_markdown(name)
-        local title = message.chat.title:gsub('%%', '%%%%')
-        title = mattata.escape_markdown(title)
-        welcome_message = welcome_message:gsub('%$user_id', message.new_chat_member.id):gsub('%$chat_id', message.chat.id):gsub('%$name', name):gsub('%$title', title)
-        return mattata.send_message(
-            message,
-            welcome_message,
-            'markdown',
-            true,
-            false,
-            nil,
-            json.encode(
-                {
-                    ['inline_keyboard'] = {
-                        {
-                            {
-                                ['text'] = '📚 Group Rules',
-                                ['url'] = string.format(
-                                    'https://t.me/%s?start=%s_rules',
-                                    self.info.username:lower(),
-                                    message.chat.id
-                                )
-                            }
-                        }
-                    }
-                }
+    local name = message.new_chat_member.first_name
+    if message.new_chat_member.last_name then
+        name = name .. ' ' .. message.new_chat_member.last_name
+    end
+    name = name:gsub('%%', '%%%%')
+    name = mattata.escape_markdown(name)
+    local title = message.chat.title:gsub('%%', '%%%%')
+    title = mattata.escape_markdown(title)
+    username = message.new_chat_member.username and '@' .. message.new_chat_member.username or name
+    local welcome_message = administration.get_welcome_message(message.chat.id) or configuration.join_messages[math.random(#configuration.join_messages)]:gsub('NAME', name)
+    welcome_message = welcome_message:gsub('%$user_id', message.new_chat_member.id):gsub('%$chat_id', message.chat.id):gsub('%$name', name):gsub('%$title', title):gsub('%$username', username)
+    local keyboard = false
+    if administration.get_setting(
+        message.chat.id,
+        'rules on join'
+    ) then
+        keyboard = mattata.inline_keyboard():row(
+            mattata.row():url_button(
+                utf8.char(128218) .. ' Group Rules',
+                'https://t.me/' .. self.info.username .. '?start=' .. message.chat.id .. '_rules'
             )
         )
     end
+    return mattata.send_message(
+        message,
+        welcome_message,
+        'markdown',
+        true,
+        false,
+        nil,
+        keyboard
+    )
 end
 
 function administration.get_help_text(section)
@@ -1762,59 +1607,6 @@ function administration.report(message, bot_id)
     return mattata.send_message(
         message,
         output .. '!'
-    )
-end
-
-function administration.set_welcome_message(message, welcome_message)
-    local hash = mattata.get_redis_hash(
-        message,
-        'welcome_message'
-    )
-    if hash then
-        redis:hset(
-            hash,
-            'welcome_message',
-            welcome_message
-        )
-        return 'Successfully set the new welcome message!'
-    end
-end
-
-function administration.welcome(message)
-    if not mattata.is_group_admin(
-        message.chat.id,
-        message.from.id
-    ) and not mattata.is_global_admin(message.from.id) then
-        return mattata.send_reply(
-            message,
-            'You must be an administrator in this chat to use this command.'
-        )
-    end
-    local input = mattata.input(message.text)
-    if not input then
-        return mattata.send_reply(
-            message,
-            'Use /setwelcome <message> to set a welcome message.'
-        )
-    end
-    local validate = mattata.send_message(
-        message,
-        input,
-        'markdown'
-    )
-    if not validate then
-        return mattata.send_reply(
-            message,
-            'There was an error formatting your message, please check your Markdown syntax and try again.'
-        )
-    end
-    return mattata.edit_message_text(
-        message.chat.id,
-        validate.result.message_id,
-        administration.set_welcome_message(
-            message,
-            input
-        )
     )
 end
 
@@ -1935,6 +1727,7 @@ function administration.set_rules(message)
         message,
         'rules'
     )
+    print(hash)
     redis:hset(
         hash,
         'rules',
@@ -1995,70 +1788,6 @@ function administration.rules(message, username)
         message,
         output,
         'markdown'
-    )
-end
-
-function administration.custom(message)
-    if not mattata.is_group_admin(
-        message.chat.id,
-        message.from.id
-    ) then
-        return
-    end
-    if message.text:match('^/custom new %#(%a+) (.-)$') then
-        local trigger, value = message.text:match('^/custom new %#(%a+) (.-)$')
-        trigger = '#' .. trigger
-        redis:hset(
-            'administration:' .. message.chat.id .. ':custom',
-            tostring(trigger),
-            tostring(value)
-        )
-        return mattata.send_reply(
-            message,
-            'Success! That message will now be sent every time somebody uses ' .. trigger .. '!'
-        )
-    elseif message.text:match('^/custom del %#(%a+)$') then
-        local trigger = message.text:match('^/custom del %#(%a+)$')
-        local success = redis:hdel(
-            'administration:' .. message.chat.id .. ':custom',
-            tostring(trigger)
-        )
-        if not success then
-            return mattata.send_reply(
-                message,
-                'The trigger ' .. trigger .. ' does not exist!'
-            )
-        end
-        return mattata.send_reply(
-            message,
-            'The trigger ' .. trigger .. ' has been deleted!'
-        )
-    elseif message.text == '/custom list' then
-        local custom_commands = redis:hkeys('administration:' .. message.chat.id .. ':custom')
-        if not next(custom_commands) then
-            return mattata.send_reply(
-                message,
-                'You don\'t have any custom commands set!'
-            )
-        end
-        local custom_commands_list = {}
-        for k, v in ipairs(custom_commands) do
-            table.insert(
-                custom_commands_list,
-                v
-            )
-        end
-        return mattata.send_reply(
-            message,
-            'Custom commands for ' .. message.chat.title .. ':\n' .. table.concat(
-                custom_commands_list,
-                '\n'
-            )
-        )
-    end
-    return mattata.send_reply(
-        message,
-        'To create a new, custom command, use the following syntax:\n/custom new #trigger <value>. To list all current triggers, use /custom list. To delete a trigger, use /custom del #trigger.'
     )
 end
 
@@ -2156,43 +1885,36 @@ function administration:on_message(message, configuration)
         message.chat.id,
         message.from.id
     ) then
-        if message.text:match('^[/%!%$%^%?%&%%]admins') or message.text:match('^[/%!%$%^%?%&%%]staff') then
+        if message.text:match('^[/!#]admins') or message.text:match('^[/!#]staff') then
             return administration.admins(message)
-        elseif message.text:match('^[/%!%$%^%?%&%%]link') then
+        elseif message.text:match('^[/!#]link') then
             return administration.link(message)
-        elseif message.text:match('^[/%!%$%^%?%&%%]rules') then
+        elseif message.text:match('^[/!#]rules') then
             return administration.rules(
                 message,
                 self.info.username:lower()
             )
-        elseif message.text:match('^[/%!%$%^%?%&%%]ops') or message.text:match('^[/%!%$%^%?%&%%]report') then
+        elseif message.text:match('^[/!#]ops') or message.text:match('^[/!#]report') then
             return administration.report(
                 message,
                 self.info.id
             )
-        elseif message.text:match('^[/%!%$%^%?%&%%]chats') or message.text:match('^[/%!%$%^%?%&%%]groups') then
+        elseif message.text:match('^[/!#]chats') or message.text:match('^[/!#]groups') then
             return administration.get_chats(message)
         end
         return -- Ignore all other requests from users who aren't administrators in the group.
-    elseif message.text:match('^[/%!%$%^%?%&%%]mod') or message.text:match('^[/%!%$%^%?%&%%]promote') then
+    elseif message.text:match('^[/!#]mod') or message.text:match('^[/!#]promote') then
         return administration.mod(message)
-    elseif message.text:match('^[/%!%$%^%?%&%%]demod') or message.text:match('^[/%!%$%^%?%&%%]demote') then
+    elseif message.text:match('^[/!#]demod') or message.text:match('^[/!#]demote') then
         return administration.demod(message)
-    elseif message.text:match('^[/%!%$%^%?%&%%]setwelcome') then
-        return administration.welcome(message)
-    elseif message.text:match('^[/%!%$%^%?%&%%]blacklist') then
-        return administration.blacklist(
-            message,
-            self.info
-        )
-    elseif message.text:match('^[/%!%$%^%?%&%%]whitelist') then
+    elseif message.text:match('^[/!#]whitelist') then
         return administration.whitelist(
             message,
             self.info
         )
-    elseif message.text:match('^[/%!%$%^%?%&%%]setlink') then
+    elseif message.text:match('^[/!#]setlink') then
         return administration.set_link(message)
-    elseif message.text:match('^[/%!%$%^%?%&%%]antispam') or message.text:match('^[/%!%$%^%?%&%%]administration') then
+    elseif message.text:match('^[/!#]antispam') or message.text:match('^[/!#]administration') then
         local keyboard = administration.get_initial_keyboard(message.chat.id)
         local success = mattata.send_message(
             message.from.id,
@@ -2217,35 +1939,33 @@ function administration:on_message(message, configuration)
             message,
             'I have sent you the information you requested via private chat.'
         )
-    elseif message.text:match('^[/%!%$]admins') or message.text:match('^[/%!%$%^%?%&%%]staff') then
+    elseif message.text:match('^[/%!%$]admins') or message.text:match('^[/!#]staff') then
         return administration.admins(message)
-    elseif message.text:match('^[/%!%$%^%?%&%%]links') then
+    elseif message.text:match('^[/!#]links') then
         return administration.whitelist_links(message)
-    elseif message.text:match('^[/%!%$%^%?%&%%]link') then
+    elseif message.text:match('^[/!#]link') then
         return administration.link(message)
-    elseif message.text:match('^[/%!%$%^%?%&%%]custom') then
-        return administration.custom(message)
-    elseif message.text:match('^[/%!%$%^%?%&%%]setrules') then
+    elseif message.text:match('^[/!#]setrules') then
         return administration.set_rules(message)
-    elseif message.text:match('^[/%!%$%^%?%&%%]rules') then
+    elseif message.text:match('^[/!#]rules') then
         return administration.rules(
             message,
             self.info.username:lower()
         )
-    elseif message.text:match('^[/%!%$%^%?%&%%]pin') then
+    elseif message.text:match('^[/!#]pin') then
         return administration.pin(message)
-    elseif message.text:match('^[/%!%$%^%?%&%%]ops') or message.text:match('^[/%!%$%^%?%&%%]report') then
+    elseif message.text:match('^[/!#]ops') or message.text:match('^[/!#]report') then
         return administration.report(
             message,
             self.info.id
         )
-    elseif mattata.is_global_admin(message.from.id) and message.text:match('^[/%!%$%^%?%&%%]chats del .-$') or message.text:match('^[/%!%$%^%?%&%%]groups del .-$') then
+    elseif mattata.is_global_admin(message.from.id) and message.text:match('^[/!#]chats del .-$') or message.text:match('^[/!#]groups del .-$') then
         return administration.del_chat(message)
-    elseif mattata.is_global_admin(message.from.id) and message.text:match('^[/%!%$%^%?%&%%]chats new .-$') or message.text:match('^[/%!%$%^%?%&%%]groups new .-$') then
+    elseif mattata.is_global_admin(message.from.id) and message.text:match('^[/!#]chats new .-$') or message.text:match('^[/!#]groups new .-$') then
         return administration.new_chat(message)
-    elseif message.text:match('^[/%!%$%^%?%&%%]chats') or message.text:match('^[/%!%$%^%?%&%%]groups') then
+    elseif message.text:match('^[/!#]chats') or message.text:match('^[/!#]groups') then
         return administration.get_chats(message)
-    elseif message.text:match('^[/%!%$%^%?%&%%]tempban') then
+    elseif message.text:match('^[/!#]tempban') then
         return administration.tempban(message)
     end
     return

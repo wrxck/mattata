@@ -46,10 +46,12 @@ function statistics.get_statistics(chat, title, total)
             id,
             chat
         )
-        table.insert(
-            user_info,
-            user
-        )
+        if user.name and user.name ~= '' then
+            table.insert(
+                user_info,
+                user
+            )
+        end
     end
     table.sort(
         user_info,

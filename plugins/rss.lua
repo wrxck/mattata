@@ -28,7 +28,7 @@ function rss.tail(n, k)
     end
     return u, n
 end
- 
+
 function rss.to_utf8(a)
     local n, r, u = tonumber(a)
     if n < 0x80 then
@@ -55,7 +55,7 @@ function rss.unescape_html(str)
     return str:gsub('&lt;', '<'):gsub('&gt;', '>'):gsub('&quot;', '"'):gsub('&apos;', '\''):gsub('&#(%d+);', rss.to_utf8):gsub(
         '&#x(%d+);',
         function(n)
-            return string.char(tonumber(n, 16))
+            return string.char(tonumber(n, 16)) or n
         end
     ):gsub('&amp;', '&')
 end

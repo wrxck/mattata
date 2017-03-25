@@ -14,7 +14,7 @@ function github:init()
         self.info.username
     ):command('github')
      :command('gh').table
-    github.help = [[/github <GitHub username> <GitHub repository name> - Returns information about the specified GitHub repository. Alias: /gh.]]
+    github.help = '/github <username> <repository> - Returns information about the specified GitHub repository. Alias: /gh.'
 end
 
 function github:on_message(message, configuration)
@@ -40,13 +40,12 @@ function github:on_message(message, configuration)
             configuration.errors.results
         )
     end
-    local title = '[' .. mattata.escape_markdown(jdat.full_name) .. '](' .. jdat.html_url .. ') *|* ' .. jdat.language
-    local description, forks, stargazers, subscribers
-    if jdat.description then
-        description = '\n' .. '```\n' .. mattata.escape_markdown(jdat.description) .. '\n```' .. '\n'
-    else
-        description = '\n\n'
+    local title = '<a href="' .. jdat.html_url .. '">' .. mattata.escape_html(jdat.full_name) .. '</a>'
+    if jdat.language then
+        title = title .. '<b>|</b> ' .. jdat.language
     end
+    local description = jdat.description and '\n<pre>' .. mattata.escape_html(jdat.description) .. '</pre>\n' or '\n'
+    local forks, stargazers, subscribers
     if jdat.forks_count == 1 then
         forks = ' fork'
     else
@@ -64,8 +63,8 @@ function github:on_message(message, configuration)
     end
     return mattata.send_message(
         message.chat.id,
-        title .. description .. '[' .. jdat.forks_count .. forks .. '](' .. jdat.html_url .. '/network) *|* [' .. jdat.stargazers_count .. stargazers .. '](' .. jdat.html_url .. '/stargazers) *|* [' .. jdat.subscribers_count .. subscribers .. '](' .. jdat.html_url .. '/watchers) \nLast updated at ' .. jdat.updated_at:gsub('T', ' '):gsub('Z', ''),
-        'markdown'
+        title .. description .. '<a href="' .. jdat.html_url .. '/network">' .. jdat.forks_count .. forks .. '</a> <b>|</b> <a href="' .. jdat.html_url .. '/stargazers">' .. jdat.stargazers_count .. stargazers .. '</a> <b>|</b> <a href="' .. jdat.html_url .. '/watchers">' .. jdat.subscribers_count .. subscribers .. '</a>\nLast updated at ' .. jdat.updated_at:gsub('T', ' '):gsub('Z', ''),
+        'html'
     )
 end
 

@@ -9,6 +9,7 @@ local mattata = require('mattata')
 local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
+local redis = require('mattata-redis')
 
 function urbandictionary:init()
     urbandictionary.commands = mattata.commands(
@@ -160,10 +161,21 @@ end
 function urbandictionary:on_message(message, configuration)
     local input = mattata.input(message.text)
     if not input then
-        return mattata.send_reply(
+        local success = mattata.send_force_reply(
             message,
-            urbandictionary.help
+            'Please enter a search query (that is, what you want me to search the Urban Dictionary for, i.e. "1337" will return Urban Dictionary\'s definition(s) of 1337).'
         )
+        if success then
+            redis:set(
+                string.format(
+                    'action:%s:%s',
+                    message.chat.id,
+                    success.result.message_id
+                ),
+                '/urbandictionary'
+            )
+        end
+        return
     end
     local output, def_id = urbandictionary.get_result(input)
     if not output then

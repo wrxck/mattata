@@ -202,8 +202,6 @@ Here are some administrative commands and a brief comment regarding what they do
 • /unban - Unban a user by replying to one of their messages, or by specifying them by username/ID
 
 • /setrules <text> - Set the given Markdown-formatted text as the group rules, which will be sent whenever somebody uses /rules
-
-• /setwelcome - Set the given Markdown-formatted text as a welcome message that will be sent every time a user joins your group (the welcome message can be disabled in the administration menu, accessible via /administration)
         ]]
         return mattata.edit_message_text(
             message.chat.id,
@@ -223,6 +221,8 @@ Here are some administrative commands and a brief comment regarding what they do
         )
     elseif callback_query.data == 'ahelp:2' then
         local administration_help_text = [[
+• /setwelcome - Set the given Markdown-formatted text as a welcome message that will be sent every time a user joins your group (the welcome message can be disabled in the administration menu, accessible via /administration). You can use placeholders to automatically customise the welcome message for each user. Use $user\_id to insert the user's numerical ID, $chat\_id to insert the chat's numerical ID, $name to insert the user's name, $title to insert the chat title and $username to insert the user's username (if the user doesn't have an @username, their name will be used instead, so it is best to avoid using this with $name)
+
 • /warn - Warn a user, and ban them when they hit the maximum number of warnings
 
 • /mod - Promote the replied-to user, giving them access to administrative commands such as /ban, /kick, /warn etc. (this is useful when you don't want somebody to have the ability to delete messages!)
@@ -230,7 +230,25 @@ Here are some administrative commands and a brief comment regarding what they do
 • /demod - Demote the replied-to user, stripping them from their moderation status and revoking their ability to use administrative commands
 
 • /staff - View the group's creator, administrators, and moderators in a neatly-formatted list
-
+        ]]
+        return mattata.edit_message_text(
+            message.chat.id,
+            message.message_id,
+            administration_help_text,
+            'markdown',
+            true,
+            mattata.inline_keyboard():row(
+                mattata.row():callback_data_button(
+                    'Back',
+                    'help:ahelp:1'
+                ):callback_data_button(
+                    'Next',
+                    'help:ahelp:3'
+                )
+            )
+        )
+    elseif callback_query.data == 'ahelp:3' then
+        local administration_help_text = [[
 • /report - Forwards the replied-to message to all administrators and alerts them of the current situation
 
 • /setlink <URL> - Set the group's link to the given URL, which will be sent whenever somebody uses /link
@@ -246,7 +264,7 @@ Here are some administrative commands and a brief comment regarding what they do
             mattata.inline_keyboard():row(
                 mattata.row():callback_data_button(
                     'Back',
-                    'help:ahelp:1'
+                    'help:ahelp:2'
                 )
             )
         )
