@@ -1,4 +1,4 @@
-printf "This script is intended to work with Ubuntu 16.04.2 LTS, other versions may also\n"
+printf "This script is intended to work with Debian GNU/Linux 8, other versions may also\n"
 printf "work. Root access is required to complete the installation. Press enter to continue,\n"
 printf "or press CTRL + C to abort.\n"
 read
