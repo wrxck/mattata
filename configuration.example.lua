@@ -190,15 +190,15 @@ return { -- Rename this file to configuration.lua for the bot to work.
             ['api_key'] = '',
             ['cse_key'] = ''
         },
-        ['steam'] = '' -- https://steamcommunity.com/dev/registerkey
+        ['steam'] = '' -- https://steamcommunity.com/dev/apikey
     },
     ['errors'] = { -- Messages to provide a more user-friendly approach to errors.
-        ['connection'] = 'Connection error.',
+        ['connection'] = 'The connection timed out, perhaps there is a fault with an external API this feature is dependent on?',
         ['results'] = 'I couldn\'t find any results for that.',
         ['supergroup'] = 'This command can only be used in supergroups.',
-        ['admin'] = 'You need to be a moderator or an administrator in this chat in order to use this command.',
-        ['unknown'] = 'I don\'t recognise that user. If you would like to teach me who they are, forward a message from them to any chat that I\'m in.',
-        ['generic'] = 'An unexpected error occured. Please report this error using /bugreport.'
+        ['admin'] = 'You need to be a moderator or an administrator in this chat in order to use this!',
+        ['unknown'] = 'I don\'t recognise that user. If you would like to teach me who they are, forward a message from them into any chat that I\'m in.',
+        ['generic'] = 'An unexpected error occured. Please report this error using /br.'
     },
     ['dice'] = {
         ['max_range'] = 200,
@@ -257,7 +257,8 @@ return { -- Rename this file to configuration.lua for the bot to work.
         ['rub'] = 'ヽ( ° ͜ʖ͡°)ﾉ ʀuʙ ᴍʏ ᴅᴏɴɢᴇʀ ヽ( ° ͜ʖ͡°)ﾉ',
         ['party'] = '୧༼ ͡◉ل͜ ͡◉༽୨ (ง ͠° ل͜ °)ง ヽ༼ຈل͜ຈ༽ﾉ ༼ ºل͟º ༽ Join da Party ୧༼ ͡◉ل͜ ͡◉༽୨ (ง ͠° ل͜ °)ง ヽ༼ຈل͜ຈ༽ﾉ ༼ ºل͟º ༽',
         ['lift'] = '\n❚█══█❚\nDo you even lift?',
-        ['specs'] = 'ᒡ◯ᵔ◯ᒢ'
+        ['specs'] = 'ᒡ◯ᵔ◯ᒢ',
+        ['sigh'] = '( ._.)'
     },
     ['stickers'] = {
         ['ban'] = {
