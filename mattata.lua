@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-                    v20.1
+                    v20.1.1
 
 
         Copyright (c) 2017 Matthew Hesketh
@@ -68,7 +68,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v20.1'
+    self.version = 'v20.1.1'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -550,13 +550,21 @@ function mattata:on_message(message, configuration)
     end
     if message.chat.type == 'supergroup'
     and redis:hget(
-        string.format(
-            'chat:%s:settings',
-            message.chat.id
-        ),
+        'chat:' .. message.chat.id .. ':settings',
         'use administration'
     )
     then
+        if not mattata.is_group_admin(
+            message.chat.id,
+            self.info.id,
+            true
+        )
+        then
+            redis:hdel(
+                'chat:' .. message.chat.id .. ':settings',
+                'use administration'
+            )
+        end
         local administration = require('plugins.administration')
         administration.process_message(
             self,
