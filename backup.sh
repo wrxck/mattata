@@ -11,7 +11,6 @@ redisquery="-u $redishost:$redisport -d $redisdb"
 if [ ! $redispassword == "nil" ]; then
     redisquery="-u :$redispassword@$redishost:$redisport -d $redisdb"
 fi
-redisbackup="$(date).json"
-redis-dump $redisquery > $redisbackup
-printf "mattata's database has been saved to \"$(pwd)/$redisbackup\"!"
-cd ../
+redis-dump $redisquery > "$(date).json"
+printf "mattata's database has been saved!"
+cd ..

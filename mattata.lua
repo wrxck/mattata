@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-                    v20.0.1
+                    v20.1
 
 
         Copyright (c) 2017 Matthew Hesketh
@@ -68,7 +68,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v20.0.1'
+    self.version = 'v20.1'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -318,6 +318,7 @@ argument when using the mattata.init() function!]]
                 else
                     plugin = nil
                 end
+                redis:bgsave() -- Perform a background save of the redis database.
             end
         end
         collectgarbage()
