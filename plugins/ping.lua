@@ -14,9 +14,9 @@ function ping:init()
 end
 
 function ping:on_message(message)
-    return mattata.send_message(
+    return mattata.send_sticker(
         message.chat.id,
-        'PONG'
+        'CAADBAAD1QIAAlAYNw2Pr-ymr7r8TgI'
     )
 end
 

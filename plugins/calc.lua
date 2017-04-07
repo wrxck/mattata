@@ -5,27 +5,38 @@
 ]]
 
 local calc = {}
-
 local mattata = require('mattata')
 local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 
 function calc:init()
-    calc.commands = mattata.commands(
-        self.info.username
-    ):command('calc').table
-    calc.help = [[/calc <expression> - Solves the given mathematical expression using mathjs.org.]]
+    calc.commands = mattata.commands(self.info.username):command('calc').table
+    calc.help = '/calc <expression> - Solves the given mathematical expression using mathjs.org.'
 end
 
 function calc:on_inline_query(inline_query)
     local input = mattata.input(inline_query.query)
-    if not input then
+    if not input
+    then
         return
     end
-    input = input:gsub('÷', '/'):gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*'):gsub('to the power of', '^'):gsub('minus', '-')
+    input = input
+    :gsub('÷', '/')
+    :gsub('x', '*')
+    :gsub('plus', '+')
+    :gsub('divided by', '/')
+    :gsub('take away', '-')
+    :gsub('times by', '*')
+    :gsub('multiplied by', '*')
+    :gsub('pi', math.pi)
+    :gsub('times', '*')
+    :gsub('to the power of', '^')
+    :gsub('raised to', '^')
+    :gsub('minus', '-')
     local str, res = http.request('https://api.mathjs.org/v1/?expr=' .. url.escape(input))
-    if res ~= 200 then
+    if res ~= 200
+    then
         return
     end
     return mattata.answer_inline_query(
@@ -47,15 +58,29 @@ end
 
 function calc:on_message(message, configuration)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             calc.help
         )
     end
-    input = input:gsub('÷', '/'):gsub(' x ', '*'):gsub('x', '*'):gsub('plus', '+'):gsub('divided by', '/'):gsub('take away', '-'):gsub('times by', '*'):gsub('multiplied by', '*'):gsub('pi', math.pi):gsub('times', '*'):gsub('to the power of', '^'):gsub('minus', '-')
+    input = input
+    :gsub('÷', '/')
+    :gsub('x', '*')
+    :gsub('plus', '+')
+    :gsub('divided by', '/')
+    :gsub('take away', '-')
+    :gsub('times by', '*')
+    :gsub('multiplied by', '*')
+    :gsub('pi', math.pi)
+    :gsub('times', '*')
+    :gsub('to the power of', '^')
+    :gsub('raised to', '^')
+    :gsub('minus', '-')
     local str, res = http.request('https://api.mathjs.org/v1/?expr=' .. url.escape(input))
-    if res ~= 200 then
+    if res ~= 200
+    then
         return mattata.send_reply(
             message,
             configuration.errors.connection

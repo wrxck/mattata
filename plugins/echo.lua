@@ -4,7 +4,6 @@
 ]]
 
 local echo = {}
-
 local mattata = require('mattata')
 
 function echo:init()
@@ -16,7 +15,8 @@ end
 
 function echo:on_message(message, configuration)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             echo.help

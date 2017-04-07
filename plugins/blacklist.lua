@@ -4,19 +4,17 @@
 ]]
 
 local blacklist = {}
-
 local mattata = require('mattata')
 local redis = require('mattata-redis')
 
 function blacklist:init()
-    blacklist.commands = mattata.commands(
-        self.info.username
-    ):command('blacklist').table
+    blacklist.commands = mattata.commands(self.info.username):command('blacklist').table
     blacklist.help = '/blacklist [user] - Blacklists a user from using the bot in the current chat. This command can only be used by moderators and administrators of a supergroup.'
 end
 
 function blacklist:on_message(message, configuration)
-    if message.chat.type ~= 'supergroup' then
+    if message.chat.type ~= 'supergroup'
+    then
         return mattata.send_reply(
             message,
             configuration.errors.supergroup
@@ -24,14 +22,15 @@ function blacklist:on_message(message, configuration)
     elseif not mattata.is_group_admin(
         message.chat.id,
         message.from.id
-    ) then
+    )
+    then
         return mattata.send_reply(
             message,
             configuration.errors.admin
         )
     end
     local reason = false
-    local input = message.reply and tostring(message.reply.from.id) or mattata.input(message.text)
+    local input = message.reply and (message.reply.from.username or tostring(message.reply.from.id)) or mattata.input(message.text)
     if not input then
         local success = mattata.send_force_reply(
             message,
@@ -48,9 +47,12 @@ function blacklist:on_message(message, configuration)
             )
         end
         return
-    elseif not message.reply and input:match('^%@?%w+ ') then
-        reason = input:match('^%@?%w+ (.-)$')
-        input = input:match('^(%@?%w+) ')
+    elseif not message.reply then
+        if input:match('^.- .-$')
+        then
+            reason = input:match(' (.-)$')
+            input = input:match('^(.-) ')
+        end
     elseif mattata.input(message.text) then
         reason = mattata.input(message.text)
     end

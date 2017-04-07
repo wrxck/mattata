@@ -4,15 +4,13 @@
 ]]
 
 local fact = {}
-
 local mattata = require('mattata')
-local json = require('dkjson')
 
 function fact:init()
     fact.commands = mattata.commands(
         self.info.username
     ):command('fact').table
-    fact.help = [[/fact - Returns a random (and somewhat-false!) fact.]]
+    fact.help = '/fact - Returns a random, and somewhat incorrect, fact.'
 end
 
 local facts = {
@@ -1027,17 +1025,21 @@ local facts = {
 }
 
 function fact.get_keyboard()
-    return json.encode(
-        {
-            ['inline_keyboard'] = {
-                {
-                    {
-                        ['text'] = 'Generate Another',
-                        ['callback_data'] = 'fact:new'
-                    }
-                }
-            }
-        }
+    return mattata.inline_keyboard():row(
+        mattata.row():callback_data_button(
+            'Generate Another',
+            'fact:new'
+        )
+    )
+end
+
+function fact:on_inline_query(inline_query)
+    local result = facts[math.random(#facts)]
+    return mattata.answer_inline_query(
+        inline_query.id,
+        mattata.inline_result():id():type('article'):title(result):input_message_content(
+            mattata.input_text_message_content(result)
+        )
     )
 end
 
@@ -1053,7 +1055,6 @@ function fact:on_callback_query(callback_query, message)
 end
 
 function fact:on_message(message)
-    local keyboard = fact.get_keyboard()
     return mattata.send_message(
         message.chat.id,
         facts[math.random(#facts)],

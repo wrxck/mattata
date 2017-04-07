@@ -4,36 +4,33 @@
 ]]
 
 local bash = {}
-
 local mattata = require('mattata')
 
 function bash:init()
-    bash.commands = mattata.commands(
-        self.info.username
-    ):command('bash').table
+    bash.commands = mattata.commands(self.info.username):command('bash').table
 end
 
 function bash:on_message(message)
-    if not mattata.is_global_admin(message.from.id) then
+    if not mattata.is_global_admin(message.from.id)
+    then
         return
     end
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             'Please specify a command to run!'
         )
     end
-    local output = io.popen(input):read('*all')
-    io.popen(input):close()
-    if output:len() == 0 then
-        output = 'Success!'
-    else
-        output = '<pre>' .. mattata.escape_html(output) .. '</pre>'
-    end
+    local res = io.popen(input)
+    local output = res:read('*all')
+    res:close()
     return mattata.send_message(
         message.chat.id,
-        output,
+        output:len() == 0
+        and 'Success!'
+        or '<pre>' .. mattata.escape_html(output) .. '</pre>',
         'html'
     )
 end

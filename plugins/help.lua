@@ -72,7 +72,8 @@ function help.get_back_keyboard()
 end
 
 function help:on_inline_query(inline_query, configuration)
-    local output = mattata.get_inline_help(inline_query.query)
+    local offset = inline_query.offset and tonumber(inline_query.offset) or 0
+    local output = mattata.get_inline_help(inline_query.query, offset)
     if #output == 0 then
         return mattata.send_inline_article(
             inline_query.id,
@@ -83,9 +84,12 @@ function help:on_inline_query(inline_query, configuration)
             )
         )
     end
-    mattata.answer_inline_query(
+    return mattata.answer_inline_query(
         inline_query.id,
-        output
+        output,
+        0,
+        false,
+        tostring(offset + 50)
     )
 end
 
@@ -131,7 +135,8 @@ function help:on_callback_query(callback_query, message, configuration)
                 )
             )
         )
-    elseif callback_query.data:match('^results:%d*$') then
+    elseif callback_query.data:match('^results:%d*$')
+    then
         local new_page = callback_query.data:match('^results:(%d*)$')
         local arguments_list = mattata.get_help()
         local plugin_count = #arguments_list
@@ -140,12 +145,15 @@ function help:on_callback_query(callback_query, message, configuration)
         )
         if math.floor(
             tonumber(plugin_count) / 10
-        ) ~= tonumber(plugin_count) / 10 then
+        ) ~= tonumber(plugin_count) / 10
+        then
             page_count = page_count + 1
         end
-        if tonumber(new_page) > tonumber(page_count) then
+        if tonumber(new_page) > tonumber(page_count)
+        then
             new_page = 1
-        elseif tonumber(new_page) < 1 then
+        elseif tonumber(new_page) < 1
+        then
             new_page = tonumber(page_count)
         end
         return mattata.edit_message_text(
@@ -157,38 +165,47 @@ function help:on_callback_query(callback_query, message, configuration)
             ) .. '\n\nArguments: <required> [optional]\n\nSearch for a feature or get help with a command by using my inline search functionality - just mention me in any chat using the syntax @' .. self.info.username .. ' <search query>.',
             nil,
             true,
-            mattata.inline_keyboard():row(
-                mattata.row():callback_data_button(
-                    '← Previous',
+            mattata.inline_keyboard()
+            :row(
+                mattata.row()
+                :callback_data_button(
+                    mattata.symbols.back .. ' Previous',
                     'help:results:' .. math.floor(
                         tonumber(new_page) - 1
                     )
-                ):callback_data_button(
+                )
+                :callback_data_button(
                     new_page .. '/' .. page_count,
                     'help:pages:' .. new_page .. ':' .. page_count
-                ):callback_data_button(
-                    'Next →',
+                )
+                :callback_data_button(
+                    'Next ' .. mattata.symbols.next,
                     'help:results:' .. math.floor(
                         tonumber(new_page) + 1
                     )
                 )
-            ):row(
-                mattata.row():callback_data_button(
+            )
+            :row(
+                mattata.row()
+                :callback_data_button(
                     'Back',
                     'help:back'
-                ):switch_inline_query_current_chat_button(
+                )
+                :switch_inline_query_current_chat_button(
                     '🔎 Search',
                     '/'
                 )
             )
         )
-    elseif callback_query.data:match('^pages:%d*:%d*$') then
+    elseif callback_query.data:match('^pages:%d*:%d*$')
+    then
         local current_page, total_pages = callback_query.data:match('^pages:(%d*):(%d*)$')
         return mattata.answer_callback_query(
             callback_query.id,
             'You are on page ' .. current_page .. ' of ' .. total_pages .. '!'
         )
-    elseif callback_query.data == 'ahelp:1' then
+    elseif callback_query.data == 'ahelp:1'
+    then
         local administration_help_text = [[
 I can perform many administrative actions in your groups, just add me as an administrator and send /administration to adjust the settings for your group.
 Here are some administrative commands and a brief comment regarding what they do:
@@ -209,17 +226,21 @@ Here are some administrative commands and a brief comment regarding what they do
             administration_help_text,
             'markdown',
             true,
-            mattata.inline_keyboard():row(
-                mattata.row():callback_data_button(
+            mattata.inline_keyboard()
+            :row(
+                mattata.row()
+                :callback_data_button(
                     'Back',
                     'help:back'
-                ):callback_data_button(
+                )
+                :callback_data_button(
                     'Next',
                     'help:ahelp:2'
                 )
             )
         )
-    elseif callback_query.data == 'ahelp:2' then
+    elseif callback_query.data == 'ahelp:2'
+    then
         local administration_help_text = [[
 • /setwelcome - Set the given Markdown-formatted text as a welcome message that will be sent every time a user joins your group (the welcome message can be disabled in the administration menu, accessible via /administration). You can use placeholders to automatically customise the welcome message for each user. Use $user\_id to insert the user's numerical ID, $chat\_id to insert the chat's numerical ID, $name to insert the user's name, $title to insert the chat title and $username to insert the user's username (if the user doesn't have an @username, their name will be used instead, so it is best to avoid using this with $name)
 
@@ -237,17 +258,21 @@ Here are some administrative commands and a brief comment regarding what they do
             administration_help_text,
             'markdown',
             true,
-            mattata.inline_keyboard():row(
-                mattata.row():callback_data_button(
+            mattata.inline_keyboard()
+            :row(
+                mattata.row()
+                :callback_data_button(
                     'Back',
                     'help:ahelp:1'
-                ):callback_data_button(
+                )
+                :callback_data_button(
                     'Next',
                     'help:ahelp:3'
                 )
             )
         )
-    elseif callback_query.data == 'ahelp:3' then
+    elseif callback_query.data == 'ahelp:3'
+    then
         local administration_help_text = [[
 • /report - Forwards the replied-to message to all administrators and alerts them of the current situation
 
@@ -261,51 +286,81 @@ Here are some administrative commands and a brief comment regarding what they do
             administration_help_text,
             'markdown',
             true,
-            mattata.inline_keyboard():row(
-                mattata.row():callback_data_button(
+            mattata.inline_keyboard()
+            :row(
+                mattata.row()
+                :callback_data_button(
                     'Back',
                     'help:ahelp:2'
                 )
             )
         )
-    elseif callback_query.data == 'links' then
+    elseif callback_query.data == 'links'
+    then
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
             'Below are some links you might find useful:',
             nil,
             true,
-            mattata.inline_keyboard():row(
-                mattata.row():url_button(
-                    'mattata Development',
-                    'https://t.me/joinchat/AAAAAEDWD1KbS5gSkP3pSA'
-                ):url_button(
-                    'mattata\'s Channel',
+            mattata.inline_keyboard()
+            :row(
+                mattata.row()
+                :url_button(
+                    'Development',
+                    'https://t.me/mattataDev'
+                )
+                :url_button(
+                    'Channel',
                     'https://t.me/mattata'
                 )
-            ):row(
-                mattata.row():url_button(
-                    'Source Code',
+                :url_button(
+                    'Support',
+                    'https://t.me/mattataSupport'
+                )
+            )
+            :row(
+                mattata.row()
+                :url_button(
+                    'FAQ',
+                    'https://t.me/mattataFAQ'
+                )
+                :url_button(
+                    'Source',
                     'https://github.com/wrxck/mattata'
-                ):url_button(
+                )
+                :url_button(
                     'Donate',
                     'https://paypal.me/wrxck'
-                ):url_button(
-                    'Rate Me',
+                )
+            )
+            :row(
+                mattata.row()
+                :url_button(
+                    'Rate',
                     'https://t.me/storebot?start=mattatabot'
                 )
-            ):row(
-                mattata.row():callback_data_button(
-                    'Back',
+                :url_button(
+                    'Administration Log',
+                    'https://t.me/mattataLog'
+                )
+            )
+            :row(
+                mattata.row()
+                :callback_data_button(
+                    mattata.symbols.back .. ' Back',
                     'help:back'
                 )
             )
         )
-    elseif callback_query.data == 'settings' then
-        if message.chat.type == 'supergroup' and not mattata.is_group_admin(
+    elseif callback_query.data == 'settings'
+    then
+        if message.chat.type == 'supergroup'
+        and not mattata.is_group_admin(
             message.chat.id,
             callback_query.from.id
-        ) then
+        )
+        then
             return mattata.answer_callback_query(
                 callback_query.id,
                 configuration.errors.admin
@@ -316,11 +371,13 @@ Here are some administrative commands and a brief comment regarding what they do
             message.message_id,
             nil,
             (
-                message.chat.type == 'supergroup' and mattata.is_group_admin(
+                message.chat.type == 'supergroup'
+                and mattata.is_group_admin(
                     message.chat.id,
                     callback_query.from.id
                 )
-            ) and mattata.inline_keyboard():row(
+            )
+            and mattata.inline_keyboard():row(
                 mattata.row():callback_data_button(
                     'Admin Settings',
                     string.format(

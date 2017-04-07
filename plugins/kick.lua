@@ -31,7 +31,7 @@ function kick:on_message(message, configuration)
         )
     end
     local reason = false
-    local input = mattata.input(message.text) or (message.reply and tostring(message.reply.from.id))
+    local input = message.reply and (message.reply.from.username or tostring(message.reply.from.id)) or mattata.input(message.text)
     if not input then
         local success = mattata.send_force_reply(
             message,
@@ -48,9 +48,12 @@ function kick:on_message(message, configuration)
             )
         end
         return
-    elseif not message.reply and input:match('^%@?%w+ ') then
-        reason = input:match('^%@?%w+ (.-)$')
-        input = input:match('^(%@?%w+) ')
+    elseif not message.reply then
+        if input:match('^.- .-$')
+        then
+            reason = input:match(' (.-)$')
+            input = input:match('^(.-) ')
+        end
     elseif mattata.input(message.text) then
         reason = mattata.input(message.text)
     end
@@ -120,7 +123,7 @@ function kick:on_message(message, configuration)
         'log administrative actions'
     ) then
         mattata.send_message(
-            configuration.admin_log_chat or configuration.admins[1],
+            mattata.get_log_chat(message.chat.id),
             string.format(
                 '<pre>%s%s [%s] has kicked %s%s [%s] from %s%s [%s]%s.</pre>',
                 message.from.username and '@' or '',
@@ -137,7 +140,6 @@ function kick:on_message(message, configuration)
             'html'
         )
     end
-    print(2)
     return mattata.send_message(
         message.chat.id,
         string.format(

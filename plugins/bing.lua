@@ -5,7 +5,6 @@
 ]]
 
 local bing = {}
-
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
@@ -18,15 +17,14 @@ function bing:init(configuration)
         configuration.keys.bing,
         'bing.lua requires an API key, and you haven\'t got one configured!'
     )
-    bing.commands = mattata.commands(
-        self.info.username
-    ):command('bing').table
-    bing.help = [[/bing <query> - Searches Bing for the given search query and returns the top results.]]
+    bing.commands = mattata.commands(self.info.username):command('bing').table
+    bing.help = '/bing <query> - Searches Bing for the given search query and returns the top results.'
 end
 
 function bing:on_message(message, configuration)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             bing.help
@@ -42,22 +40,29 @@ function bing:on_message(message, configuration)
             ['sink'] = ltn12.sink.table(body),
         }
     )
-    if res ~= 200 then
+    if res ~= 200
+    then
         return mattata.send_reply(
             message,
             configuration.errors.connection
         )
     end
     local jdat = json.decode(table.concat(body))
-    local limit = message.chat.type == 'private' and 8 or 4
-    if limit > #jdat.d.results and #jdat.d.results or limit == 0 then
+    local limit = message.chat.type == 'private'
+    and 8
+    or 4
+    if limit > #jdat.d.results
+    and #jdat.d.results
+    or limit == 0
+    then
         return mattata.send_reply(
             message,
             configuration.errors.results
         )
     end
     local results = {}
-    for i = 1, limit do
+    for i = 1, limit
+    do
         table.insert(
             results,
             '• <a href="' .. jdat.d.results[i].Url .. '">' .. mattata.escape_html(jdat.d.results[i].Title) .. '</a>'

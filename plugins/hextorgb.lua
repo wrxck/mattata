@@ -30,18 +30,11 @@ function hextorgb:on_message(message)
             hextorgb.help
         )
     end
-    local success = mattata.send_photo(
+    return mattata.send_photo(
         message.chat.id,
-        'https://placeholdit.imgix.net/~text?txtsize=1&bg=' .. input .. '&w=150&h=200', 'rgb(' .. tonumber('0x' .. input:sub(1, 2)) .. ', ' .. tonumber('0x' .. input:sub(3, 4)) .. ', ' .. tonumber('0x' .. input:sub(5, 6)) .. ')',
-        false,
-        message.message_id
+        'https://placeholdit.imgix.net/~text?txtsize=1&bg=' .. input .. '&w=150&h=200',
+        'rgb(' .. tonumber('0x' .. input:sub(1, 2)) .. ', ' .. tonumber('0x' .. input:sub(3, 4)) .. ', ' .. tonumber('0x' .. input:sub(5, 6)) .. ')'
     )
-    if not success then
-        return mattata.send_message(
-            message.chat.id,
-            hextorgb.help
-        )
-    end
 end
 
 return hextorgb

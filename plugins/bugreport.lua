@@ -4,7 +4,6 @@
 ]]
 
 local bugreport = {}
-
 local mattata = require('mattata')
 
 function bugreport:init(configuration)
@@ -12,23 +11,24 @@ function bugreport:init(configuration)
         configuration.bug_reports_chat,
         'Please specify a chat ID to send all bug reports to!'
     )
-    bugreport.commands = mattata.commands(
-        self.info.username
-    ):command('bugreport')
-     :command('bug')
-     :command('br').table
-    bugreport.help = [[/bugreport <text> - Reports a bug to the configured developer. Aliases: /bug, /br.]]
+    bugreport.commands = mattata.commands(self.info.username)
+    :command('bugreport')
+    :command('bug')
+    :command('br').table
+    bugreport.help = '/bugreport <text> - Reports a bug to the configured developer. Aliases: /bug, /br.'
 end
 
 function bugreport:on_message(message, configuration)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             bugreport.help
         )
     end
-    if message.reply then
+    if message.reply
+    then
         mattata.forward_message(
             configuration.bug_reports_chat,
             message.chat.id,
@@ -42,7 +42,9 @@ function bugreport:on_message(message, configuration)
         false,
         message.message_id
     )
-    if success and message.chat.id ~= configuration.bug_reports_chat then
+    if success
+    and message.chat.id ~= configuration.bug_reports_chat
+    then
         return mattata.send_reply(
             message,
             'Success! Your bug report has been sent. The ID of this report is #' .. message.date .. '.'

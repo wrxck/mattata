@@ -4,7 +4,6 @@
 ]]
 
 local ai = {}
-
 local mattata = require('mattata')
 local mattata_ai = require('mattata-ai')
 local url = require('socket.url')
@@ -12,39 +11,62 @@ local redis = require('mattata-redis')
 local json = require('dkjson')
 
 function ai.process(message, reply)
-    if not message then
+    if not message
+    then
         return ai.unsure()
     end
     local original_message = message
     message = message:lower()
-    if message:match('^hi%s*') or message:match('^hello%s*') or message:match('^howdy%s*') or message:match('^hi.?$') or message:match('^hello.?$') or message:match('^howdy.?$') then
+    if message:match('^hi%s*')
+    or message:match('^hello%s*')
+    or message:match('^howdy%s*')
+    or message:match('^hi.?$')
+    or message:match('^hello.?$')
+    or message:match('^howdy.?$')
+    then
         return ai.greeting()
-    elseif message:match('^bye%s*') or message:match('^good[%-%s]?bye%s*') or message:match('^bye$') or message:match('^good[%-%s]?bye$') then
+    elseif message:match('^bye%s*')
+    or message:match('^good[%-%s]?bye%s*')
+    or message:match('^bye$')
+    or message:match('^good[%-%s]?bye$')
+    then
         return ai.farewell()
-    elseif message:match('%s*y?o?ur%s*name%s*') or message:match('^what%s*is%s*y?o?ur%s*name') then
+    elseif message:match('%s*y?o?ur%s*name%s*')
+    or message:match('^what%s*is%s*y?o?ur%s*name')
+    then
         return 'My name is mattata, what\'s yours?'
-    elseif message:match('^do y?o?u[%s.]*') then
+    elseif message:match('^do y?o?u[%s.]*')
+    then
         return ai.choice(message)
-    elseif message:match('^how%s*a?re?%s*y?o?u.?') or message:match('.?how%s*a?re?%s*y?o?u%s*') or message:match('.?how%s*a?re?%s*y?o?u.?$') or message:match('^a?re?%s*y?o?u%s*oka?y?.?$') or message:match('%s*a?re?%s*y?o?u%s*oka?y?.?$') then
+    elseif message:match('^how%s*a?re?%s*y?o?u.?')
+    or message:match('.?how%s*a?re?%s*y?o?u%s*')
+    or message:match('.?how%s*a?re?%s*y?o?u.?$')
+    or message:match('^a?re?%s*y?o?u%s*oka?y?.?$')
+    or message:match('%s*a?re?%s*y?o?u%s*oka?y?.?$')
+    then
         return ai.feeling()
     else
         local response = mattata_ai.talk(
             original_message,
-            reply or false,
+            reply
+            or false,
             true
         )
-        if not response then
+        if not response
+        then
             if redis:hget(
                 'ai',
                 message
-            ) then
+            )
+            then
                 response = json.decode(
                     redis:hget(
                         'ai',
                         message
                     )
                 )
-                if not response then
+                if not response
+                then
                     return false
                 end
                 return response.responses[math.random(#response.responses)]
@@ -62,7 +84,8 @@ function ai.process(message, reply)
         if redis:hget(
             'ai',
             message
-        ) then
+        )
+        then
             conversation = json.decode(
                 redis:hget(
                     'ai',
@@ -71,16 +94,19 @@ function ai.process(message, reply)
             )
             local is_known = false
             local count = 1
-            for k, v in pairs(conversation.responses) do
-                if count > 19 then
-                    is_known = true -- Prevent caching too many responses!
-                end
-                if v == response then
+            for k, v in pairs(conversation.responses)
+            do
+                if count >= 20
+                then
+                    is_known = true -- Prevent the caching of too many responses!
+                elseif v == response
+                then
                     is_known = true
                 end
                 count = count + 1
             end
-            if is_known == false then
+            if is_known == false
+            then
                 table.insert(
                     conversation.responses,
                     response
@@ -93,7 +119,7 @@ function ai.process(message, reply)
             message,
             conversation
         )
-        print('Saved responses for ' .. message .. '!')
+        print('Saved responses for "' .. message .. '"!')
         return response
     end
 end
@@ -162,7 +188,8 @@ function ai.choice(message)
         'I really like you.',
         'I\'m crazy about you!'
     }
-    if message:match('%s*me.?$') then
+    if message:match('%s*me.?$')
+    then
         return personal_choices[math.random(#personal_choices)]
     end
     return generic_choices[math.random(#generic_choices)]
@@ -189,8 +216,11 @@ function ai:on_message(message, configuration)
         'typing'
     )
     local output
-    if redis:get('ai:' .. message.from.id .. ':use_cleverbot') then
-        if message.reply_to_message and message.reply_to_message.text:len() > 0 then
+    if redis:get('ai:' .. message.from.id .. ':use_cleverbot')
+    then
+        if message.reply_to_message
+        and message.reply_to_message.text:len() > 0
+        then
             output = ai.process(
                 message.text,
                 message.reply_to_message.text,
@@ -207,8 +237,11 @@ function ai:on_message(message, configuration)
             message.from.id
         )
     end
-    if not output and not redis:get('ai:' .. message.from.id .. ':use_cleverbot') then
-        if message.reply_to_message and message.reply_to_message.text:len() > 0 then
+    if not output
+    then
+        if message.reply_to_message
+        and message.reply_to_message.text:len() > 0
+        then
             output = ai.process(
                 message.text,
                 message.reply_to_message.text,
@@ -220,7 +253,9 @@ function ai:on_message(message, configuration)
     end
     return mattata.send_reply(
         message,
-        '<pre>' .. mattata.escape_html(output) .. '</pre>' or '<pre>' .. mattata.escape_html(
+        output
+        and '<pre>' .. mattata.escape_html(output) .. '</pre>'
+        or '<pre>' .. mattata.escape_html(
             ai.offline()
         ) .. '</pre>',
         'html'

@@ -14,39 +14,40 @@ local redis = require('mattata-redis')
 function itunes:init()
     itunes.commands = mattata.commands(
         self.info.username
-    ):command('itunes').table
-    itunes.help = [[/itunes <query> - Searches iTunes for the given search query and returns the most relevant result.]]
+    )
+    :command('itunes').table
+    itunes.help = '/itunes <query> - Searches iTunes for the given search query and returns the most relevant result.'
 end
 
 function itunes.get_output(jdat)
     local output = {}
-    if jdat.results[1].trackViewUrl and jdat.results[1].trackName then
+    if jdat.results[1].trackViewUrl
+    and jdat.results[1].trackName
+    then
         table.insert(
             output,
             '<b>Name:</b> <a href=\'' .. jdat.results[1].trackViewUrl .. '\'>' .. mattata.escape_html(jdat.results[1].trackName) .. '</a>'
         )
     end
-    if jdat.results[1].artistViewUrl and jdat.results[1].artistName then
+    if jdat.results[1].artistViewUrl
+    and jdat.results[1].artistName
+    then
         table.insert(
             output,
-            string.format(
-                '<b>Artist:</b> <a href="%s">%s</a>',
-                jdat.results[1].artistViewUrl,
-                mattata.escape_html(jdat.results[1].artistName)
-            )
+            '<b>Artist:</b> <a href="' .. jdat.results[1].artistViewUrl .. '">' .. mattata.escape_html(jdat.results[1].artistName) .. '</a>'
         )
     end
-    if jdat.results[1].collectionViewUrl and jdat.results[1].collectionName then
+    if jdat.results[1].collectionViewUrl
+    and jdat.results[1].collectionName
+    then
         table.insert(
             output,
-            string.format(
-                '<b>Album:</b> <a href="%s">%s</a>',
-                jdat.results[1].collectionViewUrl,
-                mattata.escape_html(jdat.results[1].collectionName)
-            )
+            '<b>Album:</b> <a href="' .. jdat.results[1].collectionViewUrl .. '">' .. mattata.escape_html(jdat.results[1].collectionName) .. '</a>'
         )
     end
-    if jdat.results[1].trackNumber and jdat.results[1].trackCount then
+    if jdat.results[1].trackNumber
+    and jdat.results[1].trackCount
+    then
         table.insert(
             output,
             string.format(
@@ -56,7 +57,9 @@ function itunes.get_output(jdat)
             )
         )
     end
-    if jdat.results[1].discNumber and jdat.results[1].discCount then
+    if jdat.results[1].discNumber
+    and jdat.results[1].discCount
+    then
         table.insert(
             output,
             string.format(
@@ -74,36 +77,41 @@ end
 
 function itunes:on_inline_query(inline_query)
     local input = mattata.input(inline_query.query)
-    if not input then
+    if not input
+    then
         return
     end
     local jstr, res = https.request('https://itunes.apple.com/search?term=' .. url.escape(input))
-    if res ~= 200 then
+    if res ~= 200
+    then
         return
     end
     local jdat = json.decode(jstr)
-    if not jdat.results[1] then
+    if not jdat.results[1]
+    then
         return
     end
     local count = 0
     local results = {}
-    local temp = {}
-    for k, v in pairs(jdat.results) do
-        if v.artworkUrl100 and not temp[v.collectionId] then
+    for k, v in pairs(jdat.results)
+    do
+        if v.artworkUrl100
+        and not temp[v.collectionId]
+        then
             count = count + 1
             table.insert(
                 results,
-                mattata.inline_result():type('photo'):id(count):photo_url(
-                    v.artworkUrl100:gsub('%/100x100bb%.jpg', '/10000x10000bb.jpg')
-                ):thumb_url(v.artworkUrl100)
-            )
-            table.insert(
-                temp,
-                v.collectionId
+                mattata.inline_result()
+                :type('photo')
+                :id(count)
+                :photo_url(
+                    v.artworkUrl100
+                    :gsub('%/100x100bb%.jpg', '/10000x10000bb.jpg')
+                )
+                :thumb_url(v.artworkUrl100)
             )
         end
     end
-    temp = nil
     return mattata.answer_inline_query(
         inline_query.id,
         results
@@ -111,7 +119,8 @@ function itunes:on_inline_query(inline_query)
 end
 
 function itunes:on_callback_query(callback_query, message, configuration)
-    if not message.reply then
+    if not message.reply
+    then
         return mattata.answer_callback_query(
             callback_query.id,
             'The original query could not be found, you\'ve probably deleted the original message.',
@@ -119,9 +128,11 @@ function itunes:on_callback_query(callback_query, message, configuration)
         )
     end
     local input = mattata.input(message.reply.text)
-    if callback_query.data == 'artwork' then
+    if callback_query.data == 'artwork'
+    then
         local jstr, res = https.request('https://itunes.apple.com/search?term=' .. url.escape(input))
-        if res ~= 200 then
+        if res ~= 200
+        then
             return false
         end
         local jdat = json.decode(jstr)
@@ -129,7 +140,7 @@ function itunes:on_callback_query(callback_query, message, configuration)
             return false
         end
         if jdat.results[1].artworkUrl100 then
-            local artwork = jdat.results[1].artworkUrl100:gsub('%/100x100bb%.jpg', '/10000x10000bb.jpg') -- Get the highest quality artwork available
+            local artwork = jdat.results[1].artworkUrl100:gsub('%/100x100bb%.jpg', '/10000x10000bb.jpg') -- Get the highest quality artwork available.
             mattata.send_photo(
                 message.chat.id,
                 artwork

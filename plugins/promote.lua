@@ -78,13 +78,9 @@ function promote:on_message(message, configuration)
             )
         )
     end
-    redis:set(
-        string.format(
-            'mod:%s:%s',
-            message.chat.id,
-            user.id
-        ),
-        true
+    redis:sadd(
+        'administration:' .. message.chat.id .. ':mods',
+        user.id
     )
     if redis:hget(
         string.format(
@@ -94,7 +90,7 @@ function promote:on_message(message, configuration)
         'log administrative actions'
     ) then
         mattata.send_message(
-            configuration.admin_log_chat or configuration.admins[1],
+            mattata.get_log_chat(message.chat.id),
             string.format(
                 '<pre>%s%s [%s] has promoted %s%s [%s] in %s%s [%s].</pre>',
                 message.from.username and '@' or '',

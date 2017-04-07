@@ -4,21 +4,20 @@
 ]]
 
 local belikebill = {}
-
 local mattata = require('mattata')
 local url = require('socket.url')
 
 function belikebill:init()
-    belikebill.commands = mattata.commands(
-        self.info.username
-    ):command('belikebill')
-     :command('blb').table
+    belikebill.commands = mattata.commands(self.info.username)
+    :command('belikebill')
+    :command('blb').table
     belikebill.help = '/belikebill <text> - Generates a Be Like Bill meme using the given text as the caption.'
 end
 
 function belikebill:on_message(message, configuration)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             belikebill.help
@@ -28,7 +27,8 @@ function belikebill:on_message(message, configuration)
         message.chat.id,
         'http://belikebill.azurewebsites.net/billgen-API.php?text=' .. url.escape(input)
     )
-    if not success then
+    if not success
+    then
         return mattata.send_reply(
             message,
             configuration.errors.connection
