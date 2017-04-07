@@ -46,5 +46,7 @@ do
     printf "[Info] Installing $rock...\n"
     sudo luarocks-5.3 install $rock
 done
+printf "[Info] Installing redis-dump...\n"
+sudo gem install redis-dump
 sudo -k
 printf "[Info] Installation complete.\n"
