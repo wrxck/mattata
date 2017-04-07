@@ -1,15 +1,13 @@
-# mattata
-
 ![mattata](https://raw.githubusercontent.com/wrxck/mattata/master/assets/logo.png)
 
 mattata is a powerful, plugin-based Telegram bot similar to [topkecleon's](https://github.com/topkecleon/otouto). mattata boasts many nifty features such as a fully-fledged administration plugin, AI (native Cleverbot implementation, which utilises my [mattata-ai](https://github.com/wrxck/mattata-ai) library) and much more.
 
-## Setup
+![Setup](https://raw.githubusercontent.com/wrxck/mattata/master/assets/setup.png)
 
 Installing & configuring mattata is very simple. Clone the repository using `git clone git://github.com/wrxck/mattata.git`. Then, run the appropriate installation script located inside mattata/install/.
 You'll need sudo access to be able to install the dependencies required. Then, you need to fill in the values in configuration.example.lua. After you've done that, rename configuration.example.lua to configuration.lua, and use ./launch.sh to start your bot.
 
-## Plugins
+![Plugins](https://raw.githubusercontent.com/wrxck/mattata/master/assets/plugins.png)
 
 mattata features an extensive, robust plugin system, similar to [topkecleon's](https://github.com/topkecleon/otouto). Below is a table containing a list of currently-documented plugins and their corresponding usage information.
 
@@ -147,7 +145,7 @@ You will notice there is a "Flag" column. This is a number which indicated what 
 
 All permissions levels are hereditary - meaning a user in flag 3 is also in flags 1 & 2.
 
-## Contribute
+![Contribute](https://raw.githubusercontent.com/wrxck/mattata/master/assets/contribute.png)
 
 As well as feedback and suggestions, you can contribute to the mattata project in the form of a monetary donation. This makes the biggest impact since it helps pay for things such as server hosting and domain registration. A donation of any sum is appreciated and, if you so wish, you can donate [here](https://paypal.me/wrxck).
 
