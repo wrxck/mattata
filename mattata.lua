@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-                    v20
+                    v20.0.1
 
 
         Copyright (c) 2017 Matthew Hesketh
@@ -68,7 +68,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v20'
+    self.version = 'v20.0.1'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -81,7 +81,6 @@ function mattata:init()
     -- problems when it tries to add the necessary increment.
     self.last_backup = self.last_backup or os.date('%V')
     self.last_cron = self.last_cron or os.date('%H')
-    self.last_m_cron = self.last_m_cron or os.date('%M')
     return true
 end
 
@@ -318,34 +317,6 @@ argument when using the mattata.init() function!]]
                     end
                 else
                     plugin = nil
-                end
-            end
-        end
-        if self.last_m_cron ~= os.date('%M')
-        then -- Perform minutely CRON jobs.
-            self.last_m_cron = os.date('%M')
-            for i = 1, #self.plugins
-            do
-                local plugin = self.plugins[i]
-                if plugin.m_cron
-                then
-                    local success, res = pcall(
-                        function()
-                            plugin.m_cron(
-                                self,
-                                configuration
-                            )
-                        end
-                    )
-                    if not success
-                    then
-                        mattata.exception(
-                            self,
-                            res,
-                            'CRON: ' .. i,
-                            configuration.log_chat
-                        )
-                    end
                 end
             end
         end

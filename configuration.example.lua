@@ -119,7 +119,6 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'remind',
         'rimg',
         'rms',
-        'rss',
         'save',
         'sed',
         'setai',
