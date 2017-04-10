@@ -1,21 +1,19 @@
 --[[
     Based on a plugin by topkecleon.
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local remind = {}
-
 local mattata = require('mattata')
 local json = require('dkjson')
 local redis = require('mattata-redis')
 
 function remind:init()
-    remind.commands = mattata.commands(
-        self.info.username
-    ):command('remind')
-     :command('reminders').table
-    remind.help = '/remind <duration> <message> - Repeats a message after a duration of time, in the format 1w2d3h4m. The maximum number of reminders at one time is 4 per chat, and each reminder must be between 1 minute and 4 weeks in duration. Reminders cannot be any more than 256 characters in length. Use /reminders to view your current reminders. An example use of this command would be: /remind 1w2d3h4m test, which would remind you in 1 week, 2 days, 3 hours and 4 minutes.'
+    remind.commands = mattata.commands(self.info.username)
+    :command('remind')
+    :command('reminders').table
+    remind.help = '/remind <duration> <message> - Repeats a message after a duration of time, in the format 2d3h. The maximum number of reminders at one time is 4 per chat, and each reminder must be between 1 hour and 182 days in duration. Reminders cannot be any more than 256 characters in length. Use /reminders to view your current reminders. An example use of this command would be: /remind 21d3h test, which would remind you in 21 days and 3 hours.'
 end
 
 function remind.get_reminders(message)
@@ -29,15 +27,24 @@ function remind.get_reminders(message)
     local count = 0
     for k, v in pairs(reminders) do
         if v.chat and v.chat.id == message.chat.id then
+            local real_expiry = tonumber(v.expires) / 3600
             table.insert(
                 this_chat,
                 string.format(
-                    utf8.char(8226) .. ' %s <code>[Added by %s, expires in approx. %s second%s]</code>',
+                    utf8.char(8226) .. ' %s <code>[Added by %s, expires in approx. %s hour%s]</code>',
                     mattata.escape_html(v.reminder),
                     mattata.escape_html(v.from),
-                    mattata.round(v.expires - os.time()),
                     mattata.round(
-                        (v.expires - os.time())
+                        (
+                            tonumber(v.expires) - os.time()
+                        ) / 3600,
+                        2
+                    ),
+                    mattata.round(
+                        (
+                            tonumber(v.expires) - os.time()
+                        ) / 3600,
+                        2
                     ) == 1 and '' or 's'
                 )
             )
@@ -78,40 +85,35 @@ function remind:on_message(message)
         )
     end
     local duration, reminder = input:match('^(.-) (.-)$')
+    -- Convert each unit of time into seconds.
     local weeks = 0
     if duration:match('%d[Ww]') then
         weeks = tonumber(
             duration:match('(%d*)[Ww]')
-        ) * 10080
+        ) * 604800
     end
     local days = 0
     if duration:match('%d[Dd]') then
         days = tonumber(
             duration:match('(%d*)[Dd]')
-        ) * 1440
+        ) * 86400
     end
     local hours = 0
     if duration:match('%d[Hh]') then
         hours = tonumber(
             duration:match('(%d*)[Hh]')
-        ) * 60
+        ) * 3600
     end
-    local minutes = 0
-    if duration:match('%d[Mm]') then
-        minutes = tonumber(
-            duration:match('(%d*)[Mm]')
-        )
-    end
-    duration = weeks + days + hours + minutes
-    if duration == 0 then
+    duration = days + hours
+    if duration <= 0 then
         return mattata.send_reply(
             message,
-            'The duration you specified isn\'t in a valid format. The duration of your reminder must be between 1 minute and 4 weeks, and in the format 1w2d3h4m, which would remind you in 1 week, 2 days, 3 hours and 4 minutes.'
+            'The duration you specified isn\'t in a valid format. The duration of your reminder must be between 1 hour and 6 months, and in the format 5m1w12d3h, which would remind you in 5 months, 1 week, 12 days and 3 hours.'
         )
-    elseif duration > 40320 or duration < 1 then
+    elseif duration > 15724800 or duration < 1 then
         return mattata.send_reply(
             message,
-            'The duration of your reminder must be between 1 and 10080 minutes.'
+            'The duration of your reminder must be between 1 hour and 182 days.'
         )
     end
     if utf8.len(reminder) > 256 then
@@ -142,7 +144,7 @@ function remind:on_message(message)
         reminders,
         {
             ['reminder'] = reminder,
-            ['expires'] = os.time() + (duration * 60),
+            ['expires'] = os.time() + duration,
             ['chat'] = {
                 ['id'] = message.chat.id,
                 ['title'] = message.chat.title
@@ -154,17 +156,18 @@ function remind:on_message(message)
         'reminders',
         json.encode(reminders)
     )
+    duration = duration / 3600 -- Convert back to hours.
     return mattata.send_reply(
         message,
         string.format(
-            'I will remind you in %s minute%s!',
-            duration,
+            'I will remind you in %s hour%s!',
+            mattata.round(duration),
             tonumber(duration) == 1 and '' or 's'
         )
     )
 end
 
-function remind:m_cron()
+function remind:cron()
     local current_time = os.time()
     local reminders = redis:get('reminders')
     if not reminders then

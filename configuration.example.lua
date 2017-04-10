@@ -75,6 +75,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'id',
         'identicon',
         'imdb',
+        'info',
         'instagram',
         'insult',
         'ipsw',

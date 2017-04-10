@@ -5,11 +5,10 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-                    v20.1.1
+      v20.2
 
-
-        Copyright (c) 2017 Matthew Hesketh
-             See LICENSE for details
+      Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+      See LICENSE for details
 
 ]]
 
@@ -68,7 +67,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v20.1.1'
+    self.version = 'v20.2'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
