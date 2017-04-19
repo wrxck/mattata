@@ -1,47 +1,63 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local copypasta = {}
-
 local mattata = require('mattata')
+local socket = require('socket')
 
 function copypasta:init()
-    copypasta.commands = mattata.commands(
-        self.info.username
-    ):command('copypasta')
-     :command('😂').table
-    copypasta.help = [[/copypasta - Riddles the replied-to message with cancerous emoji. Alias: /😂.]]
+    copypasta.commands = mattata.commands(self.info.username)
+    :command('copypasta')
+    :command('😂').table
+    copypasta.help = '/copypasta - Riddles the replied-to message with cancerous emoji. Alias: /😂.'
 end
 
 function copypasta.format_message(input)
     local emoji = { '😂', '😂', '👌', '✌', '💞', '👍', '👌', '💯', '🎶', '👀', '😂', '👓', '👏', '👐', '🍕', '💥', '🍴', '💦', '💦', '🍑', '🍆', '😩', '😏', '👉👌', '👀', '👅', '😩' }
     local output = {}
-    for i = 1, input:len() do
-        local c = input:sub(i, i)
-        if c == ' ' then
-            for _ = 1, math.random(3) do
-                c = c .. emoji[math.random(#emoji)] .. c
+    for i = 1, input:len()
+    do
+        local char = input:sub(i, i)
+        local rndstr = tostring(socket.gettime()):gsub('%.', '')
+        local rndnum = tonumber(rndstr)
+        math.random(os.time()) -- "Pop" the first number, to ensure it's as random as possible.
+        if char == ' '
+        then
+            local rndtotal = math.random(#emoji)
+            local rndemoji = emoji[rndtotal]
+            if math.random(2) == 2
+            then
+                rndtotal = math.random(#emoji)
+                rndemoji = rndemoji .. ' ' .. emoji[rndtotal]
             end
+            char = char .. rndemoji .. char
+        elseif math.random(5) == 5
+        then
+            char = char:lower() -- Let's try and spice things up a bit, in regards to the character case!
         end
         table.insert(
             output,
-            c
+            char
         )
     end
     return table.concat(output)
 end
 
 function copypasta:on_message(message, configuration)
-    if not message.reply then
+    if not message.reply
+    then
         return mattata.send_reply(
             message,
             copypasta.help
         )
     end
     mattata.send_chat_action(message.chat.id)
-    if message.reply.text:len() > tonumber(configuration.max_copypasta_length) then
+    if not configuration.max_copypasta_length
+    or type(configuration.max_copypasta_length) ~= 'number'
+    or message.reply.text:len() > tonumber(configuration.max_copypasta_length)
+    then
         return mattata.send_reply(
             message,
             string.format(

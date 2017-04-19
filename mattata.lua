@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v20.2
+      v20.3
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -67,7 +67,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v20.2'
+    self.version = 'v20.3'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -145,8 +145,8 @@ function mattata:run(configuration, token)
     token = token or configuration.bot_token
     assert(
         token,
-        [[You need to enter your Telegram bot API token in configuration.lua, or pass it as the first
-argument when using the mattata.init() function!]]
+        [[You need to enter your Telegram bot API token in configuration.lua, or pass it as the second
+argument when using the mattata:run() function!]]
     )
     local is_running = mattata.init(self) -- Initialise the bot.
     while is_running -- Perform the main loop whilst the bot is running.
@@ -546,6 +546,23 @@ function mattata:on_message(message, configuration)
             self,
             message
         )
+    end
+    if message.chat.type == 'supergroup'
+    and not message.chat.title:match('mattata')
+    and not redis:get('broadcasted:' .. message.chat.id)
+    then
+        local success = mattata.send_message(
+            message.chat.id,
+            'Remember, if you like me and what to help keep me alive, a [monetary contribution is accepted through PayPal!](https://paypal.me/wrxck/15). Don\'t worry, you won\'t see this message for about another month or two - but this ensures that I am kept alive. £15 is enough for a whole month of hosting both the bot and the website, and it also leaves me with a couple of £\'s spare to go towards my studies at college (which, as a student who doesn\'t work, really helps!)',
+            'markdown'
+        )
+        if success
+        then
+            redis:set(
+                'broadcasted:' .. message.chat.id,
+                true
+            )
+        end
     end
     if message.chat.type == 'supergroup'
     and redis:hget(
@@ -2036,6 +2053,17 @@ function mattata.get_log_chat(chat_id)
     )
     or configuration.log_channel
     or false
+end
+
+function mattata.clear_broadcast_memory()
+    local broadcasts = redis:keys('broadcasted:*')
+    for k, v in pairs(broadcasts)
+    do
+        if redis:get(v)
+        then
+            redis:del(v)
+        end
+    end
 end
 
 return mattata
