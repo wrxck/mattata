@@ -24,7 +24,7 @@ function info:on_message(message, configuration, language)
     return mattata.send_message(
         message.chat.id,
         string.format(
-            language['info']['2'],
+            language['info']['1'],
             mattata.symbols.bullet,
             info.server.config_file,
             mattata.symbols.bullet,
