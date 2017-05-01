@@ -22,7 +22,8 @@ function copypasta.format_message(input)
         local char = input:sub(i, i)
         local rndstr = tostring(socket.gettime()):gsub('%.', '')
         local rndnum = tonumber(rndstr)
-        math.random(os.time()) -- "Pop" the first number, to ensure it's as random as possible.
+        math.random(os.time()) -- "Pop" the first number, to ensure it's as random
+        -- as possible.
         if char == ' '
         then
             local rndtotal = math.random(#emoji)
@@ -35,7 +36,8 @@ function copypasta.format_message(input)
             char = char .. rndemoji .. char
         elseif math.random(5) == 5
         then
-            char = char:lower() -- Let's try and spice things up a bit, in regards to the character case!
+            char = char:lower() -- Let's try and spice things up a bit, in regards
+            -- to the character case!
         end
         table.insert(
             output,
@@ -45,7 +47,7 @@ function copypasta.format_message(input)
     return table.concat(output)
 end
 
-function copypasta:on_message(message, configuration)
+function copypasta:on_message(message, configuration, language)
     if not message.reply
     then
         return mattata.send_reply(
@@ -61,14 +63,16 @@ function copypasta:on_message(message, configuration)
         return mattata.send_reply(
             message,
             string.format(
-                'The replied-to text musn\'t be any longer than %s characters!',
+                language['copypasta']['1'],
                 configuration.max_copypasta_length
             )
         )
     end
     return mattata.send_message(
         message.chat.id,
-        copypasta.format_message(message.reply.text:upper())
+        copypasta.format_message(
+            message.reply.text:upper()
+        )
     )
 end
 

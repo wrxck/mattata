@@ -1,10 +1,9 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local shorten = {}
-
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
@@ -13,18 +12,18 @@ local json = require('dkjson')
 local configuration = require('configuration')
 
 function shorten:init()
-    shorten.commands = mattata.commands(
-        self.info.username
-    ):command('shorten').table
+    shorten.commands = mattata.commands(self.info.username):command('shorten').table
     shorten.help = '/shorten <url> - Shortens the given URL using one of the given URL shorteners.'
 end
 
 function shorten.get_keyboard()
     return mattata.inline_keyboard():row(
-        mattata.row():callback_data_button(
+        mattata.row()
+        :callback_data_button(
             'goo.gl',
             'shorten:googl'
-        ):callback_data_button(
+        )
+        :callback_data_button(
             'adf.ly',
             'shorten:adfly'
         )
@@ -50,11 +49,13 @@ function shorten.googl(input)
             ['sink'] = ltn12.sink.table(response)
         }
     )
-    if res ~= 200 then
+    if res ~= 200
+    then
         return false
     end
     local jdat = json.decode(table.concat(response))
-    if not jdat.id then
+    if not jdat.id
+    then
         return false
     end
     return jdat.id
@@ -75,32 +76,37 @@ function shorten.adfly(input)
             ['sink'] = ltn12.sink.table(response)
         }
     )
-    if res ~= 200 then
+    if res ~= 200
+    then
         return false
     end
     local jdat = json.decode(table.concat(response))
-    if not jdat.data[1] then
+    if not jdat.data[1]
+    then
         return false
     end
     return jdat.data[1].short_url
 end
 
-function shorten:on_callback_query(callback_query, message)
+function shorten:on_callback_query(callback_query, message, configuration, language)
     local input = mattata.input(message.reply.text)
-    if not input then
+    if not input
+    then
         return false
     end
-    local keyboard = shorten.get_keyboard()
     local output
-    if callback_query.data == 'googl' then
+    if callback_query.data == 'googl'
+    then
         output = shorten.googl(input)
-    elseif callback_query.data == 'adfly' then
+    elseif callback_query.data == 'adfly'
+    then
         output = shorten.adfly(input)
     end
-    if not output then
+    if not output
+    then
         return mattata.answer_callback_query(
             callback_query.id,
-            'An error occured!'
+            language['errors']['generic']
         )
     end
     return mattata.edit_message_text(
@@ -109,27 +115,27 @@ function shorten:on_callback_query(callback_query, message)
         output,
         nil,
         true,
-        json.encode(keyboard)
+        shorten.get_keyboard()
     )
 end
 
-function shorten:on_message(message)
+function shorten:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             shorten.help
         )
     end
-    local keyboard = shorten.get_keyboard()
     return mattata.send_message(
         message.chat.id,
-        'Please select a URL shortener using the buttons below:',
+        language['shorten']['1'],
         nil,
         true,
         false,
         message.message_id,
-        json.encode(keyboard)
+        shorten.get_keyboard()
     )
 end
 

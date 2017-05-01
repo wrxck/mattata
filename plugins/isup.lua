@@ -13,7 +13,7 @@ function isup:init()
     isup.help = '/isup <url> - Checks to see if the given URL is down for everyone or just you.'
 end
 
-function isup:on_message(message, configuration)
+function isup:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if not input
     then
@@ -27,19 +27,19 @@ function isup:on_message(message, configuration)
     then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     local output = configuration.errors.connection
     if str:match('It\'s just you.')
     then
-        output = 'This website appears to be up, maybe it\'s just you?'
+        output = language['isup']['1']
     elseif str:match('doesn\'t look like a site')
     then
-        output = 'That doesn\'t appear to be a valid site!'
+        output = language['isup']['2']
     elseif str:match('looks down from here')
     then
-        output = 'It\'s not just you, this website looks down from here.'
+        output = language['isup']['3']
     end
     return mattata.send_reply(
         message,

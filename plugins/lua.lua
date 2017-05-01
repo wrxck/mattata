@@ -1,19 +1,16 @@
 --[[
     Based on a plugin by topkecleon.
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local lua = {}
-
 local mattata = require('mattata')
 local url = require('socket.url')
 local json = require('serpent')
 
 function lua:init()
-    lua.commands = mattata.commands(
-        self.info.username
-    ):command('lua').table
+    lua.commands = mattata.commands(self.info.username):command('lua').table
     json = require('dkjson')
     lua.serialise = function(input)
         return json.encode(
@@ -28,19 +25,22 @@ function lua:init()
     end
 end
 
-function lua:on_message(message, configuration)
-    if not mattata.is_global_admin(message.from.id) then
+function lua:on_message(message, configuration, language)
+    if not mattata.is_global_admin(message.from.id)
+    then
         return
     end
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
-            'Please enter a string of Lua to execute!'
+            language['lua']['1']
         )
     end
     local output, success = load('local mattata = require(\'mattata\')\nlocal api = require(\'telegram-bot-lua.core\')\nlocal tools = require(\'telegram-bot-lua.tools\')\nlocal https = require(\'ssl.https\')\nlocal http = require(\'socket.http\')\nlocal url = require(\'socket.url\')\nlocal ltn12 = require(\'ltn12\')\nlocal json = require(\'dkjson\')\nlocal utf8 = require(\'lua-utf8\')\nlocal redis = require(\'mattata-redis\')\nlocal socket = require(\'socket\')\nreturn function (message, configuration, self)\n' .. input .. '\nend')
-    if success == nil then
+    if success == nil
+    then
         success, output = xpcall(
             output(),
             lua.error_message,
@@ -48,7 +48,9 @@ function lua:on_message(message, configuration)
             configuration
         )
     end
-    if output ~= nil and type(output) == 'table' then
+    if output ~= nil
+    and type(output) == 'table'
+    then
         output = lua.serialise(output)
     end
     return mattata.send_message(

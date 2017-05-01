@@ -1,18 +1,16 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local tobinary = {}
-
 local mattata = require('mattata')
 local redis = require('mattata-redis')
 
 function tobinary:init()
-    tobinary.commands = mattata.commands(
-        self.info.username
-    ):command('tobinary')
-     :command('tobin').table
+    tobinary.commands = mattata.commands(self.info.username)
+    :command('tobinary')
+    :command('tobin').table
     tobinary.help = '/tobinary <string> - Converts the given string to its binary value. Alias: /tobin.'
 end
 
@@ -39,7 +37,8 @@ end
 function tobinary.str_to_bin(str)
     str = tostring(str)
     local output = ''
-    for char in str:gmatch('.') do
+    for char in str:gmatch('.')
+    do
         output = output .. tobinary.dec_to_bin(
             string.byte(char)
         )
@@ -47,14 +46,16 @@ function tobinary.str_to_bin(str)
     return output
 end
 
-function tobinary:on_message(message, configuration)
+function tobinary:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         local success = mattata.send_force_reply(
             message,
-            'Please enter the string you would like to convert to binary.'
+            language['tobinary']['1']
         )
-        if success then
+        if success
+        then
             redis:set(
                 string.format(
                     'action:%s:%s',

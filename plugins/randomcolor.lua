@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -8,9 +8,7 @@ local mattata = require('mattata')
 local socket = require('socket')
 
 function randomcolor:init()
-    randomcolor.commands = mattata.commands(
-        self.info.username
-    ):command('randomcolou?r').table
+    randomcolor.commands = mattata.commands(self.info.username):command('randomcolou?r').table
     randomcolor.help = '/randomcolor - Generates a random colour. Alias: /randomcolour.'
 end
 
@@ -72,7 +70,9 @@ function randomcolor.get_inline_colors()
 end
 
 function randomcolor:on_inline_query(inline_query)
-    local offset = inline_query.offset and tonumber(inline_query.offset) or 0
+    local offset = inline_query.offset
+    and tonumber(inline_query.offset)
+    or 0
     return mattata.answer_inline_query(
         inline_query.id,
         randomcolor.get_inline_colors(),

@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -7,15 +7,13 @@ local developer = {}
 local mattata = require('mattata')
 
 function developer:init()
-    developer.commands = mattata.commands(
-        self.info.username
-    )
+    developer.commands = mattata.commands(self.info.username)
     :command('developer')
     :command('dev').table
     developer.help = '/developer - Connect with the developer through his social media. Alias: /dev.'
 end
 
-function developer:on_message(message)
+function developer:on_message(message, configuration, language)
     mattata.forward_message(
         message.chat.id,
         '@wrxck',
@@ -24,7 +22,7 @@ function developer:on_message(message)
     )
     return mattata.send_message(
         message.chat.id,
-        '_"I\'m a web developer/programmer with a love for metal/rock music and spending time with friends!"_',
+        '_' .. language['developer']['1'] .. '_',
         'markdown',
         true,
         false,
@@ -33,75 +31,75 @@ function developer:on_message(message)
         :row(
             mattata.row()
             :url_button(
-                'Facebook',
+                language['developer']['2'],
                 'https://fb.me/wrxck0'
             )
             :url_button(
-                'Messenger',
+                language['developer']['3'],
                 'https://m.me/wrxck'
             )
             :url_button(
-                'Twitter',
+                language['developer']['4'],
                 'https://twitter.com/wrxck__'
             )
         )
         :row(
             mattata.row()
             :url_button(
-                'Instagram',
+                language['developer']['5'],
                 'https://instagram.com/wrxck_'
             )
             :url_button(
-                'Keybase',
+                language['developer']['6'],
                 'https://keybase.io/wrxck'
             )
             :url_button(
-                'Snapchat',
+                language['developer']['7'],
                 'https://www.snapchat.com/add/wrxck0'
             )
         )
         :row(
             mattata.row()
             :url_button(
-                'GitHub',
+                language['developer']['8'],
                 'https://github.com/wrxck'
             )
             :url_button(
-                'Telegram',
+                language['developer']['9'],
                 'https://t.me/wrxck0'
             )
             :url_button(
-                'Trello',
+                language['developer']['10'],
                 'https://trello.com/wrxck'
             )
         )
         :row(
             mattata.row()
             :url_button(
-                'Pinterest',
+                language['developer']['11'],
                 'https://uk.pinterest.com/wrxck_/'
             )
             :url_button(
-                'Google+',
+                language['developer']['12'],
                 'https://plus.google.com/u/0/113094819254921723773'
             )
             :url_button(
-                'tumblr',
+                language['developer']['13'],
                 'https://wrxck0.tumblr.com/'
             )
         )
         :row(
             mattata.row()
             :url_button(
-                'Imgur',
+                language['developer']['14'],
                 'https://wrxck.imgur.com/'
             )
             :url_button(
-                'Instapaper',
+                language['developer']['15'],
                 'https://instapaper.com/p/wrxck'
             )
             :url_button(
-                'Wikipedia',
+                language['developer']['16'],
                 'https://en.wikipedia.org/wiki/User:Wrxck'
             )
         )

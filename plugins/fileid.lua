@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -7,13 +7,11 @@ local fileid = {}
 local mattata = require('mattata')
 
 function fileid:init()
-    fileid.commands = mattata.commands(
-        self.info.username
-    ):command('fileid').table
+    fileid.commands = mattata.commands(self.info.username):command('fileid').table
     fileid.help = '/fileid - Returns the ID of the replied-to file.'
 end
 
-function fileid:on_message(message, configuration)
+function fileid:on_message(message)
     if not message.reply
     or (
         message.reply

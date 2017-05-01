@@ -1,32 +1,23 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local clickbait = {}
-
 local mattata = require('mattata')
 local json = require('dkjson')
 
 function clickbait:init()
-    clickbait.commands = mattata.commands(
-        self.info.username
-    ):command('clickbait').table
-    clickbait.help = [[/clickbait - Generates a random, click-bait article headline.]]
+    clickbait.commands = mattata.commands(self.info.username):command('clickbait').table
+    clickbait.help = '/clickbait - Generates a random, click-bait article headline.'
 end
 
-function clickbait.get_keyboard()
-    return json.encode(
-        {
-            ['inline_keyboard'] = {
-                {
-                    {
-                        ['text'] = 'Generate Another',
-                        ['callback_data'] = 'clickbait:new'
-                    }
-                }
-            }
-        }
+function clickbait.get_keyboard(language)
+    return mattata.inline_keyboard():row(
+        mattata.row():callback_data_button(
+            language['clickbait']['1'],
+            'clickbait:new'
+        )
     )
 end
 
@@ -326,18 +317,18 @@ function clickbait.generate()
     return combinations[math.random(#combinations)]
 end
 
-function clickbait:on_callback_query(callback_query, message)
+function clickbait:on_callback_query(callback_query, message, configuration, language)
     return mattata.edit_message_text(
         message.chat.id,
         message.message_id,
         clickbait.generate(),
         nil,
         true,
-        clickbait.get_keyboard()
+        clickbait.get_keyboard(language)
     )
 end
 
-function clickbait:on_message(message)
+function clickbait:on_message(message, configuration, language)
     return mattata.send_message(
         message.chat.id,
         clickbait.generate(),
@@ -345,7 +336,7 @@ function clickbait:on_message(message)
         true,
         false,
         message.message_id,
-        clickbait.get_keyboard()
+        clickbait.get_keyboard(language)
     )
 end
 

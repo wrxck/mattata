@@ -1,41 +1,42 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local whois = {}
-
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 
 function whois:init()
-    whois.commands = mattata.commands(
-        self.info.username
-    ):command('whois').table
-    whois.help = [[/whois <IP address> - Performs a WHOIS lookup for the given IP address and returns the result.]]
+    whois.commands = mattata.commands(self.info.username):command('whois').table
+    whois.help = '/whois <IP address> - Performs a WHOIS lookup for the given IP address and returns the result.'
 end
 
-function whois:on_message(message, configuration)
+function whois:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             whois.help
         )
     end
     local str, res = https.request('https://who.is/whois-ip/ip-address/' .. url.escape(input))
-    if res ~= 200 then
+    if res ~= 200
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     local output = str:match('%<pre%>(.-)%<%/pre%>')
-    if not output or output:match('^No match found') then
+    if not output
+    or output:match('^No match found')
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.results
+            language['errors']['results']
         )
     end
     return mattata.send_message(

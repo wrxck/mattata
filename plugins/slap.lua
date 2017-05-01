@@ -1,18 +1,15 @@
 --[[
     Based on a plugin by topkecleon.
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local slap = {}
-
 local mattata = require('mattata')
 
 function slap:init()
-    slap.commands = mattata.commands(
-        self.info.username
-    ):command('slap').table
-    slap.help = [[/slap [target] - Slaps someone, or something.]]
+    slap.commands = mattata.commands(self.info.username):command('slap').table
+    slap.help = '/slap [target] - Slaps someone, or something.'
     slap.slaps = {
         'VICTIM was shot by VICTOR.',
         'VICTIM was pricked to death.',
@@ -122,8 +119,10 @@ function slap:on_message(message)
     local input = mattata.input(message.text)
     local victor = ''
     local victim = ''
-    if not input then
-        if message.reply then
+    if not input
+    then
+        if message.reply
+        then
             victor = message.from.first_name:gsub('%%', '%%%%')
             victim = message.reply.from.first_name:gsub('%%', '%%%%')
         else
@@ -134,8 +133,10 @@ function slap:on_message(message)
         victor = message.from.first_name:gsub('%%', '%%%%')
         victim = input:gsub('%%', '%%%%')
         local success = mattata.get_user(input)
-        if success then
-            victim = success.result.first_name:gsub('%%', '%%%%') or success.result.title:gsub('%%', '%%%%')
+        if success
+        then
+            victim = success.result.first_name:gsub('%%', '%%%%')
+            or success.result.title:gsub('%%', '%%%%')
         end
     end
     local output = slap.slaps[math.random(#slap.slaps)]

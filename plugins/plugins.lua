@@ -1,25 +1,23 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local plugins = {}
-
 local mattata = require('mattata')
 local json = require('dkjson')
 local redis = require('mattata-redis')
 local configuration = require('configuration')
 
 function plugins:init()
-    plugins.commands = mattata.commands(
-        self.info.username
-    ):command('plugins').table
-    plugins.help = [[/plugins - Toggle the plugins you want to use in your chat with a slick inline keyboard, paginated and neatly formatted.]]
+    plugins.commands = mattata.commands(self.info.username):command('plugins').table
+    plugins.help = '/plugins - Toggle the plugins you want to use in your chat with a slick inline keyboard, paginated and neatly formatted.'
 end
 
 function plugins.get_toggleable_plugins()
     local toggleable = {}
-    for k, v in pairs(configuration.plugins) do
+    for k, v in pairs(configuration.plugins)
+    do
         if v ~= 'plugins' and v ~= 'control' and v ~= 'bash' and v ~= 'lua' and v ~= 'gwhitelist' and v ~= 'gblacklist' then
             table.insert(
                 toggleable,

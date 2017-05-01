@@ -1,6 +1,6 @@
 --[[
     Based on a plugin by topkecleon.
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -21,7 +21,7 @@ function bing:init(configuration)
     bing.help = '/bing <query> - Searches Bing for the given search query and returns the top results.'
 end
 
-function bing:on_message(message, configuration)
+function bing:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if not input
     then
@@ -44,7 +44,7 @@ function bing:on_message(message, configuration)
     then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     local jdat = json.decode(table.concat(body))
@@ -57,7 +57,7 @@ function bing:on_message(message, configuration)
     then
         return mattata.send_reply(
             message,
-            configuration.errors.results
+            language['errors']['results']
         )
     end
     local results = {}

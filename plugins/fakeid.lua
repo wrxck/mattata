@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -9,20 +9,18 @@ local https = require('ssl.https')
 local json = require('dkjson')
 
 function fakeid:init()
-    fakeid.commands = mattata.commands(
-        self.info.username
-    ):command('fakeid').table
+    fakeid.commands = mattata.commands(self.info.username):command('fakeid').table
     fakeid.help = '/fakeid - Generates a fake identity.'
 end
 
-function fakeid:on_message(message, configuration)
+function fakeid:on_message(message, configuration, language)
     local jstr = io.popen('curl "https://randomuser.me/api/"'):read('*all')
     local jdat = json.decode(jstr)
     if not jdat
     then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     return mattata.send_message(

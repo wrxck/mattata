@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -34,8 +34,7 @@ function base64.encode(str)
                     return r
                 end
             ) .. '0000'
-        )
-        :gsub(
+        ):gsub(
             '%d%d%d?%d?%d?%d?',
             function(x)
                 if #x < 6

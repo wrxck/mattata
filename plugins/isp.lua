@@ -1,42 +1,42 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local isp = {}
-
 local mattata = require('mattata')
 local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 
 function isp:init()
-    isp.commands = mattata.commands(
-        self.info.username
-    ):command('isp').table
-    isp.help = [[/isp <url> - Sends information about the given url's ISP.]]
+    isp.commands = mattata.commands(self.info.username):command('isp').table
+    isp.help = '/isp <url> - Sends information about the given url\'s ISP.'
 end
 
-function isp:on_message(message, configuration)
+function isp:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             isp.help
         )
     end
     local jstr, res = http.request('http://ip-api.com/json/' .. url.escape(input) .. '?lang=' .. configuration.language .. '&fields=country,regionName,city,zip,isp,org,as,status,message,query')
-    if res ~= 200 then
+    if res ~= 200
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     local jdat = json.decode(jstr)
-    if jdat.status == 'fail' then
+    if jdat.status == 'fail'
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.results
+            language['errors']['results']
         )
     end
     local output = {

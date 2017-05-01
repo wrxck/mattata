@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -12,12 +12,12 @@ function logchat:init()
     logchat.help = '/logchat [chat] - Specify the chat that you wish to log all of this chat\'s administrative actions into.'
 end
 
-function logchat:on_message(message, configuration)
+function logchat:on_message(message, configuration, language)
     if message.chat.type ~= 'supergroup'
     then
         return mattata.send_reply(
             message,
-            configuration.errors.supergroup
+            language['errors']['supergroup']
         )
     elseif not mattata.is_group_admin(
         message.chat.id,
@@ -26,7 +26,7 @@ function logchat:on_message(message, configuration)
     then
         return mattata.send_reply(
             message,
-            configuration.errors.admin
+            language['errors']['admin']
         )
     end
     local input = mattata.input(message.text)
@@ -34,7 +34,7 @@ function logchat:on_message(message, configuration)
     then
         local success = mattata.send_force_reply(
             message,
-            'Please enter the username or numerical ID of the chat you wish to log all administrative actions into.'
+            language['logchat']['1']
         )
         if success
         then
@@ -51,7 +51,7 @@ function logchat:on_message(message, configuration)
     end
     local res = mattata.send_message(
         message.chat.id,
-        'Checking to see whether that chat is valid...'
+        language['logchat']['2']
     )
     if not res
     then
@@ -69,14 +69,14 @@ function logchat:on_message(message, configuration)
         return mattata.edit_message_text(
             message.chat.id,
             res.result.message_id,
-            'I\'m sorry, it appears you\'ve either specified an invalid chat, or you\'ve specified a chat I haven\'t been added to yet. Please rectify this and try again.'
+            language['logchat']['3']
         )
     elseif valid.result.type == 'private'
     then
         return mattata.edit_message_text(
             message.chat.id,
             res.result.message_id,
-            'You can\'t set a user as your log chat!'
+            language['logchat']['4']
         )
     elseif not mattata.is_group_admin(
         valid.result.id,
@@ -86,12 +86,13 @@ function logchat:on_message(message, configuration)
         return mattata.edit_message_text(
             message.chat.id,
             res.result.message_id,
-            'You don\'t appear to be an administrator in that chat!'
+            language['logchat']['5']
         )
     elseif redis:hget(
         'chat:' .. message.chat.id .. ':settings',
         'log chat'
-    ) and redis:hget(
+    )
+    and redis:hget(
         'chat:' .. message.chat.id .. ':settings',
         'log chat'
     ) == valid.result.id
@@ -99,17 +100,17 @@ function logchat:on_message(message, configuration)
         return mattata.edit_message_text(
             message.chat.id,
             res.result.message_id,
-            'It seems I\'m already logging administrative actions into that chat! Use /logchat to specify a new one.'
+            language['logchat']['6']
         )
     end
     mattata.edit_message_text(
         message.chat.id,
         res.result.message_id,
-        'That chat is valid, I\'m now going to try and send a test message to it, just to ensure I have permission to post!'
+        language['logchat']['7']
     )
     local permission = mattata.send_message(
         valid.result.id,
-        'Hello, World - this is a test message to check my posting permissions - if you\'re reading this, then everything went OK!'
+        language['logchat']['8']
     )
     if not permission
     then
@@ -127,7 +128,10 @@ function logchat:on_message(message, configuration)
     return mattata.edit_message_text(
         message.chat.id,
         res.result.message_id,
-        'All done! From now on, any administrative actions in this chat will be logged into ' .. input .. ' - to change the chat you want me to log administrative actions into, just send /logchat.'
+        string.format(
+            language['logchat']['9'],
+            input
+        )
     )
 end
 

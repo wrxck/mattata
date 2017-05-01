@@ -1,71 +1,26 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local setlang = {}
-
 local mattata = require('mattata')
 local redis = require('mattata-redis')
 local json = require('dkjson')
 
 function setlang:init()
-    setlang.commands = mattata.commands(
-        self.info.username
-    ):command('setlang').table
-    setlang.help = [[/setlang - Allows you to select your language.]]
+    setlang.commands = mattata.commands(self.info.username):command('setlang').table
+    setlang.help = '/setlang - Allows you to select your language.'
 end
 
 setlang.languages = {
-
-    ['en'] = 'English 🇬🇧',
-
-    ['it'] = 'Italiano 🇮🇹',
-
-    ['es'] = 'Español 🇪🇸',
-
-    ['pt'] = 'Português 🇧🇷',
-
-    ['ru'] = 'Русский 🇷🇺',
-
-    ['de'] = 'Deutsch 🇩🇪',
-
-    ['ar'] = 'العربية 🇸🇩',
-
-    ['fr'] = 'Français 🇫🇷',
-
-    ['nl'] = 'Dutch 🇱🇺',
-
-    ['lv'] = 'Latvijas 🇱🇻',
-
-    ['pl'] = 'Polskie 🇵🇱'
-
+    ['en_gb'] = 'British English 🇬🇧',
+    ['en_us'] = 'American English 🇺🇸'
 }
 
 setlang.languages_short = {
-
-    ['en'] = '🇬🇧',
-
-    ['it'] = '🇮🇹',
-
-    ['es'] = '🇪🇸',
-
-    ['pt'] = '🇧🇷',
-
-    ['ru'] = '🇷🇺',
-
-    ['de'] = '🇩🇪',
-
-    ['ar'] = '🇸🇩',
-
-    ['fr'] = '🇫🇷',
-
-    ['nl'] = '🇱🇺',
-
-    ['lv'] = '🇱🇻',
-
-    ['pl'] = '🇵🇱'
-
+    ['en_gb'] = '🇬🇧',
+    ['en_us'] = '🇺🇸'
 }
 
 function setlang.get_keyboard(user_id)
@@ -75,18 +30,22 @@ function setlang.get_keyboard(user_id)
         }
     }
     local total = 0
-    for _, v in pairs(setlang.languages_short) do
+    for _, v in pairs(setlang.languages_short)
+    do
         total = total + 1
     end
     local count = 0
     local rows = math.floor(total / 2)
-    if rows ~= total then
+    if rows ~= total
+    then
         rows = rows + 1
     end
     local row = 1
-    for k, v in pairs(setlang.languages_short) do
+    for k, v in pairs(setlang.languages_short)
+    do
         count = count + 1
-        if count == rows * row then
+        if count == rows * row
+        then
             row = row + 1
             table.insert(
                 keyboard.inline_keyboard,
@@ -104,63 +63,82 @@ function setlang.get_keyboard(user_id)
     return keyboard
 end
 
-function setlang.set_lang(user_id, locale, language)
+function setlang.set_lang(user_id, locale, lang, language)
     redis:hset(
-        'user:' .. user_id .. ':language',
+        'chat:' .. user_id .. ':settings',
         'language',
         locale
     )
-    return 'Your language has been set to ' .. language .. '!'
+    return string.format(
+        language['setlang']['1'],
+        lang
+    )
 end
 
-function setlang.get_lang(user_id)
-    local language = redis:hget(
-        'user:' .. user_id .. ':language',
+function setlang.get_lang(user_id, language)
+    local lang = redis:hget(
+        'chat:' .. user_id .. ':settings',
         'language'
     )
-    if not language then
-        language = 'en'
-    end
-    for k, v in pairs(setlang.languages) do
-        if k == language then
-            language = v
+    or 'en_gb'
+    for k, v in pairs(setlang.languages)
+    do
+        if k == lang
+        then
+            lang = v
             break
         end
     end
-    return 'Your language is currently ' .. language .. '.\nPlease note that this feature is currently in beta and not all string are translated as of yet. If you\'d like to change your language, select one using the keyboard below:'
-end
-
-function setlang:on_callback_query(callback_query, message)
-    local user_id, new_language = callback_query.data:match('^(.-)%:(.-)$')
-    if not user_id or not new_language then
-        return
-    end
-    if tostring(callback_query.from.id) ~= user_id then
-        return
-    end
-    local keyboard = setlang.get_keyboard(user_id)
-    local output = setlang.set_lang(user_id, new_language, setlang.languages[new_language])
-    return mattata.edit_message_text(
-        message.chat.id,
-        message.message_id,
-        output,
-        nil,
-        true,
-        json.encode(keyboard)
+    return string.format(
+        language['setlang']['2'],
+        lang
     )
 end
 
-function setlang:on_message(message, configuration)
-    local keyboard = setlang.get_keyboard(message.from.id)
-    local current = setlang.get_lang(message.from.id)
+function setlang:on_callback_query(callback_query, message, configuration, language)
+    if not message
+    or (
+        message
+        and message.date <= 1493668000
+    )
+    then
+        return -- We don't want to process requests from messages before the language
+        -- functionality was re-implemented, it could cause issues!
+    end
+    local user_id, new_language = callback_query.data:match('^(.-)%:(.-)$')
+    if not user_id
+    or not new_language
+    or tostring(callback_query.from.id) ~= user_id
+    then
+        return
+    end
+    return mattata.edit_message_text(
+        message.chat.id,
+        message.message_id,
+        setlang.set_lang(
+            user_id,
+            new_language,
+            setlang.languages[new_language],
+            language
+        ),
+        nil,
+        true,
+        setlang.get_keyboard(user_id)
+    )
+end
+
+function setlang:on_message(message, configuration, language)
     return mattata.send_message(
         message.chat.id,
-        current,
+        setlang.get_lang(
+            message.from.id,
+            language
+        ),
         nil,
         true,
         false,
         nil,
-        json.encode(keyboard)
+        setlang.get_keyboard(message.from.id)
     )
 end
 

@@ -1,10 +1,9 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local location = {}
-
 local mattata = require('mattata')
 local http = require('socket.http')
 local url = require('socket.url')
@@ -13,18 +12,19 @@ local setloc = require('plugins.setloc')
 local redis = require('mattata-redis')
 
 function location:init()
-    location.commands = mattata.commands(
-        self.info.username
-    ):command('location')
-     :command('loc').table
-    location.help = [[/location [query] - Sends your location, or a location from Google Maps. Alias: /loc.]]
+    location.commands = mattata.commands(self.info.username)
+    :command('location')
+    :command('loc').table
+    location.help = '/location [query] - Sends your location, or a location from Google Maps. Alias: /loc.'
 end
 
 function location:on_inline_query(inline_query, configuration)
     local input = mattata.input(inline_query.query)
-    if not input then
+    if not input
+    then
         local loc = setloc.get_loc(inline_query.from)
-        if not loc then
+        if not loc
+        then
             return
         end
         local jdat = json.decode(loc)
@@ -44,11 +44,13 @@ function location:on_inline_query(inline_query, configuration)
         )
     end
     local jstr, res = http.request('http://maps.googleapis.com/maps/api/geocode/json?address=' .. url.escape(input))
-    if res ~= 200 then
+    if res ~= 200
+    then
         return
     end
     local jdat = json.decode(jstr)
-    if jdat.status == 'ZERO_RESULTS' then
+    if jdat.status == 'ZERO_RESULTS'
+    then
         return
     end
     return mattata.answer_inline_query(
@@ -67,14 +69,19 @@ function location:on_inline_query(inline_query, configuration)
     )
 end
 
-function location:on_message(message, configuration)
-    local input = mattata.input(message.text:lower())
-    if not input and not setloc.get_loc(message.from) then
+function location:on_message(message, configuration, language)
+    local input = mattata.input(
+        message.text:lower()
+    )
+    if not input
+    and not setloc.get_loc(message.from)
+    then
         local success = mattata.send_force_reply(
             message,
-            'You don\'t have a location set. What would you like your new location to be?.'
+            language['location']['1']
         )
-        if success then
+        if success
+        then
             redis:set(
                 string.format(
                     'action:%s:%s',
@@ -85,7 +92,8 @@ function location:on_message(message, configuration)
             )
         end
         return
-    elseif not input then
+    elseif not input
+    then
         local loc = setloc.get_loc(message.from)
         return mattata.send_location(
             message.chat.id,
@@ -94,17 +102,19 @@ function location:on_message(message, configuration)
         )
     end
     local jstr, res = http.request('http://maps.googleapis.com/maps/api/geocode/json?address=' .. url.escape(input))
-    if res ~= 200 then
+    if res ~= 200
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     local jdat = json.decode(jstr)
-    if jdat.status == 'ZERO_RESULTS' then
+    if jdat.status == 'ZERO_RESULTS'
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.results
+            language['errors']['results']
         )
     end
     return mattata.send_location(

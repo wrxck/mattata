@@ -4,7 +4,6 @@
 ]]
 
 local captionbotai = {}
-
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
@@ -14,10 +13,12 @@ local configuration = require('configuration')
 
 function captionbotai.conversation()
     local str, res = https.request('https://www.captionbot.ai/api/init')
-    if res ~= 200 then
+    if res ~= 200
+    then
         return false
     end
-    return str:match('%"(.-)%"') or str
+    return str:match('%"(.-)%"')
+    or str
 end
 
 function captionbotai.request(input, id)
@@ -48,30 +49,34 @@ function captionbotai.request(input, id)
             ['sink'] = ltn12.sink.table(response)
         }
     )
-    if code ~= 200 then
+    if code ~= 200
+    then
         return false
     end
     local jstr, res = https.request('https://www.captionbot.ai/api/message?waterMark=&conversationId=' .. url.escape(id))
-    jstr = jstr:gsub('^"', ''):gsub('"$', ''):gsub('\\"', '"'):gsub(configuration.bot_token, '')
-    print(jstr)
+    jstr = jstr
+    :gsub('^"', '')
+    :gsub('"$', '')
+    :gsub('\\"', '"')
+    :gsub(configuration.bot_token, '')
     local jdat = json.decode(jstr)
     return jdat.BotMessages[2]:gsub('\\n', ' ')
 end
 
-function captionbotai:on_message(message, configuration)
-    local file = mattata.get_file(message.photo[#message.photo].file_id) -- Gets the highest resolution available for the best result.
-    if not file then
+function captionbotai:on_message(message, configuration, language)
+    local file = mattata.get_file(message.photo[#message.photo].file_id) -- Gets the highest
+    -- resolution available, for the best result.
+    if not file
+    then
         return
     end
-    mattata.send_chat_action(
-        message.chat.id,
-        'typing'
-    )
+    mattata.send_chat_action(message.chat.id)
     local init = captionbotai.conversation()
-    if not init then
+    if not init
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     local output = captionbotai.request(
@@ -82,13 +87,16 @@ function captionbotai:on_message(message, configuration)
         ),
         init
     )
-    if not output or output:lower():match('^https%:%/%/') then
+    if not output
+    or output:lower():match('^https%:%/%/')
+    then
         return mattata.send_reply(
             message,
-            'I really cannot describe that picture 😳'
+            language['captionbotai']['1'] .. ' 😳'
         )
     end
-    output = output:match('%, but (.-)$') or output
+    output = output:match('%, but (.-)$')
+    or output
     return mattata.send_reply(
         message,
         output:gsub('%.$', '')

@@ -1,10 +1,9 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local eightball = {}
-
 local mattata = require('mattata')
 
 function eightball:init()
@@ -13,28 +12,25 @@ function eightball:init()
         {
             '[Yy]/[Nn]%p*$'
         }
-    ):command('eightball')
-     :command('8ball').table
-    eightball.help = [[/eightball - Makes a decision for you using the (virtual) magic 8 ball! Alias: /8ball.]]
+    )
+    :command('eightball')
+    :command('8ball').table
+    eightball.help = '/eightball - Makes a decision for you using the (virtual) magic 8 ball! Alias: /8ball.'
 end
 
-function eightball:on_message(message, configuration)
+function eightball:on_message(message, configuration, language)
     local output
-    if message.text:lower():match('y/n%p?$') then
-        local random = math.random(6)
-        if random == 1 then
-            output = '👍'
-        elseif random == 2 then
-            output = '👎'
-        elseif random == 3 then
-            output = 'Yes.'
-        elseif random == 4 then
-            output = 'No.'
-        elseif random == 5 then
-            output = 'It is likely so.'
-        else
-            output = 'Well, uh... I\'d ask again later, if I were you.'
-        end
+    if message.text:lower():match('y/n%p?$')
+    then
+        local responses = {
+            '👍',
+            '👎',
+            language['eightball']['1'],
+            language['eightball']['2'],
+            language['eightball']['3'],
+            language['eightball']['4']
+        }
+        local random = math.random(responses[#responses])
     else
         local answers = configuration.eightball
         output = answers[math.random(#answers)]

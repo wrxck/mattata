@@ -1,22 +1,21 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local counter = {}
-
 local mattata = require('mattata')
 
 function counter:init()
-    counter.commands = mattata.commands(
-        self.info.username
-    ):command('counter')
-     :command('count').table
-    counter.help = [[/counter - Adds a view count to the replied-to message. Alias: /count.]]
+    counter.commands = mattata.commands(self.info.username)
+    :command('counter')
+    :command('count').table
+    counter.help = '/counter - Adds a view count to the replied-to message. Alias: /count.'
 end
 
-function counter:on_message(message, configuration)
-    if not message.reply then
+function counter:on_message(message, configuration, language)
+    if not message.reply
+    then
         return mattata.send_reply(
             message,
             counter.help
@@ -28,10 +27,11 @@ function counter:on_message(message, configuration)
         true,
         message.reply.message_id
     )
-    if not success then
+    if not success
+    then
         return mattata.send_reply(
             message,
-            'I couldn\'t add a counter to that message!'
+            language['counter']['1']
         )
     end
     return mattata.forward_message(

@@ -1,10 +1,24 @@
+-- Configuration file for mattata v21.0
+
+-- Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+-- This code is licensed under the MIT. See LICENSE for details.
+
+-- Each value in an array should be comma separated, with the exception of the last value!
+-- Make sure you always update your configuration file after pulling changes from GitHub!
+
 return { -- Rename this file to configuration.lua for the bot to work.
-    ['bot_token'] = '', -- In order for the bot to actually work, you MUST insert the Telegram bot API token you received from @BotFather.
-    ['admins'] = {  -- Here you need to specify the numerical ID of the users who shall have FULL control over the bot, this includes access to server files via the lua and shell plugins.
+
+    ['bot_token'] = '', -- In order for the bot to actually work, you MUST insert the Telegram
+    -- bot API token you received from @BotFather.
+    ['admins'] = {  -- Here you need to specify the numerical ID of the users who shall have
+    -- FULL control over the bot, this includes access to server files via the lua and shell plugins.
+        nil,
         nil
     },
-    ['language'] = 'en', -- The two character locale to set your default language to, this is also the default language for all users who haven't adjusted their language
-    ['log_chat'] = nil, -- This needs to be the numerical identifier of the chat you wish to log errors into. If it's not a private chat it should begin with a '-' symbol.
+    ['language'] = 'en', -- The two character locale to set your default language to, this is
+    -- also the default language for all users who haven't adjusted their language
+    ['log_chat'] = nil, -- This needs to be the numerical identifier of the chat you wish to log
+    -- errors into. If it's not a private chat it should begin with a '-' symbol.
     ['log_admin_actions'] = true,
     ['log_channel'] = nil,
     ['admin_log_chat'] = nil,
@@ -12,13 +26,16 @@ return { -- Rename this file to configuration.lua for the bot to work.
     ['counter_channel'] = nil,
     ['download_location'] = '/tmp/', -- The location to save all downloaded media to.
     ['respond_to_misc'] = true,
-    ['max_copypasta_length'] = 300, -- The maximum number of characters a message can have to be able to have /copypasta used on it.
-    ['debug'] = false,
+    ['max_copypasta_length'] = 300, -- The maximum number of characters a message can have to be
+    -- able to have /copypasta used on it.
+    ['debug'] = false, -- Turn this on to print EVEN MORE information to the terminal.
     ['plugins'] = { -- This table lists the plugins which the bot will load upon each instance.
         'control',
-        -- To allow things to work properly, you MUST place all new plugins BELOW this line. It is recommended to keep the list clean by ensuring it keeps its alphabetical order.
+        -- To allow things to work properly, you MUST place all new plugins BELOW this line. It is
+        -- recommended to keep the list clean by ensuring it keeps its alphabetical order.
         'administration',
         'aesthetic',
+        'afk',
         'apod',
         'appstore',
         'avatar',
@@ -31,7 +48,6 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'blacklistchat',
         'bugreport',
         'calc',
-        'canitrust',
         'catfact',
         'cats',
         'channel',
@@ -50,6 +66,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'doge',
         'doggo',
         'donate',
+        'drawtext',
         'duckduckgo',
         'echo',
         'eightball',
@@ -66,6 +83,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'gblacklist',
         'gif',
         'github',
+        'godwords',
         'google',
         'gwhitelist',
         'hackernews',
@@ -75,6 +93,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'id',
         'identicon',
         'imdb',
+        'import',
         'info',
         'instagram',
         'insult',
@@ -160,7 +179,8 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'yomama',
         'youtube'
     },
-    ['redis'] = { -- Configurable options for connecting the bot to redis. Do NOT modify these settings if you don't know what you're doing!
+    ['redis'] = { -- Configurable options for connecting the bot to redis. Do NOT modify
+    -- these settings if you don't know what you're doing!
         ['host'] = '127.0.0.1',
         ['port'] = 6379,
         ['password'] = nil,
@@ -199,12 +219,12 @@ return { -- Rename this file to configuration.lua for the bot to work.
         ['steam'] = '' -- https://steamcommunity.com/dev/apikey
     },
     ['errors'] = { -- Messages to provide a more user-friendly approach to errors.
-        ['connection'] = 'The connection timed out, perhaps there is a fault with an external API this feature is dependent on?',
+        ['connection'] = 'Connection error.',
         ['results'] = 'I couldn\'t find any results for that.',
         ['supergroup'] = 'This command can only be used in supergroups.',
-        ['admin'] = 'You need to be a moderator or an administrator in this chat in order to use this!',
-        ['unknown'] = 'I don\'t recognise that user. If you would like to teach me who they are, forward a message from them into any chat that I\'m in.',
-        ['generic'] = 'An unexpected error occured. Please report this error using /br.'
+        ['admin'] = 'You need to be a moderator or an administrator in this chat in order to use this command.',
+        ['unknown'] = 'I don\'t recognise that user. If you would like to teach me who they are, forward a message from them to any chat that I\'m in.',
+        ['generic'] = 'An unexpected error occured. Please report this error using /bugreport.'
     },
     ['dice'] = {
         ['max_range'] = 200,
@@ -279,4 +299,9 @@ return { -- Rename this file to configuration.lua for the bot to work.
             'CAADBAAD0wIAAlAYNw3KIKm0bVviWwI'
         }
     }
-} -- End of configuration, you're good to go. Use ./launch.sh to start the bot.
+
+}
+
+-- End of configuration, you're good to go.
+-- Use ./launch.sh to start the bot.
+-- If you can't execute the script, try running: chmod +x launch.sh

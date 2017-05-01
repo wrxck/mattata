@@ -1,18 +1,15 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local name = {}
-
 local mattata = require('mattata')
 local redis = require('mattata-redis')
 
 function name:init()
-    name.commands = mattata.commands(
-        self.info.username
-    ):command('name').table
-    name.help = [[/name <text> - Change the name that the bot's AI responds to.]]
+    name.commands = mattata.commands(self.info.username):command('name').table
+    name.help = '/name <text> - Change the name that the bot\'s AI responds to.'
 end
 
 function name.set_name(chat_id, input)
@@ -31,38 +28,47 @@ function name.get_name(chat_id)
             'chat:%s:name',
             chat_id
         )
-    ) or 'mattata'
+    )
+    or 'mattata'
 end
 
-function name:on_message(message)
+function name:on_message(message, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             string.format(
-                'The name I currently respond to is "%s" - to change this, use /name <text> (where <text> is what you want me to respond to).',
+                language['name']['1'],
                 name.get_name(message.chat.id)
             )
         )
     end
-    if message.chat.type ~= 'private' and not mattata.is_group_admin(
+    if message.chat.type ~= 'private'
+    and not mattata.is_group_admin(
         message.chat.id,
         message.from.id
-    ) then
+    )
+    then
         return mattata.send_reply(
             message,
-            'I\'m sorry, but you need to be an administrator of this chat to be able to use this command!'
+            language['errors']['admin']
         )
     end
-    if input:len() < 2 or input:len() > 32 then
+    if input:len() < 2
+    or input:len() > 32
+    then
         return mattata.send_reply(
             message,
-            'My new name needs to be between 2 and 32 characters long!'
+            language['name']['2']
         )
-    elseif input:gsub('%s', ''):match('%W') then
+    elseif input
+    :gsub('%s', '')
+    :match('%W')
+    then
         return mattata.send_reply(
             message,
-            'My name may only contain alphanumeric characters!'
+            language['name']['3']
         )
     end
     local old_name = name.get_name(message.chat.id)
@@ -73,7 +79,7 @@ function name:on_message(message)
     return mattata.send_reply(
         message,
         string.format(
-            'I will now respond to "%s", instead of "%s" - to change this, use /name <text> (where <text> is what you want me to respond to).',
+            language['name']['4'],
             input,
             old_name
         )

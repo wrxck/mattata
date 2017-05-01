@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -8,10 +8,10 @@ local mattata = require('mattata')
 
 function aesthetic:init()
     aesthetic.commands = mattata.commands(self.info.username):command('aesthetic').table
-    aesthetic.help = '/aesthetic <text> - ＡＥＳＴＨＥＴＩＣ.'
+    aesthetic.help = '/aesthetic <text> - Give your message a bit of "ＡＥＳＴＨＥＴＩＣ".'
 end
 
-function aesthetic:on_message(message, configuration)
+function aesthetic:on_message(message)
     local input = mattata.input(message.text)
     if not input
     then

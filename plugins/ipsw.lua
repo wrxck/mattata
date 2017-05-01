@@ -1,44 +1,51 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local ipsw = {}
-
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
 function ipsw:init()
-    ipsw.commands = mattata.commands(
-        self.info.username
-    ):command('ipsw').table
-    ipsw.help = [[/ipsw - Allows you to select the firmware information for your device and firmware version.]]
+    ipsw.commands = mattata.commands(self.info.username):command('ipsw').table
+    ipsw.help = '/ipsw - Allows you to select the firmware information for your device and firmware version.'
     ipsw.data = {}
     local jstr, res = https.request('https://api.ipsw.me/v2.1/firmwares.json')
-    if res == 200 then
+    if res == 200
+    then
         ipsw.data = json.decode(jstr)
     end
     ipsw.devices = {}
-    for k, v in pairs(ipsw.data.devices) do
-        if k:lower():match('^appletv') then
-            if not ipsw.devices['Apple TV'] then
+    for k, v in pairs(ipsw.data.devices)
+    do
+        if k:lower():match('^appletv')
+        then
+            if not ipsw.devices['Apple TV']
+            then
                 ipsw.devices['Apple TV'] = {}
             end
             table.insert(ipsw.devices['Apple TV'], k)
-        elseif k:lower():match('^ipad') then
-            if not ipsw.devices['iPad'] then
+        elseif k:lower():match('^ipad')
+        then
+            if not ipsw.devices['iPad']
+            then
                 ipsw.devices['iPad'] = {}
             end
             table.insert(ipsw.devices['iPad'], k)
-        elseif k:lower():match('^ipod') then
-            if not ipsw.devices['iPod'] then
+        elseif k:lower():match('^ipod')
+        then
+            if not ipsw.devices['iPod']
+            then
                 ipsw.devices['iPod'] = {}
             end
             table.insert(ipsw.devices['iPod'], k)
-        elseif k:lower():match('^iphone') then
-            if not ipsw.devices['iPhone'] then
+        elseif k:lower():match('^iphone')
+        then
+            if not ipsw.devices['iPhone']
+            then
                 ipsw.devices['iPhone'] = {}
             end
             table.insert(ipsw.devices['iPhone'], k)
@@ -49,7 +56,8 @@ end
 function ipsw.get_info(input)
     local device = input
     local version = 'latest'
-    if input:match('^.- .-$') then
+    if input:match('^.- .-$')
+    then
         device = input:match('^(.-) ')
         version = input:match(' (.-)$')
     end
@@ -60,7 +68,8 @@ function ipsw.get_info(input)
             url.escape(version)
         )
     )
-    if res ~= 200 or jstr == '[]' then
+    if res ~= 200 or jstr == '[]'
+    then
         return false
     end
     return json.decode(jstr)
@@ -68,19 +77,26 @@ end
 
 function ipsw:on_inline_query(inline_query)
     local input = mattata.input(inline_query.query)
-    if not input then
+    if not input
+    then
         return
     end
     local jdat = ipsw.get_info(input)
-    if not jdat then
+    if not jdat
+    then
         return
     end
     return mattata.answer_inline_query(
         inline_query.id,
-        mattata.inline_result():type('article'):id(1):title(jdat[1].device):description('iOS ' .. jdat[1].version):input_message_content(
+        mattata.inline_result()
+        :type('article')
+        :id(1)
+        :title(jdat[1].device)
+        :description('iOS ' .. jdat[1].version)
+        :input_message_content(
             mattata.input_text_message_content(
                 string.format(
-                    '<b>%s</b> iOS %s\n\n<code>MD5 sum: %s\nSHA1 sum: %s\nFile size: %s GB</code>\n\n<i>%s This firmware is %s being signed!</i>',
+                    language['ipsw']['1'],
                     jdat[1].device,
                     jdat[1].version,
                     jdat[1].md5sum,
@@ -89,12 +105,17 @@ function ipsw:on_inline_query(inline_query)
                         jdat[1].size / 1000000000,
                         2
                     ),
-                    jdat[1].signed == false and utf8.char(10060) or utf8.char(9989),
-                    jdat[1].signed == false and 'no longer' or 'still'
+                    jdat[1].signed == false
+                    and utf8.char(10060)
+                    or utf8.char(9989),
+                    jdat[1].signed == false
+                    and language['ipsw']['2']
+                    or language['ipsw']['3']
                 ),
                 'html'
             )
-        ):reply_markup(
+        )
+        :reply_markup(
             mattata.inline_keyboard():row(
                 mattata.row():url_button(
                     jdat[1].filename,
@@ -112,21 +133,26 @@ function ipsw.get_model_keyboard(device)
         }
     }
     local total = 0
-    for _, v in pairs(ipsw.devices[device]) do
+    for _, v in pairs(ipsw.devices[device])
+    do
         total = total + 1
     end
     local count = 0
     local rows = math.floor(total / 10)
-    if rows ~= total then
+    if rows ~= total
+    then
         rows = rows + 1
     end
     local row = 1
-    for k, v in pairs(ipsw.data.devices) do
+    for k, v in pairs(ipsw.data.devices)
+    do
         if k:lower():match(
             device:lower():gsub(' ', '')
-        ) then
+        )
+        then
             count = count + 1
-            if count == rows * row then
+            if count == rows * row
+            then
                 row = row + 1
                 table.insert(
                     keyboard.inline_keyboard,
@@ -152,18 +178,22 @@ function ipsw.get_firmware_keyboard(model)
         }
     }
     local total = 0
-    for _, v in pairs(ipsw.data.devices[model].firmwares) do
+    for _, v in pairs(ipsw.data.devices[model].firmwares)
+    do
         total = total + 1
     end
     local count = 0
     local rows = math.floor(total / 7)
-    if rows ~= total then
+    if rows ~= total
+    then
         rows = rows + 1
     end
     local row = 1
-    for k, v in pairs(ipsw.data.devices[model].firmwares) do
+    for k, v in pairs(ipsw.data.devices[model].firmwares)
+    do
         count = count + 1
-        if count == rows * row then
+        if count == rows * row
+        then
             row = row + 1
             table.insert(
                 keyboard.inline_keyboard,
@@ -181,28 +211,31 @@ function ipsw.get_firmware_keyboard(model)
     return keyboard
 end
 
-function ipsw:on_callback_query(callback_query, message, configuration)
-    if callback_query.data:match('^device%:') then
+function ipsw:on_callback_query(callback_query, message, configuration, language)
+    if callback_query.data:match('^device%:')
+    then
         callback_query.data = callback_query.data:match('^device%:(.-)$')
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
-            'Please select your model:',
+            language['ipsw']['4'],
             nil,
             true,
             ipsw.get_model_keyboard(callback_query.data)
         )
-    elseif callback_query.data:match('^model%:') then
+    elseif callback_query.data:match('^model%:')
+    then
         callback_query.data = callback_query.data:match('^model%:(.-)$')
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
-            'Please select your firmware version:',
+            language['ipsw']['5'],
             nil,
             true,
             ipsw.get_firmware_keyboard(callback_query.data)
         )
-    elseif callback_query.data:match('^firmware%:') then
+    elseif callback_query.data:match('^firmware%:')
+    then
         local jdat = ipsw.get_info(
             callback_query.data:match('^firmware%:(.-)$')
         )
@@ -210,7 +243,7 @@ function ipsw:on_callback_query(callback_query, message, configuration)
             message.chat.id,
             message.message_id,
             string.format(
-                '<b>%s</b> iOS %s\n\n<code>MD5 sum: %s\nSHA1 sum: %s\nFile size: %s GB</code>\n\n<i>%s This firmware is %s being signed!</i>',
+                language['ipsw']['1'],
                 jdat[1].device,
                 jdat[1].version,
                 jdat[1].md5sum,
@@ -219,8 +252,12 @@ function ipsw:on_callback_query(callback_query, message, configuration)
                     jdat[1].size / 1000000000,
                     2
                 ),
-                jdat[1].signed == false and utf8.char(10060) or utf8.char(9989),
-                jdat[1].signed == false and 'no longer' or 'still'
+                jdat[1].signed == false
+                and utf8.char(10060)
+                or utf8.char(9989),
+                jdat[1].signed == false
+                and language['ipsw']['2']
+                or language['ipsw']['3']
             ),
             'html',
             true,
@@ -234,29 +271,35 @@ function ipsw:on_callback_query(callback_query, message, configuration)
     end
 end
 
-function ipsw:on_message(message, configuration)
+function ipsw:on_message(message, configuration, language)
     ipsw.init(self)
     return mattata.send_message(
         message.chat.id,
-        'Please select your device type:',
+        language['ipsw']['6'],
         nil,
         true,
         false,
         nil,
-        mattata.inline_keyboard():row(
-            mattata.row():callback_data_button(
-                'iPod Touch',
+        mattata.inline_keyboard()
+        :row(
+            mattata.row()
+            :callback_data_button(
+                language['ipsw']['7'],
                 'ipsw:device:iPod'
-            ):callback_data_button(
-                'iPhone',
+            )
+            :callback_data_button(
+                language['ipsw']['8'],
                 'ipsw:device:iPhone'
             )
-        ):row(
-            mattata.row():callback_data_button(
-                'iPad',
+        )
+        :row(
+            mattata.row()
+            :callback_data_button(
+                language['ipsw']['9'],
                 'ipsw:device:iPad'
-            ):callback_data_button(
-                'Apple TV',
+            )
+            :callback_data_button(
+                language['ipsw']['10'],
                 'ipsw:device:Apple TV'
             )
         )

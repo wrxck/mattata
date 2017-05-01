@@ -1,10 +1,9 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local paste = {}
-
 local mattata = require('mattata')
 local https = require('ssl.https')
 local http = require('socket.http')
@@ -15,37 +14,34 @@ local json = require('dkjson')
 local configuration = require('configuration')
 
 function paste:init()
-    paste.commands = mattata.commands(
-        self.info.username
-    ):command('paste').table
-    paste.help = [[/paste <text> - Uploads the given text to a pasting service and returns the result URL.]]
+    paste.commands = mattata.commands(self.info.username):command('paste').table
+    paste.help = '/paste <text> - Uploads the given text to a pasting service and returns the result URL.'
 end
 
 function paste.get_keyboard()
-    local keyboard = {}
-    keyboard.inline_keyboard = {
-        {
-            {
-                ['text'] = 'paste.ee',
-                ['callback_data'] = 'paste:pasteee'
-            },
-            {
-                ['text'] = 'pastebin.com',
-                ['callback_data'] = 'paste:pastebin'
-            }
-        },
-        {
-            {
-                ['text'] = 'hastebin.com',
-                ['callback_data'] = 'paste:hastebin'
-            },
-            {
-                ['text'] = 'pasta.cf',
-                ['callback_data'] = 'paste:pastacf'
-            }
-        }
-    }
-    return keyboard
+    return mattata.inline_keyboard()
+    :row(
+        mattata.row()
+        :callback_data_button(
+            'paste.ee',
+            'paste:pasteee'
+        )
+        :callback_data_button(
+            'pastebin.com',
+            'paste:pastebin'
+        )
+    )
+    :row(
+        mattata.row()
+        :callback_data_button(
+            'hastebin.com',
+            'paste:hastebin'
+        )
+        :callback_data_button(
+            'pasta.cf',
+            'paste:pastacf'
+        )
+    )
 end
 
 function paste.pasteee(input, id)
@@ -63,7 +59,8 @@ function paste.pasteee(input, id)
             ['sink'] = ltn12.sink.table(response)
         }
     )
-    if res ~= 200 then
+    if res ~= 200
+    then
         return false
     end
     return table.concat(response)
@@ -89,7 +86,8 @@ function paste.pastebin(input)
             ['sink'] = ltn12.sink.table(response)
         }
     )
-    if res ~= 200 then
+    if res ~= 200
+    then
         return false
     end
     return table.concat(response)
@@ -114,11 +112,14 @@ function paste.hastebin(input)
             ['sink'] = ltn12.sink.table(response)
         }
     )
-    if res ~= 200 then
+    if res ~= 200
+    then
         return false
     end
     local jdat = json.decode(table.concat(response))
-    if not jdat or not jdat.key then
+    if not jdat
+    or not jdat.key
+    then
         return false
     end
     return 'http://hastebin.com/' .. jdat.key
@@ -135,35 +136,42 @@ function paste.pastacf(input)
         },
         ['source'] = ltn12.source.string(input)
     })
-    if res ~= 302 or not headers['location'] then
+    if res ~= 302
+    or not headers['location']
+    then
         return false
     end
     return headers['location']
 end
 
-function paste:on_callback_query(callback_query, message, configuration)
+function paste:on_callback_query(callback_query, message, configuration, language)
     local input = mattata.input(message.reply.text)
-    if not input then
+    if not input
+    then
         return false
     end
-    local keyboard = paste.get_keyboard()
     local output
-    if callback_query.data == 'pasteee' then
+    if callback_query.data == 'pasteee'
+    then
         output = paste.pasteee(
             input,
             callback_query.from.id
         )
-    elseif callback_query.data == 'pastebin' then
+    elseif callback_query.data == 'pastebin'
+    then
         output = paste.pastebin(input)
-    elseif callback_query.data == 'hastebin' then
+    elseif callback_query.data == 'hastebin'
+    then
         output = paste.hastebin(input)
-    elseif callback_query.data == 'pastacf' then
+    elseif callback_query.data == 'pastacf'
+    then
         output = paste.pastacf(input)
     end
-    if not output then
+    if not output
+    then
         return mattata.answer_callback_query(
             callback_query.id,
-            'An error occured!'
+            language['errors']['generic']
         )
     end
     return mattata.edit_message_text(
@@ -172,27 +180,27 @@ function paste:on_callback_query(callback_query, message, configuration)
         output,
         nil,
         true,
-        json.encode(keyboard)
+        paste.get_keyboard()
     )
 end
 
-function paste:on_message(message, configuration)
+function paste:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             paste.help
         )
     end
-    local keyboard = paste.get_keyboard()
     return mattata.send_message(
         message.chat.id,
-        'Please select a service to upload your paste to:',
+        language['paste']['1'],
         nil,
         true,
         false,
         message.message_id,
-        json.encode(keyboard)
+        paste.get_keyboard()
     )
 end
 

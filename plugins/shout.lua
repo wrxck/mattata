@@ -1,6 +1,6 @@
 --[[
     Based on a plugin by topkecleon.
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -8,9 +8,7 @@ local shout = {}
 local mattata = require('mattata')
 
 function shout:init()
-    shout.commands = mattata.commands(
-        self.info.username
-    ):command('shout').table
+    shout.commands = mattata.commands(self.info.username):command('shout').table
     shout.help = '/shout <text> - Shouts the given text in multiple directions!'
 end
 

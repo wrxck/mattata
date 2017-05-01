@@ -1,17 +1,14 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local donate = {}
-
 local mattata = require('mattata')
 
 function donate:init()
-    donate.commands = mattata.commands(
-        self.info.username
-    ):command('donate').table
-    donate.help = [[/donate - Make an optional, monetary contribution to the mattata project.]]
+    donate.commands = mattata.commands(self.info.username):command('donate').table
+    donate.help = '/donate - Make an optional, monetary contribution to the mattata project.'
 end
 
 function donate:on_message(message)

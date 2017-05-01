@@ -12,36 +12,19 @@ function info:init()
     info.help = '/info - View system information & statistics about the bot.'
 end
 
-function info:on_message(message, configuration)
+function info:on_message(message, configuration, language)
     local info = redis:info()
     if not info
     then
         return mattata.send_reply(
             message,
-            'An error occured!'
+            language['errors']['generic']
         )
     end
     return mattata.send_message(
         message.chat.id,
         string.format(
-            [[
-```
-Redis:
-%s Config File: %s
-%s Mode: %s
-%s TCP Port: %s
-%s Version: %s
-%s Uptime: %s days
-%s Process ID: %s
-%s Expired Keys: %s
-
-%s User Count: %s
-%s Group Count: %s
-
-System:
-%s OS: %s
-```
-            ]],
+            language['info']['2'],
             mattata.symbols.bullet,
             info.server.config_file,
             mattata.symbols.bullet,

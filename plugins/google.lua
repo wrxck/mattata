@@ -1,25 +1,25 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local google = {}
-
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
 function google:init()
-    google.commands = mattata.commands(
-        self.info.username
-    ):command('google').table
-    google.help = [[/google <query> - Searches Google for the given search query and returns the most relevant result(s). Alias: /g.]]
+    google.commands = mattata.commands(self.info.username)
+    :command('google')
+    :command('g').table
+    google.help = '/google <query> - Searches Google for the given search query and returns the most relevant result(s). Alias: /g.'
 end
 
 function google:on_inline_query(inline_query, configuration)
     local input = mattata.input(inline_query.query)
-    if not input then
+    if not input
+    then
         return
     end
     local jstr, res = https.request(
@@ -30,20 +30,28 @@ function google:on_inline_query(inline_query, configuration)
             url.escape(input)
         )
     )
-    if res ~= 200 then
+    if res ~= 200
+    then
         return
     end
     local jdat = json.decode(jstr)
-    if not jdat.items then
+    if not jdat.items
+    then
         return
     end
     local results = {}
     local id = 0
-    for _, v in ipairs(jdat.items) do
+    for _, v in ipairs(jdat.items)
+    do
         id = id + 1
         table.insert(
             results,
-            mattata.inline_result():id(id):type('article'):title(v.title):url(v.link):input_message_content(
+            mattata.inline_result()
+            :id(id)
+            :type('article')
+            :title(v.title)
+            :url(v.link)
+            :input_message_content(
                 mattata.input_text_message_content(
                     string.format(
                         '<a href="%s">%s</a>',
@@ -61,18 +69,18 @@ function google:on_inline_query(inline_query, configuration)
     )
 end
 
-function google:on_message(message, configuration)
+function google:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             google.help
         )
     end
-    local amount = 8
-    if message.chat.type ~= 'private' then
-        amount = 4
-    end
+    local amount = message.chat.type == 'private'
+    and 8
+    or 4
     local jstr, res = https.request(
         string.format(
             'https://www.googleapis.com/customsearch/v1/?key=%s&cx=%s&gl=en&fields=items%%28title,link%%29&q=%s',
@@ -81,21 +89,24 @@ function google:on_message(message, configuration)
             url.escape(input)
         )
     )
-    if res ~= 200 then
+    if res ~= 200
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     local jdat = json.decode(jstr)
-    if not jdat.items then
+    if not jdat.items
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.results
+            language['errors']['results']
         )
     end
     local results = {}
-    for _, v in ipairs(jdat.items) do
+    for _, v in ipairs(jdat.items)
+    do
         table.insert(
             results,
             string.format(

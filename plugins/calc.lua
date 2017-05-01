@@ -1,6 +1,6 @@
 --[[
     Based on a plugin by topkecleon.
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -15,7 +15,7 @@ function calc:init()
     calc.help = '/calc <expression> - Solves the given mathematical expression using mathjs.org.'
 end
 
-function calc:on_inline_query(inline_query)
+function calc:on_inline_query(inline_query, configuration, language)
     local input = mattata.input(inline_query.query)
     if not input
     then
@@ -46,7 +46,7 @@ function calc:on_inline_query(inline_query)
                     ['type'] = 'article',
                     ['id'] = '1',
                     ['title'] = str,
-                    ['description'] = 'Click to send the result.',
+                    ['description'] = language['calc']['1'],
                     ['input_message_content'] = {
                         ['message_text'] = str
                     }

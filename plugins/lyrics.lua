@@ -1,10 +1,9 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local lyrics = {}
-
 local mattata = require('mattata')
 local https = require('ssl.https')
 local http = require('socket.http')
@@ -21,10 +20,8 @@ function lyrics:init(configuration)
         configuration.keys.lyrics,
         'lyrics.lua requires an API key, and you haven\'t got one configured!'
     )
-    lyrics.commands = mattata.commands(
-        self.info.username
-    ):command('lyrics').table
-    lyrics.help = [[/lyrics <query> - Finds the lyrics to the given track.]]
+    lyrics.commands = mattata.commands(self.info.username):command('lyrics').table
+    lyrics.help = '/lyrics <query> - Finds the lyrics to the given track.'
 end
 
 function lyrics.search_lyrics_wikia(artist, track)
@@ -35,14 +32,19 @@ function lyrics.search_lyrics_wikia(artist, track)
             url.escape(track:gsub('%s', '_'))
         )
     )
-    if res ~= 200 then
+    if res ~= 200
+    then
         return false
     end
     str = str:match('%<div class%=%\'lyricbox%\'%>(.-)%<div class%=%\'lyricsbreak%\'%>')
-    if not str or str:match('[Uu]nfortunately%,? we are not licensed%.?') then
+    if not str or str:match('[Uu]nfortunately%,? we are not licensed%.?')
+    then
         return false
     end
-    str = str:gsub('%<br ?%/?%>', '\n'):gsub('%<%/?b%>', ''):gsub('%<%/?i%>', '')
+    str = str
+    :gsub('%<br ?%/?%>', '\n')
+    :gsub('%<%/?b%>', '')
+    :gsub('%<%/?i%>', '')
     return html.decode(str)
 end
 
@@ -52,8 +54,12 @@ function lyrics.search_az_lyrics(artist, track)
         {
             ['url'] = string.format(
                 'www.azlyrics.com/lyrics/%s/%s.html',
-                url.escape(artist:lower():gsub('%s', '')),
-                url.escape(track:lower():gsub('%s', ''))
+                url.escape(
+                    artist:lower():gsub('%s', '')
+                ),
+                url.escape(
+                    track:lower():gsub('%s', '')
+                )
             ),
             ['method'] = 'GET',
             ['headers'] = {
@@ -70,11 +76,13 @@ function lyrics.search_az_lyrics(artist, track)
             ['sink'] = ltn12.sink.table(response)
         }
     )
-    if res ~= 200 then
+    if res ~= 200
+    then
         return false
     end
     local str = table.concat(response):match('%<%!%-%- Usage of azlyrics%.com content by any third%-party lyrics provider is prohibited by our licensing agreement%. Sorry about that%. %-%-%>(.-)%<%/div%>'):gsub('%<br ?%/?%>', ''):gsub('%<%/?b%>', ''):gsub('%<%/?i%>', '')
-    if not str then
+    if not str
+    then
         return false
     end
     return html.decode(str)
@@ -86,8 +94,12 @@ function lyrics.search_plyrics(artist, track)
         {
             ['url'] = string.format(
                 'http://www.plyrics.com/lyrics/%s/%s.html',
-                url.escape(artist:lower():gsub('%s', '')),
-                url.escape(track:lower():gsub('%s', ''))
+                url.escape(
+                    artist:lower():gsub('%s', '')
+                ),
+                url.escape(
+                    track:lower():gsub('%s', '')
+                )
             ),
             ['method'] = 'GET',
             ['headers'] = {
@@ -104,11 +116,17 @@ function lyrics.search_plyrics(artist, track)
             ['sink'] = ltn12.sink.table(response)
         }
     )
-    if res ~= 200 then
+    if res ~= 200
+    then
         return false
     end
-    str = table.concat(response):match('%<%!%-%- start of lyrics %-%-%>(.-)%<%!%-%- end of lyrics %-%-%>'):gsub('%<br ?%/?%>', ''):gsub('%<%/?b%>', ''):gsub('%<%/?i%>', '')
-    if not str then
+    str = table.concat(response)
+    :match('%<%!%-%- start of lyrics %-%-%>(.-)%<%!%-%- end of lyrics %-%-%>')
+    :gsub('%<br ?%/?%>', '')
+    :gsub('%<%/?b%>', '')
+    :gsub('%<%/?i%>', '')
+    if not str
+    then
         return false
     end
     return html.decode(str)
@@ -119,19 +137,22 @@ function lyrics.search_lyrics(artist, track)
         artist,
         track
     )
-    if not success then
+    if not success
+    then
         success = lyrics.search_plyrics(
             artist,
             track
         )
     end
-    if not success then
+    if not success
+    then
         success = lyrics.search_az_lyrics(
             artist,
             track
         )
     end
-    if not success then
+    if not success
+    then
         return false
     end
     return success
@@ -142,7 +163,9 @@ function lyrics.send_request(input, inline, no_html)
         'https://api.musixmatch.com/ws/1.1/track.search?apikey=%s&s_track_rating=desc',
         configuration.keys.lyrics
     )
-    if input:match('^.- %- .-$') then -- Perform a more specific search if the user searches for lyrics in the format artist - song.
+    if input:match('^.- %- .-$')
+    then -- Perform a more specific search if the user searches for lyrics in the
+    -- format artist - song.
         search_url = string.format(
             '%s&q_artist=%s&q_track=%s',
             search_url,
@@ -161,11 +184,13 @@ function lyrics.send_request(input, inline, no_html)
         )
     end
     local jstr, res = https.request(search_url)
-    if res ~= 200 then
+    if res ~= 200
+    then
         return false
     end
     local jdat = json.decode(jstr)
-    if jdat.message.header.available == 0 then
+    if jdat.message.header.available == 0
+    then
         jstr, res = https.request(
             string.format(
                 'https://api.musixmatch.com/ws/1.1/track.search?apikey=%s&s_track_rating=desc&q=%s',
@@ -173,25 +198,31 @@ function lyrics.send_request(input, inline, no_html)
                 url.escape(input)
             )
         )
-        if res ~= 200 then
+        if res ~= 200
+        then
             return false
         end
         jdat = json.decode(jstr)
-        if jdat.message.header.available == 0 then
+        if jdat.message.header.available == 0
+        then
             return false
         end
     end
-    if inline then
+    if inline
+    then
         return jdat
     end
     local artist = jdat.message.body.track_list[1].track.artist_name
     local track = jdat.message.body.track_list[1].track.track_name
-    track = track:match('^(.-) %(.-%) %[.-%]$') or track:match('^(.-) %(.-%)$') or track
+    track = track:match('^(.-) %(.-%) %[.-%]$')
+    or track:match('^(.-) %(.-%)$')
+    or track
     local output = lyrics.search_lyrics(
         artist,
         track
     )
-    if not output then
+    if not output
+    then
         local jstr_lyrics, res_lyrics = https.request(
             string.format(
                 'https://api.musixmatch.com/ws/1.1/track.lyrics.get?apikey=%s&track_id=%s',
@@ -199,26 +230,40 @@ function lyrics.send_request(input, inline, no_html)
                 jdat.message.body.track_list[1].track.track_id
             )
         )
-        if res_lyrics ~= 200 then
+        if res_lyrics ~= 200
+        then
             return false
         end
         local jdat_lyrics = json.decode(jstr_lyrics)
-        if jdat_lyrics.message.header.status_code ~= 200 then
+        if jdat_lyrics.message.header.status_code ~= 200
+        then
             return false
         end
-        output = jdat_lyrics.message.body.lyrics.lyrics_body:match('^(.-)\n\n[%*]+') or jdat_lyrics.message.body.lyrics.lyrics_body
+        output = jdat_lyrics.message.body.lyrics.lyrics_body:match('^(.-)\n\n[%*]+')
+        or jdat_lyrics.message.body.lyrics.lyrics_body
     end
-    if output:len() > 4000 then -- If the lyrics are REALLY long, trim them so they'll fit in a single message (this is only a temporary solution)
+    if output:len() > 4000 then -- If the lyrics are REALLY long, trim them so they'll
+    -- fit in a single message (this is only a temporary solution)
         output = output:sub(1, 4000) .. '...'
     end
     output = output:gsub('\\', '')
     output = string.format(
         '%s%s%s %s\n🕓 %s\n\n%s',
-        not no_html and '<b>' or '',
+        not no_html
+        and '<b>'
+        or '',
         mattata.escape_html(track),
-        not no_html and '</b>' or '',
+        not no_html
+        and '</b>'
+        or '',
         mattata.escape_html(artist),
-        mattata.format_ms(math.floor(tonumber(jdat.message.body.track_list[1].track.track_length) * 1000)):gsub('^%d%d:', ''):gsub('^0', ''),
+        mattata.format_ms(
+            math.floor(
+                tonumber(jdat.message.body.track_list[1].track.track_length) * 1000
+            )
+        )
+        :gsub('^%d%d:', '')
+        :gsub('^0', ''),
         mattata.escape_html(output)
     )
     return output, artist, track
@@ -231,27 +276,31 @@ function lyrics.search_spotify(input)
             url.escape(input)
         )
     )
-    if res ~= 200 then
+    if res ~= 200
+    then
         return false
     end
     local jdat = json.decode(jstr)
-    if not jdat.tracks or jdat.tracks.total == 0 then
+    if not jdat.tracks
+    or jdat.tracks.total == 0
+    then
         return false
     end
     return 'https://open.spotify.com/track/' .. jdat.tracks.items[1].id
 end
 
-function lyrics.get_keyboard(artist, track)
+function lyrics.get_keyboard(artist, track, language)
     local spotify_url = lyrics.search_spotify(artist .. ' ' .. track)
     local keyboard = {
         ['inline_keyboard'] = {}
     }
-    if spotify_url then
+    if spotify_url
+    then
         table.insert(
             keyboard.inline_keyboard,
             {
                 {
-                    ['text'] = 'Spotify',
+                    ['text'] = language['lyrics']['1'],
                     ['url'] = spotify_url
                 }
             }
@@ -261,26 +310,33 @@ function lyrics.get_keyboard(artist, track)
     return nil
 end
 
-function lyrics:on_inline_query(inline_query, configuration)
+function lyrics:on_inline_query(inline_query, configuration, lyrics)
     local input = mattata.input(inline_query.query)
-    if not input then
+    if not input
+    then
         return
     end
     local output = lyrics.send_request(
         input,
         true
     )
-    if not output then
+    if not output
+    then
         return
     end
     local results = {}
     local count = 0
-    for n in pairs(output.message.body.track_list) do
+    for n in pairs(output.message.body.track_list)
+    do
         local artist = output.message.body.track_list[n].track.artist_name
         local track = output.message.body.track_list[n].track.track_name
         local track_id = output.message.body.track_list[n].track.track_id
         local track_length = output.message.body.track_list[n].track.track_length
-        if artist and track and track_id and track_length then
+        if artist
+        and track
+        and track_id
+        and track_length
+        then
             count = count + 1
             local id = socket.gettime() * 10000
             redis:set(
@@ -296,7 +352,12 @@ function lyrics:on_inline_query(inline_query, configuration)
             )
             table.insert(
                 results,
-                mattata.inline_result():type('article'):id(count):title(track):description(artist):input_message_content(
+                mattata.inline_result()
+                :type('article')
+                :id(count)
+                :title(track)
+                :description(artist)
+                :input_message_content(
                     mattata.input_text_message_content(
                         string.format(
                             '%s - %s',
@@ -304,10 +365,11 @@ function lyrics:on_inline_query(inline_query, configuration)
                             artist
                         )
                     )
-                ):reply_markup(
+                )
+                :reply_markup(
                     mattata.inline_keyboard():row(
                         mattata.row():callback_data_button(
-                            'Show Lyrics',
+                            language['lyrics']['2'],
                             'lyrics:' .. id
                         )
                     )
@@ -315,7 +377,9 @@ function lyrics:on_inline_query(inline_query, configuration)
             )
         end
     end
-    if not results or results == {} then
+    if not results
+    or results == {}
+    then
         return
     end
     return mattata.answer_inline_query(
@@ -324,16 +388,19 @@ function lyrics:on_inline_query(inline_query, configuration)
     )
 end
 
-function lyrics:on_callback_query(callback_query, message, configuration)
+function lyrics:on_callback_query(callback_query, message, configuration, language)
     local data = redis:get('lyrics:' .. callback_query.data)
-    if not data or not json.decode(data) then
+    if not data
+    or not json.decode(data)
+    then
         return
     end
     local output = lyrics.search_lyrics(
         json.decode(data).artist,
         json.decode(data).track
     )
-    if not output then
+    if not output
+    then
         local jstr_lyrics, res_lyrics = https.request(
             string.format(
                 'https://api.musixmatch.com/ws/1.1/track.lyrics.get?apikey=%s&track_id=%s',
@@ -341,16 +408,20 @@ function lyrics:on_callback_query(callback_query, message, configuration)
                 json.decode(data).track_id
             )
         )
-        if res_lyrics ~= 200 then
+        if res_lyrics ~= 200
+        then
             return
         end
         local jdat_lyrics = json.decode(jstr_lyrics)
-        if jdat_lyrics.message.header.status_code ~= 200 then
+        if jdat_lyrics.message.header.status_code ~= 200
+        then
             return
         end
-        output = jdat_lyrics.message.body.lyrics.lyrics_body:match('^(.-)\n\n[%*]+') or jdat_lyrics.message.body.lyrics.lyrics_body
+        output = jdat_lyrics.message.body.lyrics.lyrics_body:match('^(.-)\n\n[%*]+')
+        or jdat_lyrics.message.body.lyrics.lyrics_body
     end
-    if output:len() > 4000 then -- If the lyrics are REALLY long, trim them so they'll fit in a single message (this is only a temporary solution)
+    if output:len() > 4000 then -- If the lyrics are REALLY long, trim them so they'll
+    -- fit in a single message (this is only a temporary solution)
         output = output:sub(1, 4000) .. '...'
     end
     output = output:gsub('\\', '')
@@ -358,12 +429,21 @@ function lyrics:on_callback_query(callback_query, message, configuration)
         '<b>%s</b> %s\n🕓 %s\n\n%s',
         mattata.escape_html(json.decode(data).track),
         mattata.escape_html(json.decode(data).artist),
-        mattata.format_ms(math.floor(tonumber(json.decode(data).track_length) * 1000)):gsub('^%d%d:', ''):gsub('^0', ''),
+        mattata.format_ms(
+            math.floor(
+                tonumber(
+                    json.decode(data).track_length
+                ) * 1000
+            )
+        )
+        :gsub('^%d%d:', '')
+        :gsub('^0', ''),
         mattata.escape_html(output)
     )
     local keyboard = lyrics.get_keyboard(
         json.decode(data).artist,
-        json.decode(data).track
+        json.decode(data).track,
+        language
     )
     redis:del('lyrics:' .. callback_query.data)
     return mattata.edit_message_text(
@@ -377,14 +457,16 @@ function lyrics:on_callback_query(callback_query, message, configuration)
     )
 end
 
-function lyrics:on_message(message, configuration)
+function lyrics:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         local success = mattata.send_force_reply(
             message,
-            'Please enter a search query (that is, what song/artist/lyrics you want me to get lyrics for, i.e. "Green Day Basket Case" will return the lyrics for the song Basket Case by Green Day).'
+            language['lyrics']['3']
         )
-        if success then
+        if success
+        then
             redis:set(
                 string.format(
                     'action:%s:%s',
@@ -396,20 +478,19 @@ function lyrics:on_message(message, configuration)
         end
         return
     end
-    mattata.send_chat_action(
-        message.chat.id,
-        'typing'
-    )
+    mattata.send_chat_action(message.chat.id)
     local output, artist, track = lyrics.send_request(input)
-    if not output then
+    if not output
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.results
+            language['errors']['results']
         )
     end
     local keyboard = lyrics.get_keyboard(
         artist,
-        track
+        track,
+        language
     )
     return mattata.send_message(
         message.chat.id,

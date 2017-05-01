@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -18,7 +18,7 @@ function bugreport:init(configuration)
     bugreport.help = '/bugreport <text> - Reports a bug to the configured developer. Aliases: /bug, /br.'
 end
 
-function bugreport:on_message(message, configuration)
+function bugreport:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if not input
     then
@@ -47,12 +47,15 @@ function bugreport:on_message(message, configuration)
     then
         return mattata.send_reply(
             message,
-            'Success! Your bug report has been sent. The ID of this report is #' .. message.date .. '.'
+            string.format(
+                language['bugreport']['1'],
+                message.date
+            )
         )
     end
     return mattata.send_reply(
         message,
-        'There was a problem whilst reporting that bug! Ha, the irony!'
+        language['bugreport']['2']
     )
 end
 

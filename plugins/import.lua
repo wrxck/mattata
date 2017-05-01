@@ -1,0 +1,95 @@
+--[[
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local import = {}
+local mattata = require('mattata')
+local redis = require('mattata-redis')
+
+function import:init()
+    import.commands = mattata.commands(self.info.username):command('import').table
+    import.help = '/import - Import administrative settings & toggled plugins from another mattata-administrated group.'
+end
+
+function import:on_message(message, configuration, language)
+    if message.chat.type ~= 'supergroup'
+    then
+        return mattata.send_reply(
+            message,
+            language['errors']['supergroup']
+        )
+    elseif not mattata.is_group_admin(
+        message.chat.id,
+        message.from.id
+    )
+    then
+        return mattata.send_reply(
+            message,
+            language['errors']['admin']
+        )
+    end
+    local input = mattata.input(message.text)
+    if not input
+    then
+        return mattata.send_reply(
+            message,
+            import.help
+        )
+    end
+    input = mattata.get_chat(input)
+    if not input
+    then
+        return mattata.send_reply(
+            message,
+            language['import']['1']
+        )
+    elseif input.result.type ~= 'supergroup'
+    then
+        return mattata.send_reply(
+            message,
+            language['import']['2']
+        )
+    end
+    local settings = redis:hgetall('chat:' .. input.result.id .. ':settings')
+    or {}
+    local current = redis:hgetall('chat:' .. message.chat.id .. ':settings')
+    for k, v in pairs(current)
+    do
+        if k ~= 'use administration'
+        then
+            redis:hdel(
+                'chat:' .. message.chat.id .. ':settings',
+                k
+            )
+        end
+    end
+    for k, v in pairs(settings)
+    do
+        redis:hset(
+            'chat:' .. message.chat.id .. ':settings',
+            k,
+            v
+        )
+    end
+    local plugins = redis:hgetall('chat:' .. input.result.id .. ':disabled_plugins')
+    or {}
+    for k, v in pairs(plugins)
+    do
+        redis:hset(
+            'chat:' .. message.chat.id .. ':disabled_plugins',
+            k,
+            v
+        )
+    end
+    return mattata.send_message(
+        message.chat.id,
+        string.format(
+            language['import']['3'],
+            input.result.title,
+            message.chat.title
+        )
+    )
+end
+
+return import

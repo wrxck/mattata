@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v20.3
+      v21.0
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -67,7 +67,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v20.3'
+    self.version = 'v21.0'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -357,12 +357,46 @@ function mattata:on_message(message, configuration)
     then
         mattata.leave_chat(message.chat.id) -- If it's blacklisted, leave the chat.
         return false
+    elseif message.from.username
+    and redis:hget(
+        'afk:' .. message.chat.id .. ':' .. message.from.id,
+        'since'
+    )
+    and not mattata.is_plugin_disabled(
+        'afk',
+        message
+    )
+    and not message.text:match('^[/!#]afk')
+    and not message.text:lower():match('^i?\'?m? ?back.?$')
+    and not message.text:lower():match('^i?\'?l?l? ?brb.?$')
+    then
+        local since = os.time() - tonumber(
+            redis:hget(
+                'afk:' .. message.chat.id .. ':' .. message.from.id,
+                'since'
+            )
+        )
+        redis:hdel(
+            'afk:' .. message.chat.id .. ':' .. message.from.id,
+            'since'
+        )
+        redis:hdel(
+            'afk:' .. message.chat.id .. ':' .. message.from.id,
+            'note'
+        )
+        mattata.send_message(
+            message.chat.id,
+            message.from.first_name .. ' has returned, after being AFK for ' .. mattata.format_time(since) .. '.'
+        )
     end
     message.text = message.text
     or message.caption
     or '' -- Ensure there is always a value assigned to message.text.
     message.text = message.text:match('^[/!#]start (.*)$')
-    or message.text -- Allow deep-linking through the /start command.
+    or message.text -- Allow deep-linking through the /start command
+    local language = require(
+        'languages.' .. mattata.get_user_language(message.from.id)
+    )
     self.info.nickname = redis:get('chat:' .. message.chat.id .. ':name')
     or self.info.name -- If the chat doesn't have a custom nickname for the bot to respond by, we'll
     -- stick with the default one that was set through @BotFather.
@@ -544,8 +578,14 @@ function mattata:on_message(message, configuration)
         local administration = require('plugins.administration')
         administration.on_new_chat_member(
             self,
-            message
+            message,
+            language
         )
+    end
+    if message.text:lower():match('^i?\'?m? ?back.?$')
+    or message.text:lower():match('^i?\'?l?l? ?brb.?$')
+    then
+        message.text = '/afk'
     end
     if message.chat.type == 'supergroup'
     and not message.chat.title:match('mattata')
@@ -584,7 +624,8 @@ function mattata:on_message(message, configuration)
         local administration = require('plugins.administration')
         administration.process_message(
             self,
-            message
+            message,
+            language
         )
     end
     if mattata.is_global_admin(message.from.id)
@@ -769,7 +810,8 @@ function mattata:on_message(message, configuration)
                         function()
                             plugin.process_message(
                                 message,
-                                configuration
+                                configuration,
+                                language
                             )
                         end
                     )
@@ -785,7 +827,8 @@ function mattata:on_message(message, configuration)
                         return plugin.on_message(
                             self,
                             message,
-                            configuration
+                            configuration,
+                            language
                         )
                     end
                 )
@@ -830,7 +873,8 @@ function mattata:on_message(message, configuration)
             return captionbotai.on_message(
                 self,
                 message,
-                configuration
+                configuration,
+                language
             )
         end
     end
@@ -853,7 +897,8 @@ function mattata:on_message(message, configuration)
             return statistics.on_message(
                 self,
                 message,
-                configuration
+                configuration,
+                language
             )
         end
     end
@@ -872,11 +917,7 @@ function mattata:on_message(message, configuration)
             ),
             'html'
         )
-    elseif not mattata.is_plugin_disabled(
-        'ai',
-        message
-    )
-    and not message.text:match('^Cancel$')
+    elseif not message.text:match('^Cancel$')
     and not message.text:match('^/?s/.-/.-/?$')
     and not message.photo
     and not message.text:match('^/')
@@ -885,34 +926,68 @@ function mattata:on_message(message, configuration)
         message.text:lower():gsub('%W', '') ~= ''
     )
     then
-        if (
-            message.text:lower():match('^' .. self.info.nickname:lower() .. '.? .-$')
-            or message.text:match('^.-%,? ' .. self.info.nickname:lower() .. '%??%.?%!?$')
-            or message.chat.type == 'private'
-            or (
-                message.reply
-                and message.reply.from.id == self.info.id
-            )
+        if mattata.is_plugin_disabled(
+            'ai',
+            message
         )
-        and message.text:lower() ~= self.info.nickname:lower()
         then
-            message.text = message.text:lower():gsub(self.info.nickname:lower(), '')
-            local ai = require('plugins.ai')
-            return ai.on_message(
-                self,
-                message,
-                configuration
+            if (
+                message.text:lower():match('^' .. self.info.nickname:lower() .. '.? .-$')
+                or message.text:match('^.-%,? ' .. self.info.nickname:lower() .. '%??%.?%!?$')
+                or message.chat.type == 'private'
+                or (
+                    message.reply
+                    and message.reply.from.id == self.info.id
+                )
             )
-        elseif message.text:lower() == self.info.nickname:lower()
-        then
-            mattata.send_chat_action(message.chat.id)
-            return mattata.send_reply(
-                message,
-                'Yes?'
+            and message.text:lower() ~= self.info.nickname:lower()
+            and not redis:get('ai_notify:' .. message.chat.id .. ':' .. message.from.id)
+            then
+                redis:set(
+                    'ai_notify:' .. message.chat.id .. ':' .. message.from.id,
+                    true
+                ) -- Mark the user as notified.
+                return mattata.send_reply(
+                    message,
+                    'Sorry pal, but my AI is switched off in this chat. This is the only time I\'m going to remind you of this, so be sure to remember (it\'ll save you from looking crazy next time!) If you believe this is a mistake, you should contact a group admin as soon as possible!'
+                )
+            end
+        else
+            if (
+                message.text:lower():match('^' .. self.info.nickname:lower() .. '.? .-$')
+                or message.text:match('^.-%,? ' .. self.info.nickname:lower() .. '%??%.?%!?$')
+                or message.chat.type == 'private'
+                or (
+                    message.reply
+                    and message.reply.from.id == self.info.id
+                )
             )
+            and message.text:lower() ~= self.info.nickname:lower()
+            then
+                message.text = message.text:lower():gsub(self.info.nickname:lower(), '')
+                local ai = require('plugins.ai')
+                return ai.on_message(
+                    self,
+                    message,
+                    configuration,
+                    language
+                )
+            elseif message.text:lower() == self.info.nickname:lower()
+            then
+                mattata.send_chat_action(message.chat.id)
+                return mattata.send_reply(
+                    message,
+                    'Yes?'
+                )
+            end
         end
     end
     if configuration.respond_to_misc
+    and not mattata.is_plugin_disabled(
+        'ai',
+        message
+    ) -- Ensure the AI functionality hasn't been turned off, since the user probably
+    -- won't want the miscellaneous responses if it has been.
     then
         mattata.on_message_misc(
             self,
@@ -920,10 +995,14 @@ function mattata:on_message(message, configuration)
             configuration
         )
     end
-    if ( -- If a user executes a command and it's not recognised, provide a response - explaining what's happened and how it can be resolved.
-        message.text:match('^/') and message.chat.type == 'private'
-    ) or (
-        message.chat.type ~= 'private' and message.text:match('^/%a+@' .. self.info.username)
+    if ( -- If a user executes a command and it's not recognised, provide a response
+    -- explaining what's happened and how it can be resolved.
+        message.text:match('^/')
+        and message.chat.type == 'private'
+    )
+    or (
+        message.chat.type ~= 'private'
+        and message.text:match('^/%a+@' .. self.info.username)
     )
     then
         return mattata.send_reply(
@@ -946,13 +1025,11 @@ function mattata:on_message_misc(message, configuration)
         },
         ['^y?o?u a?re? a ?p?r?o?p?e?r? fucc?k?boy?i?%??!?%.?$'] = message.from.name .. ', I am writing to you on this fateful day to inform you of a tragic reality. While it is unfortunate that I must be the one to let you know, it is for the greater good that this knowledge is made available to you as soon as possible. m8. u r a proper fukboy.',
         ['^top%s?kek.?$'] = 'Toppest of keks!',
-        ['content cop'] = 'SAY THE "N" WORD ' .. message.from.name .. '!',
-        ['tana mong[eo][ao][us]e?'] = 'SAY THE "N" WORD ' .. message.from.name .. '!',
+        ['content cop'] = 'SAY THE "N" WORD ' .. message.from.name:upper() .. '!',
+        ['tana mong[eo][ao][us]e?'] = 'SAY THE "N" WORD ' .. message.from.name:upper() .. '!',
         ['good night'] = 'Good night, ' .. message.from.name .. '. Sleep well! ' .. utf8.char(128516),
         ['good morning?'] = 'Good morning, ' .. message.from.name .. '! Did you sleep well? ' .. utf8.char(9786),
         ['^[ia]\'?m back.?$'] = 'Welcome back, ' .. message.from.name .. '!',
-        ['^back.?'] = 'Welcome back, ' .. message.from.name .. '!',
-        ['^brb.?$'] = 'Please don\'t be too long, ' .. message.from.name .. '!',
         ['winrar'] = 'Please note that WinRAR is not free software. After a 40 day trial period you must either buy a license or remove it from your computer.',
         [utf8.char(127814)] = utf8.char(127825),
         [utf8.char(127825)] = utf8.char(127814),
@@ -981,7 +1058,8 @@ function mattata:on_message_misc(message, configuration)
             math.random()
             math.random()
             math.random()
-            -- Seed and pop some random numbers to increase the chances of the results being actually random.
+            -- Seed and "pop" some random numbers to increase the chances of the results
+            -- ACTUALLY being random.
             response = response[math.random(#response)]
         end
         if message.text:lower():match(trigger)
@@ -1192,6 +1270,9 @@ function mattata:on_inline_query(inline_query, configuration)
         inline_query = nil
         return false
     end
+    local language = require(
+        'languages.' .. mattata.get_user_language(inline_query.from.id)
+    )
     inline_query.offset = inline_query.offset
     and tonumber(inline_query.offset)
     or 0
@@ -1215,7 +1296,8 @@ function mattata:on_inline_query(inline_query, configuration)
                         return plugin.on_inline_query(
                             self,
                             inline_query,
-                            configuration
+                            configuration,
+                            language
                         )
                     end
                 )
@@ -1286,6 +1368,9 @@ function mattata:on_inline_query(inline_query, configuration)
 end
 
 function mattata:on_callback_query(callback_query, message, configuration)
+    local language = require(
+        'languages.' .. mattata.get_user_language(callback_query.from.id)
+    )
     if redis:get('global_blacklist:' .. callback_query.from.id)
     then
         callback_query = nil
@@ -1326,7 +1411,8 @@ function mattata:on_callback_query(callback_query, message, configuration)
                         callback_query,
                         callback_query.message
                         or false,
-                        configuration
+                        configuration,
+                        language
                     )
                 end
             )
@@ -2063,6 +2149,71 @@ function mattata.clear_broadcast_memory()
         then
             redis:del(v)
         end
+    end
+end
+
+function mattata.get_user_language(user_id)
+    return redis:hget(
+        'user:' .. user_id .. ':info',
+        'language'
+    )
+    or 'en_gb'
+end
+
+function mattata.format_time(seconds)
+    if not seconds -- If a nil or boolean value was given.
+    or tonumber(seconds) == nil -- If the given string as a numerical value is nil.
+    then
+        return false
+    end
+    local output
+    seconds = tonumber(seconds) -- Make sure we're dealing with a numerical value.
+    local minutes = math.floor(seconds / 60)
+    if minutes == 0
+    then
+        return seconds ~= 1
+        and seconds .. ' seconds'
+        or seconds .. ' second'
+    elseif minutes < 60
+    then
+        return minutes ~= 1
+        and minutes .. ' minutes'
+        or minutes .. ' minute'
+    end
+    local hours = math.floor(seconds / 3600)
+    if hours == 0
+    then
+        return minutes ~= 1
+        and minutes .. ' minutes'
+        or minutes .. ' minute'
+    elseif hours < 24
+    then
+        return hours ~= 1
+        and hours .. ' hours'
+        or hours .. ' hour'
+    end
+    local days = math.floor(seconds / 86400)
+    if days == 0
+    then
+        return hours ~= 1
+        and hours .. ' hours'
+        or hours .. ' hour'
+    elseif days < 7
+    then
+        return days ~= 1
+        and days .. ' days'
+        or days .. ' day'
+    end
+    local weeks = math.floor(seconds / 604800)
+    if weeks == 0
+    then
+        return days ~= 1
+        and days .. ' days'
+        or days .. ' day'
+    else
+        return weeks ~= 1
+        and weeks .. ' weeks'
+        or weeks .. ' week'
     end
 end
 

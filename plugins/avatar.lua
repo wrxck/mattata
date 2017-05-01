@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -13,7 +13,7 @@ function avatar:init()
     avatar.help = '/avatar <user> [offset] - Sends the profile photos of the given user, of which can be specified by username or numerical ID. If an offset is given after the username (which must be a numerical value), then the nth profile photo is sent (if available).'
 end
 
-function avatar:on_inline_query(inline_query, configuration)
+function avatar:on_inline_query(inline_query, configuration, language)
     local input = mattata.input(inline_query.query)
     or inline_query.from.id
     local selected_photo = false
@@ -41,8 +41,8 @@ function avatar:on_inline_query(inline_query, configuration)
     then
         return mattata.send_inline_article(
             inline_query.id,
-            'An error occured!',
-            'I couldn\'t retrieve the profile photos for that user, please ensure you specified a valid username or numerical ID.'
+            language['errors']['generic'],
+            language['avatar']['1']
         )
     elseif success.result.total_count == 0
     or redis:get('user:' .. input .. ':opt_out')
@@ -90,7 +90,7 @@ function avatar:on_inline_query(inline_query, configuration)
     )
 end
 
-function avatar:on_message(message)
+function avatar:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if not input
     then
@@ -144,21 +144,21 @@ function avatar:on_message(message)
     then
         return mattata.send_reply(
             message,
-            'I couldn\'t retrieve the profile photos for that user, please ensure you specified a valid username or numerical ID.'
+            language['avatar']['1']
         )
     elseif success.result.total_count == 0
     or redis:get('user:' .. input .. ':opt_out')
     then
         return mattata.send_reply(
             message,
-            'That user doesn\'t have any profile photos.'
+            language['avatar']['2']
         )
     elseif tonumber(selected_photo) < 1
     or tonumber(selected_photo) > success.result.total_count
     then
         return mattata.send_reply(
             message,
-            'That user doesn\'t have that many profile photos!'
+            language['avatar']['3']
         )
     end
     local highest_res = success.result.photos[selected_photo][#success.result.photos[selected_photo]].file_id

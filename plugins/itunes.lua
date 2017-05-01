@@ -1,10 +1,9 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local itunes = {}
-
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
@@ -12,21 +11,18 @@ local json = require('dkjson')
 local redis = require('mattata-redis')
 
 function itunes:init()
-    itunes.commands = mattata.commands(
-        self.info.username
-    )
-    :command('itunes').table
+    itunes.commands = mattata.commands(self.info.username):command('itunes').table
     itunes.help = '/itunes <query> - Searches iTunes for the given search query and returns the most relevant result.'
 end
 
-function itunes.get_output(jdat)
+function itunes.get_output(jdat, language)
     local output = {}
     if jdat.results[1].trackViewUrl
     and jdat.results[1].trackName
     then
         table.insert(
             output,
-            '<b>Name:</b> <a href=\'' .. jdat.results[1].trackViewUrl .. '\'>' .. mattata.escape_html(jdat.results[1].trackName) .. '</a>'
+            '<b>' .. language['itunes']['1'] .. '</b> <a href=\'' .. jdat.results[1].trackViewUrl .. '\'>' .. mattata.escape_html(jdat.results[1].trackName) .. '</a>'
         )
     end
     if jdat.results[1].artistViewUrl
@@ -34,7 +30,7 @@ function itunes.get_output(jdat)
     then
         table.insert(
             output,
-            '<b>Artist:</b> <a href="' .. jdat.results[1].artistViewUrl .. '">' .. mattata.escape_html(jdat.results[1].artistName) .. '</a>'
+            '<b>' .. language['itunes']['2'] .. '</b> <a href="' .. jdat.results[1].artistViewUrl .. '">' .. mattata.escape_html(jdat.results[1].artistName) .. '</a>'
         )
     end
     if jdat.results[1].collectionViewUrl
@@ -42,7 +38,7 @@ function itunes.get_output(jdat)
     then
         table.insert(
             output,
-            '<b>Album:</b> <a href="' .. jdat.results[1].collectionViewUrl .. '">' .. mattata.escape_html(jdat.results[1].collectionName) .. '</a>'
+            '<b>' .. language['itunes']['3'] .. '</b> <a href="' .. jdat.results[1].collectionViewUrl .. '">' .. mattata.escape_html(jdat.results[1].collectionName) .. '</a>'
         )
     end
     if jdat.results[1].trackNumber
@@ -50,11 +46,7 @@ function itunes.get_output(jdat)
     then
         table.insert(
             output,
-            string.format(
-                '<b>Track:</b> %s/%s',
-                jdat.results[1].trackNumber,
-                jdat.results[1].trackCount
-            )
+            '<b>' .. language['itunes']['4'] .. '</b> ' .. jdat.results[1].trackNumber .. '/' .. jdat.results[1].trackCount
         )
     end
     if jdat.results[1].discNumber
@@ -62,11 +54,7 @@ function itunes.get_output(jdat)
     then
         table.insert(
             output,
-            string.format(
-                '<b>Disc:</b> %s/%s',
-                jdat.results[1].discNumber,
-                jdat.results[1].discCount
-            )
+            '<b>' .. language['itunes']['5'] .. '</b> ' .. jdat.results[1].discNumber .. '/' .. jdat.results[1].discCount
         )
     end
     return table.concat(
@@ -118,12 +106,12 @@ function itunes:on_inline_query(inline_query)
     )
 end
 
-function itunes:on_callback_query(callback_query, message, configuration)
+function itunes:on_callback_query(callback_query, message, configuration, language)
     if not message.reply
     then
         return mattata.answer_callback_query(
             callback_query.id,
-            'The original query could not be found, you\'ve probably deleted the original message.',
+            language['itunes']['6'],
             true
         )
     end
@@ -136,11 +124,14 @@ function itunes:on_callback_query(callback_query, message, configuration)
             return false
         end
         local jdat = json.decode(jstr)
-        if not jdat.results[1] then
+        if not jdat.results[1]
+        then
             return false
         end
-        if jdat.results[1].artworkUrl100 then
-            local artwork = jdat.results[1].artworkUrl100:gsub('%/100x100bb%.jpg', '/10000x10000bb.jpg') -- Get the highest quality artwork available.
+        if jdat.results[1].artworkUrl100
+        then
+            local artwork = jdat.results[1].artworkUrl100:gsub('%/100x100bb%.jpg', '/10000x10000bb.jpg')
+            -- Get the highest quality artwork available.
             mattata.send_photo(
                 message.chat.id,
                 artwork
@@ -148,20 +139,22 @@ function itunes:on_callback_query(callback_query, message, configuration)
             return mattata.edit_message_text(
                 message.chat.id,
                 message.message_id,
-                'The artwork can be found below:'
+                language['itunes']['7']
             )
         end
     end
 end
 
-function itunes:on_message(message, configuration)
+function itunes:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         local success = mattata.send_force_reply(
             message,
-            'Please enter a search query (that is, what you want me to search iTunes for, i.e. "Green Day American Idiot" will return information about the first result for American Idiot by Green Day).'
+            language['itunes']['8']
         )
-        if success then
+        if success
+        then
             redis:set(
                 string.format(
                     'action:%s:%s',
@@ -173,34 +166,36 @@ function itunes:on_message(message, configuration)
         end
         return
     end
-    mattata.send_chat_action(
-        message.chat.id,
-        'typing'
-    )
+    mattata.send_chat_action(message.chat.id)
     local jstr, res = https.request('https://itunes.apple.com/search?term=' .. url.escape(input))
-    if res ~= 200 then
+    if res ~= 200
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     local jdat = json.decode(jstr)
-    if not jdat.results[1] then
+    if not jdat.results[1]
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.results
+            language['errors']['results']
         )
     end
     return mattata.send_message(
         message.chat.id,
-        itunes.get_output(jdat),
+        itunes.get_output(
+            jdat,
+            language
+        ),
         'html',
         true,
         false,
         message.message_id,
         mattata.inline_keyboard():row(
             mattata.row():callback_data_button(
-                'Get Album Artwork',
+                language['itunes']['9'],
                 'itunes:artwork'
             )
         )

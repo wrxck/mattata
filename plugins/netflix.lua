@@ -1,30 +1,30 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local netflix = {}
-
 local mattata = require('mattata')
 local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 
 function netflix:init()
-    netflix.commands = mattata.commands(
-        self.info.username
-    ):command('netflix')
-     :command('nf').table
-    netflix.help = [[/netflix <query> - Searches Netflix for the given search query and returns the most relevant result. Alias: /nf.]]
+    netflix.commands = mattata.commands(self.info.username)
+    :command('netflix')
+    :command('nf').table
+    netflix.help = '/netflix <query> - Searches Netflix for the given search query and returns the most relevant result. Alias: /nf.'
 end
 
-function netflix.send_request(input)
+function netflix.send_request(input, language)
     local jstr, res = http.request('http://netflixroulette.net/api/api.php?title=' .. url.escape(input))
-    if res ~= 200 then
+    if res ~= 200
+    then
         return false
     end
     local jdat = json.decode(jstr)
-    if jdat.errorcode then
+    if jdat.errorcode
+    then
         return false
     end
     local output = {}
@@ -42,7 +42,7 @@ function netflix.send_request(input)
     )
     table.insert(
         output,
-        '\n<a href="https://www.netflix.com/title/' .. jdat.show_id .. '">Read more.</a>'
+        '\n<a href="https://www.netflix.com/title/' .. jdat.show_id .. '">' .. language['netflix']['1'] .. '</a>'
     )
     return table.concat(
         output,
@@ -50,19 +50,24 @@ function netflix.send_request(input)
     )
 end
 
-function netflix:on_message(message, configuration)
+function netflix:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             netflix.help
         )
     end
-    local output = netflix.send_request(input)
-    if not output then
+    local output = netflix.send_request(
+        input,
+        language
+    )
+    if not output
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.results
+            language['errors']['results']
         )
     end
     return mattata.send_message(

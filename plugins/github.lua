@@ -1,25 +1,24 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local github = {}
-
 local mattata = require('mattata')
 local https = require('ssl.https')
 local json = require('dkjson')
 
 function github:init()
-    github.commands = mattata.commands(
-        self.info.username
-    ):command('github')
-     :command('gh').table
+    github.commands = mattata.commands(self.info.username)
+    :command('github')
+    :command('gh').table
     github.help = '/github <username> <repository> - Returns information about the specified GitHub repository. Alias: /gh.'
 end
 
-function github:on_message(message, configuration)
+function github:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             github.help
@@ -27,36 +26,44 @@ function github:on_message(message, configuration)
     end
     input = input:gsub('%s', '/')
     local jstr, res = https.request('https://api.github.com/repos/' .. input)
-    if res ~= 200 then
+    if res ~= 200
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     local jdat = json.decode(jstr)
-    if not jdat.id then
+    if not jdat.id
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.results
+            language['errors']['results']
         )
     end
     local title = '<a href="' .. jdat.html_url .. '">' .. mattata.escape_html(jdat.full_name) .. '</a>'
-    if jdat.language then
+    if jdat.language
+    then
         title = title .. '<b>|</b> ' .. jdat.language
     end
-    local description = jdat.description and '\n<pre>' .. mattata.escape_html(jdat.description) .. '</pre>\n' or '\n'
+    local description = jdat.description
+    and '\n<pre>' .. mattata.escape_html(jdat.description) .. '</pre>\n'
+    or '\n'
     local forks, stargazers, subscribers
-    if jdat.forks_count == 1 then
+    if jdat.forks_count == 1
+    then
         forks = ' fork'
     else
         forks = ' forks'
     end
-    if jdat.stargazers_count == 1 then
+    if jdat.stargazers_count == 1
+    then
         stargazers = ' star'
     else
         stargazers = ' stars'
     end
-    if jdat.subscribers_count == 1 then
+    if jdat.subscribers_count == 1
+    then
         subscribers = ' watcher'
     else
         subscribers = ' watchers'

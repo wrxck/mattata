@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -65,7 +65,7 @@ function appstore.get_app_info(jdat)
     )
 end
 
-function appstore:on_message(message, configuration)
+function appstore:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if not input
     then
@@ -79,7 +79,7 @@ function appstore:on_message(message, configuration)
     then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     local jdat = json.decode(jstr)
@@ -87,7 +87,7 @@ function appstore:on_message(message, configuration)
     then
         return mattata.send_reply(
             message,
-            configuration.errors.results
+            language['errors']['results']
         )
     end
     return mattata.send_message(
@@ -97,11 +97,9 @@ function appstore:on_message(message, configuration)
         true,
         false,
         nil,
-        mattata.inline_keyboard()
-        :row(
-            mattata.row()
-            :url_button(
-                'View on iTunes',
+        mattata.inline_keyboard():row(
+            mattata.row():url_button(
+                language['appstore']['1'],
                 jdat.results[1].trackViewUrl
             )
         )

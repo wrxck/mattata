@@ -1,6 +1,6 @@
 --[[
     Based on a plugin by topkecleon.
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -17,31 +17,37 @@ function xkcd:init()
     ):command('xkcd').table
     xkcd.help = [[/xkcd [query] - Returns the latest xkcd strip and its alt text. If a number is given, returns that number strip. If 'r' is passed in place of a number, returns a random strip. Any other text passed as the command argument will search Google for a relevant strip and, if applicable, return it.]]
     local jstr = https.request('https://xkcd.com/info.0.json')
-    if jstr then
+    if jstr
+    then
         local jdat = json.decode(jstr)
-        if jdat then
+        if jdat
+        then
             xkcd.latest = jdat.num
         end
     end
     xkcd.latest = xkcd.latest
 end
 
-function xkcd:on_message(message, configuration)
+function xkcd:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         input = xkcd.latest
     end
-    if input == 'r' then
+    if input == 'r'
+    then
         input = math.random(xkcd.latest)
-    elseif tonumber(input) ~= nil then
+    elseif tonumber(input) ~= nil
+    then
         input = tonumber(input)
     else
         input = 'inurl:xkcd.com ' .. input
         local search, res = https.request('https://relevantxkcd.appspot.com/process?action=xkcd&query=' .. url.escape(input))
-        if res ~= 200 then
+        if res ~= 200
+        then
             return mattata.send_reply(
                 message,
-                configuration.errors.results
+                language['errors']['results']
             )
         end
         input = tonumber(
@@ -53,16 +59,18 @@ function xkcd:on_message(message, configuration)
         tostring(input)
     )
     local jstr, res = https.request(url)
-    if res == 404 then
+    if res == 404
+    then
         return mattata.send_message(
             message.chat.id,
             '[<a href="https://xkcd.com/404">404</a>] <b>404 Not Found</b>, 1/4/2008',
             'html'
         )
-    elseif res ~= 200 then
+    elseif res ~= 200
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     local jdat = json.decode(jstr)

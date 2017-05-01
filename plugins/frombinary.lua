@@ -1,18 +1,16 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local frombinary = {}
-
 local mattata = require('mattata')
 local redis = require('mattata-redis')
 
 function frombinary:init()
-    frombinary.commands = mattata.commands(
-        self.info.username
-    ):command('frombinary')
-     :command('frombin').table
+    frombinary.commands = mattata.commands(self.info.username)
+    :command('frombinary')
+    :command('frombin').table
     frombinary.help = '/frombinary <binary> - Converts the given binary to its string value. Alias: /frombin.'
 end
 
@@ -24,7 +22,8 @@ function frombinary.split(bin, delimiter)
         delimiter,
         pos
     )
-    while from do
+    while from
+    do
         table.insert(
             output,
             string.sub(
@@ -57,9 +56,11 @@ function frombinary.bin_to_str(bin)
             bin,
             '\n'
         )
-    ) do
+    )
+    do
         q = 1
-        for i = 1, #v / 8 do
+        for i = 1, #v / 8
+        do
             output = output .. string.char(
                 tonumber(
                     string.sub(
@@ -73,17 +74,21 @@ function frombinary.bin_to_str(bin)
             q = q + 8
         end
     end
-    return output ~= '' and output or 'Malformed binary!'
+    return output ~= ''
+    and output
+    or false
 end
 
-function frombinary:on_message(message, configuration)
+function frombinary:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         local success = mattata.send_force_reply(
             message,
-            'Please enter the binary value you would like to convert to a string.'
+            language['frombinary']['1']
         )
-        if success then
+        if success
+        then
             redis:set(
                 string.format(
                     'action:%s:%s',
@@ -100,8 +105,11 @@ function frombinary:on_message(message, configuration)
         string.format(
             '<pre>%s</pre>',
             frombinary.bin_to_str(
-                input:gsub('\n', ''):gsub('%s', '')
+                input
+                :gsub('\n', '')
+                :gsub('%s', '')
             )
+            or language['frombinary']['2']
         ),
         'html'
     )

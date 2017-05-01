@@ -1,23 +1,21 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local lmgtfy = {}
-
 local mattata = require('mattata')
 local url = require('socket.url')
 
 function lmgtfy:init()
-    lmgtfy.commands = mattata.commands(
-        self.info.username
-    ):command('lmgtfy').table
-    lmgtfy.help = [[/lmgtfy <query> - Sends a LMGTFY link for the given search query.]]
+    lmgtfy.commands = mattata.commands(self.info.username):command('lmgtfy').table
+    lmgtfy.help = '/lmgtfy <query> - Sends a LMGTFY link for the given search query.'
 end
 
-function lmgtfy:on_message(message)
+function lmgtfy:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             lmgtfy.help
@@ -25,7 +23,7 @@ function lmgtfy:on_message(message)
     end
     return mattata.send_message(
         message.chat.id,
-        '<i>Let me Google that for you!</i>\n' .. '<a href="https://lmgtfy.com/?q=' .. url.escape(input) .. '">' .. mattata.escape_html(input) .. '</a>',
+        '<i>' .. language['lmgtfy']['1'] .. '</i>\n' .. '<a href="https://lmgtfy.com/?q=' .. url.escape(input) .. '">' .. mattata.escape_html(input) .. '</a>',
         'html'
     )
 end

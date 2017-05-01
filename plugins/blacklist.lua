@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -12,12 +12,12 @@ function blacklist:init()
     blacklist.help = '/blacklist [user] - Blacklists a user from using the bot in the current chat. This command can only be used by moderators and administrators of a supergroup.'
 end
 
-function blacklist:on_message(message, configuration)
+function blacklist:on_message(message, configuration, language)
     if message.chat.type ~= 'supergroup'
     then
         return mattata.send_reply(
             message,
-            configuration.errors.supergroup
+            language['errors']['supergroup']
         )
     elseif not mattata.is_group_admin(
         message.chat.id,
@@ -26,17 +26,24 @@ function blacklist:on_message(message, configuration)
     then
         return mattata.send_reply(
             message,
-            configuration.errors.admin
+            language['errors']['admin']
         )
     end
     local reason = false
-    local input = message.reply and (message.reply.from.username or tostring(message.reply.from.id)) or mattata.input(message.text)
-    if not input then
+    local input = message.reply
+    and (
+        message.reply.from.username
+        or tostring(message.reply.from.id)
+    )
+    or mattata.input(message.text)
+    if not input
+    then
         local success = mattata.send_force_reply(
             message,
-            'Which user would you like me to blacklist? You can specify this user by their @username or numerical ID.'
+            language['blacklist']['1']
         )
-        if success then
+        if success
+        then
             redis:set(
                 string.format(
                     'action:%s:%s',
@@ -47,25 +54,32 @@ function blacklist:on_message(message, configuration)
             )
         end
         return
-    elseif not message.reply then
+    elseif not message.reply
+    then
         if input:match('^.- .-$')
         then
             reason = input:match(' (.-)$')
             input = input:match('^(.-) ')
         end
-    elseif mattata.input(message.text) then
+    elseif mattata.input(message.text)
+    then
         reason = mattata.input(message.text)
     end
-    if tonumber(input) == nil and not input:match('^%@') then
+    if tonumber(input) == nil
+    and not input:match('^%@')
+    then
         input = '@' .. input
     end
-    local user = mattata.get_user(input) or mattata.get_chat(input) -- Resolve the username/ID to a user object.
-    if not user then
+    local user = mattata.get_user(input)
+    or mattata.get_chat(input) -- Resolve the username/ID to a user object.
+    if not user
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.unknown
+            language['errors']['unknown']
         )
-    elseif user.result.id == self.info.id then
+    elseif user.result.id == self.info.id
+    then
         return
     end
     user = user.result
@@ -73,26 +87,31 @@ function blacklist:on_message(message, configuration)
         message.chat.id,
         user.id
     )
-    if not status then
+    if not status
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.generic
+            language['errors']['generic']
         )
     elseif mattata.is_group_admin(
         message.chat.id,
         user.id
-    ) or status.result.status == 'creator' or status.result.status == 'administrator' then -- We won't try and blacklist moderators and administrators.
+    )
+    or status.result.status == 'creator'
+    or status.result.status == 'administrator'
+    then -- We won't try and blacklist moderators and administrators.
         return mattata.send_reply(
             message,
-            'I cannot blacklist this user because they are a moderator or an administrator in this chat.'
+            language['blacklist']['2']
         )
-    elseif status.result.status == 'left' or status.result.status == 'kicked' then -- Check if the user is in the group or not.
+    elseif status.result.status == 'left'
+    or status.result.status == 'kicked'
+    then -- Check if the user is in the group or not.
         return mattata.send_reply(
             message,
-            string.format(
-                'I cannot blacklist this user because they have already %s this chat.',
-                (status.result.status == 'left' and 'left') or (status.result.status == 'kicked' and 'been banned from')
-            )
+            status.result.status == 'left'
+            and language['blacklist']['3']
+            or language['blacklist']['4']
         )
     end
     redis:set(

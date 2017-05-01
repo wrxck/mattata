@@ -1,16 +1,14 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local ping = {}
-
 local mattata = require('mattata')
 
 function ping:init()
-    ping.commands = mattata.commands(
-        self.info.username
-    ):command('ping').table
+    ping.commands = mattata.commands(self.info.username):command('ping').table
+    ping.help = '/ping - PONG!'
 end
 
 function ping:on_message(message)

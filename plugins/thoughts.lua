@@ -1,10 +1,9 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local thoughts = {}
-
 local mattata = require('mattata')
 local http = require('socket.http')
 local url = require('socket.url')
@@ -12,58 +11,62 @@ local ltn12 = require('ltn12')
 local json = require('dkjson')
 
 function thoughts:init()
-    thoughts.commands = mattata.commands(
-        self.info.username
-    ):command('thoughts').table
+    thoughts.commands = mattata.commands(self.info.username):command('thoughts').table
     thoughts.help = '/thoughts <query> - Discover what the Internet thinks about the given search query.'
 end
 
-function thoughts:on_message(message, configuration)
+function thoughts:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
+    if not input
+    then
         return mattata.send_reply(
             message,
             thoughts.help
         )
     end
     local response = {}
-    local _, res = http.request{
-        ['url'] = string.format(
-            'http://www.whatdoestheinternetthink.net/core/client.php?query=%s&searchtype=1',
-            url.escape(input)
-        ),
-        ['method'] = 'GET',
-        ['headers'] = {
-            ['Host'] = 'www.whatdoestheinternetthink.net',
-            ['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:51.0) Gecko/20100101 Firefox/51.0',
-            ['Accept'] = 'application/json, text/javascript, */*; q=0.01',
-            ['Accept-Language'] = 'en-US,en;q=0.5',
-            ['Referer'] = 'http://www.whatdoestheinternetthink.net/',
-            ['X-Requested-With'] = 'XMLHttpRequest',
-            ['DNT'] = '1',
-            ['Connection'] = 'keep-alive'
-        },
-        ['sink'] = ltn12.sink.table(response)
-    }
-    if res ~= 200 then
+    local _, res = http.request(
+        {
+            ['url'] = string.format(
+                'http://www.whatdoestheinternetthink.net/core/client.php?query=%s&searchtype=1',
+                url.escape(input)
+            ),
+            ['method'] = 'GET',
+            ['headers'] = {
+                ['Host'] = 'www.whatdoestheinternetthink.net',
+                ['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:51.0) Gecko/20100101 Firefox/51.0',
+                ['Accept'] = 'application/json, text/javascript, */*; q=0.01',
+                ['Accept-Language'] = 'en-US,en;q=0.5',
+                ['Referer'] = 'http://www.whatdoestheinternetthink.net/',
+                ['X-Requested-With'] = 'XMLHttpRequest',
+                ['DNT'] = '1',
+                ['Connection'] = 'keep-alive'
+            },
+            ['sink'] = ltn12.sink.table(response)
+        }
+    )
+    if res ~= 200
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
     local jdat = json.decode(
         table.concat(response)
     )
-    if tonumber(jdat.success) ~= 1 or jdat.conclusion:match('%\'%\'%.$') then
+    if tonumber(jdat.success) ~= 1
+    or jdat.conclusion:match('%\'%\'%.$')
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.results
+            language['errors']['results']
         )
     end
     return mattata.send_message(
         message.chat.id,
         string.format(
-            '%s\n\nPositive: <code>%s%% [%s]</code>\nNegative: <code>%s%% [%s]</code>\nIndifferent: <code>%s%% [%s]</code>\nTotal thoughts: <code>%s</code>',
+            language['thoughts']['1'],
             jdat.conclusion,
             mattata.round(
                 (

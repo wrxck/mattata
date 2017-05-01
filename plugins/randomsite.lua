@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -7,9 +7,7 @@ local randomsite = {}
 local mattata = require('mattata')
 
 function randomsite:init()
-    randomsite.commands = mattata.commands(
-        self.info.username
-    ):command('randomsite').table
+    randomsite.commands = mattata.commands(self.info.username):command('randomsite').table
     randomsite.help = '/randomsite - Sends the URL for a random, and somewhat-useless, website.'
 end
 
@@ -99,27 +97,27 @@ randomsite.sites = {
     'http://www.sealspin.com/'
 }
 
-function randomsite.get_keyboard()
+function randomsite.get_keyboard(language)
     return mattata.inline_keyboard():row(
         mattata.row():callback_data_button(
-            'Generate Another',
+            language['randomsite']['1'],
             'randomsite:new'
         )
     )
 end
 
-function randomsite:on_callback_query(callback_query, message)
+function randomsite:on_callback_query(callback_query, message, configuration, language)
     return mattata.edit_message_text(
         message.chat.id,
         message.message_id,
         randomsite.sites[math.random(#randomsite.sites)],
         nil,
         true,
-        randomsite.get_keyboard()
+        randomsite.get_keyboard(language)
     )
 end
 
-function randomsite:on_message(message)
+function randomsite:on_message(message, configuration, language)
     return mattata.send_message(
         message.chat.id,
         randomsite.sites[math.random(#randomsite.sites)],
@@ -127,7 +125,7 @@ function randomsite:on_message(message)
         true,
         false,
         nil,
-        randomsite.get_keyboard()
+        randomsite.get_keyboard(language)
     )
 end
 

@@ -1,22 +1,20 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local license = {}
-
 local mattata = require('mattata')
 
 function license:init()
-    license.commands = mattata.commands(
-        self.info.username
-    ):command('license').table
-    license.help = [[/license - View mattata's license.]]
+    license.commands = mattata.commands(self.info.username):command('license').table
+    license.help = '/license - View mattata\'s license.'
 end
 
 function license:on_message(message)
     local output = io.popen('cat LICENSE'):read('*all')
-    if output:match('^cat%:') then
+    if output:match('^cat:')
+    then
         return
     end
     return mattata.send_message(

@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -14,7 +14,7 @@ function belikebill:init()
     belikebill.help = '/belikebill <text> - Generates a Be Like Bill meme using the given text as the caption.'
 end
 
-function belikebill:on_message(message, configuration)
+function belikebill:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if not input
     then
@@ -31,7 +31,7 @@ function belikebill:on_message(message, configuration)
     then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            language['errors']['connection']
         )
     end
 end

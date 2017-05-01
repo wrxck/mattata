@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -7,13 +7,11 @@ local echo = {}
 local mattata = require('mattata')
 
 function echo:init()
-    echo.commands = mattata.commands(
-        self.info.username
-    ):command('echo').table
+    echo.commands = mattata.commands(self.info.username):command('echo').table
     echo.help = '/echo <text> - Repeats the given string of text.'
 end
 
-function echo:on_message(message, configuration)
+function echo:on_message(message)
     local input = mattata.input(message.text)
     if not input
     then
