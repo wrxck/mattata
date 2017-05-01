@@ -60,6 +60,7 @@ function ninegag:on_message(message, configuration, language)
         'upload_photo'
     )
     local jdat = json.decode(jstr)
+    local jrnd = math.random(#jdat)
     return mattata.send_photo(
         message.chat.id,
         jdat[jrnd].src,
@@ -69,7 +70,7 @@ function ninegag:on_message(message, configuration, language)
         mattata.inline_keyboard():row(
             mattata.row():url_button(
                 language['ninegag']['1'],
-                jdat[math.random(#jdat)].url
+                jdat[jrnd].url
             )
         )
     )
