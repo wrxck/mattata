@@ -110,15 +110,15 @@ function sed:on_message(message, configuration, language)
         message.reply.message_id,
         mattata.inline_keyboard():row(
             mattata.row()
-            :callback_data(
+            :callback_data_button(
                 language['sed']['7'],
                 'sed:yes'
             )
-            :callback_data(
+            :callback_data_button(
                 language['sed']['8'],
                 'sed:no'
             )
-            :callback_data(
+            :callback_data_button(
                 language['sed']['9'],
                 'sed:maybe'
             )
