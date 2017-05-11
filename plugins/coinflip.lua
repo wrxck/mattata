@@ -13,8 +13,10 @@ function coinflip:init()
     coinflip.help = '/coinflip [guess] - Flips a coin and returns the result! If a guess is given, the result is tested against it and reveals the accuracy accordingly. Alias: /cf.'
 end
 
-function coinflip:on_message(message)
-    local input = mattata.input(message.text:lower())
+function coinflip:on_message(message, configuration, language)
+    local input = mattata.input(
+        message.text:lower()
+    )
     local result = 'Heads.'
     local flip = math.random(2)
     if not input
@@ -29,7 +31,9 @@ function coinflip:on_message(message)
             'html'
         )
     else
-        input = input:gsub('heads', '1'):gsub('tails', '2')
+        input = input
+        :gsub('heads', '1')
+        :gsub('tails', '2')
     end
     if tonumber(input) == 1
     or tonumber(input) == 2

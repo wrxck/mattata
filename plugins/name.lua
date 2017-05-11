@@ -32,7 +32,7 @@ function name.get_name(chat_id)
     or 'mattata'
 end
 
-function name:on_message(message, language)
+function name:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if not input
     then

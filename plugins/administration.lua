@@ -232,6 +232,22 @@ function administration.get_initial_keyboard(chat_id)
     :row(
         mattata.row()
         :callback_data_button(
+            'Delete Commands?',
+            'administration:nil'
+        )
+        :callback_data_button(
+            administration.get_setting(
+                chat_id,
+                'delete commands'
+            )
+            and utf8.char(9989)
+            or utf8.char(10060),
+            'administration:' .. chat_id .. ':delete_commands'
+        )
+    )
+    :row(
+        mattata.row()
+        :callback_data_button(
             'Back',
             'help:settings'
         )
@@ -1147,6 +1163,13 @@ function administration:on_callback_query(callback_query, message, configuration
             'welcome message'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
+    elseif callback_query.data:match('^%-%d+:delete_commands$') then
+        local chat_id = callback_query.data:match('^(%-%d+):delete_commands$')
+        administration.toggle_setting(
+            chat_id,
+            'delete commands'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:log$') then
         local chat_id = callback_query.data:match('^(%-%d+):log$')
         administration.toggle_setting(
@@ -1395,7 +1418,7 @@ function administration:on_new_chat_member(message)
                 mattata.send_message(
                     configuration.log_channel,
                     string.format(
-                        '<pre>%s has kicked %s [%s] from %s [%s] because anti-bot is enabled.</pre>',
+                        '<pre>%s [%s] has kicked %s [%s] from %s [%s] because anti-bot is enabled.</pre>',
                         mattata.escape_html(self.info.first_name),
                         self.info.id,
                         mattata.escape_html(message.new_chat_member.first_name),

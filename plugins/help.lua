@@ -75,7 +75,10 @@ function help:on_inline_query(inline_query, configuration, language)
     local offset = inline_query.offset
     and tonumber(inline_query.offset)
     or 0
-    local output = mattata.get_inline_help(inline_query.query, offset)
+    local output = mattata.get_inline_help(
+        inline_query.query,
+        offset
+    )
     if #output == 0
     then
         return mattata.send_inline_article(

@@ -30,13 +30,30 @@ function kick:on_message(message, configuration, language)
         )
     end
     local reason = false
-    local input = message.reply
-    and (
-        message.reply.from.username
-        or tostring(message.reply.from.id)
-    )
-    or mattata.input(message.text)
-    if not input
+    local user = false
+    local input = mattata.input(message.text)
+    -- Check the message object for any users this command
+    -- is intended to be executed on.
+    if message.reply
+    and not input
+    then
+        user = message.reply.from.id
+    elseif message.reply
+    and not input:match(' ')
+    then
+        user = input
+    elseif message.reply
+    then
+        user, reason = input:match('^(.-) (.-)$')
+    elseif input
+    and not input:match(' ')
+    then
+        user = input
+    elseif input
+    then
+        user, reason = input:match('^(.-) (.-)$')
+    end
+    if not user
     then
         local success = mattata.send_force_reply(
             message,
@@ -54,16 +71,6 @@ function kick:on_message(message, configuration, language)
             )
         end
         return
-    elseif not message.reply
-    then
-        if input:match('^.- .-$')
-        then
-            reason = input:match(' (.-)$')
-            input = input:match('^(.-) ')
-        end
-    elseif mattata.input(message.text)
-    then
-        reason = mattata.input(message.text)
     end
     if reason
     and type(reason) == 'string'
@@ -71,27 +78,27 @@ function kick:on_message(message, configuration, language)
     then
         reason = reason:match('^[Ff][Oo][Rr] (.-)$')
     end
-    if tonumber(input) == nil
-    and not input:match('^%@')
+    if tonumber(user) == nil
+    and not user:match('^%@')
     then
-        input = '@' .. input
+        user = '@' .. user
     end
-    local user = mattata.get_user(input)
-    or mattata.get_chat(input) -- Resolve the username/ID to a user object.
-    if not user
+    local user_object = mattata.get_user(user)
+    or mattata.get_chat(user) -- Resolve the username/ID to a user object.
+    if not user_object
     then
         return mattata.send_reply(
             message,
             language['errors']['unknown']
         )
-    elseif user.result.id == self.info.id
+    elseif user_object.result.id == self.info.id
     then
         return
     end
-    user = user.result
+    user_object = user_object.result
     local status = mattata.get_chat_member(
         message.chat.id,
-        user.id
+        user_object.id
     )
     if not status
     then
@@ -101,7 +108,7 @@ function kick:on_message(message, configuration, language)
         )
     elseif mattata.is_group_admin(
         message.chat.id,
-        user.id
+        user_object.id
     )
     or status.result.status == 'creator'
     or status.result.status == 'administrator'
@@ -122,7 +129,7 @@ function kick:on_message(message, configuration, language)
     end
     local success = mattata.kick_chat_member( -- Attempt to kick the user from the group.
         message.chat.id,
-        user.id
+        user_object.id
     )
     if not success
     then -- Since we've ruled everything else out, it's safe to say if it wasn't a success
@@ -136,7 +143,7 @@ function kick:on_message(message, configuration, language)
         string.format(
             'chat:%s:%s',
             message.chat.id,
-            user.id
+            user_object.id
         ),
         'kicks',
         1
@@ -159,12 +166,12 @@ function kick:on_message(message, configuration, language)
                 message.from.username
                 or mattata.escape_html(message.from.first_name),
                 message.from.id,
-                user.username
+                user_object.username
                 and '@'
                 or '',
-                user.username
-                or mattata.escape_html(user.first_name),
-                user.id,
+                user_object.username
+                or mattata.escape_html(user_object.first_name),
+                user_object.id,
                 message.chat.username
                 and '@'
                 or '',
@@ -187,11 +194,11 @@ function kick:on_message(message, configuration, language)
             or '',
             message.from.username
             or mattata.escape_html(message.from.first_name),
-            user.username
+            user_object.username
             and '@'
             or '',
-            user.username
-            or mattata.escape_html(user.first_name),
+            user_object.username
+            or mattata.escape_html(user_object.first_name),
             reason
             and ', for ' .. reason
             or ''

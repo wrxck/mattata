@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v21.0
+      v21.1
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -67,7 +67,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v21.0'
+    self.version = 'v21.1'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -113,6 +113,7 @@ mattata.answer_inline_query = api.answer_inline_query
 mattata.send_game = api.send_game
 mattata.set_game_score = api.set_game_score
 mattata.get_game_high_scores = api.get_game_high_scores
+mattata.delete_message = api.delete_message
 mattata.input_text_message_content = api.input_text_message_content
 mattata.input_location_message_content = api.input_location_message_content
 mattata.input_venue_message_content = api.input_venue_message_content
@@ -152,7 +153,7 @@ argument when using the mattata:run() function!]]
     while is_running -- Perform the main loop whilst the bot is running.
     do
         local success = api.get_updates( -- Check the Telegram bot API for updates.
-            1,
+            20,
             self.last_update + 1,
             nil,
             '["message", "channel_post", "inline_query", "callback_query"]'
@@ -846,6 +847,16 @@ function mattata:on_message(message, configuration)
                     )
                     message = nil
                 end
+                if mattata.get_setting(
+                    message.chat.id,
+                    'delete commands'
+                )
+                then
+                    return mattata.delete_message(
+                        message.chat.id,
+                        message.message_id
+                    )
+                end
                 return false
             end
         end
@@ -1062,7 +1073,13 @@ function mattata:on_message_misc(message, configuration)
             -- ACTUALLY being random.
             response = response[math.random(#response)]
         end
-        if message.text:lower():match(trigger)
+        if message.text
+        :lower()
+        :match(trigger)
+        -----------------------------------------------
+        -- HI FUTURE MATT, REMEMBER TO REMOVE THIS! ---
+        and message.chat.id ~= -1001039164496 ---------
+        -----------------------------------------------
         then
             return mattata.send_message(
                 message.chat.id,
@@ -1363,7 +1380,8 @@ function mattata:on_inline_query(inline_query, configuration)
     return help.on_inline_query(
         self,
         inline_query,
-        configuration
+        configuration,
+        language
     )
 end
 
@@ -2154,7 +2172,7 @@ end
 
 function mattata.get_user_language(user_id)
     return redis:hget(
-        'user:' .. user_id .. ':info',
+        'chat:' .. user_id .. ':settings',
         'language'
     )
     or 'en_gb'

@@ -111,6 +111,9 @@ return {
         ['5'] = 'Custom commands for %s:\n',
         ['6'] = 'To create a new, custom command, use the following syntax:\n/custom new #trigger <value>. To list all current triggers, use /custom list. To delete a trigger, use /custom del #trigger.'
     },
+    ['delete'] = {
+        ['1'] = 'I could not delete that message. Perhaps the message is too old or non-existent?'
+    },
     ['demote'] = {
         ['1'] = 'Which user would you like me to demote? You can specify this user by their @username or numerical ID.',
         ['2'] = 'I cannot demote this user because they are not a moderator or an administrator in this chat.',
