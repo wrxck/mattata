@@ -173,6 +173,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'version',
         'warn',
         'weather',
+        'whitelist',
         'whois',
         'wikipedia',
         'xkcd',

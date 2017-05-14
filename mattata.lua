@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v21.1
+      v21.2
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -67,7 +67,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v21.1'
+    self.version = 'v21.2'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -427,6 +427,8 @@ function mattata:on_message(message, configuration)
         local action = 'action:' .. message.chat.id .. ':' .. message.reply.message_id
         message.text = redis:get(action) .. ' ' .. message.text -- Concatenate the saved action's command
         -- with the new `message.text`.
+        message.reply = nil -- This caused some issues with administrative commands which would
+        -- prioritise replied-to users over users given by arguments.
         redis:del(action) -- Delete the action for this message, since we've done what we needed to do
         -- with it now.
     end
@@ -589,23 +591,6 @@ function mattata:on_message(message, configuration)
         message.text = '/afk'
     end
     if message.chat.type == 'supergroup'
-    and not message.chat.title:match('mattata')
-    and not redis:get('broadcasted:' .. message.chat.id)
-    then
-        local success = mattata.send_message(
-            message.chat.id,
-            'Remember, if you like me and what to help keep me alive, a [monetary contribution is accepted through PayPal!](https://paypal.me/wrxck/15). Don\'t worry, you won\'t see this message for about another month or two - but this ensures that I am kept alive. £15 is enough for a whole month of hosting both the bot and the website, and it also leaves me with a couple of £\'s spare to go towards my studies at college (which, as a student who doesn\'t work, really helps!)',
-            'markdown'
-        )
-        if success
-        then
-            redis:set(
-                'broadcasted:' .. message.chat.id,
-                true
-            )
-        end
-    end
-    if message.chat.type == 'supergroup'
     and redis:hget(
         'chat:' .. message.chat.id .. ':settings',
         'use administration'
@@ -737,6 +722,11 @@ function mattata:on_message(message, configuration)
             local command = plugin.commands[i]
             if message.text:match(command)
             then
+                redis:hincrby(
+                    'stats:command_use',
+                    command,
+                    1
+                )
                 if not plugin.on_message
                 then
                     plugin = nil
@@ -877,8 +867,12 @@ function mattata:on_message(message, configuration)
         then
             message = message.reply
         end
-        if message.text:lower():match('^wh?at .- th[ia][st].-')
-        or message.text:lower():match('^who .- th[ia][st].-')
+        if message.text
+        :lower()
+        :match('^wh?at .- th[ia][st].-')
+        or message.text
+        :lower()
+        :match('^who .- th[ia][st].-')
         then
             local captionbotai = require('plugins.captionbotai')
             return captionbotai.on_message(
@@ -1076,10 +1070,6 @@ function mattata:on_message_misc(message, configuration)
         if message.text
         :lower()
         :match(trigger)
-        -----------------------------------------------
-        -- HI FUTURE MATT, REMEMBER TO REMOVE THIS! ---
-        and message.chat.id ~= -1001039164496 ---------
-        -----------------------------------------------
         then
             return mattata.send_message(
                 message.chat.id,

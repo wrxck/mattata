@@ -27,7 +27,7 @@ function setai.get_keyboard(user_id, language)
     )
 end
 
-function setai:on_callback_query(callback_query, message, language)
+function setai:on_callback_query(callback_query, message, configuration, language)
     local user_id, endpoint = callback_query.data:match('^(.-)%:(.-)$')
     if not user_id
     or not endpoint

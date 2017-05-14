@@ -135,7 +135,7 @@ function blacklist:on_message(message, configuration, language)
         'log administrative actions'
     ) then
         mattata.send_message(
-            configuration.admin_log_chat or configuration.admins[1],
+            mattata.get_log_chat(message.chat.id),
             string.format(
                 '<pre>%s%s [%s] has blacklisted %s%s [%s] in %s%s [%s]%s.</pre>',
                 message.from.username and '@' or '',

@@ -30,7 +30,7 @@ function eightball:on_message(message, configuration, language)
             language['eightball']['3'],
             language['eightball']['4']
         }
-        local random = math.random(responses[#responses])
+        local random = responses[math.random(#responses)]
     else
         local answers = configuration.eightball
         output = answers[math.random(#answers)]
