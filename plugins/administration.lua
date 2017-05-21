@@ -15,14 +15,11 @@ function administration:init()
     :command('antispam')
     :command('admins')
     :command('staff')
-    :command('groups')
     :command('chats')
     :command('links')
     :command('whitelistlink')
     :command('link')
-    :command('setlink')
     :command('rules')
-    :command('setrules')
     :command('pin')
     :command('report')
     :command('ops')
@@ -53,9 +50,13 @@ end
 function administration.get_setting(chat_id, setting)
     if not chat_id
     or not setting
-    or not redis:hget(
-        'chat:' .. chat_id .. ':settings',
-        setting
+    or (
+        chat_id
+        and setting
+        and not redis:hget(
+            'chat:' .. chat_id .. ':settings',
+            setting
+        )
     )
     then
         return false
@@ -66,15 +67,20 @@ end
 function administration.toggle_setting(chat_id, setting, value)
     if not chat_id
     or not setting
-    or not redis:hget(
-        'chat:' .. chat_id .. ':settings',
-        setting
+    or (
+        chat_id
+        and setting
+        and not redis:hget(
+            'chat:' .. chat_id .. ':settings',
+            setting
+        )
     )
     then
         return redis:hset(
             'chat:' .. chat_id .. ':settings',
             setting,
-            value or true
+            value
+            or true
         )
     end
     return redis:hdel(
@@ -89,10 +95,8 @@ function administration.get_initial_keyboard(chat_id)
        'use administration'
     )
     then
-        return mattata.inline_keyboard()
-        :row(
-            mattata.row()
-            :callback_data_button(
+        return mattata.inline_keyboard():row(
+            mattata.row():callback_data_button(
                 'Enable Administration',
                 'administration:' .. chat_id .. ':toggle'
             )
@@ -243,6 +247,38 @@ function administration.get_initial_keyboard(chat_id)
             and utf8.char(9989)
             or utf8.char(10060),
             'administration:' .. chat_id .. ':delete_commands'
+        )
+    )
+    :row(
+        mattata.row()
+        :callback_data_button(
+            'Send Misc Responses?',
+            'administration:nil'
+        )
+        :callback_data_button(
+            administration.get_setting(
+                chat_id,
+                'misc responses'
+            )
+            and utf8.char(9989)
+            or utf8.char(10060),
+            'administration:' .. chat_id .. ':misc_responses'
+        )
+    )
+    :row(
+        mattata.row()
+        :callback_data_button(
+            'Shared AI Conversation?',
+            'administration:nil'
+        )
+        :callback_data_button(
+            administration.get_setting(
+                chat_id,
+                'shared ai'
+            )
+            and utf8.char(9989)
+            or utf8.char(10060),
+            'administration:' .. chat_id .. ':shared_ai'
         )
     )
     :row(
@@ -707,68 +743,6 @@ function administration.del_chat(message)
     )
 end
 
-function administration.get_chats(message)
-    local input = mattata.input(message.text)
-    local output = {}
-    for k, v in pairs(redis:smembers('mattata:configuration:chats')) do
-        if v and json.decode(v).link and json.decode(v).title then
-            local link, title = json.decode(v).link, json.decode(v).title
-            if input then
-                local validate = pcall(
-                    function()
-                        return title:match(input)
-                    end
-                )
-                if not validate then
-                    return mattata.send_reply(
-                        message,
-                        'Your search query contains a malformed Lua pattern! If you\'re not sure what this means, try searching without any symbols.'
-                    )
-                end
-            end
-            if (input and title:match(input)) or not input then
-                table.insert(
-                    output,
-                    string.format(
-                        '• <a href="%s">%s</a>',
-                        mattata.escape_html(link),
-                        mattata.escape_html(title)
-                    )
-                )
-            end
-        end
-    end
-    if not next(output) then
-        local output = 'No groups were found. If you\'d like your group to appear here, contact @wrxck0.'
-        if input then
-            output = string.format(
-                'No groups were found matching "%s"! Use /groups to view a complete list of available groups.',
-                input
-            )
-        end
-        return mattata.send_reply(
-            message,
-            output
-        )
-    end
-    table.sort(output)
-    output = table.concat(
-        output,
-        '\n'
-    )
-    if input then
-        output = string.format(
-            'Groups found matching "%s":\n',
-            mattata.escape_html(input)
-        ) .. output
-    end
-    mattata.send_message(
-        message,
-        output,
-        'html'
-    )
-end
-
 function administration.tempban(message)
     local input = mattata.input(message.text)
     if (
@@ -1168,6 +1142,20 @@ function administration:on_callback_query(callback_query, message, configuration
         administration.toggle_setting(
             chat_id,
             'delete commands'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id)
+    elseif callback_query.data:match('^%-%d+:misc_responses$') then
+        local chat_id = callback_query.data:match('^(%-%d+):misc_responses$')
+        administration.toggle_setting(
+            chat_id,
+            'misc responses'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id)
+    elseif callback_query.data:match('^%-%d+:shared_ai$') then
+        local chat_id = callback_query.data:match('^(%-%d+):shared_ai$')
+        administration.toggle_setting(
+            chat_id,
+            'shared ai'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:log$') then
@@ -1677,15 +1665,12 @@ function administration.admins(message)
 end
 
 function administration.link(message)
-    local hash = mattata.get_redis_hash(
-        message,
-        'link'
-    )
     local link = redis:hget(
-        hash,
+        'chat:' .. message.chat.id .. ':values',
         'link'
     )
-    if not link or link == 'false' then
+    if not link
+    then
         return mattata.send_reply(
             message,
             'There isn\'t a link set for this group.'
@@ -1698,48 +1683,12 @@ function administration.link(message)
     )
 end
 
-function administration.set_rules(message)
-    local input = mattata.input(message.text)
-    if not input then
-        return mattata.send_reply(
-            message,
-            'Please specify the rules for ' .. message.chat.title .. '. Markdown formatting is supported.'
-        )
-    end
-    local hash = mattata.get_redis_hash(
-        message,
-        'rules'
-    )
-    print(hash)
-    redis:hset(
-        hash,
-        'rules',
-        input
-    )
-    local success = mattata.send_message(
-        message,
-        input,
-        'markdown'
-    )
-    if not success then
-        return mattata.send_reply(
-            message,
-            'Invalid Markdown formatting.'
-        )
-    end
-    return mattata.edit_message_text(
-        message.chat.id,
-        success.result.message_id,
-        'Successfully set the new rules!'
-    )
-end
-
 function administration.get_rules(chat_id)
     if type(chat_id) == 'table' then
         chat_id = tostring(chat_id.chat.id)
     end
     local rules = redis:hget(
-        'chat:' .. chat_id .. ':rules',
+        'chat:' .. chat_id .. ':values',
         'rules'
     )
     local resolved = mattata.get_chat(chat_id)
@@ -1771,47 +1720,6 @@ function administration.rules(message, username)
         message,
         output,
         'markdown'
-    )
-end
-
-function administration.set_link(message)
-    local input = mattata.input(message.text)
-    if not input then
-        return mattata.send_reply(
-            message,
-            'Please specify a URL to set as the group link.'
-        )
-    end
-    local output
-    if message.entities[2] and message.entities[2].type == 'url' and message.entities[2].offset == message.entities[1].offset + message.entities[1].length + 1 and message.entities[2].length == input:len() then -- Checks to ensure that only a URL was sent as an argument.
-        local hash = mattata.get_redis_hash(
-            message,
-            'link'
-        )
-        redis:hset(
-            hash,
-            'link',
-            input
-        )
-        output = '<a href="' .. input .. '">' .. mattata.escape_html(message.chat.title) .. '</a>'
-    else
-        output = 'That\'s not a valid url.'
-    end
-    local success = mattata.send_message(
-        message,
-        output,
-        'html'
-    )
-    if not success then
-        return mattata.send_reply(
-            message,
-            'That\'s not a valid url.'
-        )
-    end
-    return mattata.edit_message_text(
-        message.chat.id,
-        success.result.message_id,
-        'Link set successfully!'
     )
 end
 
@@ -1882,14 +1790,8 @@ function administration:on_message(message, configuration)
                 message,
                 self.info.id
             )
-        elseif message.text:match('^[/!#]chats') or message.text:match('^[/!#]groups') then
-            return administration.get_chats(message)
         end
         return -- Ignore all other requests from users who aren't administrators in the group.
-    elseif message.text:match('^[/!#]mod') or message.text:match('^[/!#]promote') then
-        return administration.mod(message)
-    elseif message.text:match('^[/!#]demod') or message.text:match('^[/!#]demote') then
-        return administration.demod(message)
     elseif message.text:match('^[/!#]links') or message.text:match('^[/!#]whitelistlink') then
         return administration.whitelist_links(message)
     elseif message.text:match('^[/!#]whitelist') then
@@ -1897,8 +1799,6 @@ function administration:on_message(message, configuration)
             message,
             self.info
         )
-    elseif message.text:match('^[/!#]setlink') then
-        return administration.set_link(message)
     elseif message.text:match('^[/!#]antispam') or message.text:match('^[/!#]administration') then
         local keyboard = administration.get_initial_keyboard(message.chat.id)
         local success = mattata.send_message(
@@ -1928,8 +1828,6 @@ function administration:on_message(message, configuration)
         return administration.admins(message)
     elseif message.text:match('^[/!#]link') then
         return administration.link(message)
-    elseif message.text:match('^[/!#]setrules') then
-        return administration.set_rules(message)
     elseif message.text:match('^[/!#]rules') then
         return administration.rules(
             message,
@@ -1942,12 +1840,10 @@ function administration:on_message(message, configuration)
             message,
             self.info.id
         )
-    elseif mattata.is_global_admin(message.from.id) and message.text:match('^[/!#]chats del .-$') or message.text:match('^[/!#]groups del .-$') then
+    elseif mattata.is_global_admin(message.from.id) and message.text:match('^[/!#]chats del .-$') then
         return administration.del_chat(message)
-    elseif mattata.is_global_admin(message.from.id) and message.text:match('^[/!#]chats new .-$') or message.text:match('^[/!#]groups new .-$') then
+    elseif mattata.is_global_admin(message.from.id) and message.text:match('^[/!#]chats new .-$') then
         return administration.new_chat(message)
-    elseif message.text:match('^[/!#]chats') or message.text:match('^[/!#]groups') then
-        return administration.get_chats(message)
     elseif message.text:match('^[/!#]tempban') then
         return administration.tempban(message)
     end

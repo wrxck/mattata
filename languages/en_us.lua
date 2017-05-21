@@ -285,16 +285,7 @@ I understand many commands, which you can learn more about by pressing the "Comm
 
 %s <b>Tip:</b> Use the "Settings" button to change how I work%s!
         ]],
-        ['24'] = 'in',
-        ['25'] = [[
-<b>Hi %s! My name's %s, it's a pleasure to meet you</b> %s
-
-I'm a smart bot who is capable of having conversations with humans such as yourself, and I have the ability to administrate your groups too!
-
-I understand many commands, which you can learn more about by pressing the "Commands" button using the attached keyboard.
-
-%s <b>Tip:</b> Use the "Settings" button to change how I work%s!
-        ]]
+        ['24'] = 'in'
     },
     ['id'] = {
         ['1'] = 'I\'m sorry, but I don\'t recognize that user. To teach me who they are, forward a message from them to me or get them to send me a message.',
@@ -427,6 +418,13 @@ System:
         ['2'] = 'This %s must be public, with a @username.',
         ['3'] = 'Please reply to the message you\'d like to get a link for.'
     },
+    ['mute'] = {
+        ['1'] = 'Which user would you like me to mute? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot mute this user because they are already muted in this chat.',
+        ['3'] = 'I cannot mute this user because they are a moderator or an administrator in this chat.',
+        ['4'] = 'I cannot mute this user because they have already left (or been kicked from) this chat.',
+        ['5'] = 'I need to have administrative permissions in order to mute this user. Please amend this issue, and try again.'
+    },
     ['name'] = {
         ['1'] = 'The name I currently respond to is "%s" - to change this, use /name <text> (where <text> is what you want me to respond to).',
         ['2'] = 'My new name needs to be between 2 and 32 characters long!',
@@ -525,6 +523,14 @@ System:
         ['1'] = 'Your language has been set to %s!',
         ['2'] = 'Your language is currently %s.\nPlease note that some strings may not be translated as of yet. If you\'d like to change your language, select one using the keyboard below:'
     },
+    ['setlink'] = {
+        ['1'] = 'That\'s not a valid URL.',
+        ['2'] = 'Link set successfully!'
+    },
+    ['setrules'] = {
+        ['1'] = 'Invalid Markdown formatting.',
+        ['2'] = 'Successfully set the new rules!'
+    },
     ['setwelcome'] = {
         ['1'] = 'What would you like the welcome message to be? The text you specify will be Markdown-formatted and sent every time a user joins the chat (the welcome message can be disabled in the administration menu, accessible via /administration). You can use placeholders to automatically customise the welcome message for each user. Use $user_id to insert the user\'s numerical ID, $chat_id to insert the chat\'s numerical ID, $name to insert the user\'s name, $title to insert the chat\'s title and $username to insert the user\'s username (if the user doesn\'t have an @username, their name will be used instead, so it is best to avoid using this in conjunction with $name).',
         ['2'] = 'There was an error formatting your message, please check your Markdown syntax and try again.',
@@ -556,6 +562,12 @@ System:
     ['tobinary'] = {
         ['1'] = 'Please enter the string you would like to convert to binary.'
     },
+    ['unmute'] = {
+        ['1'] = 'Which user would you like me to unmute? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot unmute this user because they are not currently muted in this chat.',
+        ['3'] = 'I cannot unmute this user because they are a moderator or an administrator in this chat.',
+        ['4'] = 'I cannot unmute this user because they have already left (or been kicked from) this chat.'
+    },
     ['upload'] = {
         ['1'] = 'Please reply to the file you\'d like to download to the server. It must be <= 20 MB.',
         ['2'] = 'That file is too large. It must be <= 20 MB.',
@@ -569,6 +581,12 @@ System:
     ['weather'] = {
         ['1'] = 'You don\'t have a location set. Use /setloc <location> to set one.',
         ['2'] = 'It\'s currently %s (feels like %s) in %s. %s'
+    },
+    ['whitelist'] = {
+        ['1'] = 'Which user would you like me to whitelist? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot whitelist this user because they are a moderator or an administrator in this chat.',
+        ['3'] = 'I cannot whitelist this user because they have already left this chat.',
+        ['4'] = 'I cannot whitelist this user because they have already been banned from this chat.'
     },
     ['wikipedia'] = {
         ['1'] = 'Read more.'

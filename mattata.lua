@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v21.2
+      v22.0
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -67,7 +67,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v21.2'
+    self.version = 'v22.0'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -109,11 +109,14 @@ mattata.answer_callback_query = api.answer_callback_query
 mattata.edit_message_text = api.edit_message_text
 mattata.edit_message_caption = api.edit_message_caption
 mattata.edit_message_reply_markup = api.edit_message_reply_markup
+mattata.delete_message = api.delete_message
 mattata.answer_inline_query = api.answer_inline_query
+mattata.send_invoice = api.send_invoice
+mattata.answer_shipping_query = api.answer_shipping_query
+mattata.answer_pre_checkout_query = api.answer_pre_checkout_query
 mattata.send_game = api.send_game
 mattata.set_game_score = api.set_game_score
 mattata.get_game_high_scores = api.get_game_high_scores
-mattata.delete_message = api.delete_message
 mattata.input_text_message_content = api.input_text_message_content
 mattata.input_location_message_content = api.input_location_message_content
 mattata.input_venue_message_content = api.input_venue_message_content
@@ -123,6 +126,7 @@ mattata.callback_data_button = api.callback_data_button
 mattata.switch_inline_query_button = api.switch_inline_query_button
 mattata.switch_inline_query_current_chat_button = api.switch_inline_query_current_chat_button
 mattata.callback_game_button = api.callback_game_button
+mattata.pay_button = api.pay_button
 mattata.row = api.row
 mattata.inline_keyboard = api.inline_keyboard
 mattata.keyboard = api.keyboard
@@ -156,7 +160,9 @@ argument when using the mattata:run() function!]]
             20,
             self.last_update + 1,
             nil,
-            '["message", "channel_post", "inline_query", "callback_query"]'
+            '["message", "channel_post", "inline_query", "callback_query"]',
+            configuration.use_beta_endpoint
+            or false
         )
         if success
         and success.result
@@ -318,11 +324,11 @@ argument when using the mattata:run() function!]]
                 else
                     plugin = nil
                 end
-                redis:bgsave() -- Perform a background save of the redis database.
             end
         end
         collectgarbage()
     end
+    redis:bgsave() -- Perform a background save of the redis database.
     print('mattata is shutting down...')
 end
 
@@ -346,8 +352,6 @@ function mattata:on_message(message, configuration)
             -- if the user is blacklisted from using the bot in the current chat.
         )
     )
-    or message.forward_from
-    or message.forward_from_chat
     then
     -- If the message was forwarded (from a user/channel, we'll ignore it because it probably
     -- wasn't intended for the bot.
@@ -413,7 +417,11 @@ function mattata:on_message(message, configuration)
     and message.from.first_name .. ' ' .. message.from.last_name
     or message.from.first_name -- Set the message.from.name value to a concatenated variation of the
     -- user's existing name and, if applicable, last name.
-    if message.text
+    if message.forward_from
+    or message.forward_from_chat
+    then
+        return -- We don't want to process forwarded messages any further!
+    elseif message.text
     and message.chat
     and message.chat.id
     and message.reply
@@ -432,9 +440,91 @@ function mattata:on_message(message, configuration)
         redis:del(action) -- Delete the action for this message, since we've done what we needed to do
         -- with it now.
     end
+    if message.from.language_code
+    then
+        local no_language_file = io.popen('if [ ! -f languages/' .. message.from.language_code .. '.lua ]; then echo "1"; fi'):read('*all')
+        if tonumber(no_language_file) == 1
+        then -- If the language file exists, a "1" won't be printed.
+            print('There is no language file for the ' .. message.from.language_code .. ' locale!')
+            if not redis:hget(
+                'missing_languages',
+                message.from.language_code
+            ) -- If we haven't stored the missing language file, add it into the database.
+            then
+                redis:hset(
+                    'missing_languages',
+                    message.from.language_code,
+                    true
+                )
+            end
+            if message.text == '/start'
+            and message.chat.type == 'private'
+            then
+                mattata.send_message(
+                    message.chat.id,
+                    'It appears that I haven\'t got a translation in your language (' .. message.from.language_code .. ') yet. If you would like to voluntarily translate me into your language, please join <a href="https://t.me/mattataDev">my official development group</a>. Thanks!',
+                    'html'
+                )
+            end
+        elseif redis:hget(
+            'missing_languages',
+            message.from.language_code
+        )
+        -- If the language file is found, yet it's recorded as missing in the database, it's probably
+        -- new, so it is deleted from the database to prevent confusion when processing this list!
+        then
+            redis:hdel(
+                'missing_languages',
+                message.from.language_code
+            )
+        end
+    end
+    if message.from
+    and message.from.language_code
+    and (
+        not redis:hget(
+            string.format(
+                'user:%s:info',
+                message.from.username
+                or message.from.id
+            ),
+            'language_code'
+        )
+        or redis:hget(
+            string.format(
+                'user:%s:info',
+                message.from.username
+                or message.from.id
+            ),
+            'language_code'
+        ) ~= message.from.language_code
+    )
+    then
+        redis:hset(
+            string.format(
+                'user:%s:info',
+                message.from.username
+                or message.from.id
+            ),
+            'language_code',
+            message.from.language_code
+        )
+        print('Updated language to ' .. message.from.language_code .. ' for ' .. (message.from.username and '@' .. message.from.username or message.from.id) .. '!')
+    end
     message.chat.title = message.chat.title
     or message.from.name -- If the chat type is private then there isn't going to be a value for `title`
     -- in the `message.chat` object, so we'll use the name of the message sender instead.
+    if redis:sismember(
+        'chat:' .. message.chat.id .. ':muted_users',
+        tostring(message.from.id)
+    )
+    then
+        print('Message deleted from ' .. message.from.id .. ' in ' .. message.chat.id)
+        return mattata.delete_message(
+            message.chat.id,
+            message.message_id
+        )
+    end
     local msg_count = tonumber(
         redis:get('antispam:' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
         -- has already sent 1 or more messages to the current chat, in the past 5 seconds.
@@ -509,6 +599,7 @@ function mattata:on_message(message, configuration)
         'github',
         message
     )
+    and message.text
     and message.text:match('h?t?t?p?s?:?/?/?w?w?w?%.?github%.com/[A-Z%-%_a-z]+/[A-Z%-%_a-z]+')
     and message.entities
     then
@@ -585,8 +676,14 @@ function mattata:on_message(message, configuration)
             language
         )
     end
-    if message.text:lower():match('^i?\'?m? ?back.?$')
-    or message.text:lower():match('^i?\'?l?l? ?brb.?$')
+    if (
+        message.text:lower():match('^i?\'?m? ?back.?$')
+        or message.text:lower():match('^i?\'?l?l? ?brb.?$')
+    )
+    and redis:hget(
+        'afk:' .. message.chat.id .. ':' .. message.from.id,
+        'since'
+    )
     then
         message.text = '/afk'
     end
@@ -712,6 +809,28 @@ function mattata:on_message(message, configuration)
                 )
             end
         end
+    end
+    -- This is only here to show off the new telegram-bot-lua API features!
+    if message.from
+    and message.chat.type == 'private'
+    and message.text == '/testpayment'
+    and configuration.stripe_test_token
+    and configuration.stripe_test_token ~= ''
+    then
+        return mattata.send_invoice(
+            message.chat.id,
+            'Banana',
+            'The banana is an edible fruit – botanically a berry – produced by several kinds of large herbaceous flowering plants in the genus Musa. In some countries, bananas used for cooking may be called plantains, in contrast to dessert bananas.',
+            os.time(),
+            configuration.stripe_test_token,
+            os.time(),
+            'GBP',
+            '[{"label":"Buy","amount":100}]',
+            'http://readanddigest.com/wp-content/uploads/2012/10/Banana1.jpg',
+            nil,
+            350,
+            263
+        )
     end
     for _, plugin in ipairs(self.plugins)
     do
@@ -841,6 +960,7 @@ function mattata:on_message(message, configuration)
                     message.chat.id,
                     'delete commands'
                 )
+                and message.text:match('^/')
                 then
                     return mattata.delete_message(
                         message.chat.id,
@@ -988,9 +1108,9 @@ function mattata:on_message(message, configuration)
         end
     end
     if configuration.respond_to_misc
-    and not mattata.is_plugin_disabled(
-        'ai',
-        message
+    and not mattata.get_setting(
+        message.chat.id,
+        'misc responses'
     ) -- Ensure the AI functionality hasn't been turned off, since the user probably
     -- won't want the miscellaneous responses if it has been.
     then
@@ -1045,13 +1165,13 @@ function mattata:on_message_misc(message, configuration)
         ['trump'] = 'Trump? He\'s not MY president! ' .. utf8.char(128560),
         ['pennis'] = '... and also dicke and balls?',
         ['^stop$'] = 'stop',
-        ['gender'] = 'lol ok there are only 2 genders',
         ['^no u$'] = 'fight me boi',
         ['fritzypoo'] = 'SORRY MUM, IT\'S A FRITZISM',
         ['vicar'] = 'fml not this again *unzips jeans*',
         ['catholic priests?'] = 'pretty sure you mean boy diddlers m8',
         ['vegan'] = 'nuuuuu i dun like vegans xdd',
-        ['^fritzy$'] = 'poo'
+        ['^fritzy$'] = 'poo',
+        ['^gay$'] = 'I fully support LGBTQ+ rights! You should too, ' .. message.from.name .. '! ' .. utf8.char(127987) .. utf8.char(8205) .. utf8.char(127752)
     }
     for trigger, response in pairs(matches)
     do
@@ -1078,16 +1198,7 @@ function mattata:on_message_misc(message, configuration)
             )
         end
     end
-    if message.text:lower():match('^i\'?m %a+$')
-    then
-        return mattata.send_reply(
-            message,
-            '<pre>Hello ' .. mattata.escape_html(
-                message.text:match(' (.-)$')
-            ) .. ', I\'m ' .. self.info.nickname .. '!</pre>',
-            'html'
-        )
-    elseif message.text:lower():match('^w?h?y so salty%??!?%.?$')
+    if message.text:lower():match('^w?h?y so salty%??!?%.?$')
     then
         return mattata.send_sticker(
             message.chat.id,
@@ -1175,12 +1286,6 @@ function mattata:on_message_misc(message, configuration)
             true,
             false,
             message_id
-        )
-    elseif message.text:lower():match('blue waffle')
-    then
-        return mattata.send_photo(
-            message.chat.id,
-            'AgADBAADwqcxG2QlwVA4aJHiXUZPJQoFYBkABP5H1dYBkOt9nswCAAEC'
         )
     elseif message.text:lower() == 'pek'
     or message.text:lower():match('trash dove')
@@ -1888,10 +1993,11 @@ function mattata.process_user(user)
     ) then
         print(
             string.format(
-                '%s[34m[+] Added the user %s%s to the database!%s[0m',
+                '%s[34m[+] Added the user %s%s to the database!%s%s[0m',
                 string.char(27),
                 user.username and '@' or '',
                 user.username or user.id,
+                user.language_code and ' Language: ' .. user.language_code or '',
                 string.char(27)
             )
         )
@@ -1949,6 +2055,24 @@ function mattata.process_user(user)
             'username'
         )
     end
+    if user.language_code then
+        redis:hset(
+            string.format(
+                'user:%s:info',
+                user.username or user.id
+            ),
+            'language_code',
+            user.language_code
+        )
+    else
+        redis:hdel(
+            string.format(
+                'user:%s:info',
+                user.username or user.id
+            ),
+            'language_code'
+        )
+    end
     redis:hset(
         string.format(
             'user:%s:info',
@@ -1961,31 +2085,53 @@ function mattata.process_user(user)
 end
 
 function mattata.process_message(message)
-    message.text = message.text or message.caption or ''
+    message.text = message.text
+    or message.caption
+    or ''
     message.text = message.text:gsub('^/(%a+)%_', '/%1 ')
     message.is_media = mattata.is_media(message)
     message.media_type = mattata.media_type(message)
     message.file_id = mattata.file_id(message)
     message.is_service_message = mattata.is_service_message(message)
     message.service_message = mattata.service_message(message)
+    if message.from.language_code
+    then
+        message.from.language_code = message.from.language_code
+        :lower()
+        :gsub('%-', '_')
+        if message.from.language_code:len() == 2
+        and message.from.language_code ~= 'en'
+        then
+            message.from.language_code = message.from.language_code .. '_' .. message.from.language_code
+        elseif message.from.language_code:len() == 2
+        then
+            message.from.language_code = 'en_us'
+        end
+    end
     message.from = mattata.process_user(message.from)
-    if message.forward_from then
+    if message.forward_from
+    then
         message.forward_from = mattata.process_user(message.forward_from)
-    elseif message.new_chat_member then
+    elseif message.new_chat_member
+    then
         message.new_chat_member = mattata.process_user(message.new_chat_member)
-    elseif message.left_chat_member then
+    elseif message.left_chat_member
+    then
         message.left_chat_member = mattata.process_user(message.left_chat_member)
     end
     message.chat = mattata.process_chat(message.chat)
-    if message.forward_from_chat then
+    if message.forward_from_chat
+    then
         mattata.process_chat(message.forward_from_chat)
     end
     return message
 end
 
 function mattata.is_global_admin(id)
-    for k, v in pairs(configuration.admins) do
-        if id == v then
+    for k, v in pairs(configuration.admins)
+    do
+        if id == v
+        then
             return true
         end
     end
@@ -1994,12 +2140,16 @@ function mattata.is_global_admin(id)
 end
 
 function mattata.get_user(input)
-    input = tostring(input):match('^%@(.-)$') or tostring(input)
+    input = tostring(input):match('^%@(.-)$')
+    or tostring(input)
     local user = redis:hgetall('user:' .. input .. ':info')
-    if user.username and user.username:lower() == input:lower() then
+    if user.username
+    and user.username:lower() == input:lower()
+    then
         user.type = 'private'
         user.name = user.first_name
-        if user.last_name then
+        if user.last_name
+        then
             user.name = user.name .. ' ' .. user.last_name
         end
         return {
@@ -2175,7 +2325,7 @@ function mattata.format_time(seconds)
         return false
     end
     local output
-    seconds = tonumber(seconds) -- Make sure we're dealing with a numerical value.
+    seconds = tonumber(seconds) -- Make sure we're handling a numerical value.
     local minutes = math.floor(seconds / 60)
     if minutes == 0
     then
@@ -2223,6 +2373,28 @@ function mattata.format_time(seconds)
         and weeks .. ' weeks'
         or weeks .. ' week'
     end
+end
+
+function mattata.get_missing_languages(delimiter)
+    local missing_languages = redis:hgetall('missing_languages')
+    if not missing_languages
+    then
+        return false
+    end
+    local output = {}
+    for k, v in pairs(missing_languages)
+    do
+        table.insert(
+            output,
+            k
+        )
+    end
+    local delimiter = delimiter
+    or ', '
+    return table.concat(
+        output,
+        delimiter
+    )
 end
 
 return mattata

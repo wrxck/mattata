@@ -285,16 +285,7 @@ A understand many commands, which ye can learn more about by pressing the "Comma
 
 %s <b>Tip:</b> Use the "Settings" button tae change how A work%s!
         ]],
-        ['24'] = 'in',
-        ['25'] = [[
-<b>Hi %s! My name's %s, it's a pleasure tae meet ye</b> %s
-
-I'm a smart bot who is capable of having conversations with humans such as yerself, and A have the ability tae administrate yer gruips too!
-
-A understand many commands, which ye can learn more about by pressing the "Commands" button using the attached keyboard.
-
-%s <b>Tip:</b> Use the "Settings" button tae change how A work%s!
-        ]]
+        ['24'] = 'in'
     },
     ['id'] = {
         ['1'] = 'Am sorry, but A daena recognise that usar. tae lear me who thei be, forrit a message from them tae me ore get them tae send me a message.',
@@ -427,6 +418,13 @@ System:
         ['2'] = 'This %s must be public, with a @usarname.',
         ['3'] = 'Pleese reply tae the message ye\'d like tae get a link for.'
     },
+    ['mute'] = {
+        ['1'] = 'Which user would you like me to mute? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot mute this user because they are already muted in this chat.',
+        ['3'] = 'I cannot mute this user because they are a moderator or an administrator in this chat.',
+        ['4'] = 'I cannot mute this user because they have already left (or been kicked from) this chat.',
+        ['5'] = 'I need to have administrative permissions in order to mute this user. Please amend this issue, and try again.'
+    },
     ['name'] = {
         ['1'] = 'The name A currently respond tae is "%s" - tae change thes, use /name <text> (where <text> is what ye want me tae respond to).',
         ['2'] = 'My new name needs tae be between 2 and 32 characters long!',
@@ -525,6 +523,14 @@ System:
         ['1'] = 'Your language has been set tae %s!',
         ['2'] = 'Your language is currently %s.\nPleese note that some strings may not be translated as of yet. If ye\'d like tae change yer language, select one using the keyboard below:'
     },
+    ['setlink'] = {
+        ['1'] = 'That\'s not a valid URL.',
+        ['2'] = 'Link set successfully!'
+    },
+    ['setrules'] = {
+        ['1'] = 'Invalid Markdown formatting.',
+        ['2'] = 'Successfully set the new rules!'
+    },
     ['setwelcome'] = {
         ['1'] = 'What wud ye like the welcome message tae be? The text ye specify will be Markdoun-formatted and sent every time a usar joins the tauk (the welcome message can be disabled in the administration menu, accessible via /administration). Ye can use placeholders tae automatically customise the welcome message for each usar. Use $usar_id tae insert the usar\'s numerical ID, $chat_id tae insert the tauk\'s numerical ID, $name tae insert the usar\'s name, $title tae insert the tauk\'s title and $usarname tae insert the usar\'s usarname (if the usar daesna have an @usarname, thair name will be used instead, so it is best tae avoid using thes in conjunction with $name).',
         ['2'] = 'There was a mistak formatting yer message, pleese check yer Markdoun syntax and pree again.',
@@ -556,6 +562,12 @@ System:
     ['tobinary'] = {
         ['1'] = 'Pleese enter the string ye wud like tae convert tae binary.'
     },
+    ['unmute'] = {
+        ['1'] = 'Which user would you like me to unmute? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot unmute this user because they are not currently muted in this chat.',
+        ['3'] = 'I cannot unmute this user because they are a moderator or an administrator in this chat.',
+        ['4'] = 'I cannot unmute this user because they have already left (or been kicked from) this chat.'
+    },
     ['upload'] = {
         ['1'] = 'Pleese reply tae the file ye\'d like tae dounload tae the server. It must be <= 20 MB.',
         ['2'] = 'That file is too large. It must be <= 20 MB.',
@@ -569,6 +581,12 @@ System:
     ['weather'] = {
         ['1'] = 'Ye daena have a location set. Use /setloc <location> tae set one.',
         ['2'] = 'It\'s currently %s (feels like %s) in %s. %s'
+    },
+    ['whitelist'] = {
+        ['1'] = 'Which user would you like me to whitelist? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot whitelist this user because they are a moderator or an administrator in this chat.',
+        ['3'] = 'I cannot whitelist this user because they have already left this chat.',
+        ['4'] = 'I cannot whitelist this user because they have already been banned from this chat.'
     },
     ['wikipedia'] = {
         ['1'] = 'Read more.'

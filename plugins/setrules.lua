@@ -1,0 +1,48 @@
+--[[
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local setrules = {}
+local mattata = require('mattata')
+local redis = require('mattata-redis')
+
+function setrules:init()
+    setrules.commands = mattata.commands(self.info.username):command('setrules').table
+    setrules.help = '/setrules <text> - Sets the group\'s rules to the give text. Markdown formatting is supported.'
+end
+
+function setrules:on_message(message, configuration, language)
+    local input = mattata.input(message.text)
+    if not input
+    then
+        return mattata.send_reply(
+            message,
+            setrules.help
+        )
+    end
+    redis:hset(
+        'chat:' .. message.chat.id .. ':values',
+        'rules',
+        input
+    )
+    local success = mattata.send_message(
+        message,
+        input,
+        'markdown'
+    )
+    if not success
+    then
+        return mattata.send_reply(
+            message,
+            language['setrules']['1']
+        )
+    end
+    return mattata.edit_message_text(
+        message.chat.id,
+        success.result.message_id,
+        language['setrules']['2']
+    )
+end
+
+return setrules

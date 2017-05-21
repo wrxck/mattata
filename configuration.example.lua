@@ -1,4 +1,4 @@
--- Configuration file for mattata v21.0
+-- Configuration file for mattata v22.0
 
 -- Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
 -- This code is licensed under the MIT. See LICENSE for details.
@@ -10,6 +10,8 @@ return { -- Rename this file to configuration.lua for the bot to work.
 
     ['bot_token'] = '', -- In order for the bot to actually work, you MUST insert the Telegram
     -- bot API token you received from @BotFather.
+    ['stripe_live_token'] = '', -- Payment token you receive from @BotFather.
+    ['stripe_test_token'] = '', -- Test payment token you receive from @BotFather.
     ['admins'] = {  -- Here you need to specify the numerical ID of the users who shall have
     -- FULL control over the bot, this includes access to server files via the lua and shell plugins.
         nil,
@@ -86,6 +88,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'github',
         'godwords',
         'google',
+        'groups',
         'gwhitelist',
         'hackernews',
         'help',
@@ -105,6 +108,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'itunes',
         'jsondump',
         'kick',
+        'languages',
         'lastfm',
         'license',
         'lmgtfy',
@@ -116,6 +120,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'me',
         'minecraft',
         'msglink',
+        'mute',
         'name',
         'netflix',
         'news',
@@ -144,6 +149,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'sed',
         'setai',
         'setlang',
+        'setlink',
         'setloc',
         'settings',
         'setwelcome',
@@ -166,6 +172,7 @@ return { -- Rename this file to configuration.lua for the bot to work.
         'twitch',
         'unban',
         'unicode',
+        'unmute',
         'upload',
         'urbandictionary',
         'user',

@@ -230,11 +230,19 @@ function ai:on_message(message, configuration)
             output = ai.process(message.text)
         end
     else
+        local token = message.from.id
+        if mattata.get_setting(
+            message.chat.id,
+            'shared ai'
+        )
+        then
+            token = message.chat.id
+        end
         output = mattata_ai.talk(
             message.text,
             false,
             false,
-            message.from.id
+            token
         )
     end
     if not output

@@ -444,7 +444,7 @@ function help:on_message(message, configuration, language)
     return mattata.send_message(
         message.chat.id,
         string.format(
-            language['help']['25'],
+            language['help']['23'],
             mattata.escape_html(message.from.first_name),
             mattata.escape_html(
                 mattata.get_me().result.first_name

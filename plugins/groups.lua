@@ -1,0 +1,95 @@
+--[[
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local groups = {}
+local mattata = require('mattata')
+local json = require('dkjson')
+local redis = require('mattata-redis')
+
+function groups:init()
+    groups.commands = mattata.commands(self.info.username):command('groups').table
+    groups.help = '/groups [query] - View a list of mattata\'s groups (that is, all of the ones added by the bot owner), or search for groups by passing a Lua pattern as a command argument.'
+end
+
+function groups:on_message(message)
+    local input = mattata.input(message.text)
+    local output = {}
+    for k, v in pairs(
+        redis:smembers('mattata:configuration:chats')
+    )
+    do
+        if v
+        and json.decode(v).link
+        and json.decode(v).title
+        then
+            local link = json.decode(v).link
+            local title = json.decode(v).title
+            if input
+            then
+                local validate = pcall(
+                    function()
+                        return title:match(input)
+                    end
+                )
+                if not validate
+                then
+                    return mattata.send_reply(
+                        message,
+                        'Your search query contains a malformed Lua pattern! If you\'re not sure what this means, try searching without any symbols.'
+                    )
+                end
+            end
+            if (
+                input
+                and title:match(input)
+            )
+            or not input
+            then
+                table.insert(
+                    output,
+                    string.format(
+                        '• <a href="%s">%s</a>',
+                        mattata.escape_html(link),
+                        mattata.escape_html(title)
+                    )
+                )
+            end
+        end
+    end
+    if not next(output)
+    then
+        local output = 'No groups were found. If you\'d like your group to appear here, contact @wrxck0.'
+        if input
+        then
+            output = string.format(
+                'No groups were found matching "%s"! Use /groups to view a complete list of available groups.',
+                input
+            )
+        end
+        return mattata.send_reply(
+            message,
+            output
+        )
+    end
+    table.sort(output)
+    output = table.concat(
+        output,
+        '\n'
+    )
+    if input
+    then
+        output = string.format(
+            'Groups found matching "%s":\n',
+            mattata.escape_html(input)
+        ) .. output
+    end
+    return mattata.send_message(
+        message.chat.id,
+        output,
+        'html'
+    )
+end
+
+return groups

@@ -275,16 +275,7 @@ Ich verstehe viele Befehle, welche du lernen kannst wenn du den Befehle Button d
 
 %s <b>Tip:</b> Benutze den "Settings" Button zum verändern wie ich arbeite%s!
         ]],
-        ['24'] = 'in',
-        ['25'] = [[
-<b>Hallo %s! Mein Name ist %s, schön dich zu treffen</b> %s
-
-Ich bin ein cleverer Bot, welcher sich mit Menschen unterhalten kann. Des weiteren habe ich auch die Möglichkeit in Gruppen zu administrieren.
-
-Ich verstehe viele Befehle, welche du lernen kannst wenn du den Befehle Button drückst in der angehängten Tastatur.
-
-%s <b>Tip:</b> Benutze den "Settings" Button zum verändern wie ich arbeite%s!
-        ]]
+        ['24'] = 'in'
     },
     ['id'] = {
         ['1'] = 'Ich kann den Benutzer nicht erkennen. Wenn du mich lehren möchtest wer dieser Benutzer ist, dann leite einfach eine Nachricht von diesem Benutzer in eine Gruppe in der ich auch bin .',
@@ -417,6 +408,13 @@ System:
         ['2'] = 'Diese %s muss öffentlich sein, mit einem @Benutzernamen.',
         ['3'] = 'Bitte antworte zu einem Text, zu dem du einen Link erhalten möchtest.'
     },
+    ['mute'] = {
+        ['1'] = 'Which user would you like me to mute? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot mute this user because they are already muted in this chat.',
+        ['3'] = 'I cannot mute this user because they are a moderator or an administrator in this chat.',
+        ['4'] = 'I cannot mute this user because they have already left (or been kicked from) this chat.',
+        ['5'] = 'I need to have administrative permissions in order to mute this user. Please amend this issue, and try again.'
+    },
     ['name'] = {
         ['1'] = 'The name I currently respond to is "%s" - to change this, use /name <text> (where <text> is what you want me to respond to).',
         ['2'] = 'My new name needs to be between 2 and 32 characters long!',
@@ -515,6 +513,14 @@ System:
         ['1'] = 'Deine Sprache wurde eingestellt zu %s!',
         ['2'] = 'Deine Sprache ist im Moment eingestellt zu %s.\nBitte beachte, dass manche Wörter oder Sätze noch nicht übersetzet sind. Wenn du deine Sprache ändern möchtest, suche dir eine aus in der Tastatur unten:'
     },
+    ['setlink'] = {
+        ['1'] = 'That\'s not a valid URL.',
+        ['2'] = 'Link set successfully!'
+    },
+    ['setrules'] = {
+        ['1'] = 'Invalid Markdown formatting.',
+        ['2'] = 'Successfully set the new rules!'
+    },
     ['setwelcome'] = {
         ['1'] = 'Was möchtest als Willkommens Text haben? Den angegebenen Text wird formatiert und jedesmal gesendet, wenn ein Benutzer der Gruppe beitritt (Der Willkommens Text kann ausgeschaltet werden im Administrations Menue, erreichbar mit /administration).  Du kannst Platzhalter benutzen für einen individuellen Willkommens Text für jeden Benutzer. Benutze $user_id zum einfügen des Benutzers Identifikationsnummer, $chat_id zum einfügen der Gruppen Identifikationsnummer, $name zum einfügen des Benutzers name, $title zum einfügen des Gruppennamen und $username zum einfügen des Benutzers Benutzername (wenn der Benutzer keinen @Benutzernamen hat, wird deren Name benutzt, also ist es das beste, dieses zu vermeiden mit der Benutzung von $name).',
         ['2'] = 'Da ist ein Fehler mit dem Format deines Textes aufgetreten. Bitte Überprüfe die Syntax und versuche es noch einmal.',
@@ -546,6 +552,12 @@ System:
     ['tobinary'] = {
         ['1'] = 'Bitte gebe ein Wort oder Satz ein, welchen du umwandeln willst zu Binary.'
     },
+    ['unmute'] = {
+        ['1'] = 'Which user would you like me to unmute? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot unmute this user because they are not currently muted in this chat.',
+        ['3'] = 'I cannot unmute this user because they are a moderator or an administrator in this chat.',
+        ['4'] = 'I cannot unmute this user because they have already left (or been kicked from) this chat.'
+    },
     ['upload'] = {
         ['1'] = 'Bitte antworte zu der Datei, welche du hochlanden willst zum Server. Sie muss <= 20 MB sein.',
         ['2'] = 'Die Datei ist zu groß. Sie muss <= 20 MB sein.',
@@ -559,6 +571,12 @@ System:
     ['weather'] = {
         ['1'] = 'Du hast keinen Standort ausgewählt. Zum auswählen benutze /setloc <Standort>.',
         ['2'] = 'Im Moment ist es %s (fühlt sich an wie %s) in %s. %s'
+    },
+    ['whitelist'] = {
+        ['1'] = 'Which user would you like me to whitelist? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot whitelist this user because they are a moderator or an administrator in this chat.',
+        ['3'] = 'I cannot whitelist this user because they have already left this chat.',
+        ['4'] = 'I cannot whitelist this user because they have already been banned from this chat.'
     },
     ['wikipedia'] = {
         ['1'] = 'Mehr lesen.'

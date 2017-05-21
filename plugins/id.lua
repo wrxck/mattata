@@ -89,6 +89,13 @@ function id.resolve_chat(message, language)
             output,
             utf8.char(128101) .. ' ' .. mattata.escape_html(success.first_name)
         )
+        if success.language_code
+        then
+            table.insert(
+                output,
+                utf8.char(127987) .. ' ' .. success.language_code
+            )
+        end
     else
         table.insert(
             output,
