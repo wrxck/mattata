@@ -470,6 +470,14 @@ System:
         ['6'] = 'You don\'t have enough funds to complete that transaction!',
         ['7'] = '%s mattacoins have been sent to %s. Your new balance is %s mattacoins.'
     },
+    ['pin'] = {
+        ['1'] = 'You haven\'t set a pin before. Use /pin <text> to set one. Markdown formatting is supported.',
+        ['2'] = 'Here is the last message generated using /pin.',
+        ['3'] = 'I found an existing pin in the database, but the message I sent it in seems to have been deleted, and I can\'t find it anymore. You can set a new one with /pin <text>. Markdown formatting is supported.',
+        ['4'] = 'There was an error whilst updating your pin. Either the text you entered contained invalid Markdown syntax, or the pin has been deleted. I\'m now going to try and send you a new pin, which you\'ll be able to find below - if you need to modify it then, after ensuring the message still exists, use /pin <text>.',
+        ['5'] = 'I couldn\'t send that text because it contains invalid Markdown syntax.',
+        ['6'] = 'Click here to see the pin, updated to contain the text you gave me.'
+    },
     ['pokedex'] = {
         ['1'] = 'Name: %s\nID: %s\nType: %s\nDescription: %s'
     },
@@ -577,6 +585,20 @@ System:
     },
     ['version'] = {
         ['1'] = '@%s AKA %s `[%s]` is running mattata %s, created by [Matthew Hesketh](https://t.me/wrxck). The source code is available on [GitHub](https://github.com/wrxck/mattata).'
+    },
+    ['voteban'] = {
+        ['1'] = 'Which user would you like to open up a vote-ban for? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot setup a vote-ban for this user because they are a moderator or an administrator in this chat.',
+        ['3'] = 'I cannot setup a vote-ban for this user because they have already left (or been kicked from) this chat.',
+        ['4'] = 'Should %s [%s] be banned from %s? %s upvotes are required for an immediate ban, and %s downvotes are required for this vote to be closed.',
+        ['5'] = 'Yes [%s]',
+        ['6'] = 'No [%s]',
+        ['7'] = 'The people have spoken. I have banned %s [%s] from %s because %s people voted for me to do so.',
+        ['8'] = 'The required upvote amount was reached, however, I was unable to ban %s - perhaps they\'ve left the group or been promoted since we opened the vote to ban them? It\'s either that, or I no longer have the administrative privileges required in order to perform this action!',
+        ['9'] = 'The people have spoken. I haven\'t banned %s [%s] from %s because the required %s people downvoted the decision to ban them.',
+        ['10'] = 'You upvoted the decision to ban %s [%s]!',
+        ['11'] = 'Your current vote has been retracted, use the buttons again to re-submit your vote.',
+        ['12'] = 'You downvoted the decision to ban %s [%s]!'
     },
     ['weather'] = {
         ['1'] = 'You don\'t have a location set. Use /setloc <location> to set one.',

@@ -17,14 +17,16 @@ setlang.languages = {
     ['en_gb'] = 'British English 🇬🇧',
     ['en_us'] = 'American English 🇺🇸',
     ['de_de'] = 'Deutsch 🇩🇪',
-    ['scottish'] = 'Scottish 🏴󠁧󠁢󠁳󠁣󠁴󠁿'
+    ['scottish'] = 'Scottish 🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+    ['pl_pl'] = 'Polski 🇵🇱'
 }
 
 setlang.languages_short = {
     ['en_gb'] = '🇬🇧',
     ['en_us'] = '🇺🇸',
     ['de_de'] = '🇩🇪',
-    ['scottish'] = '🏴󠁧󠁢󠁳󠁣󠁴󠁿'
+    ['scottish'] = '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+    ['pl_pl'] = '🇵🇱'
 }
 
 function setlang.get_keyboard(user_id)

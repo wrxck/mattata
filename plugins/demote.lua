@@ -115,8 +115,7 @@ function demote:on_message(message, configuration, language)
     )
     then
         mattata.send_message(
-            configuration.admin_log_chat
-            or configuration.admins[1],
+            mattata.get_log_chat(message.chat.id),
             string.format(
                 '<pre>%s%s [%s] has demoted %s%s [%s] in %s%s [%s].</pre>',
                 message.from.username

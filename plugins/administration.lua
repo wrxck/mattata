@@ -122,6 +122,12 @@ function administration.get_initial_keyboard(chat_id)
         )
     )
     :row(
+        mattata.row():callback_data_button(
+            'Vote-Ban Settings',
+            'administration:' .. chat_id .. ':voteban'
+        )
+    )
+    :row(
         mattata.row()
         :callback_data_button(
             'Arabic/RTL',
@@ -419,6 +425,74 @@ function administration.get_warnings(chat_id)
         'administration:nil',
         '+',
         'administration:' .. chat_id .. ':max_warnings:' .. higher
+    )
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = 'Back',
+                ['callback_data'] = 'administration:' .. chat_id .. ':back'
+            }
+        }
+    )
+    return keyboard
+end
+
+function administration.get_voteban_keyboard(chat_id)
+    local keyboard = {
+        ['inline_keyboard'] = {}
+    }
+    local current_required_upvotes = redis:hget(
+        string.format(
+            'chat:%s:settings',
+            chat_id
+        ),
+        'required upvotes for vote bans'
+    ) or 5
+    print(current_required_upvotes)
+    local current_required_downvotes = redis:hget(
+        string.format(
+            'chat:%s:settings',
+            chat_id
+        ),
+        'required downvotes for vote bans'
+    ) or 5
+    print(current_required_downvotes)
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = 'Upvotes needed to ban:',
+                ['callback_data'] = 'administration:nil'
+            }
+        }
+    )
+    administration.insert_keyboard_row(
+        keyboard,
+        '-',
+        'administration:' .. chat_id .. ':voteban_upvotes:' .. tonumber(current_required_upvotes) - 1,
+        tostring(current_required_upvotes),
+        'administration:nil',
+        '+',
+        'administration:' .. chat_id .. ':voteban_upvotes:' .. tonumber(current_required_upvotes) + 1
+    )
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = 'Downvotes needed to dismiss:',
+                ['callback_data'] = 'administration:nil'
+            }
+        }
+    )
+    administration.insert_keyboard_row(
+        keyboard,
+        '-',
+        'administration:' .. chat_id .. ':voteban_downvotes:' .. tonumber(current_required_downvotes) - 1,
+        tostring(current_required_downvotes),
+        'administration:nil',
+        '+',
+        'administration:' .. chat_id .. ':voteban_downvotes:' .. tonumber(current_required_downvotes) + 1
     )
     table.insert(
         keyboard.inline_keyboard,
@@ -1019,153 +1093,227 @@ function administration:on_callback_query(callback_query, message, configuration
     end
     local keyboard
     if callback_query.data:match('^%-%d+:antispam$') then
-        local chat_id = callback_query.data:match('^(%-%d+):antispam$')
-        keyboard = administration.get_antispam_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:limit:.-:.-$') then
+        keyboard = administration.get_antispam_keyboard(
+            callback_query.data:match('^(%-%d+):antispam$')
+        )
+    elseif callback_query.data:match('^%-%d+:voteban$')
+    then
+        keyboard = administration.get_voteban_keyboard(
+            callback_query.data:match('^(%-%d+):voteban$')
+        )
+    elseif callback_query.data:match('^%-%d+:voteban_upvotes:.-$')
+    then
+        local chat_id, required_upvotes = callback_query.data:match('^(%-%d+):voteban_upvotes:(.-)$')
+        if tonumber(required_upvotes) < configuration.voteban.upvotes.minimum
+        then
+            return mattata.answer_callback_query(
+                callback_query.id,
+                'The minimum number of upvotes required for a vote-ban is 2.'
+            )
+        elseif tonumber(required_upvotes) > configuration.voteban.upvotes.maximum
+        then
+            return mattata.answer_callback_query(
+                callback_query.id,
+                'The maximum number of upvotes required for a vote-ban is 20.'
+            )
+        elseif tonumber(required_upvotes) == nil
+        then
+            return
+        end
+        redis:hset(
+            'chat:' .. chat_id .. ':settings',
+            'required upvotes for vote bans',
+            tonumber(required_upvotes)
+        )
+        keyboard = administration.get_voteban_keyboard(chat_id)
+    elseif callback_query.data:match('^%-%d+:voteban_downvotes:.-$')
+    then
+        local chat_id, required_downvotes = callback_query.data:match('^(%-%d+):voteban_downvotes:(.-)$')
+        if tonumber(required_downvotes) < configuration.voteban.downvotes.minimum
+        then
+            return mattata.answer_callback_query(
+                callback_query.id,
+                'The minimum number of downvotes required for a vote-ban is 2.'
+            )
+        elseif tonumber(required_downvotes) > configuration.voteban.downvotes.maximum
+        then
+            return mattata.answer_callback_query(
+                callback_query.id,
+                'The maximum number of downvotes required for a vote-ban is 20.'
+            )
+        elseif tonumber(required_downvotes) == nil
+        then
+            return
+        end
+        redis:hset(
+            'chat:' .. chat_id .. ':settings',
+            'required downvotes for vote bans',
+            tonumber(required_downvotes)
+        )
+        keyboard = administration.get_voteban_keyboard(chat_id)
+    elseif callback_query.data:match('^%-%d+:limit:.-:.-$')
+    then
         local chat_id, spam_type, limit = callback_query.data:match('^(%-%d+):limit:(.-):(.-)$')
         local max_limit, min_limit
-        if spam_type == 'text' then
+        if spam_type == 'text'
+        then
             max_limit, min_limit = 16, 2
-        elseif spam_type == 'forwarded' then
+        elseif spam_type == 'forwarded'
+        then
             max_limit, min_limit = 32, 1
-        elseif spam_type == 'stickers' then
+        elseif spam_type == 'stickers'
+        then
             max_limit, min_limit = 8, 1
         end
-        if tonumber(limit) > tonumber(max_limit) then
+        if tonumber(limit) > tonumber(max_limit)
+        then
             return mattata.answer_callback_query(
                 callback_query.id,
                 'The maximum limit is ' .. max_limit .. '.'
             )
-        elseif tonumber(limit) < tonumber(min_limit) then
+        elseif tonumber(limit) < tonumber(min_limit)
+        then
             return mattata.answer_callback_query(
                 callback_query.id,
                 'The minimum limit is ' .. min_limit .. '.'
             )
-        elseif tonumber(limit) == nil then
+        elseif tonumber(limit) == nil
+        then
             return
         end
-        local hash = mattata.get_redis_hash(
-            chat_id,
-            'administration'
-        )
         redis:hset(
-            hash,
+            'chat:' .. chat_id .. ':administration',
             spam_type,
             tonumber(limit)
         )
         keyboard = administration.get_antispam_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:warnings$') then
+    elseif callback_query.data:match('^%-%d+:warnings$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):warnings$')
         keyboard = administration.get_warnings(chat_id)
-    elseif callback_query.data:match('^%-%d+:max_warnings:.-$') then
+    elseif callback_query.data:match('^%-%d+:max_warnings:.-$')
+    then
         local chat_id, max_warnings = callback_query.data:match('^(%-%d+):max_warnings:(.-)$')
-        if tonumber(max_warnings) > configuration.administration.warnings.maximum then
+        if tonumber(max_warnings) > configuration.administration.warnings.maximum
+        then
             return mattata.answer_callback_query(
                 callback_query.id,
                 'The maximum number of warnings is 10.'
             )
-        elseif tonumber(max_warnings) < configuration.administration.warnings.minimum then
+        elseif tonumber(max_warnings) < configuration.administration.warnings.minimum
+        then
             return mattata.answer_callback_query(
                 callback_query.id,
                 'The minimum number of warnings is 2.'
             )
-        elseif tonumber(max_warnings) == nil then
+        elseif tonumber(max_warnings) == nil
+        then
             return
         end
         redis:hset(
-            string.format(
-                'chat:%s:settings',
-                chat_id
-            ),
+            'chat:' .. chat_id .. ':settings',
             'max warnings',
             tonumber(max_warnings)
         )
         keyboard = administration.get_warnings(chat_id)
-    elseif callback_query.data:match('^%-%d+:toggle$') then
+    elseif callback_query.data:match('^%-%d+:toggle$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):toggle$')
         administration.toggle_setting(
             chat_id,
             'use administration'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:rtl$') then
+    elseif callback_query.data:match('^%-%d+:rtl$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):rtl$')
         administration.toggle_setting(
             chat_id,
             'rtl'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:rules$') then
+    elseif callback_query.data:match('^%-%d+:rules$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):rules$')
         administration.toggle_setting(
             chat_id,
             'rules on join'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:inactive$') then
+    elseif callback_query.data:match('^%-%d+:inactive$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):inactive$')
         administration.toggle_setting(
             chat_id,
             'remove inactive users'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:action$') then
+    elseif callback_query.data:match('^%-%d+:action$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):action$')
         administration.toggle_setting(
             chat_id,
             'ban not kick'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:antibot$') then
+    elseif callback_query.data:match('^%-%d+:antibot$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):antibot$')
         administration.toggle_setting(
             chat_id,
             'antibot'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:antilink$') then
+    elseif callback_query.data:match('^%-%d+:antilink$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):antilink$')
         administration.toggle_setting(
             chat_id,
             'antilink'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:welcome_message$') then
+    elseif callback_query.data:match('^%-%d+:welcome_message$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):welcome_message$')
         administration.toggle_setting(
             chat_id,
             'welcome message'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:delete_commands$') then
+    elseif callback_query.data:match('^%-%d+:delete_commands$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):delete_commands$')
         administration.toggle_setting(
             chat_id,
             'delete commands'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:misc_responses$') then
+    elseif callback_query.data:match('^%-%d+:misc_responses$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):misc_responses$')
         administration.toggle_setting(
             chat_id,
             'misc responses'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:shared_ai$') then
+    elseif callback_query.data:match('^%-%d+:shared_ai$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):shared_ai$')
         administration.toggle_setting(
             chat_id,
             'shared ai'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:log$') then
+    elseif callback_query.data:match('^%-%d+:log$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):log$')
         administration.toggle_setting(
             chat_id,
             'log administrative actions'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:enable_admins_only$') then
+    elseif callback_query.data:match('^%-%d+:enable_admins_only$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):enable_admins_only$')
         redis:set(
             string.format(
@@ -1175,11 +1323,13 @@ function administration:on_callback_query(callback_query, message, configuration
             true
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:disable_admins_only$') then
+    elseif callback_query.data:match('^%-%d+:disable_admins_only$')
+    then
         local chat_id = callback_query.data:match('^(%-%d+):disable_admins_only$')
         redis:del('administration:' .. chat_id .. ':admins_only')
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:ahelp$') then
+    elseif callback_query.data:match('^%-%d+:ahelp$')
+    then
         keyboard = administration.get_help_keyboard(callback_query.data:match('^(%-%d+):ahelp$'))
         return mattata.edit_message_text(
             message.chat.id,
@@ -1189,12 +1339,14 @@ function administration:on_callback_query(callback_query, message, configuration
             true,
             json.encode(keyboard)
         )
-    elseif callback_query.data:match('^%-%d+:ahelp:.-$') then
+    elseif callback_query.data:match('^%-%d+:ahelp:.-$')
+    then
         return administration.on_help_callback_query(
             callback_query,
             callback_query.data:match('^%-%d+:ahelp:.-$')
         )
-    elseif callback_query.data:match('^%-%d+:back$') then
+    elseif callback_query.data:match('^%-%d+:back$')
+    then
         keyboard = administration.get_initial_keyboard(callback_query.data:match('^(%-%d+):back$'))
         return mattata.edit_message_reply_markup(
             message.chat.id,
@@ -1202,7 +1354,8 @@ function administration:on_callback_query(callback_query, message, configuration
             nil,
             json.encode(keyboard)
         )
-    elseif callback_query.data == 'dismiss_disabled_message' then
+    elseif callback_query.data == 'dismiss_disabled_message'
+    then
         redis:set(
             string.format(
                 'administration:%s:dismiss_disabled_message',
@@ -1223,85 +1376,6 @@ function administration:on_callback_query(callback_query, message, configuration
         message.message_id,
         nil,
         json.encode(keyboard)
-    )
-end
-
-function administration.pin(message)
-    if message.chat.type ~= 'supergroup' then
-        return
-    end
-    local input = mattata.input(message.text)
-    local last_pin = redis:get(
-        string.format(
-            'administration:%s:pin',
-            message.chat.id
-        )
-    )
-    local pin_exists = true
-    if not input then
-        if not last_pin then
-            return mattata.send_reply(
-                message,
-                [[You haven't set a pin before. Use /pin <text> to set one. Markdown formatting is supported.]]
-            )
-        end
-        local success = mattata.send_message(
-            message,
-            'Here is the last message generated using /pin.',
-            nil,
-            true,
-            false,
-            last_pin
-        )
-        if not success then
-            pin_exists = false
-            return mattata.send_reply(
-                message,
-                [[I found an existing pin in the database, but the message I sent it in seems to have been deleted, and I can't find it anymore. You can set a new one with /pin <text>. Markdown formatting is supported.]]
-            )
-        end
-        return
-    end
-    local success = mattata.edit_message_text(
-        message.chat.id,
-        last_pin,
-        input,
-        'markdown'
-    )
-    if not success then
-        mattata.send_reply(
-            message,
-            [[There was an error whilst updating your pin. Either the text you entered contained invalid Markdown syntax, or the pin has been deleted. I'm now going to try and send you a new pin, which you'll be able to find below - if you need to modify it then, after ensuring the message still exists, use /pin <text>.]]
-        )
-        local new_pin = mattata.send_message(
-            message,
-            input,
-            'markdown',
-            true,
-            false
-        )
-        if not new_pin then
-            return mattata.send_reply(
-                message,
-                [[I couldn't send that text because it contains invalid Markdown syntax.]]
-            )
-        end
-        redis:set(
-            string.format(
-                'administration:%s:pin',
-                message.chat.id
-            ),
-            new_pin.result.message_id
-        )
-        last_pin = new_pin.result.message_id
-    end
-    return mattata.send_message(
-        message,
-        'Click here to see the pin, updated to contain the text you gave me.',
-        nil,
-        true,
-        false,
-        last_pin
     )
 end
 
@@ -1833,8 +1907,6 @@ function administration:on_message(message, configuration)
             message,
             self.info.username:lower()
         )
-    elseif message.text:match('^[/!#]pin') then
-        return administration.pin(message)
     elseif message.text:match('^[/!#]ops') or message.text:match('^[/!#]report') then
         return administration.report(
             message,
