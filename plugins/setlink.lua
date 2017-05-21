@@ -13,6 +13,16 @@ function setlink:init()
 end
 
 function setlink:on_message(message, configuration, language)
+    if not mattata.is_group_admin(
+        message.chat.id,
+        message.from.id
+    )
+    then
+        return mattata.send_reply(
+            message,
+            language['errors']['admin']
+        )
+    end
     local input = mattata.input(message.text)
     if not input
     then

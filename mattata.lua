@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v22.0
+      v22.0.1
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -67,7 +67,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v22.0'
+    self.version = 'v22.0.1'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -160,7 +160,7 @@ argument when using the mattata:run() function!]]
             20,
             self.last_update + 1,
             nil,
-            '["message", "channel_post", "inline_query", "callback_query"]',
+            '["message", "callback_query", "edited_message", "channel_post", "edited_channel_post", "shipping_query", "inline_query", "pre_checkout_query"]',
             configuration.use_beta_endpoint
             or false
         )
@@ -183,6 +183,9 @@ argument when using the mattata:run() function!]]
                         v.message,
                         configuration
                     )
+                    if v.message.invoice or v.message.successful_payment then
+                        mattata.send_message(configuration.admins[1], json.encode(v.message))
+                    end
                     if configuration.debug
                     then
                         print(
@@ -266,14 +269,17 @@ argument when using the mattata:run() function!]]
                             )
                         )
                     end
-                else
-                    print(
-                        json.encode(
-                            v,
-                            {
-                                ['indent'] = true
-                            }
-                        )
+                elseif v.pre_checkout_query
+                then
+                    mattata.send_message(
+                        configuration.admins[1],
+                        json.encode(v)
+                    ) -- To be improved.
+                    -- Sends the object containing payment-related info to the first configured
+                    -- admin, then answers the pre checkout query.
+                    mattata.answer_pre_checkout_query(
+                        v.pre_checkout_query.id,
+                        true
                     )
                 end
                 v = nil

@@ -1,4 +1,4 @@
--- Configuration file for mattata v22.0
+-- Configuration file for mattata v22.0.1
 
 -- Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
 -- This code is licensed under the MIT. See LICENSE for details.
