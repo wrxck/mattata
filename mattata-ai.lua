@@ -87,77 +87,13 @@ function ai.mitsuku_cookie()
     return headers['set-cookie']:match('^(.-%;)')
 end
 
-function ai.mitsuku(message, user_id)
-    local cookie
-    if redis then
-        cookie = redis:hget(
-            'ai:cookie',
-            user_id
-        )
-    end
-    if not cookie then
-        cookie = ai.mitsuku_cookie()
-        if not cookie then
-            return false
-        elseif redis then
-            redis:hset(
-                'ai:cookie',
-                user_id,
-                cookie
-            )
-        end
-    end
-    local query = 'botcust2=' .. cookie .. '&message=' .. message:gsub('%s', '+')
-    local response = {}
-    local _, res = https.request{
-        ['url'] = 'https://kakko.pandorabots.com/pandora/talk?botid=f326d0be8e345a13&skin=chat',
-        ['method'] = 'POST',
-        ['headers'] = {
-            ['Host'] = 'kakko.pandorabots.com',
-            ['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:51.0) Gecko/20100101 Firefox/51.0',
-            ['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            ['Accept-Language'] = 'en-US,en;q=0.5',
-            ['Referer'] = 'https://kakko.pandorabots.com/pandora/talk?botid=f326d0be8e345a13&skin=chat',
-            ['Cookie'] = cookie,
-            ['Content-Type'] = 'application/x-www-form-urlencoded',
-            ['Content-Length'] = query:len()
-        },
-        ['source'] = ltn12.source.string(query),
-        ['sink'] = ltn12.sink.table(response)
-    }
-    if res ~= 200 then
-        return false
-    end
-    response = table.concat(response):match('^.-%<FONT FACE%=%"Trebuchet MS.-Arial%" COLOR%=%"%#%d+%"%>.-%:.-%:(.-)%<br%>.-%<br%>')
-    if not response then
-        return false
-    end
-    response = response:gsub('<br>', '\n')
-                       :gsub('%b<>', '')
-                       :gsub('[Mm][Ii][Tt][Ss][Uu][Kk][Uu]', 'mattata')
-                       :gsub('(%a[%,%!%:])(%a)', '%1 %2')
-                       :gsub('^%s*(.-)%s*$', '%1')
-                       :gsub('[Ss][Tt][Ee][Vv][Ee] [Ww][Oo][Rr][Ss][Ww][Ii][Cc][Kk]', 'Matthew Hesketh')
-                       :gsub('[Ss][Qq][Uu][Aa][Rr][Ee] [Bb][Ee][Aa][Rr]', '@wrxck')
-                       :gsub('[Mm][Oo][Uu][Ss][Ee][Bb][Rr][Ee][Aa][Kk][Ee][Rr]', 'Matt')
-                       :gsub(' (%W)$', '%1')
-                       :gsub('%b[]', '')
-    return html.decode(response)
-end
-
 function ai.talk(message, reply, legacy, user_id)
-    user_id = user_id or 1
     if not message then
         return false
-    elseif legacy then
-        return ai.cleverbot(
-            message,
-            reply
-        )
     end
-    return ai.mitsuku(
+    return ai.cleverbot(
         message,
-        user_id
+        reply
     )
 end
 
