@@ -81,6 +81,7 @@ function itunes:on_inline_query(inline_query)
     end
     local count = 0
     local results = {}
+    local temp = {}
     for k, v in pairs(jdat.results)
     do
         if v.artworkUrl100
@@ -97,6 +98,10 @@ function itunes:on_inline_query(inline_query)
                     :gsub('%/100x100bb%.jpg', '/10000x10000bb.jpg')
                 )
                 :thumb_url(v.artworkUrl100)
+            )
+            table.insert(
+                temp,
+                v.collectionId
             )
         end
     end

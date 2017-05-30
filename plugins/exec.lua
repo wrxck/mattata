@@ -195,7 +195,10 @@ function exec:on_callback_query(callback_query, message, configuration, language
     or not message.reply
     or tostring(callback_query.from.id) ~= user_id
     then
-        return
+        return mattata.answer_callback_query(
+            callback_query.id,
+            language['errors']['generic']
+        )
     elseif lang == 'back'
     then
         return mattata.edit_message_text(

@@ -1,5 +1,5 @@
 -- This is a language file for mattata
--- Language: pl_pl
+-- Language: pl-pl
 -- Author: GingerPlusPlus
 
 -- DO NOT CHANGE ANYTHING THAT BEGINS OR ENDS WITH A %
@@ -36,9 +36,6 @@ return {
         ['2'] = 'Nie mogę zbanować tego użytkownika, ponieważ jest to moderator lub administrator tej grupy.',
         ['3'] = 'Nie mogę zbanować tego użytkownika, ponieważ opuścił on tę grupę.',
         ['4'] = 'Nie mogę zbanować tego użytkownika, ponieważ został on zbanowany już wcześniej.',
-        -- ['5'] = 'Nie mogę banować, nie mam uprawnień administratora w tej grupie.'
-        -- ['5'] = 'Nie mogę banować, nie jestem administratorem tej grupy.'
-        -- ['5'] = 'Nie mogę banować, nie administruję tą grupą.'
         ['5'] = 'Potrzebuję uprawnień administratora aby móc banować.'
     },
     ['bash'] = {
@@ -95,6 +92,12 @@ return {
         ['2'] = 'Dobrze obstawiłeś!',
         ['3'] = 'Pudło, może następnym razem...',
         ['4'] = 'Niepoprawny argument. Możesz obstawiać \'heads\' lub \'tails\'.'
+    },
+    ['commandstats'] = {
+        ['1'] = 'No commands have been sent in this chat!',
+        ['2'] = '<b>Command statistics for:</b> %s\n\n%s\n<b>Total commands sent:</b> %s',
+        ['3'] = 'The command statistics for this chat have been reset!',
+        ['4'] = 'I could not reset the command statistics for this chat. Perhaps they have already been reset?'
     },
     ['control'] = {
         ['1'] = 'Heh, chciałbyś!',
@@ -288,16 +291,7 @@ Rozumiem wiele poleceń, które możesz poznać klikając przycisk "Commands".
 
 %s <b>Wskazówka:</b> Użyj przycisku "Settings" poniżej aby dostosować moje zachowanie%s!
         ]],
-        ['24'] = 'w',
-        ['25'] = [[
-<b>Cześć %s! Mam na imię %s, miło Cię poznać</b> %s
-
-Jestem inteligentnym botem, który potrafi rozmawiać z ludźmi takimi jak Ty, mogę także pomóc w administrowaniu Twoimi grupami!
-
-Rozumiem wiele poleceń, które możesz poznać klikając przycisk "Commands".
-
-%s <b>Wskazówka:</b> Użyj przycisku "Settings" poniżej aby dostosować moje zachowanie%s!
-        ]]
+        ['24'] = 'w'
     },
     ['id'] = {
         ['1'] = 'Nieznany użytkownik. Aby pokazać mi kto to, przekaż wiadomość od niego do dowolnego czatu w którym jestem.',
@@ -430,6 +424,13 @@ System:
         ['2'] = 'Ta %s musi być publiczna, musi mieć @username.',
         ['3'] = 'Odpisz tą komendą na wiadomość aby otrzymać linka do wiadomości.'
     },
+    ['mute'] = {
+        ['1'] = 'Which user would you like me to mute? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot mute this user because they are already muted in this chat.',
+        ['3'] = 'I cannot mute this user because they are a moderator or an administrator in this chat.',
+        ['4'] = 'I cannot mute this user because they have already left (or been kicked from) this chat.',
+        ['5'] = 'I need to have administrative permissions in order to mute this user. Please amend this issue, and try again.'
+    },
     ['name'] = {
         ['1'] = 'Aktualnie reaguję na imię "%s" - aby to zmienić, użyj /name <imię>.',
         ['2'] = 'Moje nowe imię musi mieć długość od 2 do 32 znaków!',
@@ -536,6 +537,14 @@ System:
         ['1'] = 'Twój język został ustawiony na %s!',
         ['2'] = 'Aktualnie wybrany język %s.\nPamiętaj że tłumaczenie może nie być kompletne. Jeśli chcesz zmienić język, użyj klawiatury poniżej:'
     },
+    ['setlink'] = {
+        ['1'] = 'That\'s not a valid URL.',
+        ['2'] = 'Link set successfully!'
+    },
+    ['setrules'] = {
+        ['1'] = 'Invalid Markdown formatting.',
+        ['2'] = 'Successfully set the new rules!'
+    },
     ['setwelcome'] = {
         ['1'] = 'Co chcesz powiedzieć każdemu nowemu członkowi? Możesz używać Markdown do formatowania. (Wiadomość powitalną można wyłączyć w menu administracyjnym, pisząc /administration). Użyj $user_id aby wstawić ID dołączającego użytkownika, $chat_id aby wstawić ID grupy, $name aby wstawić the imię użytkownika, $title aby wstawić nazwę grupy i $username aby wstawić @username użytkownika (jeśli użytkownik nie ma @username, zostanie wstawione jego imię, więc najlepiej nie używać $name i $username koło siebie).',
         ['2'] = 'Twoja wiadomość jest niepoprawnie sformatowana, sprawdź swój Markdown i spróbuj ponownie.',
@@ -552,6 +561,12 @@ System:
         ['2'] = 'SHSH blobs dla tego urządzenia są dostępne dla następujących wersji iOS:\n',
         ['3'] = 'Pobierz .zip'
     },
+    ['statistics'] = {
+        ['1'] = 'No messages have been sent in this chat!',
+        ['2'] = '<b>Statistics for:</b> %s\n\n%s\n<b>Total messages sent:</b> %s',
+        ['3'] = 'The statistics for this chat have been reset!',
+        ['4'] = 'I could not reset the statistics for this chat. Perhaps they have already been reset?'
+    },
     ['steam'] = {
         ['1'] = 'Twoja nazwa użytkownika na Steamie została ustawiona na "%s".',
         ['2'] = '"%s" nie jest poprawną nazwą użytkownika na Steamie.',
@@ -566,6 +581,23 @@ System:
     },
     ['tobinary'] = {
         ['1'] = 'Podaj ciąg znaków który chcesz skonwertować do liczby binarnej.'
+    },
+    ['trust'] = {
+        ['1'] = 'I cannot trust this user because they are a moderator or an administrator of this chat.',
+        ['2'] = 'I cannot trust this user because they have already left this chat.',
+        ['3'] = 'I cannot trust this user because they have already been kicked from this chat.'
+    },
+    ['unmute'] = {
+        ['1'] = 'Which user would you like me to unmute? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot unmute this user because they are not currently muted in this chat.',
+        ['3'] = 'I cannot unmute this user because they are a moderator or an administrator in this chat.',
+        ['4'] = 'I cannot unmute this user because they have already left (or been kicked from) this chat.'
+    },
+    ['untrust'] = {
+        ['1'] = 'Which user would you like me to untrust? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot untrust this user because they are a moderator or an administrator in this chat.',
+        ['3'] = 'I cannot untrust this user because they have already left this chat.',
+        ['4'] = 'I cannot untrust this user because they have already been kicked from this chat.'
     },
     ['upload'] = {
         ['1'] = 'Odpowiedz na plik który chcesz ściągnąć na serwer. Plik musi ważyć <= 20 MB.',
@@ -594,6 +626,12 @@ System:
     ['weather'] = {
         ['1'] = 'Nie masz ustawionej lokalizacji. Użyj /setloc <lokalizacja> aby ustawić.',
         ['2'] = 'Aktualna temperatura: %s (odczuwalna: %s) w %s. %s'
+    },
+    ['whitelist'] = {
+        ['1'] = 'Which user would you like me to whitelist? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot whitelist this user because they are a moderator or an administrator in this chat.',
+        ['3'] = 'I cannot whitelist this user because they have already left this chat.',
+        ['4'] = 'I cannot whitelist this user because they have already been banned from this chat.'
     },
     ['wikipedia'] = {
         ['1'] = 'Czytaj więcej'

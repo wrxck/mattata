@@ -266,8 +266,8 @@ function administration.get_initial_keyboard(chat_id)
                 chat_id,
                 'misc responses'
             )
-            and utf8.char(9989)
-            or utf8.char(10060),
+            and utf8.char(10060)
+            or utf8.char(9989),
             'administration:' .. chat_id .. ':misc_responses'
         )
     )

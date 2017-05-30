@@ -93,6 +93,12 @@ return {
         ['3'] = 'You weren\'t correct, try again...',
         ['4'] = 'Invalid arguments were given. You must specify your guess, it should be either \'heads\' or \'tails\'.'
     },
+    ['commandstats'] = {
+        ['1'] = 'No commands have been sent in this chat!',
+        ['2'] = '<b>Command statistics for:</b> %s\n\n%s\n<b>Total commands sent:</b> %s',
+        ['3'] = 'The command statistics for this chat have been reset!',
+        ['4'] = 'I could not reset the command statistics for this chat. Perhaps they have already been reset?'
+    },
     ['control'] = {
         ['1'] = 'Pfft, you wish!',
         ['2'] = '%s is reloading...'
@@ -555,6 +561,12 @@ System:
         ['2'] = 'SHSH blobs for that device are available for the following versions of iOS:\n',
         ['3'] = 'Download .zip'
     },
+    ['statistics'] = {
+        ['1'] = 'No messages have been sent in this chat!',
+        ['2'] = '<b>Statistics for:</b> %s\n\n%s\n<b>Total messages sent:</b> %s',
+        ['3'] = 'The statistics for this chat have been reset!',
+        ['4'] = 'I could not reset the statistics for this chat. Perhaps they have already been reset?'
+    },
     ['steam'] = {
         ['1'] = 'Your Steam username has been set to "%s".',
         ['2'] = '"%s" isn\'t a valid Steam username.',
@@ -570,11 +582,22 @@ System:
     ['tobinary'] = {
         ['1'] = 'Please enter the string you would like to convert to binary.'
     },
+    ['trust'] = {
+        ['1'] = 'I cannot trust this user because they are a moderator or an administrator of this chat.',
+        ['2'] = 'I cannot trust this user because they have already left this chat.',
+        ['3'] = 'I cannot trust this user because they have already been kicked from this chat.'
+    },
     ['unmute'] = {
         ['1'] = 'Which user would you like me to unmute? You can specify this user by their @username or numerical ID.',
         ['2'] = 'I cannot unmute this user because they are not currently muted in this chat.',
         ['3'] = 'I cannot unmute this user because they are a moderator or an administrator in this chat.',
         ['4'] = 'I cannot unmute this user because they have already left (or been kicked from) this chat.'
+    },
+    ['untrust'] = {
+        ['1'] = 'Which user would you like me to untrust? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot untrust this user because they are a moderator or an administrator in this chat.',
+        ['3'] = 'I cannot untrust this user because they have already left this chat.',
+        ['4'] = 'I cannot untrust this user because they have already been kicked from this chat.'
     },
     ['upload'] = {
         ['1'] = 'Please reply to the file you\'d like to download to the server. It must be <= 20 MB.',

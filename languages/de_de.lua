@@ -1,3 +1,13 @@
+-- This is a language file for mattata
+-- Language: de-de
+-- Author: LKD70, CodeNameT1M
+
+-- DO NOT CHANGE ANYTHING THAT BEGINS OR ENDS WITH A %
+-- THESE ARE PLACEHOLDERS!
+
+-- DO NOT CHANGE ANY MARKDOWN/HTML FORMATTING!
+-- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/mattataDev)
+
 return {
     ['errors'] = {
         ['connection'] = 'Verbindungs Fehler.',
@@ -82,6 +92,12 @@ return {
         ['2'] = 'Du warst richtig!',
         ['3'] = 'Du warst falsch, versuche es noch einmal...',
         ['4'] = 'Falsches Argument eingegeben. Du musst eine genaue Angabe machen, es ist entweder \'Kopf\' oder \'Zahl\'.'
+    },
+    ['commandstats'] = {
+        ['1'] = 'No commands have been sent in this chat!',
+        ['2'] = '<b>Command statistics for:</b> %s\n\n%s\n<b>Total commands sent:</b> %s',
+        ['3'] = 'The command statistics for this chat have been reset!',
+        ['4'] = 'I could not reset the command statistics for this chat. Perhaps they have already been reset?'
     },
     ['control'] = {
         ['1'] = 'Pfft, wie du willst!',
@@ -545,6 +561,12 @@ System:
         ['2'] = 'SHSH blobs sind verfügbar für das Gerät mit der folgenden Version von iOS:\n',
         ['3'] = 'Download .zip'
     },
+    ['statistics'] = {
+        ['1'] = 'No messages have been sent in this chat!',
+        ['2'] = '<b>Statistics for:</b> %s\n\n%s\n<b>Total messages sent:</b> %s',
+        ['3'] = 'The statistics for this chat have been reset!',
+        ['4'] = 'I could not reset the statistics for this chat. Perhaps they have already been reset?'
+    },
     ['steam'] = {
         ['1'] = 'Dein Steam Benutzername wurde gespeichert mit "%s".',
         ['2'] = '"%s" ist kein gültiger Steam Benutzername.',
@@ -560,11 +582,22 @@ System:
     ['tobinary'] = {
         ['1'] = 'Bitte gebe ein Wort oder Satz ein, welchen du umwandeln willst zu Binary.'
     },
+    ['trust'] = {
+        ['1'] = 'I cannot trust this user because they are a moderator or an administrator of this chat.',
+        ['2'] = 'I cannot trust this user because they have already left this chat.',
+        ['3'] = 'I cannot trust this user because they have already been kicked from this chat.'
+    },
     ['unmute'] = {
         ['1'] = 'Which user would you like me to unmute? You can specify this user by their @username or numerical ID.',
         ['2'] = 'I cannot unmute this user because they are not currently muted in this chat.',
         ['3'] = 'I cannot unmute this user because they are a moderator or an administrator in this chat.',
         ['4'] = 'I cannot unmute this user because they have already left (or been kicked from) this chat.'
+    },
+    ['untrust'] = {
+        ['1'] = 'Which user would you like me to untrust? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot untrust this user because they are a moderator or an administrator in this chat.',
+        ['3'] = 'I cannot untrust this user because they have already left this chat.',
+        ['4'] = 'I cannot untrust this user because they have already been kicked from this chat.'
     },
     ['upload'] = {
         ['1'] = 'Bitte antworte zu der Datei, welche du hochlanden willst zum Server. Sie muss <= 20 MB sein.',
