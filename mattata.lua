@@ -1003,13 +1003,14 @@ function mattata:on_message(message, configuration)
                     message.chat.id,
                     'delete commands'
                 )
-                and message.text:match('^/')
+                and is_command
                 then
                     mattata.delete_message(
                         message.chat.id,
                         message.message_id
                     )
                 end
+                return true
             end
         end
     end
