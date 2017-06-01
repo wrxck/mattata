@@ -29,7 +29,8 @@ return {
     ['avatar'] = {
         ['1'] = 'Nie mogę dostać zdjęć profilowych tego użytkownika, upewnij się że podano poprawne @username lub ID.',
         ['2'] = 'Ten użytkownik nie ma żadnych zdjęć profilowych.',
-        ['3'] = 'Ten użytkownik nie ma aż tylu zdjęć profilowych!'
+        ['3'] = 'Ten użytkownik nie ma aż tylu zdjęć profilowych!',
+        ['4'] = 'That user has opted-out of data-collecting functionality, therefore I am not able to show you any of their profile photos.'
     },
     ['ban'] = {
         ['1'] = 'Kogo mam zbanować? Podaj @username lub ID.',
@@ -290,6 +291,8 @@ Jestem inteligentnym botem, który potrafi rozmawiać z ludźmi takimi jak Ty, m
 Rozumiem wiele poleceń, które możesz poznać klikając przycisk "Commands".
 
 %s <b>Wskazówka:</b> Użyj przycisku "Settings" poniżej aby dostosować moje zachowanie%s!
+
+%s <b>Find me useful, or just want to help?</b> Donations are very much appreciated, use /donate for more information!
         ]],
         ['24'] = 'w'
     },
@@ -508,6 +511,13 @@ System:
         ['1'] = 'Wygeneruj inne',
         ['2'] = 'Twoje losowe słowo to <b>%s</b>!'
     },
+    ['report'] = {
+        ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
+        ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
+        ['3'] = '<b>%s needs help in %s!</b>',
+        ['4'] = 'Click here to view the reported message.',
+        ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
+    },
     ['rms'] = {
         ['1'] = 'Holy GNU!' --!
     },
@@ -526,12 +536,12 @@ System:
         ['8'] = 'Nie',
         ['9'] = 'Nie wiem'
     },
-    ['setai'] = {
-        ['1'] = 'Cleverbot',
-        ['2'] = 'Mitsuku',
-        ['3'] = 'Aktualnie używasz %s AI.',
-        ['4'] = 'Już używasz %s AI!',
-        ['5'] = 'Aktualnie używasz %s AI.'
+    ['setgrouplang'] = {
+        ['1'] = 'This group\'s language has been set to %s!',
+        ['2'] = 'This group\'s language is currently %s.\nPlease note that some strings may not be translated as of yet. If you\'d like to change your language, select one using the keyboard below:',
+        ['3'] = 'The option to force users to use the same language in this group is currently disabled. This setting should be toggled from /administration but, to make things easier for you, I\'ve included a button below.',
+        ['4'] = 'Enable',
+        ['5'] = 'Disable'
     },
     ['setlang'] = {
         ['1'] = 'Twój język został ustawiony na %s!',
@@ -626,6 +636,9 @@ System:
     ['weather'] = {
         ['1'] = 'Nie masz ustawionej lokalizacji. Użyj /setloc <lokalizacja> aby ustawić.',
         ['2'] = 'Aktualna temperatura: %s (odczuwalna: %s) w %s. %s'
+    },
+    ['welcome'] = {
+        ['1'] = 'Group Rules'
     },
     ['whitelist'] = {
         ['1'] = 'Which user would you like me to whitelist? You can specify this user by their @username or numerical ID.',

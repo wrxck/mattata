@@ -29,7 +29,8 @@ return {
     ['avatar'] = {
         ['1'] = 'Ich konnte kein Profilbild für den Benutzer abrufen. Bitte sorge dafür, dass du einen gültigen Benutzername oder eine gültige Identifikationsnummer angegeben hast.',
         ['2'] = 'Dieser Benutzer hat keine Profilbilder.',
-        ['3'] = 'Dieser Benutzer hat nicht viele Profilbilder!'
+        ['3'] = 'Dieser Benutzer hat nicht viele Profilbilder!',
+        ['4'] = 'That user has opted-out of data-collecting functionality, therefore I am not able to show you any of their profile photos.'
     },
     ['ban'] = {
         ['1'] = 'Welchen Benutzer soll ich sperren? Du kannst den Benutzer mit dem Benutzernamen oder mit der Identifikationsnummer angeben.',
@@ -290,6 +291,8 @@ Ich bin ein cleverer Bot, welcher sich mit Menschen unterhalten kann. Des weiter
 Ich verstehe viele Befehle, welche du lernen kannst wenn du den Befehle Button drückst in der angehängten Tastatur.
 
 %s <b>Tip:</b> Benutze den "Settings" Button zum verändern wie ich arbeite%s!
+
+%s <b>Find me useful, or just want to help?</b> Donations are very much appreciated, use /donate for more information!
         ]],
         ['24'] = 'in'
     },
@@ -508,6 +511,13 @@ System:
         ['1'] = 'Generiere nochmal',
         ['2'] = 'Dein zufälliges Wort ist <b>%s</b>!'
     },
+    ['report'] = {
+        ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
+        ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
+        ['3'] = '<b>%s needs help in %s!</b>',
+        ['4'] = 'Click here to view the reported message.',
+        ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
+    },
     ['rms'] = {
         ['1'] = 'Heiliges GNU!'
     },
@@ -526,12 +536,12 @@ System:
         ['8'] = 'Nein',
         ['9'] = 'Bin nicht sicher'
     },
-    ['setai'] = {
-        ['1'] = 'Cleverbot',
-        ['2'] = 'Mitsuku',
-        ['3'] = 'Du benutzt im Moment den %s AI Endpunkt.',
-        ['4'] = 'Du benutzt schon den %s AI Endpunkt!',
-        ['5'] = 'Du benutzt im Moment den %s AI Endpunkt.'
+    ['setgrouplang'] = {
+        ['1'] = 'This group\'s language has been set to %s!',
+        ['2'] = 'This group\'s language is currently %s.\nPlease note that some strings may not be translated as of yet. If you\'d like to change your language, select one using the keyboard below:',
+        ['3'] = 'The option to force users to use the same language in this group is currently disabled. This setting should be toggled from /administration but, to make things easier for you, I\'ve included a button below.',
+        ['4'] = 'Enable',
+        ['5'] = 'Disable'
     },
     ['setlang'] = {
         ['1'] = 'Deine Sprache wurde eingestellt zu %s!',
@@ -626,6 +636,9 @@ System:
     ['weather'] = {
         ['1'] = 'Du hast keinen Standort ausgewählt. Zum auswählen benutze /setloc <Standort>.',
         ['2'] = 'Im Moment ist es %s (fühlt sich an wie %s) in %s. %s'
+    },
+    ['welcome'] = {
+        ['1'] = 'Group Rules'
     },
     ['whitelist'] = {
         ['1'] = 'Which user would you like me to whitelist? You can specify this user by their @username or numerical ID.',

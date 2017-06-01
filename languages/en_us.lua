@@ -29,7 +29,8 @@ return {
     ['avatar'] = {
         ['1'] = 'I couldn\'t retrieve the profile photos for that user, please ensure you specified a valid username or numerical ID.',
         ['2'] = 'That user doesn\'t have any profile photos.',
-        ['3'] = 'That user doesn\'t have that many profile photos!'
+        ['3'] = 'That user doesn\'t have that many profile photos!',
+        ['4'] = 'That user has opted-out of data-collecting functionality, therefore I am not able to show you any of their profile photos.'
     },
     ['ban'] = {
         ['1'] = 'Which user would you like me to ban? You can specify this user by their @username or numerical ID.',
@@ -290,6 +291,8 @@ I'm a smart bot who is capable of having conversations with humans such as yours
 I understand many commands, which you can learn more about by pressing the "Commands" button using the attached keyboard.
 
 %s <b>Tip:</b> Use the "Settings" button to change how I work%s!
+
+%s <b>Find me useful, or just want to help?</b> Donations are very much appreciated, use /donate for more information!
         ]],
         ['24'] = 'in'
     },
@@ -508,6 +511,13 @@ System:
         ['1'] = 'Generate Another',
         ['2'] = 'Your random word is <b>%s</b>!'
     },
+    ['report'] = {
+        ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
+        ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
+        ['3'] = '<b>%s needs help in %s!</b>',
+        ['4'] = 'Click here to view the reported message.',
+        ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
+    },
     ['rms'] = {
         ['1'] = 'Holy GNU!'
     },
@@ -526,12 +536,12 @@ System:
         ['8'] = 'No',
         ['9'] = 'Not sure'
     },
-    ['setai'] = {
-        ['1'] = 'Cleverbot',
-        ['2'] = 'Mitsuku',
-        ['3'] = 'You are currently using the %s AI endpoint.',
-        ['4'] = 'You are already using the %s AI endpoint!',
-        ['5'] = 'You are currently using the %s AI endpoint.'
+    ['setgrouplang'] = {
+        ['1'] = 'This group\'s language has been set to %s!',
+        ['2'] = 'This group\'s language is currently %s.\nPlease note that some strings may not be translated as of yet. If you\'d like to change your language, select one using the keyboard below:',
+        ['3'] = 'The option to force users to use the same language in this group is currently disabled. This setting should be toggled from /administration but, to make things easier for you, I\'ve included a button below.',
+        ['4'] = 'Enable',
+        ['5'] = 'Disable'
     },
     ['setlang'] = {
         ['1'] = 'Your language has been set to %s!',
@@ -626,6 +636,9 @@ System:
     ['weather'] = {
         ['1'] = 'You don\'t have a location set. Use /setloc <location> to set one.',
         ['2'] = 'It\'s currently %s (feels like %s) in %s. %s'
+    },
+    ['welcome'] = {
+        ['1'] = 'Group Rules'
     },
     ['whitelist'] = {
         ['1'] = 'Which user would you like me to whitelist? You can specify this user by their @username or numerical ID.',

@@ -29,7 +29,8 @@ return {
     ['avatar'] = {
         ['1'] = 'Não consegui obter fotos de perfil para esse utilizador, verifique se especificou um nome de utilizador ou ID numérico válido.',
         ['2'] = 'Esse utilizador não tem fotos de perfil.',
-        ['3'] = 'Esse utilizador não tem assim tantas de perfil!'
+        ['3'] = 'Esse utilizador não tem assim tantas de perfil!',
+        ['4'] = 'That user has opted-out of data-collecting functionality, therefore I am not able to show you any of their profile photos.'
     },
     ['ban'] = {
         ['1'] = 'Qual utilizador gostaria que eu bane? Pode especificar esse utilizador pelo seu @username ou ID numérico.',
@@ -254,7 +255,7 @@ Aqui estão alguns comandos administrativos e um breve comentário sobre o que e
 • /setrules <texto> - Defina o texto formatado como Markdown como as regras de grupo, que serão enviadas sempre que alguém usar /rules
         ]],
         ['10'] = [[
-• /setwelcome - Defina o texto formatado como Markdown como uma mensagem de boas-vindas que será enviada sempre que um utilizador se juntar ao seu grupo (A mensagem de boas-vindas pode ser desativada no menu de administração, acessível via /administration). Pode usar espaços reservados para personalizar automaticamente a mensagem de boas-vindas para cada utilizador. Use $user\_id para inserir o ID numérico do utilizador, $chat\_id para inserir o ID numérico do grupo, $name para inserir o nome do utilizador, $title para inserir o título do grupo e $username para inserir o nome de utilizador do utilizador (Se o utilizador não tiver um @utilizador, o seu nome será usado em vez disso, para evitar é melhor usar isso com $name)
+• /setwelcome - Defina o texto formatado como Markdown como uma mensagem de boas-vindas que será enviada sempre que um utilizador se juntar ao seu grupo (A mensagem de boas-vindas pode ser desativada no menu de administração, acessível via /administration). Pode usar espaços reservados para personalizar automaticamente a mensagem de boas-vindas para cada utilizador. Use $user_id para inserir o ID numérico do utilizador, $chat_id para inserir o ID numérico do grupo, $name para inserir o nome do utilizador, $title para inserir o título do grupo e $username para inserir o nome de utilizador do utilizador (Se o utilizador não tiver um @utilizador, o seu nome será usado em vez disso, para evitar é melhor usar isso com $name)
 
 • /warn - Avisa um utilizador, e bane-o quando atingirem o número máximo de avisos
 
@@ -290,6 +291,8 @@ Eu sou um bot inteligente que é capaz de ter conversas com seres humanos como v
 Eu entendo muitos comandos, que você pode aprender mais sobre pressionando o botão "Comandos" usando o teclado acoplado.
 
 %s <b>Dica:</b> Use o botão "Definições" para alterar o modo como eu trabalho%s!
+
+%s <b>Find me useful, or just want to help?</b> Donations are very much appreciated, use /donate for more information!
         ]],
         ['24'] = 'em'
     },
@@ -508,6 +511,13 @@ Sistema:
         ['1'] = 'Gerar Outra',
         ['2'] = 'A sua palavra aleatória é <b>%s</b>!'
     },
+    ['report'] = {
+        ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
+        ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
+        ['3'] = '<b>%s needs help in %s!</b>',
+        ['4'] = 'Click here to view the reported message.',
+        ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
+    },
     ['rms'] = {
         ['1'] = 'Holy GNU!'
     },
@@ -526,12 +536,12 @@ Sistema:
         ['8'] = 'Não',
         ['9'] = 'Não tenho certeza'
     },
-    ['setai'] = {
-        ['1'] = 'Cleverbot',
-        ['2'] = 'Mitsuku',
-        ['3'] = 'Está atualmente a usar o AI %s.',
-        ['4'] = 'Já está a usar o AI %s!',
-        ['5'] = 'Está atualmente a usar o AI %s.'
+    ['setgrouplang'] = {
+        ['1'] = 'This group\'s language has been set to %s!',
+        ['2'] = 'This group\'s language is currently %s.\nPlease note that some strings may not be translated as of yet. If you\'d like to change your language, select one using the keyboard below:',
+        ['3'] = 'The option to force users to use the same language in this group is currently disabled. This setting should be toggled from /administration but, to make things easier for you, I\'ve included a button below.',
+        ['4'] = 'Enable',
+        ['5'] = 'Disable'
     },
     ['setlang'] = {
         ['1'] = 'O seu idioma foi definido para %s!',
@@ -546,7 +556,7 @@ Sistema:
         ['2'] = 'Regras definidas com sucesso!'
     },
     ['setwelcome'] = {
-        ['1'] = 'O que mensagem gostaria de boas-vindas que fosse? O texto que especificar será formato em Markdown e enviado toda vez que um utilizador se juntar ao grupo (A mensagem de boas-vindas pode ser desativada no menu de administração, acessível via /administration). Pode usar espaços reservados para personalizar automaticamente a mensagem de boas-vindas para cada utilizador. Use $user\_id para inserir o ID numérico do utilizador, $chat\_id para inserir o ID numérico do grupo, $name para inserir o nome do utilizador, $title para inserir o título do grupo e $username para inserir o nome de utilizador do utilizador (Se o utilizador não tiver um @utilizador, o seu nome será usado em vez disso, para evitar é melhor usar isso com $name).',
+        ['1'] = 'O que mensagem gostaria de boas-vindas que fosse? O texto que especificar será formato em Markdown e enviado toda vez que um utilizador se juntar ao grupo (A mensagem de boas-vindas pode ser desativada no menu de administração, acessível via /administration). Pode usar espaços reservados para personalizar automaticamente a mensagem de boas-vindas para cada utilizador. Use $user_id para inserir o ID numérico do utilizador, $chat_id para inserir o ID numérico do grupo, $name para inserir o nome do utilizador, $title para inserir o título do grupo e $username para inserir o nome de utilizador do utilizador (Se o utilizador não tiver um @utilizador, o seu nome será usado em vez disso, para evitar é melhor usar isso com $name).',
         ['2'] = 'Ocorreu um erro ao formatar a mensagem, verifique a sintaxe de Markdown e tente novamente.',
         ['3'] = 'A mensagem de boas-vindas para %s foi atualizada com sucesso!'
     },
@@ -626,6 +636,9 @@ Sistema:
     ['weather'] = {
         ['1'] = 'Ainda não tem uma localização definida. Use /setloc <localização> para definir uma.',
         ['2'] = 'Está atualmente %s (parece %s) em %s. %s'
+    },
+    ['welcome'] = {
+        ['1'] = 'Group Rules'
     },
     ['whitelist'] = {
         ['1'] = 'Qual utilizador gostaria de adicionar a lista branca? Pode especificar este utilizador pelo seu @utilizador ou ID numérico.',
