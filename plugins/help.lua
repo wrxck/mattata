@@ -427,7 +427,8 @@ function help:on_callback_query(callback_query, message, configuration, language
                 utf8.char(128161),
                 message.chat.type ~= 'private'
                 and ' ' .. language['help']['24'] .. ' ' .. mattata.escape_html(message.chat.title)
-                or ''
+                or '',
+                utf8.char(128176)
             ),
             'html',
             true,
@@ -453,7 +454,8 @@ function help:on_message(message, configuration, language)
             utf8.char(128161),
             message.chat.type ~= 'private'
             and ' ' .. language['help']['24'] .. ' ' .. mattata.escape_html(message.chat.title)
-            or ''
+            or '',
+            utf8.char(128176)
         ),
         'html',
         true,
