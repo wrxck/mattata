@@ -116,7 +116,7 @@ return {
         ['3'] = 'Der Auslöser "%s" ist gelöscht!',
         ['4'] = 'Du hast keine eigene Auslöser angegeben!',
         ['5'] = 'Eigene Befehle für %s:\n',
-        ['6'] = 'Zum machen von eigenen Befehlen, benutze diesen Syntax:\n/custom new #Auslöser <Wert>. Zum listen aller bestehenden Auslöser, benutze /custom list. Zum löschen eines Auslösers, benutze /custom del #Auslöser.'
+        ['6'] = 'Um eigene Befehle zu erstellen, benutze diesen Syntax:\n/custom new #Auslöser <Wert>. Zum auflisten aller bestehenden Auslöser, benutze /custom list. Zum löschen eines Auslösers, benutze /custom del #Auslöser.'
     },
     ['delete'] = {
         ['1'] = 'Ich konnte diese Nachricht nicht löschen, vielleicht ist sie zu alt oder existiert nicht mehr?'
@@ -288,7 +288,7 @@ Hier sind einige administrative Befehle und ein kurzer Kommentar bezüglich was 
 
 Ich bin ein cleverer Bot, welcher sich mit Menschen unterhalten kann. Desweiteren habe ich auch die Möglichkeit in Gruppen zu administrieren.
 
-Ich verstehe viele Befehle, welche du lernen kannst, wenn du einen Befehle Buttons drückst in der unten angehängten Tastatur.
+Ich verstehe viele Befehle, welche du lernen kannst, wenn du einen der Befehle Buttons in der unten angehängten Tastatur drückst.
 
 %s <b>Tip:</b> Benutze den "Settings" Button zum verändern wie ich arbeite%s!
 
