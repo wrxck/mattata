@@ -10,7 +10,7 @@
 
 return {
     ['errors'] = {
-        ['connection'] = 'Verbindungs Fehler.',
+        ['connection'] = 'Verbindungsfehler.',
         ['results'] = 'Kein Ergebnis gefunden.',
         ['supergroup'] = 'Dieser Befehl kann nur in Supergruppen benutzt werden.',
         ['admin'] = 'Für diesen Befehl musst du ein Moderator oder Administrator in dieser Gruppe sein.',
@@ -105,7 +105,7 @@ return {
         ['2'] = '%s ist am Neuladen...'
     },
     ['copypasta'] = {
-        ['1'] = 'Der Antowrten-zu text kann nicht länger sein als %s Zeichen!'
+        ['1'] = 'Der Antworten-zu text kann nicht länger sein als %s Zeichen!'
     },
     ['counter'] = {
         ['1'] = 'Ich konnte keinen Zähler zu der Nachricht hinzufügen!'
@@ -119,7 +119,7 @@ return {
         ['6'] = 'Zum machen von eigenen Befehlen, benutze diesen Syntax:\n/custom new #Auslöser <Wert>. Zum listen aller bestehenden Auslöser, benutze /custom list. Zum löschen eines Auslösers, benutze /custom del #Auslöser.'
     },
     ['delete'] = {
-        ['1'] = 'I could not delete that message. Perhaps the message is too old or non-existent?'
+        ['1'] = 'Ich konnte diese Nachricht nicht löschen, vielleicht ist sie zu alt oder existiert nicht mehr?'
     },
     ['demote'] = {
         ['1'] = 'Welchen Benutzer soll ich degradieren? Du kannst den Benutzer mit dem Benutzernamen oder mit der Identifikationsnummer angeben.',
@@ -165,11 +165,11 @@ return {
     },
     ['exec'] = {
         ['1'] = 'Bitte wähle die Sprache in der dein Code ausgeführt werden soll:',
-        ['2'] = 'Ein Fehler ist aufgetreten! Die Verbindung ist unterbrochen. Hast du versucht mich langsamer zu machen?',
+        ['2'] = 'Ein Fehler ist aufgetreten! Die Verbindung ist unterbrochen. Hast du versucht mich zu verlangsamen?',
         ['3'] = 'Du hast ausgewählt: "%s" – bist du sicher?',
         ['4'] = 'Zurück',
         ['5'] = 'Ich bin sicher',
-        ['6'] = 'Bitte gebe den Schnipsel Code ein, welchen du durchführen willst. Du must keine Sprache wählen, wir machen das später!',
+        ['6'] = 'Bitte gebe den Codeschnipsel ein, welchen du durchführen willst. Du must keine Sprache wählen, das machen wir später!',
         ['7'] = 'Bitte wähle die Sprache in der dein Code ausgeführt werden soll:'
     },
     ['facebook'] = {
@@ -286,13 +286,13 @@ Hier sind einige administrative Befehle und ein kurzer Kommentar bezüglich was 
         ['23'] = [[
 <b>Hallo %s! Mein Name ist %s, schön dich zu treffen.</b> %s
 
-Ich bin ein cleverer Bot, welcher sich mit Menschen unterhalten kann. Des weiteren habe ich auch die Möglichkeit in Gruppen zu administrieren.
+Ich bin ein cleverer Bot, welcher sich mit Menschen unterhalten kann. Desweiteren habe ich auch die Möglichkeit in Gruppen zu administrieren.
 
-Ich verstehe viele Befehle, welche du lernen kannst wenn du den Befehle Button drückst in der angehängten Tastatur.
+Ich verstehe viele Befehle, welche du lernen kannst, wenn du einen Befehle Buttons drückst in der unten angehängten Tastatur.
 
 %s <b>Tip:</b> Benutze den "Settings" Button zum verändern wie ich arbeite%s!
 
-%s <b>Find me useful, or just want to help?</b> Donations are very much appreciated, use /donate for more information!
+%s <b>Du findest mich hilfreich oder willst mich unterstützen?</b> Spenden sind sehr gerne geseheen, nutze /donate für mehr Informationen!
         ]],
         ['24'] = 'in'
     },
