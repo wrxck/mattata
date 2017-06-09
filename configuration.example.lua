@@ -5,7 +5,7 @@
     | | | | | | (_| | |_| || (_| | || (_| |
     |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-    Configuration file for mattata v22.1
+    Configuration file for mattata v24.0
 
     Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
@@ -63,8 +63,12 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'administration',
         'aesthetic',
         'afk',
+        'antibot',
+        'antilink',
+        'antispam',
         'apod',
         'appstore',
+        'authspotify',
         'avatar',
         'ban',
         'base64',
@@ -147,6 +151,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'minecraft',
         'msglink',
         'mute',
+        'myspotify',
         'name',
         'netflix',
         'news',
@@ -170,11 +175,12 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'randomword',
         'reddit',
         'remind',
+        'report',
         'rimg',
         'rms',
         'save',
         'sed',
-        'setai',
+        'setgrouplang',
         'setlang',
         'setlink',
         'setloc',
@@ -211,6 +217,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'voteban',
         'warn',
         'weather',
+        'welcome',
         'whitelist',
         'whois',
         'wikipedia',
@@ -288,7 +295,17 @@ return { -- Rename this file to configuration.lua for the bot to work!
 
         },
 
-        ['steam'] = '' -- https://steamcommunity.com/dev/apikey
+        ['steam'] = '', -- https://steamcommunity.com/dev/apikey
+
+        ['spotify'] = { -- https://developer.spotify.com/my-applications/#!/applications/create
+
+            ['client_id'] = '',
+
+            ['client_secret'] = '',
+
+            ['redirect_uri'] = 'http://www.wrxck.pro'
+
+        }
 
     },
 

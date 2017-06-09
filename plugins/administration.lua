@@ -12,7 +12,6 @@ local configuration = require('configuration')
 function administration:init()
     administration.commands = mattata.commands(self.info.username)
     :command('administration')
-    :command('antispam')
     :command('admins')
     :command('staff')
     :command('chats')
@@ -21,7 +20,6 @@ function administration:init()
     :command('link')
     :command('rules')
     :command('pin')
-    :command('report')
     :command('ops')
     :command('tempban').table
 end
@@ -114,7 +112,7 @@ function administration.get_initial_keyboard(chat_id)
         mattata.row()
         :callback_data_button(
             'Anti-Spam Settings',
-            'administration:' .. chat_id .. ':antispam'
+            'antispam:' .. chat_id
         )
         :callback_data_button(
             'Warning Settings',
@@ -290,98 +288,137 @@ function administration.get_initial_keyboard(chat_id)
     :row(
         mattata.row()
         :callback_data_button(
+            'Force Group Language?',
+            'administration:nil'
+        )
+        :callback_data_button(
+            administration.get_setting(
+                chat_id,
+                'force group language'
+            )
+            and utf8.char(9989)
+            or utf8.char(10060),
+            'administration:' .. chat_id .. ':force_group_language'
+        )
+    )
+    :row(
+        mattata.row()
+        :callback_data_button(
             'Back',
             'help:settings'
         )
     )
 end
 
-function administration.get_antispam_keyboard(chat_id)
-    local keyboard = {
-        ['inline_keyboard'] = {}
-    }
-    local current = administration.get_message_limit(
-        chat_id,
-        'text'
-    )
-    local lower = tonumber(current) - 1
-    local higher = tonumber(current) + 1
-    local forwarded_current = administration.get_message_limit(
-        chat_id,
-        'forwarded'
-    )
-    local forwarded_lower = tonumber(forwarded_current) - 1
-    local forwarded_higher = tonumber(forwarded_current) + 1
-    local stickers_current = administration.get_message_limit(
-        chat_id,
-        'stickers'
-    )
-    local stickers_lower = tonumber(stickers_current) - 1
-    local stickers_higher = tonumber(stickers_current) + 1
-    table.insert(
-        keyboard.inline_keyboard,
-        {
-            {
-                ['text'] = 'Max messages per 5s:',
-                ['callback_data'] = 'administration:nil'
-            }
-        }
-    )
-    administration.insert_keyboard_row(
-        keyboard,
-        '-',
-        'administration:' .. chat_id .. ':limit:text:' .. lower,
-        tostring(current),
-        'administration:nil',
-        '+',
-        'administration:' .. chat_id .. ':limit:text:' .. higher
-    )
-    table.insert(
-        keyboard.inline_keyboard,
-        {
-            {
-                ['text'] = 'Max forwarded messages per 5s:',
-                ['callback_data'] = 'administration:nil'
-            }
-        }
-    )
-    administration.insert_keyboard_row(
-        keyboard,
-        '-',
-        'administration:' .. chat_id .. ':limit:forwarded:' .. forwarded_lower,
-        tostring(forwarded_current),
-        'administration:nil',
-        '+',
-        'administration:' .. chat_id .. ':limit:forwarded:' .. forwarded_higher
-    )
-    table.insert(
-        keyboard.inline_keyboard,
-        {
-            {
-                ['text'] = 'Max stickers per 5s:',
-                ['callback_data'] = 'administration:nil'
-            }
-        }
-    )
-    administration.insert_keyboard_row(
-        keyboard,
-        '-',
-        'administration:' .. chat_id .. ':limit:stickers:' .. stickers_lower,
-        tostring(stickers_current),
-        'administration:nil',
-        '+',
-        'administration:' .. chat_id .. ':limit:stickers:' .. stickers_higher
-    )
-    table.insert(
-        keyboard.inline_keyboard,
-        {
-            {
-                ['text'] = 'Back',
-                ['callback_data'] = 'administration:' .. chat_id .. ':back'
-            }
-        }
-    )
-    return keyboard
+function administration.check_links(message, process_type)
+    local links = {}
+    if message.entities
+    then
+        for i = 1, #message.entities
+        do
+            if message.entities[i].type == 'text_link'
+            then
+                message.text = message.text .. ' ' .. message.entities[i].url
+            end
+        end
+    end
+    for n in message.text:lower():gmatch('%@[%w_]+')
+    do
+        table.insert(
+            links,
+            n:match('^%@([%w_]+)$')
+        )
+    end
+    for n in message.text:lower():gmatch('t%.me/joinchat/[%w_]+')
+    do
+        table.insert(
+            links,
+            n:match('/(joinchat/[%w_]+)$')
+        )
+    end
+    for n in message.text:lower():gmatch('t%.me/[%w_]+')
+    do
+        if not n:match('/joinchat$')
+        then
+            table.insert(
+                links,
+                n:match('/([%w_]+)$')
+            )
+        end
+    end
+    for n in message.text:lower():gmatch('telegram%.me/joinchat/[%w_]+')
+    do
+        table.insert(
+            links,
+            n:match('/(joinchat/[%w_]+)$')
+        )
+    end
+    for n in message.text:lower():gmatch('telegram%.me/[%w_]+')
+    do
+        if not n:match('/joinchat$')
+        then
+            table.insert(
+                links,
+                n:match('/([%w_]+)$')
+            )
+        end
+    end
+    for n in message.text:lower():gmatch('telegram%.dog/joinchat/[%w_]+')
+    do
+        table.insert(
+            links,
+            n:match('/(joinchat/[%w_]+)$')
+        )
+    end
+    for n in message.text:lower():gmatch('telegram%.dog/[%w_]+')
+    do
+        if not n:match('/joinchat$')
+        then
+            table.insert(
+                links,
+                n:match('/([%w_]+)$')
+            )
+        end
+    end
+    if process_type == 'whitelist'
+    then
+        local count = 0
+        for k, v in pairs(links)
+        do
+            if not redis:get('whitelisted_links:' .. message.chat.id .. ':' .. v)
+            then
+                redis:set(
+                    'whitelisted_links:' .. message.chat.id .. ':' .. v,
+                    true
+                )
+                count = count + 1
+            end
+        end
+        return string.format(
+            '%s link%s ha%s been whitelisted in this chat!',
+            count,
+            count == 1
+            and ''
+            or 's',
+            count == 1
+            and 's'
+            or 've'
+        )
+    elseif process_type == 'check'
+    then
+        for k, v in pairs(links)
+        do
+            if not redis:get('whitelisted_links:' .. message.chat.id .. ':' .. v)
+            and v:lower() ~= 'username'
+            and v:lower() ~= 'isiswatch'
+            and v:lower() ~= 'mattata'
+            and v:lower() ~= 'telegram'
+            then
+                return true
+            end
+        end
+        return false
+    end
 end
 
 function administration.get_warnings(chat_id)
@@ -506,247 +543,12 @@ function administration.get_voteban_keyboard(chat_id)
     return keyboard
 end
 
-function administration.get_message_limit(chat_id, spam_type)
-    local hash = mattata.get_redis_hash(
-        chat_id,
-        'administration'
-    )
-    local limit = redis:hget(
-        hash,
-        spam_type
-    )
-    if not limit
-    or tonumber(limit) == nil
-    then
-        if spam_type == 'text'
-        then
-            return 8
-        elseif spam_type == 'forwarded'
-        then
-            return 16
-        elseif spam_type == 'stickers'
-        then
-            return 4
-        end
-    end
-    return tonumber(limit)
-end
-
 function administration.get_hash_status(chat_id, hash_type)
     if redis:get('administration:' .. chat_id .. ':' .. hash_type)
     then
         return true
     end
     return false
-end
-
-function administration.check_links(message, process_type)
-    local links = {}
-    if message.entities
-    then
-        for i = 1, #message.entities
-        do
-            if message.entities[i].type == 'text_link'
-            then
-                message.text = message.text .. ' ' .. message.entities[i].url
-            end
-        end
-    end
-    for n in message.text:lower():gmatch('%@[%w_]+')
-    do
-        table.insert(
-            links,
-            n:match('^%@([%w_]+)$')
-        )
-    end
-    for n in message.text:lower():gmatch('t%.me/joinchat/[%w_]+')
-    do
-        table.insert(
-            links,
-            n:match('/(joinchat/[%w_]+)$')
-        )
-    end
-    for n in message.text:lower():gmatch('t%.me/[%w_]+')
-    do
-        if not n:match('/joinchat$')
-        then
-            table.insert(
-                links,
-                n:match('/([%w_]+)$')
-            )
-        end
-    end
-    for n in message.text:lower():gmatch('telegram%.me/joinchat/[%w_]+')
-    do
-        table.insert(
-            links,
-            n:match('/(joinchat/[%w_]+)$')
-        )
-    end
-    for n in message.text:lower():gmatch('telegram%.me/[%w_]+')
-    do
-        if not n:match('/joinchat$')
-        then
-            table.insert(
-                links,
-                n:match('/([%w_]+)$')
-            )
-        end
-    end
-    for n in message.text:lower():gmatch('telegram%.dog/joinchat/[%w_]+')
-    do
-        table.insert(
-            links,
-            n:match('/(joinchat/[%w_]+)$')
-        )
-    end
-    for n in message.text:lower():gmatch('telegram%.dog/[%w_]+')
-    do
-        if not n:match('/joinchat$')
-        then
-            table.insert(
-                links,
-                n:match('/([%w_]+)$')
-            )
-        end
-    end
-    if process_type == 'whitelist'
-    then
-        local count = 0
-        for k, v in pairs(links)
-        do
-            if not redis:get('whitelisted_links:' .. message.chat.id .. ':' .. v)
-            then
-                redis:set(
-                    'whitelisted_links:' .. message.chat.id .. ':' .. v,
-                    true
-                )
-                count = count + 1
-            end
-        end
-        return string.format(
-            '%s link%s ha%s been whitelisted in this chat!',
-            count,
-            count == 1
-            and ''
-            or 's',
-            count == 1
-            and 's'
-            or 've'
-        )
-    elseif process_type == 'check'
-    then
-        for k, v in pairs(links)
-        do
-            if not redis:get('whitelisted_links:' .. message.chat.id .. ':' .. v)
-            then
-                if not v:match('^joinchat/')
-                then
-                    local resolved = mattata.get_chat('@' .. v)
-                    if resolved
-                    then
-                        return true
-                    end
-                else
-                    return true
-                end
-            end
-        end
-        return false
-    end
-end
-
-function administration.is_user_spamming(message) -- Checks if a user is spamming, and returns two boolean values.
-    if mattata.is_group_admin(
-        message.chat.id,
-        message.from.id
-    )
-    then
-        return false
-    end
-    local messages = redis:get('administration:text:' .. message.chat.id .. ':' .. message.from.id)
-    local forwarded = redis:get('administration:forwarded:' .. message.chat.id .. ':' .. message.from.id)
-    local stickers = redis:get('administration:stickers:' .. message.chat.id .. ':' .. message.from.id)
-    if redis:hget(
-        'chat:' .. message.chat.id .. ':settings',
-        'antilink'
-    )
-    and administration.check_links(
-        message,
-        'check'
-    )
-    then
-        return true, 'links'
-    end
-    local limit = administration.get_message_limit(
-        message,
-        'text'
-    )
-    local forwarded_limit = administration.get_message_limit(
-        message,
-        'forwarded'
-    )
-    local stickers_limit = administration.get_message_limit(
-        message,
-        'stickers'
-    )
-    if message.forward_from
-    or message.forward_from_chat
-    then
-        if tonumber(forwarded) == nil
-        then
-            forwarded = 1
-        end
-        redis:setex(
-            'administration:forwarded:' .. message.chat.id .. ':' .. message.from.id,
-            5,
-            tonumber(forwarded) + 1
-        )
-        if tonumber(forwarded) == tonumber(forwarded_limit)
-        then
-            return true, 'forwarded messages'
-        end
-    elseif message.text
-    and not message.is_media
-    then
-        if tonumber(messages) == nil
-        then
-            messages = 1
-        end
-        redis:setex(
-            'administration:text:' .. message.chat.id .. ':' .. message.from.id,
-            5,
-            tonumber(messages) + 1
-        )
-        if tonumber(messages) == tonumber(limit)
-        then
-            return true, 'text messages'
-        end
-    elseif message.sticker
-    then
-        if tonumber(stickers) == nil
-        then
-            stickers = 1
-        end
-        redis:setex(
-            'administration:stickers:' .. message.chat.id .. ':' .. message.from.id,
-            5,
-            tonumber(stickers) + 1
-        )
-        if tonumber(stickers) == tonumber(stickers_limit)
-        then
-            return true, 'stickers'
-        end
-    end
-    if administration.get_setting(
-        message.chat.id,
-        'rtl'
-    )
-    and message.text:match('[\216-\219][\128-\191]')
-    then -- Match Arabic and RTL characters.
-        return true, 'Arabic/RTL characters'
-    end
-    return false, nil
 end
 
 function administration.new_chat(message)
@@ -1092,11 +894,7 @@ function administration:on_callback_query(callback_query, message, configuration
         )
     end
     local keyboard
-    if callback_query.data:match('^%-%d+:antispam$') then
-        keyboard = administration.get_antispam_keyboard(
-            callback_query.data:match('^(%-%d+):antispam$')
-        )
-    elseif callback_query.data:match('^%-%d+:voteban$')
+    if callback_query.data:match('^%-%d+:voteban$')
     then
         keyboard = administration.get_voteban_keyboard(
             callback_query.data:match('^(%-%d+):voteban$')
@@ -1151,42 +949,6 @@ function administration:on_callback_query(callback_query, message, configuration
             tonumber(required_downvotes)
         )
         keyboard = administration.get_voteban_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:limit:.-:.-$')
-    then
-        local chat_id, spam_type, limit = callback_query.data:match('^(%-%d+):limit:(.-):(.-)$')
-        local max_limit, min_limit
-        if spam_type == 'text'
-        then
-            max_limit, min_limit = 16, 2
-        elseif spam_type == 'forwarded'
-        then
-            max_limit, min_limit = 32, 1
-        elseif spam_type == 'stickers'
-        then
-            max_limit, min_limit = 8, 1
-        end
-        if tonumber(limit) > tonumber(max_limit)
-        then
-            return mattata.answer_callback_query(
-                callback_query.id,
-                'The maximum limit is ' .. max_limit .. '.'
-            )
-        elseif tonumber(limit) < tonumber(min_limit)
-        then
-            return mattata.answer_callback_query(
-                callback_query.id,
-                'The minimum limit is ' .. min_limit .. '.'
-            )
-        elseif tonumber(limit) == nil
-        then
-            return
-        end
-        redis:hset(
-            'chat:' .. chat_id .. ':administration',
-            spam_type,
-            tonumber(limit)
-        )
-        keyboard = administration.get_antispam_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:warnings$')
     then
         local chat_id = callback_query.data:match('^(%-%d+):warnings$')
@@ -1211,7 +973,7 @@ function administration:on_callback_query(callback_query, message, configuration
             return
         end
         redis:hset(
-            'chat:' .. chat_id .. ':settings',
+            'chat:' .. chat_id .. ':values',
             'max warnings',
             tonumber(max_warnings)
         )
@@ -1229,7 +991,7 @@ function administration:on_callback_query(callback_query, message, configuration
         local chat_id = callback_query.data:match('^(%-%d+):rtl$')
         administration.toggle_setting(
             chat_id,
-            'rtl'
+            'anti-rtl'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:rules$')
@@ -1261,7 +1023,7 @@ function administration:on_callback_query(callback_query, message, configuration
         local chat_id = callback_query.data:match('^(%-%d+):antibot$')
         administration.toggle_setting(
             chat_id,
-            'antibot'
+            'anti-bot'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:antilink$')
@@ -1269,7 +1031,15 @@ function administration:on_callback_query(callback_query, message, configuration
         local chat_id = callback_query.data:match('^(%-%d+):antilink$')
         administration.toggle_setting(
             chat_id,
-            'antilink'
+            'anti-link'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id)
+    elseif callback_query.data:match('^%-%d+:antispam$')
+    then
+        local chat_id = callback_query.data:match('^(%-%d+):antispam$')
+        administration.toggle_setting(
+            chat_id,
+            'anti-spam'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:welcome_message$')
@@ -1302,6 +1072,14 @@ function administration:on_callback_query(callback_query, message, configuration
         administration.toggle_setting(
             chat_id,
             'shared ai'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id)
+    elseif callback_query.data:match('^%-%d+:force_group_language$')
+    then
+        local chat_id = callback_query.data:match('^(%-%d+):force_group_language$')
+        administration.toggle_setting(
+            chat_id,
+            'force group language'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:log$')
@@ -1379,166 +1157,6 @@ function administration:on_callback_query(callback_query, message, configuration
     )
 end
 
-function administration:process_message(message)
-    if mattata.is_group_admin(
-        message.chat.id,
-        message.from.id
-    ) and not mattata.is_global_admin(message.from.id) then -- Don't iterate over the user's messages if they're an administrator in the group or a globally configured owner.
-        return
-    end
-    local is_spamming, media_type = administration.is_user_spamming(message)
-    if not is_spamming then
-        return
-    end
-    local success, executed_action
-    if redis:hget(
-        string.format(
-            'chat:%s:settings',
-            message.chat.id
-        ),
-        'ban not kick'
-    ) then
-        success = mattata.ban_chat_member(
-            message.chat.id,
-            message.from.id
-        )
-        executed_action = 'banned'
-    else
-        success = mattata.kick_chat_member(
-            message.chat.id,
-            message.from.id
-        )
-        executed_action = 'kicked'
-    end
-    if not success then
-        return
-    elseif redis:hget(
-        string.format(
-            'chat:%s:settings',
-            message.chat.id
-        ),
-        'log administrative actions'
-    ) then
-        mattata.send_message(
-            configuration.log_channel,
-            string.format(
-                '<pre>%s [%s] has %s %s [%s] from %s [%s] for sending too many %s.</pre>',
-                mattata.escape_html(self.info.first_name),
-                self.info.id,
-                executed_action,
-                mattata.escape_html(message.from.first_name),
-                message.from.id,
-                mattata.escape_html(message.chat.title),
-                message.chat.id,
-                media_type
-            ),
-            'html'
-        )
-    end
-    return mattata.send_message(
-        message,
-        string.format(
-            '%s %s%s for sending too many %s.',
-            executed_action:gsub('^%l', string.upper),
-            message.from.username and '@' or '',
-            message.from.username or message.from.first_name,
-            media_type
-        )
-    )
-end
-
-function administration.get_welcome_message(chat_id)
-    return redis:hget(
-        'chat:' .. chat_id .. ':values',
-        'welcome message'
-    )
-end
-
-function administration:on_new_chat_member(message)
-    if message.new_chat_member.id == self.info.id then
-        return mattata.send_message(
-            message,
-            string.format(
-                'Thanks for adding me to %s, %s! I can be used just the way I am, but if you want to enable my administration functionality, use /administration. To disable my AI functionality, use /plugins.',
-                message.chat.title,
-                message.from.first_name
-            )
-        )
-    elseif not mattata.is_group_admin(
-        message.chat.id,
-        message.from.id
-    ) and administration.get_setting(
-        message.chat.id,
-        'antibot'
-    ) and message.new_chat_member.username and message.new_chat_member.username:lower():match('bot$') and message.new_chat_member.id ~= message.from.id then
-        local success = mattata.kick_chat_member(
-            message.chat.id,
-            message.new_chat_member.id
-        )
-        if success then
-            if configuration.log_admin_actions and configuration.log_channel ~= '' then
-                mattata.send_message(
-                    configuration.log_channel,
-                    string.format(
-                        '<pre>%s [%s] has kicked %s [%s] from %s [%s] because anti-bot is enabled.</pre>',
-                        mattata.escape_html(self.info.first_name),
-                        self.info.id,
-                        mattata.escape_html(message.new_chat_member.first_name),
-                        message.new_chat_member.id,
-                        mattata.escape_html(message.chat.title),
-                        message.chat.id
-                    ),
-                    'html'
-                )
-            end
-            return mattata.send_message(
-                message,
-                string.format(
-                    'Kicked @%s because anti-bot is enabled.',
-                    message.new_chat_member.username
-                )
-            )
-        end
-    elseif not administration.get_setting(
-        message.chat.id,
-        'welcome message'
-    ) then
-        return
-    end
-    local name = message.new_chat_member.first_name
-    if message.new_chat_member.last_name then
-        name = name .. ' ' .. message.new_chat_member.last_name
-    end
-    name = name:gsub('%%', '%%%%')
-    name = mattata.escape_markdown(name)
-    local title = message.chat.title:gsub('%%', '%%%%')
-    title = mattata.escape_markdown(title)
-    username = message.new_chat_member.username and '@' .. message.new_chat_member.username or name
-    local welcome_message = administration.get_welcome_message(message.chat.id) or configuration.join_messages[math.random(#configuration.join_messages)]:gsub('NAME', name)
-    welcome_message = welcome_message:gsub('%$user_id', message.new_chat_member.id):gsub('%$chat_id', message.chat.id):gsub('%$name', name):gsub('%$title', title):gsub('%$username', username)
-    local keyboard = false
-    if administration.get_setting(
-        message.chat.id,
-        'rules on join'
-    ) then
-        keyboard = mattata.inline_keyboard():row(
-            mattata.row():url_button(
-                utf8.char(128218) .. ' Group Rules',
-                'https://t.me/' .. self.info.username .. '?start=' .. message.chat.id .. '_rules'
-            )
-        )
-    end
-    return mattata.send_message(
-        message,
-        welcome_message,
-        'markdown',
-        true,
-        false,
-        nil,
-        keyboard
-    )
-end
-
 function administration.get_help_text(section)
     section = tostring(section)
     if not section or section == nil then
@@ -1611,47 +1229,6 @@ function administration.on_help_callback_query(callback_query, message)
         'html',
         true,
         json.encode(keyboard)
-    )
-end
-
-function administration.report(message, bot_id)
-    if not message.reply then
-        return
-    elseif message.reply.from.id == message.from.id then
-        return
-    end
-    local admin_list = {}
-    local admins = mattata.get_chat_administrators(message.chat.id)
-    local notified = 0
-    for n in pairs(admins.result) do
-        if admins.result[n].user.id ~= bot_id then
-            local output = '<b>' .. mattata.escape_html(message.from.first_name) .. ' needs help in ' .. mattata.escape_html(message.chat.title) .. '!</b>'
-            if message.chat.username then
-                output = output .. '\n<a href="https://t.me/' .. message.chat.username .. '/' .. message.reply.message_id .. '">Click here to view the reported message.</a>'
-            end
-            local success = mattata.send_message(
-                admins.result[n].user.id,
-                output,
-                'html'
-            )
-            if success then
-                mattata.forward_message(
-                    admins.result[n].user.id,
-                    message.chat.id,
-                    false,
-                    message.reply.message_id
-                )
-            end
-            notified = notified + 1
-        end
-    end
-    local output = 'I\'ve successfully reported that message to ' .. notified .. ' admin'
-    if notified ~= 1 then
-        output = output .. 's'
-    end
-    return mattata.send_message(
-        message,
-        output .. '!'
     )
 end
 

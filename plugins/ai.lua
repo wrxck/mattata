@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 wrxck <matthew@matthewhesketh.com>
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -49,8 +49,7 @@ function ai.process(message, reply)
         local response = mattata_ai.talk(
             original_message,
             reply
-            or false,
-            true
+            or false
         )
         if not response
         then
@@ -145,6 +144,20 @@ function ai.greeting()
     return greetings[math.random(#greetings)]
 end
 
+function ai.farewell()
+    local farewells = {
+        'Goodbye!',
+        'Bye.',
+        'I\'ll speak to you later, yeah?',
+        'See ya!',
+        'Oh, bye then.',
+        'Bye bye.',
+        'BUH-BYE!',
+        'Aw. See ya.'
+    }
+    return farewells[math.random(#farewells)]
+end
+
 function ai.unsure()
     local unsure = {
         'What?',
@@ -211,48 +224,26 @@ function ai.offline()
 end
 
 function ai:on_message(message, configuration)
-    mattata.send_chat_action(
-        message.chat.id,
-        'typing'
-    )
+    mattata.send_chat_action(message.chat.id)
     local output
-    if redis:get('ai:' .. message.from.id .. ':use_cleverbot')
+    if message.reply
+    and message.reply.text:len() > 0
     then
-        if message.reply_to_message
-        and message.reply_to_message.text:len() > 0
-        then
-            output = ai.process(
-                message.text,
-                message.reply_to_message.text,
-                true
-            )
-        else
-            output = ai.process(message.text)
-        end
-    else
-        local token = message.from.id
-        if mattata.get_setting(
-            message.chat.id,
-            'shared ai'
-        )
-        then
-            token = message.chat.id
-        end
-        output = mattata_ai.talk(
+        output = ai.process(
             message.text,
-            false,
-            false,
-            token
+            message.reply.text
         )
+    else
+        output = ai.process(message.text)
     end
     if not output
     then
-        if message.reply_to_message
-        and message.reply_to_message.text:len() > 0
+        if message.reply
+        and message.reply.text:len() > 0
         then
             output = ai.process(
                 message.text,
-                message.reply_to_message.text,
+                message.reply.text,
                 true
             )
         else

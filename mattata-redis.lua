@@ -9,8 +9,8 @@
     Copyright (c) 2017 Matthew Hesketh
     See LICENSE for details
 
-    mattata-redis is a small Lua library to connect the mattata library, a
-    feature-filled Telegram bot API framework, to redis-cli; using lua-redis.
+    mattata-redis is a small Lua library to connect mattata to redis.
+    Intended for use with the mattata library, a feature-packed Telegram bot.
 
 ]]--
 
@@ -22,7 +22,8 @@ redis.commands.hgetall = redis.command(
     {
         ['response'] = function(response, command, ...)
             local request = {}
-            for i = 1, #response, 2 do
+            for i = 1, #response, 2
+            do
                 local n = response[i]
                 request[n] = response[i + 1]
             end
@@ -31,16 +32,20 @@ redis.commands.hgetall = redis.command(
     }
 )
 
-if not configuration.redis then
+if not configuration.redis
+then
     print('The redis table could not be found in configuration.lua!')
     return false
-elseif not configuration.redis.host then
+elseif not configuration.redis.host
+then
     print('Please specify the host address of your redis database in the redis table of configuration.lua. Unless you have changed it, this will be 127.0.0.1.')
     return false
-elseif not configuration.redis.port then
+elseif not configuration.redis.port
+then
     print('Please specify the port of your redis database in the redis table of configuration.lua. Unless you have changed it, this will be 6379.')
     return false
-elseif tonumber(configuration.redis.port) == nil then
+elseif tonumber(configuration.redis.port) == nil
+then
     print('The value of port in the redis table of configuration.lua must be numerical!')
     return false
 end
@@ -55,21 +60,29 @@ local success = pcall(
     end
 )
 
-if not success then
+if not success
+then
     print('An error has occured whilst connecting to redis!')
     return false
 end
 
-if configuration.redis.db and configuration.redis.db ~= nil and configuration.redis.db ~= '' then
-    if tonumber(configuration.redis.db) == nil then
+if configuration.redis.db
+and configuration.redis.db ~= ''
+then
+    if tonumber(configuration.redis.db) == nil
+    then
         print('The value of db in the redis table of configuration.lua must be numerical!')
         return false
     end
-    configuration.redis.db = tonumber(configuration.redis.db)
-    redis:select(configuration.redis.db)
+    redis:select(
+        tonumber(configuration.redis.db)
+    )
 end
 
-if configuration.redis.password and configuration.redis.password ~= nil and configuration.redis.password ~= '' and type(configuration.redis.password) == 'string' then
+if configuration.redis.password
+and configuration.redis.password ~= ''
+and type(configuration.redis.password) == 'string'
+then
     redis:auth(configuration.redis.password)
 end
 

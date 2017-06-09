@@ -50,7 +50,9 @@ function dictionary:on_message(message, configuration, language)
         table.concat(body)
     )
     if not jdat
-    or not jdat.results
+    or not jdat.results[1]
+    or not jdat.results[1].word
+    or not jdat.results[1].lexicalEntries
     then
         return mattata.send_reply(
             message,
@@ -67,13 +69,20 @@ function dictionary:on_message(message, configuration, language)
     local definitions = {}
     for i = 1, results
     do
-        local entry = jdat.results[1].lexicalEntries[i].entries[1].senses[1].definitions[1]
-        :gsub(':$', '')
-        :gsub('%.$', '')
-        table.insert(
-            definitions,
-            '• ' .. mattata.escape_html(entry)
-        )
+        if jdat.results[1]
+        and jdat.results[1].lexicalEntries[i]
+        and jdat.results[1].lexicalEntries[i].entries[1]
+        and jdat.results[1].lexicalEntries[i].entries[1].senses[1]
+        and jdat.results[1].lexicalEntries[i].entries[1].senses[1].definitions
+        then
+            local entry = jdat.results[1].lexicalEntries[i].entries[1].senses[1].definitions[1]
+            :gsub(':$', '')
+            :gsub('%.$', '')
+            table.insert(
+                definitions,
+                '• ' .. mattata.escape_html(entry)
+            )
+        end
     end
     local output = '<b>' .. word .. '</b>\n\n' .. table.concat(
         definitions,

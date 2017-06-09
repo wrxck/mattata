@@ -43,7 +43,11 @@ function donate:on_message(message, configuration)
             'Donate ' .. amount .. ' GBP to help with the ongoing development of mattata! Alternatively, you can donate through PayPal by heading to https://paypal.me/wrxck/' .. amount .. ', or by sending BitCoin to 17vZxsngLkPbgai8wRFzrTw5rFEjMD2AnQ',
             message.from.id .. '_' .. time,
             configuration.stripe_live_token,
-            message.from.id .. '_' .. time,
+            'donate' .. (
+                input
+                and '_' .. input
+                or ''
+            ),
             'GBP',
             '[{"label":"£' .. amount .. ' Donation","amount":' .. amount * 100 .. '}]'
         )

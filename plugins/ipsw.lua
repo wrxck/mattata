@@ -75,7 +75,7 @@ function ipsw.get_info(input)
     return json.decode(jstr)
 end
 
-function ipsw:on_inline_query(inline_query)
+function ipsw:on_inline_query(inline_query, configuration, language)
     local input = mattata.input(inline_query.query)
     if not input
     then

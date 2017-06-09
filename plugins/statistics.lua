@@ -67,6 +67,7 @@ function statistics.get_statistics(chat_id, title, language)
         )
         if user.name
         and user.name ~= ''
+        and user.messages > 0
         then
             table.insert(
                 user_info,

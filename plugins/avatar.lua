@@ -34,9 +34,10 @@ function avatar:on_inline_query(inline_query, configuration, language)
             input = input.result.id
         end
     end
-    success = success
-    and mattata.get_user_profile_photos(input)
-    or success
+    if success
+    then
+        success = mattata.get_user_profile_photos(input)
+    end
     if not success
     then
         return mattata.send_inline_article(
@@ -137,9 +138,10 @@ function avatar:on_message(message, configuration, language)
             input = input.result.id
         end
     end
-    success = success
-    and mattata.get_user_profile_photos(input)
-    or success
+    if success
+    then
+        success = mattata.get_user_profile_photos(input)
+    end
     if not success
     then
         return mattata.send_reply(
@@ -151,7 +153,9 @@ function avatar:on_message(message, configuration, language)
     then
         return mattata.send_reply(
             message,
-            language['avatar']['2']
+            success.result.total_count == 0
+            and language['avatar']['2']
+            or language['avatar']['4']
         )
     elseif tonumber(selected_photo) < 1
     or tonumber(selected_photo) > success.result.total_count

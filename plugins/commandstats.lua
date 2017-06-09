@@ -38,10 +38,14 @@ function commandstats.get_command_stats(chat_id, title, language)
             ['command'] = command
         }
         command_info.count = redis:get('commandstats:' .. chat_id .. ':' .. command)
-        table.insert(
-            statistics,
-            command_info
-        )
+        if command_info.count
+        and tonumber(command_info.count) ~= nil
+        then
+            table.insert(
+                statistics,
+                command_info
+            )
+        end
     end
     table.sort(
         statistics,
@@ -49,7 +53,7 @@ function commandstats.get_command_stats(chat_id, title, language)
             if a.count
             and b.count
             then
-                return a.count > b.count
+                return tonumber(a.count) > tonumber(b.count)
             end
         end
     )
@@ -86,7 +90,7 @@ function commandstats.get_command_stats(chat_id, title, language)
         language['commandstats']['2'],
         mattata.escape_html(title),
         text,
-        mattata.comma_value(total)
+        mattata.comma_value(total):gsub('%..-$', '')
     )
 end
 
@@ -94,6 +98,10 @@ function commandstats:process_message(message, configuration, language, is_comma
     if is_command
     then
         local command = message.text:match('^([!/#][%w_]+)')
+        if not command
+        then
+            return false
+        end
         redis:incr('commandstats:' .. message.chat.id .. ':' .. command)
         if not redis:sismember(
             'chat:' .. message.chat.id .. ':commands',
@@ -117,15 +125,18 @@ function commandstats:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if input
     and input:lower() == 'reset'
-    and mattata.is_group_admin(
-        message.chat.id,
-        message.from.id,
-        true
+    and (
+        mattata.is_group_admin(
+            message.chat.id,
+            message.from.id,
+            true
+        )
+        or mattata.is_global_admin(message.from.id)
     )
     then
         return mattata.send_message(
             message.chat.id,
-            statistics.reset_stats(message.chat.id)
+            commandstats.reset_stats(message.chat.id)
             and language['commandstats']['3']
             or language['commandstats']['4']
         )

@@ -211,6 +211,15 @@ function lyrics.send_request(input, inline, no_html)
     if inline
     then
         return jdat
+    elseif not jdat.message
+    or not jdat.message.body
+    or not jdat.message.body.track_list
+    or not jdat.message.body.track_list[1]
+    or not jdat.message.body.track_list[1].track
+    or not jdat.message.body.track_list[1].track.artist_name
+    or not jdat.message.body.track_list[1].track.track_name
+    then
+        return false
     end
     local artist = jdat.message.body.track_list[1].track.artist_name
     local track = jdat.message.body.track_list[1].track.track_name
@@ -310,7 +319,7 @@ function lyrics.get_keyboard(artist, track, language)
     return nil
 end
 
-function lyrics:on_inline_query(inline_query, configuration, lyrics)
+function lyrics:on_inline_query(inline_query, configuration, language)
     local input = mattata.input(inline_query.query)
     if not input
     then
@@ -318,7 +327,8 @@ function lyrics:on_inline_query(inline_query, configuration, lyrics)
     end
     local output = lyrics.send_request(
         input,
-        true
+        true,
+        false
     )
     if not output
     then

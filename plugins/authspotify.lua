@@ -1,0 +1,88 @@
+--[[
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local authspotify = {}
+local mattata = require('mattata')
+local https = require('ssl.https')
+local url = require('socket.url')
+local json = require('dkjson')
+local ltn12 = require('ltn12')
+local base64 = require('plugins.base64')
+local redis = require('mattata-redis')
+
+function authspotify:init()
+    authspotify.commands = mattata.commands(self.info.username):command('authspotify').table
+    authspotify.help = '/authspotify <token> - Authorises your Spotify account for use with mattata.'
+end
+
+function authspotify:on_message(message, configuration, language)
+    local input = mattata.input(message.text)
+    if not input
+    then
+        return mattata.send_reply(
+            message,
+            authspotify.help
+        )
+    elseif redis:get('spotify:' .. message.from.id .. ':access_token')
+    then
+        return mattata.send_reply(
+            message,
+            'You are already authorised using that account.'
+        )
+    end
+    input = input:match('[%?&]code=(.-)$')
+    or input
+    local query = 'grant_type=authorization_code&code=' .. url.escape(input) .. '&redirect_uri=' .. url.escape(configuration['keys']['spotify']['redirect_uri']) .. '&client_id=' .. configuration['keys']['spotify']['client_id'] .. '&client_secret=' .. configuration['keys']['spotify']['client_secret']
+    local wait_message = mattata.send_message(
+        message.chat.id,
+        'Authorising, please wait...'
+    )
+    local response = {}
+    local _, res = https.request(
+        {
+            ['url'] = 'https://accounts.spotify.com/api/token',
+            ['method'] = 'POST',
+            ['headers'] = {
+                ['Content-Type'] = 'application/x-www-form-urlencoded',
+                ['Content-Length'] = query:len()
+            },
+            ['source'] = ltn12.source.string(query),
+            ['sink'] = ltn12.sink.table(response)
+        }
+    )
+    local jdat = json.decode(
+        table.concat(response)
+    )
+    if res ~= 200
+    or not jdat
+    or jdat.error
+    then
+        return mattata.edit_message_text(
+            message.chat.id,
+            wait_message.result.message_id,
+            'A connection error occured. Are you sure you replied with the correct link? It should look like `' .. configuration['keys']['spotify']['redirect_uri'] .. '?code=...`',
+            'markdown'
+        )
+    end
+    redis:set(
+        'spotify:' .. message.from.id .. ':access_token',
+        jdat.access_token
+    )
+    redis:expire(
+        'spotify:' .. message.from.id .. ':access_token',
+        3600
+    )
+    redis:set(
+        'spotify:' .. message.from.id .. ':refresh_token',
+        jdat.refresh_token
+    )
+    return mattata.edit_message_text(
+        message.chat.id,
+        wait_message.result.message_id,
+        'Successfully authorised your Spotify account!'
+    )
+end
+
+return authspotify

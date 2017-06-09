@@ -15,12 +15,13 @@ return {
         ['supergroup'] = 'Ta komenda może być używana tylko w supergrupach.',
         ['admin'] = 'Aby użyć tej komendy, musisz być moderatorem lub administratorem w tej grupie.',
         ['unknown'] = 'Nieznany użytkownik. Aby pokazać mi kto to, przekaż wiadomość od niego do dowolnego czatu w którym jestem.',
-        ['generic'] = 'Wystąpił błąd!'
+        ['generic'] = 'Wystąpił błąd!',
+        ['use'] = 'You are not allowed to use this!'
     },
     ['afk'] = {
         ['1'] = 'Ta funkcja jest dostępna tylko dla użytkowników posiadających @username.',
         ['2'] = '%s powrócił(a) po nieobecności trwającej %s!',
-        ['3'] = 'Komentarz: ',
+        ['3'] = 'Komentarz',
         ['4'] = '%s jest teraz AFK.%s'
     },
     ['appstore'] = {
@@ -30,7 +31,7 @@ return {
         ['1'] = 'Nie mogę dostać zdjęć profilowych tego użytkownika, upewnij się że podano poprawne @username lub ID.',
         ['2'] = 'Ten użytkownik nie ma żadnych zdjęć profilowych.',
         ['3'] = 'Ten użytkownik nie ma aż tylu zdjęć profilowych!',
-        ['4'] = 'That user has opted-out of data-collecting functionality, therefore I am not able to show you any of their profile photos.'
+        ['4'] = 'Ten użytkownik zrezygnował ze zbierania danych na jego temat, toteż nie mogę pokazać Ci jego zdjęć profilowych.'
     },
     ['ban'] = {
         ['1'] = 'Kogo mam zbanować? Podaj @username lub ID.',
@@ -95,10 +96,10 @@ return {
         ['4'] = 'Niepoprawny argument. Możesz obstawiać \'heads\' lub \'tails\'.'
     },
     ['commandstats'] = {
-        ['1'] = 'No commands have been sent in this chat!',
-        ['2'] = '<b>Command statistics for:</b> %s\n\n%s\n<b>Total commands sent:</b> %s',
-        ['3'] = 'The command statistics for this chat have been reset!',
-        ['4'] = 'I could not reset the command statistics for this chat. Perhaps they have already been reset?'
+        ['1'] = 'Nie wysłano jeszcze żadnych komend w tej grupie!',
+        ['2'] = '<b>Statystyki komend w:</b> %s\n\n%s\n<b>Liczba wszystkich komend:</b> %s',
+        ['3'] = 'Zresetowano statystyki komend w tej grupie!',
+        ['4'] = 'Błąd podczas resetowania statystyk, może zostały one zresetowane już wcześniej?'
     },
     ['control'] = {
         ['1'] = 'Heh, chciałbyś!',
@@ -428,11 +429,55 @@ System:
         ['3'] = 'Odpisz tą komendą na wiadomość aby otrzymać linka do wiadomości.'
     },
     ['mute'] = {
-        ['1'] = 'Which user would you like me to mute? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot mute this user because they are already muted in this chat.',
-        ['3'] = 'I cannot mute this user because they are a moderator or an administrator in this chat.',
-        ['4'] = 'I cannot mute this user because they have already left (or been kicked from) this chat.',
-        ['5'] = 'I need to have administrative permissions in order to mute this user. Please amend this issue, and try again.'
+        ['1'] = 'Kogo mam wyciszyć? Podaj @username lub ID.',
+        ['2'] = 'Nie mogę wyciszyć tego użytkownika, ponieważ został on wyciszony już wcześniej.',
+        ['3'] = 'Nie mogę wyciszyć tego użytkownika, ponieważ jest to moderator lub administrator tej grupy.',
+        ['4'] = 'Nie mogę wyciszyć tego użytkownika, ponieważ opuścił on tę grupę lub został z niej wyrzucony.',
+        ['5'] = 'Potrzebuję uprawnień administratora aby móc wyciszać.'
+    },
+    ['myspotify'] = {
+        ['1'] = 'Profile',
+        ['2'] = 'Following',
+        ['3'] = 'Recently Played',
+        ['4'] = 'Currently Playing',
+        ['5'] = 'Top Tracks',
+        ['6'] = 'Top Artists',
+        ['7'] = 'You don\'t appear to be following any artists!',
+        ['8'] = 'Your Top Artists',
+        ['9'] = 'You don\'t appear to have any tracks in your library!',
+        ['10'] = 'Your Top Tracks',
+        ['11'] = 'You don\'t appear to be following any artists!',
+        ['12'] = 'Artists You Follow',
+        ['13'] = 'You don\'t appear to have recently played any tracks!',
+        ['14'] = '<b>Recently Played</b>\n%s %s\n%s %s\n%s Listened to at %s:%s on %s/%s/%s.',
+        ['15'] = 'The request has been accepted for processing, but the processing has not been completed.',
+        ['16'] = 'You don\'t appear to be listening to anything right now!',
+        ['17'] = 'Currently Playing',
+        ['18'] = 'An error occured whilst re-authorising your Spotify account!',
+        ['19'] = 'Successfully re-authorised your Spotify account! Processing your original request...',
+        ['20'] = 'Re-authorising your Spotify account, please wait...',
+        ['21'] = 'You need to authorise mattata in order to connect your Spotify account. Click [here](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) and press the green "OKAY" button to link mattata to your Spotify account. After you\'ve done that, send the link you were redirected to (it should begin with "%s", followed by a unique code) in reply to this message.',
+        ['22'] = 'Playlists',
+        ['23'] = 'Use Inline Mode',
+        ['24'] = 'Lyrics',
+        ['25'] = 'No devices were found.',
+        ['26'] = 'You don\'t appear to have any playlists.',
+        ['27'] = 'Your Playlists',
+        ['28'] = '%s %s [%s tracks]',
+        ['29'] = '%s %s [%s]\nSpotify %s user\n\n<b>Devices:</b>\n%s',
+        ['30'] = 'Playing previous track...',
+        ['31'] = 'You are not a premium user!',
+        ['32'] = 'I could not find any devices.',
+        ['33'] = 'Playing next track...',
+        ['34'] = 'Resuming track...',
+        ['35'] = 'Your device is temporarily unavailable...',
+        ['36'] = 'No devices were found!',
+        ['37'] = 'Pausing track...',
+        ['38'] = 'Now playing',
+        ['39'] = 'Shuffling your music...',
+        ['40'] = 'That\'s not a valid volume. Please specify a number between 0 and 100.',
+        ['41'] = 'The volume has been set to %s%%!',
+        ['42'] = 'This message is using an old version of this plugin, please request a new one by sending /myspotify!'
     },
     ['name'] = {
         ['1'] = 'Aktualnie reaguję na imię "%s" - aby to zmienić, użyj /name <imię>.',
@@ -537,22 +582,22 @@ System:
         ['9'] = 'Nie wiem'
     },
     ['setgrouplang'] = {
-        ['1'] = 'This group\'s language has been set to %s!',
-        ['2'] = 'This group\'s language is currently %s.\nPlease note that some strings may not be translated as of yet. If you\'d like to change your language, select one using the keyboard below:',
-        ['3'] = 'The option to force users to use the same language in this group is currently disabled. This setting should be toggled from /administration but, to make things easier for you, I\'ve included a button below.',
-        ['4'] = 'Enable',
-        ['5'] = 'Disable'
+        ['1'] = 'Język tej grupy został ustawiony na %s!',
+        ['2'] = 'Aktualnu język tej grupy to %s.\nPamiętaj że tłumaczenie może nie być kompletne. Aby zmienić język, użyj klawiatury poniżej:',
+        ['3'] = 'Wspólny język dla tej grupy jest wyłączony. Aby to zmienić, użyj przycisku poniżej lub menu /administration.',
+        ['4'] = 'Włącz',
+        ['5'] = 'Wyłącz'
     },
     ['setlang'] = {
         ['1'] = 'Twój język został ustawiony na %s!',
         ['2'] = 'Aktualnie wybrany język %s.\nPamiętaj że tłumaczenie może nie być kompletne. Jeśli chcesz zmienić język, użyj klawiatury poniżej:'
     },
     ['setlink'] = {
-        ['1'] = 'That\'s not a valid URL.',
-        ['2'] = 'Link set successfully!'
+        ['1'] = 'To nie jest poprawny URL.',
+        ['2'] = 'Link został ustawiony!'
     },
     ['setrules'] = {
-        ['1'] = 'Invalid Markdown formatting.',
+        ['1'] = 'Niepoprawny Markdown.',
         ['2'] = 'Successfully set the new rules!'
     },
     ['setwelcome'] = {
@@ -572,10 +617,10 @@ System:
         ['3'] = 'Pobierz .zip'
     },
     ['statistics'] = {
-        ['1'] = 'No messages have been sent in this chat!',
-        ['2'] = '<b>Statistics for:</b> %s\n\n%s\n<b>Total messages sent:</b> %s',
-        ['3'] = 'The statistics for this chat have been reset!',
-        ['4'] = 'I could not reset the statistics for this chat. Perhaps they have already been reset?'
+        ['1'] = 'W tej grupie nie wysłano jeszcze żadnej wiadomości!',
+        ['2'] = '<b>Statystyki w:</b> %s\n\n%s\n<b>Liczba wszystkich wiadomości:</b> %s',
+        ['3'] = 'Zresetowano statystyki w tej grupie!',
+        ['4'] = 'Błąd podczas resetowania statystyk, może zostały one zresetowane już wcześniej?'
     },
     ['steam'] = {
         ['1'] = 'Twoja nazwa użytkownika na Steamie została ustawiona na "%s".',
@@ -593,21 +638,21 @@ System:
         ['1'] = 'Podaj ciąg znaków który chcesz skonwertować do liczby binarnej.'
     },
     ['trust'] = {
-        ['1'] = 'I cannot trust this user because they are a moderator or an administrator of this chat.',
-        ['2'] = 'I cannot trust this user because they have already left this chat.',
-        ['3'] = 'I cannot trust this user because they have already been kicked from this chat.'
+        ['1'] = 'Nie mogę zaufać temu użytkownikowi, ponieważ jest to moderator lub administrator tej grupy.',
+        ['2'] = 'Nie mogę zaufać temu użytkownikowi, ponieważ opuścił on tę grupę.',
+        ['3'] = 'Nie mogę zaufać temu użytkownikowi, ponieważ został on wyrzucony już wcześniej.',
     },
     ['unmute'] = {
-        ['1'] = 'Which user would you like me to unmute? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot unmute this user because they are not currently muted in this chat.',
-        ['3'] = 'I cannot unmute this user because they are a moderator or an administrator in this chat.',
-        ['4'] = 'I cannot unmute this user because they have already left (or been kicked from) this chat.'
+        ['1'] = 'Komu mam pozwolić mówić? Podaj @username lub ID.',
+        ['2'] = 'Nie mogę pozwolić mówić temu użytkownikowi, ponieważ nie został on wyciszony.',
+        ['3'] = 'Nie mogę pozwolić mówić temu użytkownikowi, ponieważ jest to moderator lub administrator tej grupy.',
+        ['4'] = 'Nie mogę pozwolić mówić temu użytkownikowi, ponieważ opuścił on tę grupę lub został z niej wyrzucony.',
     },
     ['untrust'] = {
-        ['1'] = 'Which user would you like me to untrust? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot untrust this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot untrust this user because they have already left this chat.',
-        ['4'] = 'I cannot untrust this user because they have already been kicked from this chat.'
+        ['1'] = 'Komu mam przestać ufać? Podaj @username lub ID.',
+        ['2'] = 'Nie mogę przestać ufać temu użytkownikowi, ponieważ jest to moderator lub administrator tej grupy.',
+        ['3'] = 'Nie mogę przestać ufać temu użytkownikowi, ponieważ opuścił on tę grupę.',
+        ['4'] = 'Nie mogę przestać ufać temu użytkownikowi, ponieważ został on wyrzucony z tej grupy.',
     },
     ['upload'] = {
         ['1'] = 'Odpowiedz na plik który chcesz ściągnąć na serwer. Plik musi ważyć <= 20 MB.',
@@ -638,13 +683,13 @@ System:
         ['2'] = 'Aktualna temperatura: %s (odczuwalna: %s) w %s. %s'
     },
     ['welcome'] = {
-        ['1'] = 'Group Rules'
+        ['1'] = 'Przeczytaj zasady'
     },
     ['whitelist'] = {
-        ['1'] = 'Which user would you like me to whitelist? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot whitelist this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot whitelist this user because they have already left this chat.',
-        ['4'] = 'I cannot whitelist this user because they have already been banned from this chat.'
+        ['1'] = 'Kogo mam przestać ignorować? Podaj @username lub ID.',
+        ['2'] = 'Nie mogę przestać ignorować tego użytkownika, ponieważ jest to moderator lub administrator tej grupy.',
+        ['3'] = 'Nie mogę przestać ignorować tego użytkownika, ponieważ opuścił on tę grupę.',
+        ['4'] = 'Nie mogę przestać ignorować tego użytkownika, ponieważ został on zbanowany.',
     },
     ['wikipedia'] = {
         ['1'] = 'Czytaj więcej'

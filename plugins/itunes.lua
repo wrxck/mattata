@@ -85,7 +85,7 @@ function itunes:on_inline_query(inline_query)
     for k, v in pairs(jdat.results)
     do
         if v.artworkUrl100
-        and not temp[v.collectionId]
+        and not temp[v.artworkUrl100]
         then
             count = count + 1
             table.insert(
@@ -99,10 +99,7 @@ function itunes:on_inline_query(inline_query)
                 )
                 :thumb_url(v.artworkUrl100)
             )
-            table.insert(
-                temp,
-                v.collectionId
-            )
+            temp[v.artworkUrl100] = true
         end
     end
     return mattata.answer_inline_query(

@@ -90,10 +90,12 @@ function user:on_message(message, configuration)
         ),
         'unbans'
     ) or 0
+    local messages = redis:get('messages:' .. user.id .. ':' .. message.chat.id)
+    or 0
     return mattata.send_message(
         message.chat.id,
         string.format(
-            '<pre>%s%s [%s%s]\n\nStatus: %s\nBans: %s\nKicks: %s\nWarnings: %s\nUnbans: %s</pre>',
+            '<pre>%s%s [%s%s]\n\nStatus: %s\nBans: %s\nKicks: %s\nWarnings: %s\nUnbans: %s\nMessages sent: %s</pre>',
             mattata.escape_html(user.first_name),
             user.last_name and ' ' .. mattata.escape_html(user.last_name) or '',
             user.username and '@' or '',
@@ -102,7 +104,8 @@ function user:on_message(message, configuration)
             bans,
             kicks,
             warnings,
-            unbans
+            unbans,
+            messages
         ),
         'html',
         true,
