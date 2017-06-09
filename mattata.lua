@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v24.0
+      v24.0.1
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -68,7 +68,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v24.0'
+    self.version = 'v24.0.1'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -150,6 +150,8 @@ mattata.symbols = tools.symbols
 mattata.utf8_len = tools.utf8_len
 mattata.get_linked_name = tools.get_linked_name
 mattata.table_size = tools.table_size
+mattata.download_file = tools.download_file
+mattata.create_link = tools.create_link
 
 function mattata:run(configuration, token)
 -- mattata's main long-polling function which repeatedly checks the Telegram bot API for updates.
@@ -1443,8 +1445,6 @@ function mattata:exception(err, message, log_chat)
     log_chat = nil
 end
 
-mattata.download_file = tools.download_file
-
 function mattata.is_group_admin(chat_id, user_id, is_real_admin)
     if mattata.is_global_admin(chat_id)
     or mattata.is_global_admin(user_id)
@@ -2449,23 +2449,6 @@ function mattata.insert_keyboard_row(keyboard, first_text, first_callback, secon
         }
     )
     return keyboard
-end
-
-function mattata.create_link(text, link, parse_mode)
-    text = tostring(text)
-    parse_mode = (
-        parse_mode == true
-        and 'markdown'
-    )
-    or tostring(parse_mode)
-    if not link
-    then
-        return text
-    elseif parse_mode:lower() == 'markdown'
-    then
-        return '[' .. mattata.escape_markdown(text) .. '](' .. mattata.escape_markdown(link) .. ')'
-    end
-    return '<a href="' .. mattata.escape_html(link) .. '">' .. mattata.escape_html(text) .. '</a>'
 end
 
 function mattata.is_valid(message) -- Performs basic checks on the message object to see if it's fit
