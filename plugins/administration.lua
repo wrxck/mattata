@@ -48,13 +48,11 @@ end
 function administration.get_setting(chat_id, setting)
     if not chat_id
     or not setting
-    or (
-        chat_id
-        and setting
-        and not redis:hget(
-            'chat:' .. chat_id .. ':settings',
-            setting
-        )
+    then
+        return false
+    elseif not redis:hexists(
+        'chat:' .. chat_id .. ':settings',
+        tostring(setting)
     )
     then
         return false
@@ -63,27 +61,27 @@ function administration.get_setting(chat_id, setting)
 end
 
 function administration.toggle_setting(chat_id, setting, value)
+    value = tostring(value) ~= 'nil'
+    and value
+    or true
     if not chat_id
     or not setting
-    or (
-        chat_id
-        and setting
-        and not redis:hget(
-            'chat:' .. chat_id .. ':settings',
-            setting
-        )
+    then
+        return false
+    elseif not redis:hexists(
+        'chat:' .. chat_id .. ':settings',
+        tostring(setting)
     )
     then
         return redis:hset(
             'chat:' .. chat_id .. ':settings',
-            setting,
+            tostring(setting),
             value
-            or true
         )
     end
     return redis:hdel(
         'chat:' .. chat_id .. ':settings',
-        setting
+        tostring(setting)
     )
 end
 
@@ -1023,7 +1021,7 @@ function administration:on_callback_query(callback_query, message, configuration
         local chat_id = callback_query.data:match('^(%-%d+):antibot$')
         administration.toggle_setting(
             chat_id,
-            'anti-bot'
+            'antibot'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:antilink$')
@@ -1031,7 +1029,7 @@ function administration:on_callback_query(callback_query, message, configuration
         local chat_id = callback_query.data:match('^(%-%d+):antilink$')
         administration.toggle_setting(
             chat_id,
-            'anti-link'
+            'antilink'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:antispam$')

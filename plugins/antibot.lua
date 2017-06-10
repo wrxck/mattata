@@ -14,7 +14,7 @@ function antibot:process_message(message, configuration, language)
     )
     and mattata.get_setting(
         message.chat.id,
-        'anti-bot'
+        'antibot'
     )
     and message.chat.type == 'supergroup'
     and not mattata.is_group_admin(

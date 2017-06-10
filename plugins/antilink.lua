@@ -104,7 +104,7 @@ function antilink:process_message(message, configuration, language)
     )
     or not mattata.get_setting(
         message.chat.id,
-        'anti-link'
+        'antilink'
     )
     or not antilink.check_links(message)
     then
