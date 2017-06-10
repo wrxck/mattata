@@ -73,31 +73,55 @@ function antispam.get_keyboard(chat_id)
                 media .. ' limit'
             )
             or antispam.default_values[media]
-            table.insert(
-                keyboard.inline_keyboard,
-                {
-                    {
-                        ['text'] = media:gsub('^%l', string.upper),
-                        ['callback_data'] = 'antispam:nil'
-                    },
-                    {
-                        ['text'] = '-',
-                        ['callback_data'] = 'antispam:' .. chat_id .. ':limit:' .. media .. ':' .. (
-                            tonumber(current) - 1
-                        )
-                    },
-                    {
-                        ['text'] = tostring(current),
-                        ['callback_data'] = 'antispam:nil'
-                    },
-                    {
-                        ['text'] = '+',
-                        ['callback_data'] = 'antispam:' .. chat_id .. ':limit:' .. media .. ':' .. (
-                            tonumber(current) + 1
-                        )
-                    }
-                }
+            if not mattata.get_setting(
+                chat_id,
+                'allow ' .. media
             )
+            then
+                table.insert(
+                    keyboard.inline_keyboard,
+                    {
+                        {
+                            ['text'] = media:gsub('^%l', string.upper),
+                            ['callback_data'] = 'antispam:nil'
+                        },
+                        {
+                            ['text'] = '-',
+                            ['callback_data'] = 'antispam:' .. chat_id .. ':limit:' .. media .. ':' .. (
+                                tonumber(current) - 1
+                            )
+                        },
+                        {
+                            ['text'] = tostring(current),
+                            ['callback_data'] = 'antispam:nil'
+                        },
+                        {
+                            ['text'] = '+',
+                            ['callback_data'] = 'antispam:' .. chat_id .. ':limit:' .. media .. ':' .. (
+                                tonumber(current) + 1
+                            )
+                        },
+                        {
+                            ['text'] = 'Disable limit',
+                            ['callback_data'] = 'antispam:' .. chat_id .. ':toggle:' .. media
+                        }
+                    }
+                )
+            else
+                table.insert(
+                    keyboard.inline_keyboard,
+                    {
+                        {
+                            ['text'] = media:gsub('^%l', string.upper),
+                            ['callback_data'] = 'antispam:nil'
+                        },
+                        {
+                            ['text'] = 'Enable limits on ' .. media,
+                            ['callback_data'] = 'antispam:' .. chat_id .. ':toggle:' .. media
+                        }
+                    }
+                )
+            end
         end
     end
     table.insert(
@@ -112,119 +136,12 @@ function antispam.get_keyboard(chat_id)
     return keyboard
 end
 
-function antispam.check_links(message, process_type)
-    local links = {}
-    if message.entities
-    then
-        for i = 1, #message.entities
-        do
-            if message.entities[i].type == 'text_link'
-            then
-                message.text = message.text .. ' ' .. message.entities[i].url
-            end
-        end
-    end
-    for n in message.text:lower():gmatch('%@[%w_]+')
-    do
-        table.insert(
-            links,
-            n:match('^%@([%w_]+)$')
-        )
-    end
-    for n in message.text:lower():gmatch('t%.me/joinchat/[%w_]+')
-    do
-        table.insert(
-            links,
-            n:match('/(joinchat/[%w_]+)$')
-        )
-    end
-    for n in message.text:lower():gmatch('t%.me/[%w_]+')
-    do
-        if not n:match('/joinchat$')
-        then
-            table.insert(
-                links,
-                n:match('/([%w_]+)$')
-            )
-        end
-    end
-    for n in message.text:lower():gmatch('telegram%.me/joinchat/[%w_]+')
-    do
-        table.insert(
-            links,
-            n:match('/(joinchat/[%w_]+)$')
-        )
-    end
-    for n in message.text:lower():gmatch('telegram%.me/[%w_]+')
-    do
-        if not n:match('/joinchat$')
-        then
-            table.insert(
-                links,
-                n:match('/([%w_]+)$')
-            )
-        end
-    end
-    for n in message.text:lower():gmatch('telegram%.dog/joinchat/[%w_]+')
-    do
-        table.insert(
-            links,
-            n:match('/(joinchat/[%w_]+)$')
-        )
-    end
-    for n in message.text:lower():gmatch('telegram%.dog/[%w_]+')
-    do
-        if not n:match('/joinchat$')
-        then
-            table.insert(
-                links,
-                n:match('/([%w_]+)$')
-            )
-        end
-    end
-    if process_type == 'whitelist'
-    then
-        local count = 0
-        for k, v in pairs(links)
-        do
-            if not redis:get('whitelisted_links:' .. message.chat.id .. ':' .. v)
-            then
-                redis:set(
-                    'whitelisted_links:' .. message.chat.id .. ':' .. v,
-                    true
-                )
-                count = count + 1
-            end
-        end
-        return string.format(
-            '%s link%s ha%s been whitelisted in this chat!',
-            count,
-            count == 1
-            and ''
-            or 's',
-            count == 1
-            and 's'
-            or 've'
-        )
-    elseif process_type == 'check'
-    then
-        for k, v in pairs(links)
-        do
-            if not redis:get('whitelisted_links:' .. message.chat.id .. ':' .. v)
-            and v:lower() ~= 'username'
-            and v:lower() ~= 'isiswatch'
-            and v:lower() ~= 'mattata'
-            and v:lower() ~= 'telegram'
-            then
-                return true
-            end
-        end
-        return false
-    end
-end
-
 function antispam.is_user_spamming(message)
     if message.media_type == ''
+    or mattata.get_setting(
+        message.chat.id,
+        'allow ' .. message.media_type
+    )
     then
         return false
     end
@@ -243,6 +160,13 @@ function antispam.is_user_spamming(message)
     if tonumber(current) == tonumber(limit)
     then
         return true, message.media_type
+    elseif message.media_type == 'rtl'
+    and mattata.get_setting(
+        message.chat.id,
+        'antirtl'
+    )
+    then
+        return true, 'rtl'
     end
     return false
 end
@@ -316,7 +240,11 @@ function antispam:process_message(message, configuration, language)
 end
 
 function antispam:on_callback_query(callback_query, message, configuration, language)
-    local chat_id = message.chat.type == 'supergroup'
+    local chat_id = (
+        message
+        and message.chat
+        and message.chat.type == 'supergroup'
+    )
     and message.chat.id
     or callback_query.data:match('^(%-%d+):?')
     if not chat_id
@@ -364,6 +292,14 @@ function antispam:on_callback_query(callback_query, message, configuration, lang
             tonumber(limit)
         )
         keyboard = antispam.get_keyboard(chat_id)
+    elseif callback_query.data:match('^%-%d+:toggle:.-$')
+    then
+        local spam_type = callback_query.data:match('^%-%d+:toggle:(.-)$')
+        mattata.toggle_setting(
+            chat_id,
+            'allow ' .. spam_type
+        )
+        keyboard = antispam.get_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:disable$')
     then
         redis:hdel(
@@ -384,7 +320,7 @@ function antispam:on_callback_query(callback_query, message, configuration, lang
         message.chat.id,
         message.message_id,
         nil,
-        json.encode(keyboard)
+        keyboard
     )
 end
 
@@ -412,9 +348,7 @@ function antispam:on_message(message, configuration, language)
         true,
         false,
         nil,
-        json.encode(
-            antispam.get_keyboard(message.chat.id)
-        )
+        antispam.get_keyboard(message.chat.id)
     )
 end
 

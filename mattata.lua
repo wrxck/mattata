@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v24.1
+      v24.2
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -68,7 +68,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v24.1'
+    self.version = 'v24.2'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -2669,6 +2669,34 @@ function mattata.process_deeplinks(message)
             )
         end
     end
+end
+
+function mattata.toggle_setting(chat_id, setting, value)
+    value = (
+        type(value) ~= 'string'
+        and tostring(value) ~= 'nil'
+    )
+    and value
+    or true
+    if not chat_id
+    or not setting
+    then
+        return false
+    elseif not redis:hexists(
+        'chat:' .. chat_id .. ':settings',
+        tostring(setting)
+    )
+    then
+        return redis:hset(
+            'chat:' .. chat_id .. ':settings',
+            tostring(setting),
+            value
+        )
+    end
+    return redis:hdel(
+        'chat:' .. chat_id .. ':settings',
+        tostring(setting)
+    )
 end
 
 return mattata

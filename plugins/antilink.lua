@@ -85,7 +85,16 @@ function antilink.check_links(message)
         and v:lower() ~= 'mattata'
         and v:lower() ~= 'telegram'
         then
-            return true
+            local success = mattata.get_chat(v)
+            if (
+                success
+                and success.result
+                and success.result.type ~= 'private'
+            )
+            or v:match('^joinchat/')
+            then
+                return true
+            end
         end
     end
     return false
