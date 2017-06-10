@@ -42,8 +42,8 @@ function rules:on_message(message, configuration, language)
     return mattata.send_reply(
         message,
         success
-        and 'You need to speak to me in private chat before I can send you the rules! Just click [here](https://t.me/' .. self.info.username .. '), press the "START" button, and try again!'
-        or 'I have sent you the rules via private chat!',
+        and 'I have sent you the rules via private chat!'
+        or 'You need to speak to me in private chat before I can send you the rules! Just click [here](https://t.me/' .. self.info.username .. '), press the "START" button, and try again!',
         'markdown'
     )
 end

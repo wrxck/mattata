@@ -50,10 +50,10 @@ function welcome:process_message(message, configuration, language)
     :gsub('%$name', name)
     :gsub('%$title', title)
     :gsub('%$username', username)
-    local keyboard = false
+    local keyboard
     if mattata.get_setting(
         message.chat.id,
-        'rules on join'
+        'send rules on join'
     )
     then
         keyboard = mattata.inline_keyboard():row(

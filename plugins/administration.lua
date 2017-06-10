@@ -46,7 +46,7 @@ function administration.get_initial_keyboard(chat_id)
     :row(
         mattata.row()
         :callback_data_button(
-            'antispam Settings',
+            'Anti-Spam Settings',
             'antispam:' .. chat_id
         )
         :callback_data_button(
@@ -85,11 +85,11 @@ function administration.get_initial_keyboard(chat_id)
         :callback_data_button(
             mattata.get_setting(
                 chat_id,
-                'rules on join'
+                'send rules on join'
             )
             and utf8.char(9989)
             or utf8.char(10060),
-            'administration:' .. chat_id .. ':rules'
+            'administration:' .. chat_id .. ':rules_on_join'
         )
     )
     :row(
@@ -169,7 +169,7 @@ function administration.get_initial_keyboard(chat_id)
     :row(
         mattata.row()
         :callback_data_button(
-            'antispam Action',
+            'Anti-Spam Action',
             'administration:nil'
         )
         :callback_data_button(
@@ -939,12 +939,20 @@ function administration:on_callback_query(callback_query, message, configuration
             'antirtl'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:rules$')
+    elseif callback_query.data:match('^%-%d+:rules_on_join$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):rules$')
+        local chat_id = callback_query.data:match('^(%-%d+):rules_on_join$')
         mattata.toggle_setting(
             chat_id,
-            'rules on join'
+            'send rules on join'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id)
+    elseif callback_query.data:match('^%-%d+:rules_in_group$')
+    then
+        local chat_id = callback_query.data:match('^(%-%d+):rules_in_group$')
+        mattata.toggle_setting(
+            chat_id,
+            'send rules in group'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:inactive$')
