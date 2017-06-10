@@ -18,46 +18,9 @@ function administration:init()
     :command('links')
     :command('whitelistlink')
     :command('link')
-    :command('rules')
     :command('pin')
     :command('ops')
     :command('tempban').table
-end
-
-function administration.insert_keyboard_row(keyboard, text1, callback1, text2, callback2, text3, callback3)
-    table.insert(
-        keyboard.inline_keyboard,
-        {
-            {
-                ['text'] = text1,
-                ['callback_data'] = callback1
-            },
-            {
-                ['text'] = text2,
-                ['callback_data'] = callback2
-            },
-            {
-                ['text'] = text3,
-                ['callback_data'] = callback3
-            }
-        }
-    )
-    return keyboard
-end
-
-function administration.get_setting(chat_id, setting)
-    if not chat_id
-    or not setting
-    then
-        return false
-    elseif not redis:hexists(
-        'chat:' .. chat_id .. ':settings',
-        tostring(setting)
-    )
-    then
-        return false
-    end
-    return true
 end
 
 function administration.toggle_setting(chat_id, setting, value)
@@ -86,7 +49,7 @@ function administration.toggle_setting(chat_id, setting, value)
 end
 
 function administration.get_initial_keyboard(chat_id)
-   if not administration.get_setting(
+   if not mattata.get_setting(
        chat_id,
        'use administration'
     )
@@ -109,7 +72,7 @@ function administration.get_initial_keyboard(chat_id)
     :row(
         mattata.row()
         :callback_data_button(
-            'Anti-Spam Settings',
+            'antispam Settings',
             'antispam:' .. chat_id
         )
         :callback_data_button(
@@ -126,27 +89,11 @@ function administration.get_initial_keyboard(chat_id)
     :row(
         mattata.row()
         :callback_data_button(
-            'Arabic/RTL',
+            'Welcome New Users?',
             'administration:nil'
         )
         :callback_data_button(
-            administration.get_setting(
-                chat_id,
-                'rtl'
-            )
-            and utf8.char(9989)
-            or utf8.char(10060),
-            'administration:' .. chat_id .. ':rtl'
-        )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Welcome Message',
-            'administration:nil'
-        )
-        :callback_data_button(
-            administration.get_setting(
+            mattata.get_setting(
                 chat_id,
                 'welcome message'
             )
@@ -162,7 +109,7 @@ function administration.get_initial_keyboard(chat_id)
             'administration:nil'
         )
         :callback_data_button(
-            administration.get_setting(
+            mattata.get_setting(
                 chat_id,
                 'rules on join'
             )
@@ -174,11 +121,27 @@ function administration.get_initial_keyboard(chat_id)
     :row(
         mattata.row()
         :callback_data_button(
+            'Send Rules In Group?',
+            'administration:nil'
+        )
+        :callback_data_button(
+            mattata.get_setting(
+                chat_id,
+                'send rules in group'
+            )
+            and utf8.char(9989)
+            or utf8.char(10060),
+            'administration:' .. chat_id .. ':rules_in_group'
+        )
+    )
+    :row(
+        mattata.row()
+        :callback_data_button(
             'Anti-Bot',
             'administration:nil'
         )
         :callback_data_button(
-            administration.get_setting(
+            mattata.get_setting(
                 chat_id,
                 'antibot'
             )
@@ -186,15 +149,12 @@ function administration.get_initial_keyboard(chat_id)
             or utf8.char(10060),
             'administration:' .. chat_id .. ':antibot'
         )
-    )
-    :row(
-        mattata.row()
         :callback_data_button(
             'Anti-Link',
             'administration:nil'
         )
         :callback_data_button(
-            administration.get_setting(
+            mattata.get_setting(
                 chat_id,
                 'antilink'
             )
@@ -206,11 +166,40 @@ function administration.get_initial_keyboard(chat_id)
     :row(
         mattata.row()
         :callback_data_button(
-            'Anti-Spam Action',
+            'Log Actions?',
             'administration:nil'
         )
         :callback_data_button(
-            administration.get_setting(
+            mattata.get_setting(
+                chat_id,
+                'log administrative actions'
+            )
+            and utf8.char(9989)
+            or utf8.char(10060),
+            'administration:' .. chat_id .. ':log'
+        )
+        :callback_data_button(
+            'Anti-RTL',
+            'administration:nil'
+        )
+        :callback_data_button(
+            mattata.get_setting(
+                chat_id,
+                'rtl'
+            )
+            and utf8.char(9989)
+            or utf8.char(10060),
+            'administration:' .. chat_id .. ':rtl'
+        )
+    )
+    :row(
+        mattata.row()
+        :callback_data_button(
+            'antispam Action',
+            'administration:nil'
+        )
+        :callback_data_button(
+            mattata.get_setting(
                 chat_id,
                 'ban not kick'
             )
@@ -222,27 +211,11 @@ function administration.get_initial_keyboard(chat_id)
     :row(
         mattata.row()
         :callback_data_button(
-            'Log Administrative Actions?',
-            'administration:nil'
-        )
-        :callback_data_button(
-            administration.get_setting(
-                chat_id,
-                'log administrative actions'
-            )
-            and utf8.char(9989)
-            or utf8.char(10060),
-            'administration:' .. chat_id .. ':log'
-        )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
             'Delete Commands?',
             'administration:nil'
         )
         :callback_data_button(
-            administration.get_setting(
+            mattata.get_setting(
                 chat_id,
                 'delete commands'
             )
@@ -258,7 +231,7 @@ function administration.get_initial_keyboard(chat_id)
             'administration:nil'
         )
         :callback_data_button(
-            administration.get_setting(
+            mattata.get_setting(
                 chat_id,
                 'misc responses'
             )
@@ -274,7 +247,7 @@ function administration.get_initial_keyboard(chat_id)
             'administration:nil'
         )
         :callback_data_button(
-            administration.get_setting(
+            mattata.get_setting(
                 chat_id,
                 'shared ai'
             )
@@ -290,7 +263,7 @@ function administration.get_initial_keyboard(chat_id)
             'administration:nil'
         )
         :callback_data_button(
-            administration.get_setting(
+            mattata.get_setting(
                 chat_id,
                 'force group language'
             )
@@ -452,7 +425,7 @@ function administration.get_warnings(chat_id)
             }
         }
     )
-    administration.insert_keyboard_row(
+    mattata.insert_keyboard_row(
         keyboard,
         '-',
         'administration:' .. chat_id .. ':max_warnings:' .. lower,
@@ -502,7 +475,7 @@ function administration.get_voteban_keyboard(chat_id)
             }
         }
     )
-    administration.insert_keyboard_row(
+    mattata.insert_keyboard_row(
         keyboard,
         '-',
         'administration:' .. chat_id .. ':voteban_upvotes:' .. tonumber(current_required_upvotes) - 1,
@@ -520,7 +493,7 @@ function administration.get_voteban_keyboard(chat_id)
             }
         }
     )
-    administration.insert_keyboard_row(
+    mattata.insert_keyboard_row(
         keyboard,
         '-',
         'administration:' .. chat_id .. ':voteban_downvotes:' .. tonumber(current_required_downvotes) - 1,
@@ -750,7 +723,7 @@ function administration.tempban(message)
     then
         output = output .. '\nReason: ' .. reason
     end
-    if administration.get_setting(
+    if mattata.get_setting(
         message.chat.id,
         'log administrative actions'
     )
@@ -989,7 +962,7 @@ function administration:on_callback_query(callback_query, message, configuration
         local chat_id = callback_query.data:match('^(%-%d+):rtl$')
         administration.toggle_setting(
             chat_id,
-            'anti-rtl'
+            'antirtl'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:rules$')
@@ -1037,7 +1010,7 @@ function administration:on_callback_query(callback_query, message, configuration
         local chat_id = callback_query.data:match('^(%-%d+):antispam$')
         administration.toggle_setting(
             chat_id,
-            'anti-spam'
+            'antispam'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:welcome_message$')
@@ -1164,7 +1137,7 @@ function administration.get_help_text(section)
     elseif section == 'welcome_message' then
         return [[Enhance the experience your group provides to its users by settings a custom welcome message. This can be done by using the <code>/setwelcome</code> command, passing the welcome message you'd like to set as an argument. This welcome message can be formatted in Markdown. You can use a few placeholders too, to personalise each welcome message. <code>$chat_id</code> will be replaced with the chat's numerical ID, <code>$user_id</code> will be replaced with the newly-joined user's numerical ID, <code>$name</code> will be replaced with the newly-joined user's name, and <code>$title</code> will be replaced with the chat title.]]
     elseif section == 'antispam' then
-        return [[Rid of spammers with little effort by using my inbuilt anti-spam plugin. This is disabled by default. It can be turned on and customised using the <code>/antispam</code> command.]]
+        return [[Rid of spammers with little effort by using my inbuilt antispam plugin. This is disabled by default. It can be turned on and customised using the <code>/antispam</code> command.]]
     elseif section == 'moderation' then
         return [[Want to promote users but don't feel comfortable with them being able to delete messages or report people for spam? Not to worry, you can allow people to use my administration commands (such as <code>/ban</code> and <code>/kick</code> by replying to one of their messages with the command <code>/mod</code>. If things just aren't working out then you can demote the user by replying to one of their messages with <code>/demod</code>.]]
     elseif section == 'administration' then
@@ -1190,7 +1163,7 @@ function administration.get_help_keyboard(chat_id)
             },
             {
                 {
-                    ['text'] = 'Anti-Spam',
+                    ['text'] = 'antispam',
                     ['callback_data'] = 'administration:ahelp:antispam'
                 },
                 {
@@ -1329,46 +1302,6 @@ function administration.link(message)
         message,
         '<a href="' .. link .. '">' .. mattata.escape_html(message.chat.title) .. '</a>',
         'html'
-    )
-end
-
-function administration.get_rules(chat_id)
-    if type(chat_id) == 'table' then
-        chat_id = tostring(chat_id.chat.id)
-    end
-    local rules = redis:hget(
-        'chat:' .. chat_id .. ':values',
-        'rules'
-    )
-    local resolved = mattata.get_chat(chat_id)
-    if not resolved then
-        return
-    end
-    if not rules then
-        rules = 'There are no rules set for ' .. resolved.result.title .. '!'
-    end
-    return rules
-end
-
-function administration.rules(message, username)
-    local rules = administration.get_rules(message)
-    local success = mattata.send_message(
-        message.from.id,
-        rules,
-        'markdown',
-        true,
-        false
-    )
-    local output
-    if not success then
-        output = 'You need to speak to me in private chat before I can send you the rules! Just click [here](https://telegram.me/' .. username .. '), press the "START" button, and try again!'
-    else
-        output = 'I have sent you the rules via private chat!'
-    end
-    return mattata.send_reply(
-        message,
-        output,
-        'markdown'
     )
 end
 

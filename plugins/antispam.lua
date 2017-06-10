@@ -45,7 +45,7 @@ antispam.default_values = {
 function antispam.get_keyboard(chat_id)
     local status = redis:hget(
         'chat:' .. chat_id .. ':settings',
-        'anti-spam'
+        'antispam'
     )
     and true
     or false
@@ -260,7 +260,7 @@ function antispam:process_message(message, configuration, language)
     )
     or not mattata.get_setting(
         message.chat.id,
-        'anti-spam'
+        'antispam'
     )
     then
         return false
@@ -306,7 +306,7 @@ function antispam:process_message(message, configuration, language)
     return mattata.send_message(
         message,
         string.format(
-            'Kicked %s for hitting the configured anti-spam limit for [%s] media.',
+            'Kicked %s for hitting the configured antispam limit for [%s] media.',
             message.from.username
             and '@' .. message.from.username
             or message.from.first_name,
@@ -368,14 +368,14 @@ function antispam:on_callback_query(callback_query, message, configuration, lang
     then
         redis:hdel(
             'chat:' .. chat_id .. ':settings',
-            'anti-spam'
+            'antispam'
         )
         keyboard = antispam.get_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:enable$')
     then
         redis:hset(
             'chat:' .. chat_id .. ':settings',
-            'anti-spam',
+            'antispam',
             true
         )
         keyboard = antispam.get_keyboard(chat_id)

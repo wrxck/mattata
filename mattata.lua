@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v24.0.2
+      v24.1
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -68,7 +68,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v24.0.2'
+    self.version = 'v24.1'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -412,26 +412,10 @@ function mattata:on_message(message, configuration)
 
     message = mattata.process_stickers(message)
 
-    if message.text:match('^/%-%d+%_%a+$')
-    and message.chat.type == 'private'
+    local is_deeplink = mattata.process_deeplinks(message)
+    if is_deeplink
     then
-        local chat_id, action = message.text:match('^(%-%d+)%_(%a+)$')
-        if action == 'rules'
-        and mattata.get_setting(
-            message.chat.id,
-            'use administration'
-        )
-        then
-            local administration = require('plugins.administration')
-            return mattata.send_message(
-                message.chat.id,
-                mattata.get_value(
-                    message.chat.id,
-                    'rules'
-                ),
-                'markdown'
-            )
-        end
+        return true
     end
 
     -- If there's a new chat member and the bot is the added member, introduce it with
@@ -2658,6 +2642,30 @@ function mattata.process_language(message)
             redis:srem(
                 'mattata:missing_languages',
                 message.from.language_code
+            )
+        end
+    end
+end
+
+function mattata.process_deeplinks(message)
+    if message.text:match('^/%-%d+%_%a+$')
+    and message.chat.type == 'private'
+    then
+        local chat_id, action = message.text:match('^(%-%d+)%_(%a+)$')
+        if action == 'rules'
+        and mattata.get_setting(
+            message.chat.id,
+            'use administration'
+        )
+        then
+            local administration = require('plugins.administration')
+            return mattata.send_message(
+                message.chat.id,
+                mattata.get_value(
+                    message.chat.id,
+                    'rules'
+                ),
+                'markdown'
             )
         end
     end

@@ -5,7 +5,7 @@
     | | | | | | (_| | |_| || (_| | || (_| |
     |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-    Configuration file for mattata v24.0.2
+    Configuration file for mattata v24.1
 
     Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
@@ -178,6 +178,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'report',
         'rimg',
         'rms',
+        'rules',
         'save',
         'sed',
         'setgrouplang',
