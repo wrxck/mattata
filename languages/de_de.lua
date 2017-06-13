@@ -1,12 +1,13 @@
--- This is a language file for mattata
--- Language: de-de
--- Author: LKD70, CodeNameT1M
-
--- DO NOT CHANGE ANYTHING THAT BEGINS OR ENDS WITH A %
--- THESE ARE PLACEHOLDERS!
-
--- DO NOT CHANGE ANY MARKDOWN/HTML FORMATTING!
--- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/mattataDev)
+--- This is a language file for mattata
+--- Language: de-de
+--- Author: LKD70, CodeNameT1M
+-
+--- DO NOT CHANGE ANYTHING THAT BEGINS OR ENDS WITH A %
+--- THESE ARE PLACEHOLDERS!
+-
+--- DO NOT CHANGE ANY MARKDOWN/HTML FORMATTING!
+--- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/mattataDev)
+-
 
 return {
     ['errors'] = {
@@ -16,7 +17,7 @@ return {
         ['admin'] = 'Für diesen Befehl musst du ein Moderator oder Administrator in dieser Gruppe sein.',
         ['unknown'] = 'Ich kann den Benutzer nicht erkennen. Wenn du mich lehren möchtest wer dieser Benutzer ist, dann leite einfach eine Nachricht von diesem Benutzer in eine Gruppe in der ich auch bin .',
         ['generic'] = 'Ein Fehler ist passiert!',
-        ['use'] = 'You are not allowed to use this!'
+        ['use'] = 'Du hast keine Benutzungserlaubnis!'
     },
     ['afk'] = {
         ['1'] = 'Tut mir leid. Dieses Feature ist nur dann verfügbar, wenn der Benutzer einen öffentlichen @Benutzername hat!',
@@ -31,7 +32,7 @@ return {
         ['1'] = 'Ich konnte kein Profilbild für den Benutzer abrufen. Bitte sorge dafür, dass du einen gültigen Benutzername oder eine gültige Identifikationsnummer angegeben hast.',
         ['2'] = 'Dieser Benutzer hat keine Profilbilder.',
         ['3'] = 'Dieser Benutzer hat nicht viele Profilbilder!',
-        ['4'] = 'That user has opted-out of data-collecting functionality, therefore I am not able to show you any of their profile photos.'
+        ['4'] = 'Dieser Benutzer ist opted out(ausgetreten) von der Datensammlung funktionalität, deswegen ist es mir nicht möglich die Profil Bilder anzuzeigen.'
     },
     ['ban'] = {
         ['1'] = 'Welchen Benutzer soll ich sperren? Du kannst den Benutzer mit dem Benutzernamen oder mit der Identifikationsnummer angeben.',
@@ -96,10 +97,10 @@ return {
         ['4'] = 'Falsches Argument eingegeben. Du musst eine genaue Angabe machen, es ist entweder \'Kopf\' oder \'Zahl\'.'
     },
     ['commandstats'] = {
-        ['1'] = 'No commands have been sent in this chat!',
-        ['2'] = '<b>Command statistics for:</b> %s\n\n%s\n<b>Total commands sent:</b> %s',
-        ['3'] = 'The command statistics for this chat have been reset!',
-        ['4'] = 'I could not reset the command statistics for this chat. Perhaps they have already been reset?'
+        ['1'] = 'Es wurden keine Befehle in dieser Unterhaltung gesendet!',
+        ['2'] = '<b>Befehl Statistiken für:</b> %s\n\n%s\n<b>Summe der gesendeten Befehle:</b> %s',
+        ['3'] = 'Die Befehl Statistiken für diese Unterhaltung wurden gelöscht!',
+        ['4'] = 'Ich konnte die Befehl Statistiken für diese Unterhaltung nicht löschen. Wurden sie vielleicht schon gelöscht?'
     },
     ['control'] = {
         ['1'] = 'Pfft, wie du willst!',
@@ -120,7 +121,7 @@ return {
         ['6'] = 'Zum machen von eigenen Befehlen, benutze diesen Syntax:\n/custom new #Auslöser <Wert>. Zum listen aller bestehenden Auslöser, benutze /custom list. Zum löschen eines Auslösers, benutze /custom del #Auslöser.'
     },
     ['delete'] = {
-        ['1'] = 'I could not delete that message. Perhaps the message is too old or non-existent?'
+        ['1'] = 'Ich konnte die Nachricht nicht löschen. Ist die Nachricht vielleicht zu alt oder existiert nicht?'
     },
     ['demote'] = {
         ['1'] = 'Welchen Benutzer soll ich degradieren? Du kannst den Benutzer mit dem Benutzernamen oder mit der Identifikationsnummer angeben.',
@@ -289,11 +290,11 @@ Hier sind einige administrative Befehle und ein kurzer Kommentar bezüglich was 
 
 Ich bin ein cleverer Bot, welcher sich mit Menschen unterhalten kann. Des weiteren habe ich auch die Möglichkeit in Gruppen zu administrieren.
 
-Ich verstehe viele Befehle, welche du lernen kannst wenn du den Befehle Button drückst in der angehängten Tastatur.
+Ich verstehe viele Befehle, welche du lernen kannst wenn du den "Commands" Knopf drückst in der angehängten Tastatur.
 
-%s <b>Tip:</b> Benutze den "Settings" Button zum verändern wie ich arbeite%s!
+%s <b>Tip:</b> Benutze den "Settings" Knopf zum verändern wie ich arbeite%s!
 
-%s <b>Find me useful, or just want to help?</b> Donations are very much appreciated, use /donate for more information!
+%s <b>Wenn du mich für sinnvoll hälst, oder vielleicht nur helfen willst?</b> Spenden sind willkommen, benutze /donate für mehr Information!
         ]],
         ['24'] = 'in'
     },
@@ -429,61 +430,61 @@ System:
         ['3'] = 'Bitte antworte zu einem Text, zu dem du einen Link erhalten möchtest.'
     },
     ['mute'] = {
-        ['1'] = 'Which user would you like me to mute? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot mute this user because they are already muted in this chat.',
-        ['3'] = 'I cannot mute this user because they are a moderator or an administrator in this chat.',
-        ['4'] = 'I cannot mute this user because they have already left (or been kicked from) this chat.',
-        ['5'] = 'I need to have administrative permissions in order to mute this user. Please amend this issue, and try again.'
+        ['1'] = 'Welchen Benutzer soll ich stumm schalten? Du kannst den Benutzer mit dem @Benutzername oder mit der Indetifikationsnummer angeben.',
+        ['2'] = 'Ich kann den Benutzer nich stumm schalten, weil der Benutzer in dieser Unterhaltung schon stumm geschaltet ist.',
+        ['3'] = 'Ich kann den Benutzer nich stumm schalten, weil der Benutzer in dieser Unterhaltung Moderator oder Administrator ist.',
+        ['4'] = 'Ich kann den Benutzer nich stumm schalten, weil der Benutzer diese Unterhaltung schon verlassen hat oder rausgeworfen wurde.',
+        ['5'] = 'Zum stumm schalten des Benutzers muss ich Administrationsrechte haben. Bitte ändere meine Rechte und versuche es noch einmal.'
     },
     ['myspotify'] = {
-        ['1'] = 'Profile',
-        ['2'] = 'Following',
-        ['3'] = 'Recently Played',
-        ['4'] = 'Currently Playing',
-        ['5'] = 'Top Tracks',
-        ['6'] = 'Top Artists',
-        ['7'] = 'You don\'t appear to be following any artists!',
-        ['8'] = 'Your Top Artists',
-        ['9'] = 'You don\'t appear to have any tracks in your library!',
-        ['10'] = 'Your Top Tracks',
-        ['11'] = 'You don\'t appear to be following any artists!',
-        ['12'] = 'Artists You Follow',
-        ['13'] = 'You don\'t appear to have recently played any tracks!',
-        ['14'] = '<b>Recently Played</b>\n%s %s\n%s %s\n%s Listened to at %s:%s on %s/%s/%s.',
-        ['15'] = 'The request has been accepted for processing, but the processing has not been completed.',
-        ['16'] = 'You don\'t appear to be listening to anything right now!',
-        ['17'] = 'Currently Playing',
-        ['18'] = 'An error occured whilst re-authorising your Spotify account!',
-        ['19'] = 'Successfully re-authorised your Spotify account! Processing your original request...',
-        ['20'] = 'Re-authorising your Spotify account, please wait...',
-        ['21'] = 'You need to authorise mattata in order to connect your Spotify account. Click [here](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) and press the green "OKAY" button to link mattata to your Spotify account. After you\'ve done that, send the link you were redirected to (it should begin with "%s", followed by a unique code) in reply to this message.',
-        ['22'] = 'Playlists',
-        ['23'] = 'Use Inline Mode',
+        ['1'] = 'Profil',
+        ['2'] = 'Folgende',
+        ['3'] = 'Vor kurzem gespielt',
+        ['4'] = 'Derzeit spielen',
+        ['5'] = 'Top Lieder',
+        ['6'] = 'Top Künstler',
+        ['7'] = 'Es sieht nicht so aus, als würdest du einem Künstler folgen!',
+        ['8'] = 'Dein Top Künstler',
+        ['9'] = 'Es sieht so aus, als würdest du keine Lieder in deiner Sammlung haben!',
+        ['10'] = 'Deine Top Lieder',
+        ['11'] = 'Es sieht nicht so aus, als würdest du einem Künstler folgen!',
+        ['12'] = 'Künstler denen du folgst',
+        ['13'] = 'Es sieht nicht so aus als hättest du vor kurzem irgendwelche lieder gespielt!',
+        ['14'] = '<b>Vor kurzem gespielt</b>\n%s %s\n%s %s\n%s Gehört um %s:%s am %s/%s/%s.',
+        ['15'] = 'Deine Anfrage wurde akzeptiert aber die Bearbeitung wurde noch nicht beendet.',
+        ['16'] = 'Es sieht nicht so aus als würdest du dir im moment etwas anhören!',
+        ['17'] = 'Derzeit spielen',
+        ['18'] = 'Beim erneuten Autorisieren deines Spotify Accounts ist ein Fehler aufgetreten!',
+        ['19'] = 'Dein Spotify Account wurde erneut erfolgreich Autorisiert! Deine orginal Anfrage wird bearbeitet...',
+        ['20'] = 'Erneutes Autorisieren deines Spotify Accounts, bitte warten...',
+        ['21'] = 'Zum verbinden deines Spotify Accounts musst du mattata autorisieren. Klick [hier](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) and press the green "OKAY" button to link mattata to your Spotify account. After you\'ve done that, send the link you were redirected to (it should begin with "%s", followed by a unique code) in reply to this message.',
+        ['22'] = 'Wiedergabeliste',
+        ['23'] = 'Benutze Inline Mode',
         ['24'] = 'Lyrics',
-        ['25'] = 'No devices were found.',
-        ['26'] = 'You don\'t appear to have any playlists.',
-        ['27'] = 'Your Playlists',
-        ['28'] = '%s %s [%s tracks]',
-        ['29'] = '%s %s [%s]\nSpotify %s user\n\n<b>Devices:</b>\n%s',
-        ['30'] = 'Playing previous track...',
-        ['31'] = 'You are not a premium user!',
-        ['32'] = 'I could not find any devices.',
-        ['33'] = 'Playing next track...',
-        ['34'] = 'Resuming track...',
-        ['35'] = 'Your device is temporarily unavailable...',
-        ['36'] = 'No devices were found!',
-        ['37'] = 'Pausing track...',
-        ['38'] = 'Now playing',
-        ['39'] = 'Shuffling your music...',
-        ['40'] = 'That\'s not a valid volume. Please specify a number between 0 and 100.',
-        ['41'] = 'The volume has been set to %s%%!',
-        ['42'] = 'This message is using an old version of this plugin, please request a new one by sending /myspotify!'
+        ['25'] = 'Keine Geräte gefunden.',
+        ['26'] = 'Es sieht so aus, als wenn du keine Wiedergabeliste hast.',
+        ['27'] = 'Deine Wiedergabeliste',
+        ['28'] = '%s %s [%s Lieder]',
+        ['29'] = '%s %s [%s]\nSpotify %s Benutzer\n\n<b>Gerät:</b>\n%s',
+        ['30'] = 'Spiele vorheriges Lied...',
+        ['31'] = 'Du bist kein Premium Benutzer!',
+        ['32'] = 'Ich kann keine Geräte finden.',
+        ['33'] = 'Spiele nächstes Lied...',
+        ['34'] = 'Lied wird fortgesetzt...',
+        ['35'] = 'Dein Gerät ist im moment nicht erreichbar...',
+        ['36'] = 'Keine Geräte gefunden!',
+        ['37'] = 'Pause Lied...',
+        ['38'] = 'Jetzt spielen',
+        ['39'] = 'Mixe deine Musik...',
+        ['40'] = 'Das ist keine gültig Lautstärke. Gebe bitte eine Nummer zwischen 0 und 100 an.',
+        ['41'] = 'Die Lautstärke wurde auf %s%% eingestellt!',
+        ['42'] = 'Dies Nachricht benutzt ein altes Plugin, zum anfragen eines neues bitte sende /myspotify!'
     },
     ['name'] = {
-        ['1'] = 'The name I currently respond to is "%s" - to change this, use /name <text> (where <text> is what you want me to respond to).',
-        ['2'] = 'My new name needs to be between 2 and 32 characters long!',
-        ['3'] = 'My name may only contain alphanumeric characters!',
-        ['4'] = 'I will now respond to "%s", instead of "%s" - to change this, use /name <text> (where <text> is what you want me to respond to).'
+        ['1'] = 'Der Name auf den ich im moment antworte ist "%s" - zum ändern, benutze /name <text> ( <text> ist der Name auf den du willst, dass ich andworte).',
+        ['2'] = 'Mein neuer Name muss zwischen 2 und 32 Buchstaben lang sein!',
+        ['3'] = 'Mein Name kann nur aus Buchstaben bestehen!',
+        ['4'] = 'Ich antworten nun auf "%s", und nicht mehr auf "%s" - zum ändern, benutze /name <text> ( <text> ist der Name auf den du willst, dass ich andworte).'
     },
     ['netflix'] = {
         ['1'] = 'Mehr lesen.'
@@ -557,11 +558,11 @@ System:
         ['2'] = 'Dein zufälliges Wort ist <b>%s</b>!'
     },
     ['report'] = {
-        ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
-        ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
-        ['3'] = '<b>%s needs help in %s!</b>',
-        ['4'] = 'Click here to view the reported message.',
-        ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
+        ['1'] = 'Bitte Antworte zu der Nachricht die du einem GruppenAdminsitrator melden möchtest.',
+        ['2'] = 'Du kannst deine eigenen Nachrichten nicht melden, machst du vielleicht Witze?',
+        ['3'] = '<b>%s braucht Hilfe in %s!</b>',
+        ['4'] = 'Klicke hier zum ansehen der gemeldeten Nachricht.',
+        ['5'] = 'Ich habe die Nachricht erfolgreich gemeldet zu %s admin(s)!'
     },
     ['rms'] = {
         ['1'] = 'Heiliges GNU!'
@@ -582,23 +583,23 @@ System:
         ['9'] = 'Bin nicht sicher'
     },
     ['setgrouplang'] = {
-        ['1'] = 'This group\'s language has been set to %s!',
-        ['2'] = 'This group\'s language is currently %s.\nPlease note that some strings may not be translated as of yet. If you\'d like to change your language, select one using the keyboard below:',
-        ['3'] = 'The option to force users to use the same language in this group is currently disabled. This setting should be toggled from /administration but, to make things easier for you, I\'ve included a button below.',
-        ['4'] = 'Enable',
-        ['5'] = 'Disable'
+        ['1'] = 'Die Sprache in dieser Gruppe wurde eingstellet zu %s!',
+        ['2'] = 'Die Sprache in dieser Gruppe ist im moment %s.\nBitte nehme zur Kenntnis, dass vielleicht noch nicht alles vollständig Übersetzt ist. Wenn du die Sprache ändern möchtest, wähle unten auf der Tastatur eine aus:',
+        ['3'] = 'Die Möglichkeit, dass alle Benutzer in dieser Gruppe die selbe Sprache benutzent müssen, ist im moment ausgeschaltet. Diese Einstellung sollte von /administration eingestellet werden, damit es einfacher ist für dich, habe ich unten Knöpfe zum einstellen hinzugefügt.',
+        ['4'] = 'Einschalten',
+        ['5'] = 'Ausschalten'
     },
     ['setlang'] = {
         ['1'] = 'Deine Sprache wurde eingestellt zu %s!',
         ['2'] = 'Deine Sprache ist im Moment eingestellt zu %s.\nBitte beachte, dass manche Wörter oder Sätze noch nicht übersetzet sind. Wenn du deine Sprache ändern möchtest, suche dir eine aus in der Tastatur unten:'
     },
     ['setlink'] = {
-        ['1'] = 'That\'s not a valid URL.',
-        ['2'] = 'Link set successfully!'
+        ['1'] = 'Das ist keine gültige URL.',
+        ['2'] = 'Link erfolgreich gesetzt!'
     },
     ['setrules'] = {
-        ['1'] = 'Invalid Markdown formatting.',
-        ['2'] = 'Successfully set the new rules!'
+        ['1'] = 'Ungültige Markdown-Formatierung.',
+        ['2'] = 'Neue Regeln erfolgreich eingestellt!'
     },
     ['setwelcome'] = {
         ['1'] = 'Was möchtest als Willkommens Text haben? Den angegebenen Text wird formatiert und jedesmal gesendet, wenn ein Benutzer der Gruppe beitritt (Der Willkommens Text kann ausgeschaltet werden im Administrations Menue, erreichbar mit /administration).  Du kannst Platzhalter benutzen für einen individuellen Willkommens Text für jeden Benutzer. Benutze $user_id zum einfügen des Benutzers Identifikationsnummer, $chat_id zum einfügen der Gruppen Identifikationsnummer, $name zum einfügen des Benutzers name, $title zum einfügen des Gruppennamen und $username zum einfügen des Benutzers Benutzername (wenn der Benutzer keinen @Benutzernamen hat, wird deren Name benutzt, also ist es das beste, dieses zu vermeiden mit der Benutzung von $name).',
@@ -617,10 +618,10 @@ System:
         ['3'] = 'Download .zip'
     },
     ['statistics'] = {
-        ['1'] = 'No messages have been sent in this chat!',
-        ['2'] = '<b>Statistics for:</b> %s\n\n%s\n<b>Total messages sent:</b> %s',
-        ['3'] = 'The statistics for this chat have been reset!',
-        ['4'] = 'I could not reset the statistics for this chat. Perhaps they have already been reset?'
+        ['1'] = 'Es wurden keine Nachrichten in dieser Unterhaltung gesendet!',
+        ['2'] = '<b>Statistiken für:</b> %s\n\n%s\n<b>Summe der gesendeten Nachrichten:</b> %s',
+        ['3'] = 'Die Statistiken für diese Unterhaltung wurde gelöscht!',
+        ['4'] = 'Ich konnte die Statistiken für dies Unterhaltung nicht löschen. Vielleicht wurde sie schon gelöscht?'
     },
     ['steam'] = {
         ['1'] = 'Dein Steam Benutzername wurde gespeichert mit "%s".',
@@ -632,27 +633,27 @@ System:
         ['1'] = 'Du könntest das Wort <b>%s</b> benutzen, wäre besser als %s.'
     },
     ['thoughts'] = {
-        ['1'] = '%s\n\nPositiv: <code>%s%% [%s]</code>\nNegativ: <code>%s%% [%s]</code>\nIndifferent: <code>%s%% [%s]</code>\nTotal thoughts: <code>%s</code>'
+        ['1'] = '%s\n\nPositive: <code>%s%% [%s]</code>\nNegative: <code>%s%% [%s]</code>\nGleichgültige: <code>%s%% [%s]</code>\nSumme Gedanken: <code>%s</code>'
     },
     ['tobinary'] = {
         ['1'] = 'Bitte gebe ein Wort oder Satz ein, welchen du umwandeln willst zu Binary.'
     },
     ['trust'] = {
-        ['1'] = 'I cannot trust this user because they are a moderator or an administrator of this chat.',
-        ['2'] = 'I cannot trust this user because they have already left this chat.',
-        ['3'] = 'I cannot trust this user because they have already been kicked from this chat.'
+        ['1'] = 'Ich kann den Benutzer nicht zu trust(vertrauen) einstellen, weil er Moderator oder Administrator in dieser Gruppe ist.',
+        ['2'] = 'Ich kann den Benutzer nicht zu trust(vertrauen) einstellen, weil er die Gruppe schon verlassen hat.',
+        ['3'] = 'Ich kann den Benutzer nicht zu trust(vertrauen) einstellen, weil er von dieser Gruppe entfernt wurde.'
     },
     ['unmute'] = {
-        ['1'] = 'Which user would you like me to unmute? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot unmute this user because they are not currently muted in this chat.',
-        ['3'] = 'I cannot unmute this user because they are a moderator or an administrator in this chat.',
-        ['4'] = 'I cannot unmute this user because they have already left (or been kicked from) this chat.'
+        ['1'] = 'Welchen Benutzer soll ich zu Stören einstellen? Gebe den Benutzer mit dem @Benutzername oder der Identifikationsnummer an.',
+        ['2'] = 'Ich kann den Benutzer nicht zu Stören einstellen, weil er im moment nicht stumm geschalted ist..',
+        ['3'] = 'Ich kann den Benutzer nicht zu Stören einstellen, weil er Moderator oder Administrator dieser Gruppe ist.',
+        ['4'] = 'Ich kann den Benutzer nicht zu Stören einstellen, weil er die Gruppe schon verlassen hat oder von der Gruppe entfernt wurde.'
     },
     ['untrust'] = {
-        ['1'] = 'Which user would you like me to untrust? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot untrust this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot untrust this user because they have already left this chat.',
-        ['4'] = 'I cannot untrust this user because they have already been kicked from this chat.'
+        ['1'] = 'Welchen Benutzer soll ich zu untrust(nicht vertrauen) einstellen? Gebe den Benutzer mit dem @Benutzername oder der Identifikationsnummer an.',
+        ['2'] = 'Ich kann den Benutzer nicht zu untrust(nicht vertrauen) einstellen, weil er Moderator oder Administrator in dieser Gruppe ist.',
+        ['3'] = 'Ich kann den Benutzer nicht zu untrust(nicht vertrauen) einstellen, weil er die Gruppe schon verlassen hat.',
+        ['4'] = 'Ich kann den Benutzer nicht zu untrust(nicht vertrauen) einstellen, weil er von dieser Gruppe entfernt wurde.'
     },
     ['upload'] = {
         ['1'] = 'Bitte antworte zu der Datei, welche du hochlanden willst zum Server. Sie muss <= 20 MB sein.',
@@ -665,18 +666,18 @@ System:
         ['1'] = '@%s alias %s `[%s]` läuft mit mattata %s, kreiert von [Matthew Hesketh](https://t.me/wrxck). Der Quellcode ist auf [GitHub](https://github.com/wrxck/mattata) zu bekommen.'
     },
     ['voteban'] = {
-        ['1'] = 'Which user would you like to open up a vote-ban for? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot setup a vote-ban for this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot setup a vote-ban for this user because they have already left (or been kicked from) this chat.',
-        ['4'] = 'Should %s [%s] be banned from %s? %s upvotes are required for an immediate ban, and %s downvotes are required for this vote to be closed.',
-        ['5'] = 'Yes [%s]',
-        ['6'] = 'No [%s]',
-        ['7'] = 'The people have spoken. I have banned %s [%s] from %s because %s people voted for me to do so.',
-        ['8'] = 'The required upvote amount was reached, however, I was unable to ban %s - perhaps they\'ve left the group or been promoted since we opened the vote to ban them? It\'s either that, or I no longer have the administrative privileges required in order to perform this action!',
-        ['9'] = 'The people have spoken. I haven\'t banned %s [%s] from %s because the required %s people downvoted the decision to ban them.',
-        ['10'] = 'You upvoted the decision to ban %s [%s]!',
-        ['11'] = 'Your current vote has been retracted, use the buttons again to re-submit your vote.',
-        ['12'] = 'You downvoted the decision to ban %s [%s]!'
+        ['1'] = 'Für welchen Benutzer möchtest einen vote-ban(Wahl zur Sperre) eröffnen? Gebe den Benutzer mit dem @Benutzername oder der Identifikationsnummer an.',
+        ['2'] = 'Ich kann keinen vote-ban(Wahl zur Sperre) für diesen Benutzer aufsetzen, weil er Moderator oder Administrator in dieser Gruppe ist.',
+        ['3'] = 'Ich kann keinen vote-ban(Wahl zur Sperre) für diesen Benutzer aufsetzen, weil er die Gruppe schon verlassen hat oder von der Gruppe entfernt wurde.',
+        ['4'] = 'Soll %s [%s] gesperrt werden von %s? %s dafür(Yes) werden gebraucht für eine sofortige Sperre und %s dagegen(No) werden gebraucht zum sofortigen schliessen der Wahl.',
+        ['5'] = 'Ja [%s]',
+        ['6'] = 'Nein [%s]',
+        ['7'] = 'Die Leute haben gesprochen. Ich have %s [%s] von %s gesperrt, weil %s Leute dafür gewählt haben.',
+        ['8'] = 'Der erfordliche Anzahl dafür wurde erreicht, aber es war mir nicht möglich %s zu sperren - vielleicht hat er/sie die Gruppe schon verlassen oder wurde befördert seit die Wahl eröffnet wurde? Es ist entweder das, oder ich habe keine Administrationsrechte mehr.',
+        ['9'] = 'Die Leute haben gesprochen. Ich habe %s [%s] nicht von %s gesperrt, weil %s Leute dagegen gewählt haben.',
+        ['10'] = 'Du hast dafür gewählt %s [%s] zu sperren!',
+        ['11'] = 'Deine Wahl wurde zurückgezogen,zum eingeben einer neuen Wahl benutze die Knöpfe nocheinmal.',
+        ['12'] = 'Du hast dagegen gewählt %s [%s] zu sperren!'
     },
     ['weather'] = {
         ['1'] = 'Du hast keinen Standort ausgewählt. Zum auswählen benutze /setloc <Standort>.',
@@ -686,10 +687,10 @@ System:
         ['1'] = 'Group Rules'
     },
     ['whitelist'] = {
-        ['1'] = 'Which user would you like me to whitelist? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot whitelist this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot whitelist this user because they have already left this chat.',
-        ['4'] = 'I cannot whitelist this user because they have already been banned from this chat.'
+        ['1'] = 'Welchen Benutzer soll ich auf die Weiße Liste setzen? Gebe den Benutzer mit dem @Benutzername oder der Identifikationsnummer an.',
+        ['2'] = 'Ich kann den Benutzer nicht auf die Weiße Liste setzen, weil er Moderator oder Administrator in dieser Gruppe ist.',
+        ['3'] = 'Ich kann den Benutzer nicht auf die Weiße Liste setzen, weil er die Gruppe schon verlassen hat.',
+        ['4'] = 'Ich kann den Benutzer nicht auf die Weiße Liste setzen, weil er von der Gruppe entfernt wurde.'
     },
     ['wikipedia'] = {
         ['1'] = 'Mehr lesen.'
