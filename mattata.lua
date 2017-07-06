@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v25.0
+      v25.1
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -460,6 +460,9 @@ function mattata:on_message()
 
     -- This is the main loop which iterates over configured plugins and runs the
     -- appropriate functions.
+
+    self.is_done = false
+
     for _, plugin in ipairs(self.plugins)
     do
         local commands = #plugin.commands
@@ -469,7 +472,6 @@ function mattata:on_message()
             if message.text:match(plugin.commands[i])
             then
                 self.is_command = true
-                mattata.process_message(self)
                 if plugin.on_message
                 then
                     if (
@@ -567,10 +569,17 @@ function mattata:on_message()
                             message.message_id
                         )
                     end
-                    return true
+                    self.is_done = true
                 end
             end
         end
+    end
+
+    mattata.process_message(self)
+
+    if self.is_done
+    then
+        return true
     end
 
     -- If the myspotify plugin is enabled and the user's current access token has expired,
@@ -3255,6 +3264,17 @@ function mattata.toggle_user_setting(chat_id, user_id, setting)
                 nil,
                 false
             )
+        elseif setting == 'restrict web page previews'
+        then
+            success = mattata.restrict_chat_member(
+                chat_id,
+                user_id,
+                os.time(),
+                nil,
+                nil,
+                nil,
+                false
+            )
         end
         if success
         then
@@ -3290,6 +3310,17 @@ function mattata.toggle_user_setting(chat_id, user_id, setting)
             chat_id,
             user_id,
             os.time(),
+            nil,
+            nil,
+            true
+        )
+    elseif setting == 'restrict web page previews'
+    then
+        success = mattata.restrict_chat_member(
+            chat_id,
+            user_id,
+            os.time(),
+            nil,
             nil,
             nil,
             true

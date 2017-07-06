@@ -66,6 +66,23 @@ function restrict.get_keyboard(chat_id, user_id)
             'restrict:other_messages:' .. chat_id .. ':' .. user_id
         )
     )
+    :row(
+        mattata.row()
+        :callback_data_button(
+            'Web Page Previews',
+            'restrict:nil'
+        )
+        :callback_data_button(
+            mattata.get_user_setting(
+                chat_id,
+                user_id,
+                'restrict web page previews'
+            )
+            and 'No'
+            or 'Yes',
+            'restrict:web_page_previews:' .. chat_id .. ':' .. user_id
+        )
+    )
 end
 
 function restrict:on_callback_query(callback_query, message, configuration, language)

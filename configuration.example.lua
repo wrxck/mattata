@@ -5,7 +5,7 @@
     | | | | | | (_| | |_| || (_| | || (_| |
     |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-    Configuration file for mattata v25.0
+    Configuration file for mattata v25.1
 
     Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
