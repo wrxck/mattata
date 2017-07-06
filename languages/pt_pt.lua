@@ -676,7 +676,8 @@ Sistema:
         ['9'] = 'O povo falou. E não foi banido %s [%s] por %s porque %s pessoa decidiram votar contra.',
         ['10'] = 'Votou a favor na decisão de banir %s [%s]!',
         ['11'] = 'O seu voto atual foi retirado, use os botões novamente para reenviar o seu voto.',
-        ['12'] = 'Votou contra na decisão de banir %s [%s]!'
+        ['12'] = 'Votou contra na decisão de banir %s [%s]!',
+        ['13'] = 'A vote-ban has already been opened for this user!'
     },
     ['weather'] = {
         ['1'] = 'Ainda não tem uma localização definida. Use /setloc <localização> para definir uma.',

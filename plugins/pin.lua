@@ -84,11 +84,13 @@ function pin:on_message(message, configuration, language)
                 language['pin']['5']
             )
         end
+        mattata.pin_chat_message(
+            message.chat.id,
+            new_pin.result.message_id,
+            true
+        )
         redis:set(
-            string.format(
-                'administration:%s:pin',
-                message.chat.id
-            ),
+            'administration:' .. message.chat.id .. ':pin',
             new_pin.result.message_id
         )
         last_pin = new_pin.result.message_id

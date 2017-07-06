@@ -123,6 +123,19 @@ function voteban:on_callback_query(callback_query, message, configuration, langu
                     language['voteban']['8'],
                     user_object.first_name
                 )
+            else
+                redis:hdel(
+                    'voteban:' .. chat_id .. ':' .. user_id,
+                    'user_object'
+                )
+                redis:hdel(
+                    'voteban:' .. chat_id .. ':' .. user_id,
+                    'y'
+                )
+                redis:hdel(
+                    'voteban:' .. chat_id .. ':' .. user_id,
+                    'n'
+                )
             end
             return mattata.edit_message_text(
                 chat_id,
@@ -325,6 +338,15 @@ function voteban:on_message(message, configuration, language)
         return mattata.send_reply(
             message,
             language['voteban']['3']
+        )
+    elseif redis:hexists(
+        'voteban:' .. message.chat.id .. ':' .. user_object.id,
+        'user_object'
+    )
+    then
+        return mattata.send_reply(
+            message,
+            language['voteban']['13']
         )
     end
     redis:hset(

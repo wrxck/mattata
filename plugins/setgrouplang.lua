@@ -17,18 +17,20 @@ setgrouplang.languages = {
     ['en_gb'] = 'British English 🇬🇧',
     ['en_us'] = 'American English 🇺🇸',
     ['de_de'] = 'Deutsch 🇩🇪',
-    ['scottish'] = 'Scottish 🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+    ['scottish'] = 'Scottish 🏴',
     ['pl_pl'] = 'Polski 🇵🇱',
-    ['pt_pt'] = 'Português 🇵🇹'
+    ['pt_pt'] = 'Português 🇵🇹',
+    ['tr_tr'] = 'Türkçe 🇹🇷'
 }
 
 setgrouplang.languages_short = {
     ['en_gb'] = '🇬🇧',
     ['en_us'] = '🇺🇸',
     ['de_de'] = '🇩🇪',
-    ['scottish'] = '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+    ['scottish'] = '🏴',
     ['pl_pl'] = '🇵🇱',
-    ['pt_pt'] = '🇵🇹'
+    ['pt_pt'] = '🇵🇹',
+    ['tr_tr'] = '🇹🇷'
 }
 
 function setgrouplang.get_keyboard(chat_id, language)

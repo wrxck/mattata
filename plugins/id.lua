@@ -25,10 +25,12 @@ function id.resolve_chat(message, language)
     if not input
     and not message.reply
     then
-        input = message.from.id
+        input = message.from.username
+        or message.fromid
     elseif message.reply
     then
-        input = message.reply.from.id
+        input = message.reply.from.username
+        or message.reply.from.id
     end
     if tonumber(input) == nil
     and not input:match('^%@')

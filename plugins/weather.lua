@@ -41,6 +41,8 @@ function weather.get_weather(input)
     end
     local jdat = json.decode(jstr)
     if jdat.status == 'ZERO_RESULTS'
+    or not jdat.results
+    or not jdat.results[1]
     then
         return true, false, false
     end

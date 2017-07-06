@@ -676,7 +676,8 @@ System:
         ['9'] = 'The people have spoken. I haven\'t banned %s [%s] from %s because the required %s people downvoted the decision to ban them.',
         ['10'] = 'You upvoted the decision to ban %s [%s]!',
         ['11'] = 'Your current vote has been retracted, use the buttons again to re-submit your vote.',
-        ['12'] = 'You downvoted the decision to ban %s [%s]!'
+        ['12'] = 'You downvoted the decision to ban %s [%s]!',
+        ['13'] = 'A vote-ban has already been opened for this user!'
     },
     ['weather'] = {
         ['1'] = 'Du hast keinen Standort ausgewählt. Zum auswählen benutze /setloc <Standort>.',

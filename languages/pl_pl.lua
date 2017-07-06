@@ -676,7 +676,8 @@ System:
         ['9'] = 'Grupa zdecydowała. Nie banuję %s [%s] z %s ponieważ wymaganych %s ludzi zagłosowało przeciwko banowi.',
         ['10'] = 'Głosowałeś za banem dla %s [%s]!',
         ['11'] = 'Głos został cofnięty, możesz zagłosować ponownie.',
-        ['12'] = 'Zagłosowałeś przeciwko banowi dla %s [%s]!'
+        ['12'] = 'Zagłosowałeś przeciwko banowi dla %s [%s]!',
+        ['13'] = 'A vote-ban has already been opened for this user!'
     },
     ['weather'] = {
         ['1'] = 'Nie masz ustawionej lokalizacji. Użyj /setloc <lokalizacja> aby ustawić.',

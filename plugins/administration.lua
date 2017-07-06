@@ -14,12 +14,8 @@ function administration:init()
     :command('administration')
     :command('admins')
     :command('staff')
-    :command('chats')
-    :command('links')
     :command('whitelistlink')
-    :command('link')
-    :command('ops')
-    :command('tempban').table
+    :command('ops').table
 end
 
 function administration.get_initial_keyboard(chat_id)
@@ -496,46 +492,6 @@ function administration.get_hash_status(chat_id, hash_type)
     return false
 end
 
-function administration.new_chat(message)
-    local link, title = message.text:match('^/chats new (.-) (.-)$')
-    if not link or not title then
-        return
-    elseif not link:match('https://t%.me/(.-)$') then
-        return
-    end
-    local entry = json.encode(
-        {
-            ['link'] = tostring(link),
-            ['title'] = tostring(title)
-        }
-    )
-    for k, v in pairs(redis:smembers('mattata:configuration:chats')) do
-        if not v then
-            return
-        elseif not json.decode(v).link or not json.decode(v).title then
-            return
-        elseif json.decode(v).link == link then
-            return mattata.send_reply(
-                message,
-                'This link already exists in the database, under the name ' .. json.decode(v).title .. '!'
-            )
-        elseif json.decode(v).title == title then
-            return mattata.send_reply(
-                message,
-                'This title already exists in the database, with the link ' .. json.decode(v).link .. '!'
-            )
-        end
-    end
-    redis:sadd(
-        'mattata:configuration:chats',
-        entry
-    )
-    return mattata.send_reply(
-        message,
-        'Added that link to the database, under the name ' .. title .. '!'
-    )
-end
-
 function administration.del_chat(message)
     local title = message.text:match('^/chats del (.-)$')
     if not title then
@@ -561,163 +517,6 @@ function administration.del_chat(message)
     return mattata.send_reply(
         message,
         'There were no entries found in the database matching "' .. title .. '"!'
-    )
-end
-
-function administration.tempban(message)
-    local input = mattata.input(message.text)
-    if (
-        not input
-        and not message.reply
-    )
-    or (
-        input
-        and not message.reply
-        and not input:match('^%@%a+ %d*')
-    )
-    or (
-        input
-        and message.reply
-        and not input:match('^%d*')
-    )
-    then
-        return mattata.send_reply(
-            message,
-            'Please specify the user you\'d like to temp-ban, and how long you\'d like to temp-ban them for. This must be sent in the format /tempban [user] <hours> [reason]. If a user isn\'t specified then you must use this command in reply to the user you\'d like to temp-ban.'
-        )
-    end
-    local user = input
-    and input:match('^(%@%a+) %d*')
-    or message.reply.from.id
-    if tonumber(user) == nil
-    then
-        user = mattata.get_user(user)
-        if not user
-        then
-            return mattata.send_reply(
-                message,
-                'I don\'t recognise that user!'
-            )
-        end
-        user = user.result.id
-    end
-    if mattata.is_group_admin(
-        message.chat.id,
-        user
-    )
-    then
-        return mattata.send_reply(
-            message,
-            'I can\'t temp-ban that user because they\'re a staff member of this chat!'
-        )
-    elseif not mattata.get_chat_member(
-        message.chat.id,
-        user
-    )
-    then
-        return mattata.send_reply(
-            message,
-            'I can\'t temp-ban that user because they\'re not a member of this chat!'
-        )
-    elseif redis:sismember(
-        string.format(
-            'chat:%s:tempbanned',
-            message.chat.id
-        ),
-        user
-    )
-    then
-        return mattata.send_reply(
-            message,
-            'That user is already temp-banned!'
-        )
-    end
-    local user_info = mattata.get_chat_member(
-        message.chat.id,
-        user
-    )
-    local reason = input:match('%d* (.-)$')
-    or false
-    local hours = input:match('^%@%a+ (%d*)$')
-    or input:match('^%@%a+ (%d*) .-$')
-    or input:match('^(%d*)$')
-    or input:match('^(%d*) .-$')
-    if tonumber(hours) == nil
-    or tonumber(hours) < 1
-    or tonumber(hours) > 168
-    then
-        return mattata.send_reply(
-            message,
-            'The minimum time you can temp-ban a user for is 1 hour. The maximum time you can temp-ban a user for is 168 hours (1 week).'
-        )
-    end
-    local success = mattata.ban_chat_member(
-        message.chat.id,
-        user
-    )
-    if not success
-    then
-        return mattata.send_reply(
-            message,
-            'I can\'t temp-ban that user because I\'m not an administrator in this chat!'
-        )
-    end
-    redis:hset(
-        'tempbanned',
-        os.time() + (tonumber(hours) * 3600),
-        string.format(
-            '%s:%s',
-            message.chat.id,
-            user
-        )
-    )
-    redis:sadd(
-        string.format(
-            'chat:%s:tempbanned',
-            message.chat.id
-        ),
-        user
-    )
-    local hours_formatted = hours .. ' hour'
-    if tonumber(hours) > 1
-    then
-        hours_formatted = hours_formatted .. 's'
-    end
-    local output = string.format(
-        '%s [%s] has temp-banned %s [%s] from %s [%s] for %s.',
-        message.from.first_name,
-        message.from.id,
-        user_info.result.user.first_name,
-        user_info.result.user.id,
-        message.chat.title,
-        message.chat.id,
-        hours_formatted
-    )
-    if reason ~= false
-    then
-        output = output .. '\nReason: ' .. reason
-    end
-    if mattata.get_setting(
-        message.chat.id,
-        'log administrative actions'
-    )
-    then
-        mattata.send_message(
-            configuration.log_channel,
-            string.format(
-                '<pre>%s</pre>',
-                mattata.escape_html(output)
-            ),
-            'html'
-        )
-    end
-    return mattata.send_reply(
-        message,
-        string.format(
-            '<pre>%s</pre>',
-            mattata.escape_html(output)
-        ),
-        'html'
     )
 end
 
@@ -1268,25 +1067,6 @@ function administration.admins(message)
     )
 end
 
-function administration.link(message)
-    local link = redis:hget(
-        'chat:' .. message.chat.id .. ':values',
-        'link'
-    )
-    if not link
-    then
-        return mattata.send_reply(
-            message,
-            'There isn\'t a link set for this group.'
-        )
-    end
-    return mattata.send_message(
-        message,
-        '<a href="' .. link .. '">' .. mattata.escape_html(message.chat.title) .. '</a>',
-        'html'
-    )
-end
-
 function administration.whitelist_links(message)
     local input = mattata.input(message.text)
     if not input then
@@ -1342,8 +1122,6 @@ function administration:on_message(message, configuration)
     ) then
         if message.text:match('^[/!#]admins') or message.text:match('^[/!#]staff') then
             return administration.admins(message)
-        elseif message.text:match('^[/!#]link') then
-            return administration.link(message)
         elseif message.text:match('^[/!#]rules') then
             return administration.rules(
                 message,
@@ -1390,93 +1168,13 @@ function administration:on_message(message, configuration)
         )
     elseif message.text:match('^[/%!%$]admins') or message.text:match('^[/!#]staff') then
         return administration.admins(message)
-    elseif message.text:match('^[/!#]link') then
-        return administration.link(message)
-    elseif message.text:match('^[/!#]rules') then
-        return administration.rules(
-            message,
-            self.info.username:lower()
-        )
     elseif message.text:match('^[/!#]ops') or message.text:match('^[/!#]report') then
         return administration.report(
             message,
             self.info.id
         )
-    elseif mattata.is_global_admin(message.from.id) and message.text:match('^[/!#]chats del .-$') then
-        return administration.del_chat(message)
-    elseif mattata.is_global_admin(message.from.id) and message.text:match('^[/!#]chats new .-$') then
-        return administration.new_chat(message)
     elseif message.text:match('^[/!#]tempban') then
         return administration.tempban(message)
-    end
-    return
-end
-
-function administration:cron()
-    local tempbanned = redis:hgetall('tempbanned')
-    if not next(tempbanned) then
-        return
-    end
-    for k, v in pairs(tempbanned) do
-        if os.time() > tonumber(k) then
-            local chat_id, user_id = v:match('^(%-%d+):(%d+)$')
-            local user = mattata.get_chat(user_id)
-            local chat = mattata.get_chat(chat_id)
-            local success = mattata.unban_chat_member(
-                chat_id,
-                user_id
-            )
-            redis:hdel(
-                'tempbanned',
-                k
-            )
-            redis:srem(
-                string.format(
-                    'chat:%s:tempbanned',
-                    chat_id
-                ),
-                user_id
-            )
-            local unban_status = '\nI have unbanned them from this chat.'
-            if not success then
-                unban_status = '\nI was unable to unban them from this chat.'
-            end
-            if user then
-                mattata.send_message(
-                    chat_id,
-                    string.format(
-                        '%s\'s <code>[%s]</code> temp-ban has expired.%s',
-                        mattata.escape_html(user.result.first_name),
-                        user.result.id,
-                        unban_status
-                    ),
-                    'html'
-                )
-            end
-            if chat then
-                if success then
-                    mattata.send_message(
-                        user_id,
-                        string.format(
-                            'Your temp-ban from %s <code>[%s]</code> has expired, you are now allowed to join again!',
-                            mattata.escape_html(chat.result.title),
-                            chat.result.id
-                        ),
-                        'html'
-                    )
-                else
-                    mattata.send_message(
-                        user_id,
-                        string.format(
-                            'Your temp-ban from %s <code>[%s]</code> has expired - however, I was unable to unban you!',
-                            mattata.escape_html(chat.result.title),
-                            chat.result.id
-                        ),
-                        'html'
-                    )
-                end
-            end
-        end
     end
     return
 end

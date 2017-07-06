@@ -27,8 +27,8 @@ function rules:on_message(message, configuration, language)
         'send rules in group'
     )
     then
-        return mattata.send_reply(
-            message,
+        return mattata.send_message(
+            message.chat.id,
             output
         )
     end

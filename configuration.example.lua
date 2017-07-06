@@ -5,7 +5,7 @@
     | | | | | | (_| | |_| || (_| | || (_| |
     |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-    Configuration file for mattata v24.2.1
+    Configuration file for mattata v25.0
 
     Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
@@ -63,8 +63,6 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'administration',
         'aesthetic',
         'afk',
-        'antibot',
-        'antilink',
         'antispam',
         'apod',
         'appstore',
@@ -88,6 +86,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'commandstats',
         'copypasta',
         'counter',
+        'covfefify',
         'currency',
         'custom',
         'delete',
@@ -127,6 +126,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'id',
         'identicon',
         'imdb',
+        'imgur',
         'import',
         'info',
         'instagram',
@@ -141,6 +141,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'languages',
         'lastfm',
         'license',
+        'link',
         'lmgtfy',
         'location',
         'logchat',
@@ -148,6 +149,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'lua',
         'lyrics',
         'me',
+        'meme',
         'minecraft',
         'msglink',
         'mute',
@@ -157,6 +159,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'news',
         'nick',
         'ninegag',
+        'nodelete',
         'obama',
         'optout',
         'paste',
@@ -176,17 +179,19 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'reddit',
         'remind',
         'report',
+        'restrict',
         'rimg',
         'rms',
         'rules',
         'save',
         'sed',
+        'setdescription',
         'setgrouplang',
         'setlang',
-        'setlink',
         'setloc',
         'setrules',
         'settings',
+        'settitle',
         'setwelcome',
         'share',
         'shorten',
@@ -198,6 +203,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'statistics',
         'steam',
         'synonym',
+        'tempban',
         'theme',
         'thoughts',
         'time',
@@ -206,6 +212,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'translate',
         'trust',
         'twitch',
+        'twitter',
         'unban',
         'unicode',
         'unmute',
@@ -218,7 +225,6 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'voteban',
         'warn',
         'weather',
-        'welcome',
         'whitelist',
         'whois',
         'wikipedia',
@@ -305,6 +311,22 @@ return { -- Rename this file to configuration.lua for the bot to work!
             ['client_secret'] = '',
 
             ['redirect_uri'] = 'http://www.wrxck.pro'
+
+        },
+
+        ['twitter'] = {
+
+            ['consumer_key'] = '',
+
+            ['consumer_secret'] = ''
+
+        },
+
+        ['imgur'] = { -- https://api.imgur.com/oauth2/addclient
+
+            ['client_id'] = '',
+
+            ['client_secret'] = ''
 
         }
 

@@ -14,7 +14,7 @@ function commandstats:init()
     commandstats.help = '/commandstats - Shows statistical information about the current chat\'s top ten commands (ordered by message count). Alias: /cmdstats.'
 end
 
-function commandstats.reset_stats(chat_id)
+function commandstats.reset_command_stats(chat_id)
     if not chat_id
     or tonumber(chat_id) == nil
     then
@@ -94,29 +94,6 @@ function commandstats.get_command_stats(chat_id, title, language)
     )
 end
 
-function commandstats:process_message(message, configuration, language, is_command)
-    if is_command
-    then
-        local command = message.text:match('^([!/#][%w_]+)')
-        if not command
-        then
-            return false
-        end
-        redis:incr('commandstats:' .. message.chat.id .. ':' .. command)
-        if not redis:sismember(
-            'chat:' .. message.chat.id .. ':commands',
-            command
-        )
-        then
-            redis:sadd(
-                'chat:' .. message.chat.id .. ':commands',
-                command
-            )
-        end
-    end
-    return true
-end
-
 function commandstats:on_message(message, configuration, language)
     if message.chat.type == 'private'
     then
@@ -136,7 +113,7 @@ function commandstats:on_message(message, configuration, language)
     then
         return mattata.send_message(
             message.chat.id,
-            commandstats.reset_stats(message.chat.id)
+            commandstats.reset_command_stats(message.chat.id)
             and language['commandstats']['3']
             or language['commandstats']['4']
         )
