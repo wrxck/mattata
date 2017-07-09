@@ -11,7 +11,6 @@ local json = require('dkjson')
 local ltn12 = require('ltn12')
 local redis = require('mattata-redis')
 local base64 = require('plugins.base64')
-local sha1 = require('sha1')
 local oauth = require('OAuth')
 local helpers = require('OAuth.helpers')
 
@@ -219,9 +218,8 @@ function twitter:on_message(message, configuration, language)
         input
     )
     if not success
-    or not jstr
     then
-        if code >= 400
+        if tonumber(jstr) >= 400
         then
             for k, v in pairs(
                 redis:keys('twitter:' .. message.from.id .. ':*')
