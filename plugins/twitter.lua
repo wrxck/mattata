@@ -237,7 +237,7 @@ function twitter:on_message(message, configuration, language)
         end
         return mattata.send_reply(
             message,
-            'I could not send your tweet. Are you sure you\'ve authorised your Twitter to be used with me? Try sending /authspotify to re-authorise your account.'
+            'I could not send your tweet. Are you sure you\'ve authorised your Twitter to be used with me? Try sending /authtwitter to re-authorise your account.'
         )
     end
     local jdat = json.decode(jstr)
