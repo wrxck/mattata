@@ -42,7 +42,7 @@ antispam.default_values = {
     ['contact'] = 2
 }
 
-function antispam.get_keyboard(chat_id)
+function antispam.get_keyboard(chat_id, language)
     local status = redis:hget(
         'chat:' .. chat_id .. ':settings',
         'antispam'
@@ -50,8 +50,8 @@ function antispam.get_keyboard(chat_id)
     and true
     or false
     local caption = status
-    and 'Disable'
-    or 'Enable'
+    and language['antispam']['1']
+    or language['antispam']['2']
     local keyboard = {
         ['inline_keyboard'] = {}
     }
@@ -102,7 +102,7 @@ function antispam.get_keyboard(chat_id)
                             )
                         },
                         {
-                            ['text'] = 'Disable limit',
+                            ['text'] = language['antispam']['3'],
                             ['callback_data'] = 'antispam:' .. chat_id .. ':toggle:' .. media
                         }
                     }
@@ -116,7 +116,10 @@ function antispam.get_keyboard(chat_id)
                             ['callback_data'] = 'antispam:nil'
                         },
                         {
-                            ['text'] = 'Enable limits on ' .. media,
+                            ['text'] = string.format(
+                                language['antispam']['4'],
+                                media
+                            ),
                             ['callback_data'] = 'antispam:' .. chat_id .. ':toggle:' .. media
                         }
                     }
@@ -128,7 +131,7 @@ function antispam.get_keyboard(chat_id)
         keyboard.inline_keyboard,
         {
             {
-                ['text'] = mattata.symbols.back .. ' All Administration Settings',
+                ['text'] = mattata.symbols.back .. ' ' .. language['antispam']['5'],
                 ['callback_data'] = 'administration:' .. chat_id .. ':back'
             }
         }
@@ -215,7 +218,7 @@ function antispam:process_message(message, configuration, language)
         mattata.send_message(
             mattata.get_log_chat(message.chat.id),
             string.format(
-                '<pre>%s [%s] has kicked %s [%s] from %s [%s] for hitting the configured anti-spam limit for [%s] media.</pre>',
+                '<pre>' .. language['antispam']['6'] .. '</pre>',
                 mattata.escape_html(self.info.first_name),
                 self.info.id,
                 mattata.escape_html(message.from.first_name),
@@ -230,7 +233,7 @@ function antispam:process_message(message, configuration, language)
     return mattata.send_message(
         message,
         string.format(
-            'Kicked %s for hitting the configured antispam limit for [%s] media.',
+            language['antispam']['7'],
             message.from.username
             and '@' .. message.from.username
             or message.from.first_name,
@@ -263,24 +266,20 @@ function antispam:on_callback_query(callback_query, message, configuration, lang
             language['errors']['admin']
         )
     end
-    local keyboard = false
-    if callback_query.data:match('^%-%d+$')
-    then
-        keyboard = antispam.get_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:limit:.-:.-$')
+    if callback_query.data:match('^%-%d+:limit:.-:.-$')
     then
         local spam_type, limit = callback_query.data:match('^%-%d+:limit:(.-):(.-)$')
         if tonumber(limit) > 100
         then
             return mattata.answer_callback_query(
                 callback_query.id,
-                'The maximum limit is 100.'
+                language['antispam']['8']
             )
         elseif tonumber(limit) < 1
         then
             return mattata.answer_callback_query(
                 callback_query.id,
-                'The minimum limit is 1.'
+                language['antispam']['9']
             )
         elseif tonumber(limit) == nil
         then
@@ -291,7 +290,6 @@ function antispam:on_callback_query(callback_query, message, configuration, lang
             spam_type .. ' limit',
             tonumber(limit)
         )
-        keyboard = antispam.get_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:toggle:.-$')
     then
         local spam_type = callback_query.data:match('^%-%d+:toggle:(.-)$')
@@ -299,14 +297,12 @@ function antispam:on_callback_query(callback_query, message, configuration, lang
             chat_id,
             'allow ' .. spam_type
         )
-        keyboard = antispam.get_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:disable$')
     then
         redis:hdel(
             'chat:' .. chat_id .. ':settings',
             'antispam'
         )
-        keyboard = antispam.get_keyboard(chat_id)
     elseif callback_query.data:match('^%-%d+:enable$')
     then
         redis:hset(
@@ -314,13 +310,15 @@ function antispam:on_callback_query(callback_query, message, configuration, lang
             'antispam',
             true
         )
-        keyboard = antispam.get_keyboard(chat_id)
     end
     return mattata.edit_message_reply_markup(
         message.chat.id,
         message.message_id,
         nil,
-        keyboard
+        antispam.get_keyboard(
+            chat_id,
+            language
+        )
     )
 end
 
@@ -343,12 +341,18 @@ function antispam:on_message(message, configuration, language)
     end
     return mattata.send_message(
         message.chat.id,
-        'Modify the anti-spam settings for ' .. message.chat.title .. ' below:',
+        string.format(
+            language['antispam']['10'],
+            message.chat.title
+        ),
         nil,
         true,
         false,
         nil,
-        antispam.get_keyboard(message.chat.id)
+        antispam.get_keyboard(
+            message.chat.id,
+            language
+        )
     )
 end
 

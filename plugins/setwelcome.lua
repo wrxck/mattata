@@ -55,6 +55,10 @@ function setwelcome:on_message(message, configuration, language)
             language['setwelcome']['2']
         )
     end
+    mattata.delete_message(
+        configuration.log_chat,
+        validate.result.message_id
+    )
     redis:hset(
         'chat:' .. message.chat.id .. ':values',
         'welcome message',

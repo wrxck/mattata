@@ -24,6 +24,18 @@ return {
         ['3'] = 'Jot',
         ['4'] = '%s is now awa.%s'
     },
+    ['antispam'] = {
+        ['1'] = 'Disable',
+        ['2'] = 'Enable',
+        ['3'] = 'Disable limit',
+        ['4'] = 'Enable limits on %s',
+        ['5'] = 'All Administration Settings',
+        ['6'] = '%s [%s] has kicked %s [%s] from %s [%s] for hitting the configured anti-spam limit for [%s] media.',
+        ['7'] = 'Kicked %s for hitting the configured antispam limit for [%s] media.',
+        ['8'] = 'The maximum limit is 100.',
+        ['9'] = 'The minimum limit is 1.',
+        ['10'] = 'Modify the anti-spam settings for %s below:'
+    },
     ['appstore'] = {
         ['1'] = 'veu on iTunes'
     },

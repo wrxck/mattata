@@ -216,21 +216,9 @@ function warn:on_message(message, configuration, language)
         'max warnings'
     )
     or 3
-    local action = mattata.kick_chat_member
-    local action_settings = redis:hget(
-        string.format(
-            'chat:%s:settings',
-            message.chat.id
-        ),
-        'ban not kick'
-    )
-    if action_settings
-    then
-        action = mattata.ban_chat_member
-    end
     if tonumber(amount) >= tonumber(maximum)
     then
-        local success = action(
+        local success = mattata.ban_chat_member(
             message.chat.id,
             user.id
         )
@@ -239,12 +227,7 @@ function warn:on_message(message, configuration, language)
         -- success then the bot isn't an administrator in the group.
             return mattata.send_reply(
                 message,
-                string.format(
-                    'I need to have administrative permissions in order to %s this user. Please amend this issue, and try again.',
-                    action_settings
-                    and 'ban'
-                    or 'kick'
-                )
+                'I need to have administrative permissions in order to ban this user. Please amend this issue, and try again.'
             )
         end
     end
@@ -254,9 +237,7 @@ function warn:on_message(message, configuration, language)
             message.chat.id,
             user.id
         ),
-        action_settings
-        and 'bans'
-        or 'kicks',
+        'bans',
         1
     )
     if redis:hget(

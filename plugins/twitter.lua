@@ -218,6 +218,7 @@ function twitter:on_message(message, configuration, language)
         input
     )
     if not success
+    or not jstr
     then
         if tonumber(jstr) >= 400
         then

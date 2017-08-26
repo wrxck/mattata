@@ -52,40 +52,30 @@ function translate:on_inline_query(inline_query, configuration)
     )
 end
 
-function translate:on_message(message, configuration)
+function translate:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input then
-        if not message.reply then
-            return mattata.send_reply(
-                message,
-                translate.help
-            )
-        end
-        local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.keys.translate .. '&lang=' .. configuration.language .. '&text=' .. url.escape(message.reply.text))
-        if res ~= 200 then
-            return mattata.send_reply(
-                message,
-                configuration.errors.connection
-            )
-        end
-        local jdat = json.decode(jstr)
-        return mattata.send_message(
-            message.chat.id,
-            '<b>Translation (from ' .. jdat.lang:gsub('%-', ' to ') .. '):</b>\n' .. mattata.escape_html(jdat.text[1]),
-            'html'
-        )
-    end
-    local lang
-    if not mattata.get_word(input) or mattata.get_word(input):len() > 2 then
-        lang = configuration.language
-    else
-        lang = mattata.get_word(input)
-    end
-    local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.keys.translate .. '&lang=' .. lang .. '&text=' .. url.escape(input:gsub(lang .. ' ', '')))
-    if res ~= 200 then
+    local lang = configuration['language']
+    if message.reply
+    then
+        lang = input
+        or lang
+        input = message.reply.text
+    elseif not input
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.connection
+            translate.help
+        )
+    elseif input:match('^%a%a .-$')
+    then
+        lang, input = input:match('^(%a%a) (.-)$')
+    end
+    local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration['keys']['translate'] .. '&lang=' .. lang .. '&text=' .. url.escape(input))
+    if res ~= 200
+    then
+        return mattata.send_reply(
+            message,
+            'An error occured. Are you sure you specified a valid locale?'
         )
     end
     local jdat = json.decode(jstr)

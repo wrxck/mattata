@@ -101,7 +101,20 @@ function administration.get_initial_keyboard(chat_id)
             )
             and utf8.char(9989)
             or utf8.char(10060),
-            'administration:' .. chat_id .. ':rules_in_group'
+            'administration:' .. chat_id .. ':rules'
+        )
+        :callback_data_button(
+            'Word Filter',
+            'administration:nil'
+        )
+        :callback_data_button(
+            mattata.get_setting(
+                chat_id,
+                'word filter'
+            )
+            and 'On'
+            or 'Off',
+            'administration:' .. chat_id .. ':word_filter'
         )
     )
     :row(
@@ -754,6 +767,19 @@ function administration:on_callback_query(callback_query, message, configuration
             'send rules in group'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
+    elseif callback_query.data:match('^%-%d+:word_filter$')
+    then
+        local chat_id = callback_query.data:match('^(%-%d+):word_filter$')
+        mattata.toggle_setting(
+            chat_id,
+            'word filter'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id)
+        mattata.answer_callback_query(
+            callback_query.id,
+            'You can add one or more words to the word filter by using /filter <word(s)>',
+            true
+        )
     elseif callback_query.data:match('^%-%d+:inactive$')
     then
         local chat_id = callback_query.data:match('^(%-%d+):inactive$')

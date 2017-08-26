@@ -346,6 +346,10 @@ function help:on_callback_query(callback_query, message, configuration, language
                     mattata.symbols.back .. ' ' .. language['help']['6'],
                     'help:back'
                 )
+                :url_button(
+                    'Twitter',
+                    'https://twitter.com/intent/user?screen_name=wrxck__'
+                )
             )
         )
     elseif callback_query.data == 'settings'

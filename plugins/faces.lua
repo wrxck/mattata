@@ -16,18 +16,6 @@ function faces:init(configuration)
             faces.commands,
             '^[/!$]' .. k
         )
-        table.insert(
-            faces.commands,
-            '^[/!$]%@' .. self.info.username
-        )
-        table.insert(
-            faces.commands,
-            '[/!$]' .. k .. '$'
-        )
-        table.insert(
-            faces.commands,
-            '[/!$]' .. k .. '%@' .. self.info.username .. '$'
-        )
     end
 end
 

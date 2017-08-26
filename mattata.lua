@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v25.1
+      v26.0
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -26,6 +26,9 @@ local tools = require('telegram-bot-lua.tools')
 local socket = require('socket')
 local plugin_list = {}
 local inline_plugin_list = {}
+mattata.api = api
+mattata.tools = tools
+mattata.configuration = configuration
 
 function mattata:init()
     self.info = api.info -- Set the bot's information to the object fetched from the Telegram bot API.
@@ -68,7 +71,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v25.1'
+    self.version = 'v26.0'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -87,7 +90,7 @@ function mattata:init()
     return true
 end
 
--- Set a bunch of function aliases, for consistency and legacy compatibility.
+-- Set a bunch of function aliases, for consistency & compatibility.
 mattata.request = api.request
 mattata.forward_message = api.forward_message
 mattata.send_photo = api.send_photo
@@ -123,6 +126,12 @@ mattata.edit_message_text = api.edit_message_text
 mattata.edit_message_caption = api.edit_message_caption
 mattata.edit_message_reply_markup = api.edit_message_reply_markup
 mattata.delete_message = api.delete_message
+mattata.get_sticker_set = api.get_sticker_set
+mattata.upload_sticker_file = api.upload_sticker_file
+mattata.create_new_sticker_set = api.create_new_sticker_set
+mattata.add_sticker_to_set = api.add_sticker_to_set
+mattata.set_sticker_position_in_set = api.set_sticker_position_in_set
+mattata.delete_sticker_from_set = api.delete_sticker_from_set
 mattata.answer_inline_query = api.answer_inline_query
 mattata.send_invoice = api.send_invoice
 mattata.answer_shipping_query = api.answer_shipping_query
@@ -134,6 +143,7 @@ mattata.input_text_message_content = api.input_text_message_content
 mattata.input_location_message_content = api.input_location_message_content
 mattata.input_venue_message_content = api.input_venue_message_content
 mattata.input_contact_message_content = api.input_contact_message_content
+mattata.mask_position = api.mask_position
 mattata.url_button = api.url_button
 mattata.callback_data_button = api.callback_data_button
 mattata.switch_inline_query_button = api.switch_inline_query_button
@@ -382,6 +392,8 @@ function mattata:on_message()
 
     message = mattata.sort_message(message) -- Process the message.
 
+    self.is_user_blacklisted = mattata.is_user_blacklisted(message)
+
     local language = require(
         'languages.' .. mattata.get_user_language(message.from.id)
     )
@@ -415,170 +427,177 @@ function mattata:on_message()
         return false -- We don't want to process these messages any further!
     end
 
-    mattata.process_afk(message)
-    mattata.process_language(message)
-    message = mattata.process_stickers(message)
-
-    if mattata.process_deeplinks(message)
+    if not self.is_user_blacklisted -- Only perform the following operations if the user isn't blacklisted.
     then
-        return true
-    end
 
-    -- If there's a new chat member and the bot is the added member, introduce it with
-    -- a brief description of the primary features and how to set things up.
-    if message.new_chat_member
-    and message.new_chat_member.id == self.info.id
-    then
-        return mattata.send_message(
-            message.chat.id,
-            string.format(
-                'My name is %s and I\'m here to help. If you\'re an administrator, use /plugins to choose which features you want to enable in this group and use /administration to set up my administrative functionality. For more information, use /help.',
-                self.info.nickname -- Since there's a chance the bot has previously been used
-                -- in the chat but was removed, it could still have a nickname. If not, then
-                -- this won't cause any issues since it will just fallback to the bot's actual
-                -- name instead.
+        mattata.process_afk(message)
+        mattata.process_language(message)
+        message = mattata.process_stickers(message)
+
+        if mattata.process_deeplinks(message)
+        then
+            return true
+        end
+
+        -- If there's a new chat member and the bot is the added member, introduce it with
+        -- a brief description of the primary features and how to set things up.
+        if message.new_chat_member
+        and message.new_chat_member.id == self.info.id
+        then
+            return mattata.send_message(
+                message.chat.id,
+                string.format(
+                    'My name is %s and I\'m here to help. If you\'re an administrator, use /plugins to choose which features you want to enable in this group and use /administration to set up my administrative functionality. For more information, use /help.',
+                    self.info.nickname -- Since there's a chance the bot has previously been used
+                    -- in the chat but was removed, it could still have a nickname. If not, then
+                    -- this won't cause any issues since it will just fallback to the bot's actual
+                    -- name instead.
+                )
+            )
+        end
+
+        -- If the user isn't current AFK, and they say they're going to be right back, we can
+        -- assume that they are now going to be AFK, so we'll help them out and set them that
+        -- way by making the message text the /afk command, which will later trigger the plugin.
+        if (
+            message.text:lower():match('^i?\'?l?l? ?brb.?$')
+            and not redis:hget(
+                'afk:' .. message.chat.id .. ':' .. message.from.id,
+                'since'
             )
         )
-    end
+        then
+            message.text = '/afk'
+        end
 
-    -- If the user isn't current AFK, and they say they're going to be right back, we can
-    -- assume that they are now going to be AFK, so we'll help them out and set them that
-    -- way by making the message text the /afk command, which will later trigger the plugin.
-    if (
-        message.text:lower():match('^i?\'?l?l? ?brb.?$')
-        and not redis:hget(
-            'afk:' .. message.chat.id .. ':' .. message.from.id,
-            'since'
-        )
-    )
-    then
-        message.text = '/afk'
-    end
+        self.is_command = false -- A boolean value to decide later on, whether the message
+        -- is intended for the current plugin from the iterated table.
 
-    self.is_command = false -- A boolean value to decide later on, whether the message
-    -- is intended for the current plugin from the iterated table.
+        -- This is the main loop which iterates over configured plugins and runs the
+        -- appropriate functions.
 
-    -- This is the main loop which iterates over configured plugins and runs the
-    -- appropriate functions.
+        self.is_done = false
 
-    self.is_done = false
-
-    for _, plugin in ipairs(self.plugins)
-    do
-        local commands = #plugin.commands
-        or {}
-        for i = 1, commands
+        for _, plugin in ipairs(self.plugins)
         do
-            if message.text:match(plugin.commands[i])
-            then
-                self.is_command = true
-                if plugin.on_message
+            local commands = #plugin.commands
+            or {}
+            for i = 1, commands
+            do
+                if message.text:match(plugin.commands[i])
                 then
-                    if (
-                        plugin.name == 'administration'
-                        and not redis:hget(
-                            string.format(
-                                'chat:%s:settings',
-                                message.chat.id
-                            ),
-                            'use administration'
-                        )
-                        and not message.text:match('^[!/#]administration')
-                        and not message.text:match('^[!/#]administration%@' .. self.info.username)
-                        and not message.text:match('^[!/#]groups')
-                        and not message.text:match('^[!/#]groups%@' .. self.info.username)
-                    )
-                    or (
-                        plugin.name ~= 'administration'
-                        and mattata.is_plugin_disabled(
-                            plugin.name,
-                            message
-                        )
-                    )
+                    self.is_command = true
+                    if plugin.on_message
                     then
-                        if message.chat.type ~= 'private'
-                        and not redis:get(
-                            string.format(
-                                'chat:%s:dismiss_disabled_message:%s',
-                                message.chat.id,
-                                plugin.name
+                        if (
+                            plugin.name == 'administration'
+                            and not redis:hget(
+                                string.format(
+                                    'chat:%s:settings',
+                                    message.chat.id
+                                ),
+                                'use administration'
+                            )
+                            and not message.text:match('^[!/#]administration')
+                            and not message.text:match('^[!/#]administration%@' .. self.info.username)
+                            and not message.text:match('^[!/#]groups')
+                            and not message.text:match('^[!/#]groups%@' .. self.info.username)
+                        )
+                        or (
+                            plugin.name ~= 'administration'
+                            and mattata.is_plugin_disabled(
+                                plugin.name,
+                                message
                             )
                         )
                         then
-                            return mattata.send_message(
-                                message.chat.id,
+                            if message.chat.type ~= 'private'
+                            and not redis:get(
                                 string.format(
-                                    '%s is disabled in this chat.',
-                                    plugin.name:gsub('^%l', string.upper)
-                                ),
-                                nil,
-                                true,
-                                false,
-                                nil,
-                                mattata.inline_keyboard()
-                                :row(
-                                    mattata.row()
-                                    :callback_data_button(
-                                        'Dismiss',
-                                        'plugins:' .. message.chat.id .. ':dismiss_disabled_message:' .. plugin.name
-                                    )
-                                    :callback_data_button(
-                                        'Enable',
-                                        'plugins:' .. message.chat.id .. ':enable_via_message:' .. plugin.name
-                                    )
+                                    'chat:%s:dismiss_disabled_message:%s',
+                                    message.chat.id,
+                                    plugin.name
                                 )
                             )
+                            then
+                                return mattata.send_message(
+                                    message.chat.id,
+                                    string.format(
+                                        '%s is disabled in this chat.',
+                                        plugin.name:gsub('^%l', string.upper)
+                                    ),
+                                    nil,
+                                    true,
+                                    false,
+                                    nil,
+                                    mattata.inline_keyboard()
+                                    :row(
+                                        mattata.row()
+                                        :callback_data_button(
+                                            'Dismiss',
+                                            'plugins:' .. message.chat.id .. ':dismiss_disabled_message:' .. plugin.name
+                                        )
+                                        :callback_data_button(
+                                            'Enable',
+                                            'plugins:' .. message.chat.id .. ':enable_via_message:' .. plugin.name
+                                        )
+                                    )
+                                )
+                            end
+                            return false
                         end
-                        return false
-                    end
-                    local success, result = pcall(
-                        function()
-                            return plugin.on_message(
+                        local success, result = pcall(
+                            function()
+                                return plugin.on_message(
+                                    self,
+                                    message,
+                                    configuration,
+                                    language
+                                )
+                            end
+                        )
+                        if not success
+                        then
+                            mattata.exception(
                                 self,
-                                message,
-                                configuration,
-                                language
+                                result,
+                                string.format(
+                                    '%s: %s',
+                                    message.from.id,
+                                    message.text
+                                ),
+                                configuration.log_chat
                             )
                         end
-                    )
-                    if not success
-                    then
-                        mattata.exception(
-                            self,
-                            result,
-                            string.format(
-                                '%s: %s',
-                                message.from.id,
-                                message.text
-                            ),
-                            configuration.log_chat
-                        )
-                    end
-                    if mattata.get_setting(
-                        message.chat.id,
-                        'delete commands'
-                    )
-                    and self.is_command
-                    and not redis:sismember(
-                        'chat:' .. message.chat.id .. ':no_delete',
-                        tostring(plugin.name)
-                    )
-                    then
-                        mattata.delete_message(
+                        if mattata.get_setting(
                             message.chat.id,
-                            message.message_id
+                            'delete commands'
                         )
+                        and self.is_command
+                        and not redis:sismember(
+                            'chat:' .. message.chat.id .. ':no_delete',
+                            tostring(plugin.name)
+                        )
+                        then
+                            mattata.delete_message(
+                                message.chat.id,
+                                message.message_id
+                            )
+                        end
+                        self.is_done = true
                     end
-                    self.is_done = true
                 end
             end
         end
+
     end
 
     mattata.process_message(self)
 
     if self.is_done
+    or self.is_user_blacklisted
     then
+        self.is_done = false
         return true
     end
 
@@ -861,6 +880,16 @@ function mattata:on_message_misc()
         return mattata.send_sticker(
             message.chat.id,
             'BQADBAADNQIAAlAYNw2gRrzQfFLv9wI'
+        )
+    elseif message.text:lower():match('feelin[g\']? sexy')
+    then
+        mattata.send_chat_action(
+            message.chat.id,
+            'record_audio'
+        )
+        return mattata.send_voice(
+            message.chat.id,
+            'AwADBAADVjgAArsZZAfARKtpdduarAI'
         )
     elseif message.text:lower():match('^do you have the time,? to listen to me whine%??$')
     then
@@ -1157,6 +1186,24 @@ function mattata:on_callback_query()
     local language = require(
         'languages.' .. mattata.get_user_language(callback_query.from.id)
     )
+    if message.chat.id
+    and mattata.is_group(message)
+    and mattata.get_setting(
+        message.chat.id,
+        'force group language'
+    )
+    then
+        language = require(
+            'languages.' .. (
+                mattata.get_value(
+                    message.chat.id,
+                    'group language'
+                )
+                or 'en_gb'
+            )
+        )
+    end
+    self.language = language
     if redis:get('global_blacklist:' .. callback_query.from.id)
     then
         callback_query = nil
@@ -1748,17 +1795,10 @@ function mattata.process_user(user)
     user.name = user.first_name
     if user.last_name
     then
-        user.name = string.format(
-            '%s %s',
-            user.name,
-            user.last_name
-        )
+        user.name = user.name .. ' ' .. user.last_name
     end
     if not redis:hget(
-        string.format(
-            'user:%s:info',
-            user.id
-        ),
+        'user:' .. user.id .. ':info',
         'id'
     )
     then
@@ -1776,39 +1816,41 @@ function mattata.process_user(user)
             )
         )
         new = true
+    else
+        print(
+            string.format(
+                '%s[34m[+] Updated information about the user %s in the database!%s%s[0m',
+                string.char(27),
+                user.username
+                and '@' .. user.username
+                or user.id,
+                user.language_code
+                and ' Language: ' .. user.language_code
+                or '',
+                string.char(27)
+            )
+        )
     end
     redis:hset(
-        string.format(
-            'user:%s:info',
-            user.id
-        ),
+        'user:' .. user.id .. ':info',
         'name',
         user.name
     )
     redis:hset(
-        string.format(
-            'user:%s:info',
-            user.id
-        ),
+        'user:' .. user.id .. ':info',
         'first_name',
         user.first_name
     )
     if user.last_name
     then
         redis:hset(
-            string.format(
-                'user:%s:info',
-                user.id
-            ),
+            'user:' .. user.id .. ':info',
             'last_name',
             user.last_name
         )
     else
         redis:hdel(
-            string.format(
-                'user:%s:info',
-                user.id
-            ),
+            'user:' .. user.id .. ':info',
             'last_name'
         )
     end
@@ -1816,10 +1858,7 @@ function mattata.process_user(user)
     then
         user.username = user.username:lower()
         redis:hset(
-            string.format(
-                'user:%s:info',
-                user.id
-            ),
+            'user:' .. user.id .. ':info',
             'username',
             user.username
         )
@@ -1859,29 +1898,25 @@ function mattata.process_user(user)
             )
         end
         redis:hset(
-            string.format(
-                'user:%s:info',
-                user.id
-            ),
+            'user:' .. user.id .. ':info',
             'language_code',
             user.language_code
         )
     else
         redis:hdel(
-            string.format(
-                'user:%s:info',
-                user.id
-            ),
+            'user:' .. user.id .. ':info',
             'language_code'
         )
     end
+    redis:hset(
+        'user:' .. user.id .. ':info',
+        'is_bot',
+        tostring(user.is_bot)
+    )
     if new
     then
         redis:hset(
-            string.format(
-                'user:%s:info',
-                user.id
-            ),
+            'user:' .. user.id .. ':info',
             'id',
             user.id
         )
@@ -2487,7 +2522,14 @@ function mattata.is_valid(message) -- Performs basic checks on the message objec
     -- object, this means that they haven't enabled the `Sign Messages` option in the channel
     -- settings. We'll ignore this so it doesn't cause any problems with plugins which rely
     -- on the values in the `message.from` object.
-    or (
+    then
+        return false
+    end
+    return true
+end
+
+function mattata.is_user_blacklisted(message)
+    if (
         message.from
         and message.from.id
         and message.chat
@@ -2500,9 +2542,9 @@ function mattata.is_valid(message) -- Performs basic checks on the message objec
         )
     )
     then
-        return false
+        return true
     end
-    return true
+    return false
 end
 
 function mattata.process_afk(message) -- Checks if the message references an AFK user and tells the
@@ -2899,6 +2941,7 @@ function mattata:process_message()
             and v.username:lower():match('bot$')
             and v.id ~= message.from.id
             and v.id ~= self.info.id
+            and tostring(v.is_bot) == 'true'
             then
                 local success = mattata.kick_chat_member(
                     message.chat.id,
@@ -2947,6 +2990,82 @@ function mattata:process_message()
                 )
             )
             break_cycle = true
+        end
+    end
+    if mattata.get_setting(
+        message.chat.id,
+        'use administration'
+    )
+    and mattata.get_setting(
+        message.chat.id,
+        'word filter'
+    )
+    and not mattata.is_group_admin(
+        message.chat.id,
+        message.from.id
+    )
+    and not mattata.is_global_admin(message.from.id)
+    then
+        local words = redis:smembers('word_filter:' .. message.chat.id)
+        if words
+        and #words > 0
+        then
+            for k, v in pairs(words)
+            do
+                local text = message.text:lower()
+                if text:match('^' .. v .. '$')
+                or text:match('^' .. v .. ' ')
+                or text:match(' ' .. v .. ' ')
+                or text:match(' ' .. v .. '$')
+                then
+                    mattata.delete_message(
+                        message.chat.id,
+                        message.message_id
+                    )
+                    local action = mattata.get_setting(
+                        message.chat.id,
+                        'ban not kick'
+                    )
+                    and mattata.ban_chat_member
+                    or mattata.kick_chat_member
+                    local success = action(
+                        message.chat.id,
+                        message.from.id
+                    )
+                    if success
+                    then
+                        if mattata.get_setting(
+                            message.chat.id,
+                            'log administrative actions'
+                        )
+                        then
+                            mattata.send_message(
+                                mattata.get_log_chat(message.chat.id),
+                                string.format(
+                                    '<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending one or more prohibited words.</pre>',
+                                    mattata.escape_html(self.info.first_name),
+                                    self.info.id,
+                                    mattata.escape_html(message.from.first_name),
+                                    message.from.id,
+                                    mattata.escape_html(message.chat.title),
+                                    message.chat.id
+                                ),
+                                'html'
+                            )
+                        end
+                        mattata.send_message(
+                            message.chat.id,
+                            string.format(
+                                'Kicked %s for sending one or more prohibited words.',
+                                message.from.username
+                                and '@' .. message.from.username
+                                or message.from.first_name
+                            )
+                        )
+                        break_cycle = true
+                    end
+                end
+            end
         end
     end
     if mattata.get_setting(
@@ -3027,7 +3146,7 @@ function mattata:process_message()
     end
     if message.chat
     and message.chat.type ~= 'private'
-    and mattata.is_privacy_enabled(message.from.id)
+    and not mattata.is_privacy_enabled(message.from.id)
     and not mattata.is_plugin_disabled(
         'statistics',
         message.chat.id
@@ -3278,6 +3397,29 @@ function mattata.toggle_user_setting(chat_id, user_id, setting)
         end
         if success
         then
+            if setting == 'restrict messages'
+            then
+                redis:hset(
+                    'user:' .. user_id .. ':' .. chat_id .. ':settings',
+                    'restrict messages',
+                    true
+                )
+                redis:hset(
+                    'user:' .. user_id .. ':' .. chat_id .. ':settings',
+                    'restrict media messages',
+                    true
+                )
+                redis:hset(
+                    'user:' .. user_id .. ':' .. chat_id .. ':settings',
+                    'restrict other messages',
+                    true
+                )
+                return redis:hset(
+                    'user:' .. user_id .. ':' .. chat_id .. ':settings',
+                    'restrict web page previews',
+                    true
+                )
+            end
             return redis:hset(
                 'user:' .. user_id .. ':' .. chat_id .. ':settings',
                 tostring(setting),

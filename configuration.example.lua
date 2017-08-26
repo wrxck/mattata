@@ -5,7 +5,7 @@
     | | | | | | (_| | |_| || (_| | || (_| |
     |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-    Configuration file for mattata v25.1
+    Configuration file for mattata v26.0
 
     Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
@@ -40,11 +40,14 @@ return { -- Rename this file to configuration.lua for the bot to work!
 
     ['log_admin_actions'] = true, -- Should administrative actions be logged? [true/false]
 
-    ['log_channel'] = nil,
+    ['log_channel'] = nil, -- This needs to be the numerical identifier of the channel you wish
+    -- to log administrative actions in by default. It should begin with a '-' symbol.
 
-    ['bug_reports_chat'] = nil,
+    ['bug_reports_chat'] = nil, -- This needs to be the numerical identifier of the chat you wish to send
+    -- bug reports into. If it's not a private chat it should begin with a '-' symbol.
 
-    ['counter_channel'] = nil,
+    ['counter_channel'] = nil, -- This needs to be the numerical identifier of the channel you wish
+    -- to forward messages into, for use with the /counter command. It should begin with a '-' symbol.
 
     ['download_location'] = '/tmp/', -- The location to save all downloaded media to.
 
@@ -108,6 +111,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'fact',
         'fakeid',
         'fileid',
+        'filter',
         'flickr',
         'fortune',
         'frombinary',
@@ -171,8 +175,10 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'prime',
         'promote',
         'pun',
+        'purge',
         'qr',
         'quote',
+        'quotes',
         'randomcolor',
         'randomsite',
         'randomword',
@@ -183,6 +189,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'rimg',
         'rms',
         'rules',
+        'runescape',
         'save',
         'sed',
         'setdescription',
@@ -214,6 +221,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'twitch',
         'twitter',
         'unban',
+        'unfilter',
         'unicode',
         'unmute',
         'untrust',
@@ -227,7 +235,9 @@ return { -- Rename this file to configuration.lua for the bot to work!
         'weather',
         'whitelist',
         'whois',
+        'wikihow',
         'wikipedia',
+        'wordfilter',
         'xkcd',
         'yify',
         'yomama',
@@ -314,7 +324,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
 
         },
 
-        ['twitter'] = {
+        ['twitter'] = { -- https://apps.twitter.com/app/new
 
             ['consumer_key'] = '',
 

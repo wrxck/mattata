@@ -17,6 +17,11 @@ function quote:on_message(message, configuration, language)
     if not message.reply
     then
         local quotes = redis:keys('quotes:*')
+        if not next(quotes)
+        or #quotes < 1
+        then
+            return false
+        end
         local user, quote
         repeat
             quote = quotes[math.random(#quotes)]
