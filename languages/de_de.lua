@@ -48,8 +48,6 @@ return {
     ['ban'] = {
         ['1'] = 'Welchen Benutzer soll ich sperren? Du kannst den Benutzer mit dem Benutzernamen oder mit der Identifikationsnummer angeben.',
         ['2'] = 'Ich kann diesen Benutzer nicht sperren, weil er/sie ein Moderator oder Administrator in dieser Gruppe ist.',
-        ['3'] = 'Ich kann diesen Benutzer nicht sperren, weil er/sie die Gruppe schon verlassen hat.',
-        ['4'] = 'Ich kann diesen Benutzer nicht sperren, weil er/sie für die Gruppe schon gesperrt ist.',
         ['5'] = 'Ich muss Administrationsberechtigung haben damit ich den Benutzer sperren kann. Bitte kümmer dich um das Problem und versuche es noch einmal.'
     },
     ['bash'] = {

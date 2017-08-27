@@ -48,8 +48,6 @@ return {
     ['ban'] = {
         ['1'] = 'Hangi kullanıcı banlamamı istersiniz? Bu kullanıcıyı @kulanıcıadı şeklinde veya kullanıcı IDsi ile belirtebilirsin.',
         ['2'] = 'Bu kullanıcıyı, bu sohbette bir moderatör veya yönetici oldukları için banlayamam.',
-        ['3'] = 'Bu sohbetten ayrıldığı için bu kullanıcıyı banyalamam.',
-        ['4'] = 'Bu sohbetten zaten banlandıkları için bu kullanıcıyı yasaklayamam.',
         ['5'] = 'Bu kullanıcıyı banlamam için admin izinlerine sahip olmam gerekiyor. Lütfen bu sorunu düzeltip tekrar deneyin.'
     },
     ['bash'] = {

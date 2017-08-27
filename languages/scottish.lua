@@ -48,8 +48,6 @@ return {
     ['ban'] = {
         ['1'] = 'Which usar wud ye like me tae ban? Ye can specify thes usar by thair @usarname ore numerical ID.',
         ['2'] = 'A cannae ban thes usar becawis thei be a moderator ore an administrator in thes tauk.',
-        ['3'] = 'A cannae ban thes usar becawis thei have alrady left thes tauk.',
-        ['4'] = 'A cannae ban thes usar becawis thei have alrady been banned from thes tauk.',
         ['5'] = 'A need tae have administrative permissions in maun tae ban thes usar. Pleese mend thes issue, and pree again.'
     },
     ['bash'] = {

@@ -117,15 +117,6 @@ function ban:on_message(message, configuration, language)
             message,
             language['ban']['2']
         )
-    elseif status.result.status == 'left'
-    or status.result.status == 'kicked'
-    then -- Check if the user is in the group or not.
-        return mattata.send_reply(
-            message,
-            status.result.status == 'left'
-            and language['ban']['3']
-            or language['ban']['4']
-        )
     end
     local success = mattata.ban_chat_member( -- Attempt to ban the user from the group.
         message.chat.id,
