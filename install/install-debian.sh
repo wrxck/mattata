@@ -42,5 +42,5 @@ do
     printf "[Info] Installing $rock...\n"
     sudo luarocks-5.3 install $rock
 done
-sudo -k
+sudo -K
 printf "[Info] Installation complete.\n"
