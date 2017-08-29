@@ -17,9 +17,9 @@ then
     sudo make install
     
     sudo mv -f /usr/bin/lua /usr/bin/lua5.3
-    sudo cp /usr/bin/lua5.3 /usr/local/bin/lua5.3
+    sudo ln /usr/bin/lua5.3 /usr/local/bin/lua5.3
     sudo mv -f /usr/bin/luac /usr/bin/luac5.3
-    sudo cp /usr/bin/luac5.3 /usr/local/bin/luac5.3
+    sudo ln /usr/bin/luac5.3 /usr/local/bin/luac5.3
     cd ../
 fi
 if [ ! -f "`which luarocks-5.3`" ]
