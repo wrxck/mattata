@@ -3,12 +3,7 @@ printf "work. Root access is required to complete the installation. Press enter 
 printf "or press CTRL + C to abort.\n"
 read
 sudo apt-get update
-aptlist="git wget openssl coreutils make gcc libreadline-dev libssl-dev redis-server libssl-dev fortune-mod fortunes cowsay fortune unzip libexpat1-dev libcurl3 libcurl3-gnutls libcurl4-openssl-dev ruby ruby-dev"
-for package in $aptlist
-do
-    printf "[Info] Installing $package...\n"
-    sudo apt-get install $package
-done
+Sudo apt-get install -y git wget openssl coreutils make gcc libreadline-dev libssl-dev redis-server libssl-dev fortune-mod fortunes cowsay fortune unzip libexpat1-dev libcurl3 libcurl3-gnutls libcurl4-openssl-dev ruby ruby-dev"
 if [ ! -f "`which lua5.3`" ]
 then
     printf "[Info] Downloading Lua 5.3.4...\n"
@@ -20,6 +15,7 @@ then
     sudo make linux test
     printf "[Info] Installing Lua 5.3.4...\n"
     sudo make install
+    
     sudo mv -f /usr/local/bin/lua /usr/bin/lua5.3
     sudo cp /usr/bin/lua5.3 /usr/local/bin/lua5.3
     sudo mv -f /usr/local/bin/luac /usr/bin/luac5.3
