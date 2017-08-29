@@ -44,5 +44,5 @@ do
 done
 printf "[Info] Installing redis-dump...\n"
 sudo gem install redis-dump
-sudo -k
+sudo -K
 printf "[Info] Installation complete.\n"
