@@ -4,6 +4,7 @@ printf "or press CTRL + C to abort.\n"
 read
 sudo apt-get update
 sudo apt-get install -y git wget openssl coreutils make gcc libreadline-dev libssl-dev redis-server libssl-dev fortune-mod fortunes cowsay fortune unzip libexpat1-dev libcurl3 libcurl3-gnutls libcurl4-openssl-dev ruby ruby-dev 
+mktemp -d /tmp/mattata
 cd /tmp
 if [ ! -f "`which lua5.3`" ]
 then
