@@ -4,6 +4,7 @@ printf "or press CTRL + C to abort.\n"
 read
 sudo apt-get update
 Sudo apt-get install -y git wget openssl coreutils make gcc libreadline-dev libssl-dev redis-server libssl-dev fortune-mod fortunes cowsay fortune unzip libexpat1-dev libcurl3 libcurl3-gnutls libcurl4-openssl-dev ruby ruby-dev"
+cd /tmp
 if [ ! -f "`which lua5.3`" ]
 then
     printf "[Info] Downloading Lua 5.3.4...\n"
