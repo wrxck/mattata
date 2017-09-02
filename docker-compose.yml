@@ -7,4 +7,4 @@ services:
     volumes:
     - ./configuration.lua:/home/user/configuration.lua
   broker:
-    image: redis
+    image: redis:alpine
