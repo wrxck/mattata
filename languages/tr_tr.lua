@@ -30,7 +30,7 @@ return {
         ['3'] = 'Sınırı devre dışı bırak',
         ['4'] = 'Sınırları etkinleştir %s',
         ['5'] = 'Tüm Yönetim Ayarları',
-        ['6'] = '%s [%s] has kicked %s [%s] from %s [%s] for hitting the configured anti-spam limit for [%s] media.',
+        ['6'] = '%s [%s] Anti-spam medya limitine ulaşıldığı  %s [%s] için %s [%s] gruptan atıldı [%s] .',
         ['7'] = 'Atıldı %s anti-spam medya limitini aştığı için [%s] .',
         ['8'] = 'Maksimum sınır 100.',
         ['9'] = 'Minimum sınır is 1.',
