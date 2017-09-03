@@ -92,8 +92,8 @@ return {
         ['6'] = 'Não parece ser um administrador desse grupo!',
         ['7'] = 'Especifique a mensagem a enviar, utilizando a sintaxe /channel <canal> <mensagem>.',
         ['8'] = 'Tem certeza de que deseja enviar esta mensagem? É assim que vai aparecer:',
-        ['9'] = 'Sim, Tenho a certeza!',
-        ['10'] = 'Essa mensagem contém formatação Markdown inválido! Corrija a sintaxe e tente novamente.'
+        ['9'] = 'Sim, tenho a certeza!',
+        ['10'] = 'Essa mensagem contém formatação Markdown inválida! Corrija a sintaxe e tente novamente.'
     },
     ['chuck'] = {
         ['1'] = 'Clique para enviar o resultado.'
@@ -108,10 +108,10 @@ return {
         ['4'] = 'Foram dados argumentos inválidos. Informe sua suposição; ela deve ser \'cara\' ou \'coroa\'.'
     },
     ['commandstats'] = {
-        ['1'] = 'No commands have been sent in this chat!',
-        ['2'] = '<b>Command statistics for:</b> %s\n\n%s\n<b>Total commands sent:</b> %s',
-        ['3'] = 'The command statistics for this chat have been reset!',
-        ['4'] = 'I could not reset the command statistics for this chat. Perhaps they have already been reset?'
+        ['1'] = 'Nenhum comando foi enviado neste chat!',
+        ['2'] = '<b>Estatísticas de comandos para:</b> %s\n\n%s\n<b>Total de comandos enviados:</b> %s',
+        ['3'] = 'As estatísticas de comandos para este chat foram resetadas!',
+        ['4'] = 'Não consegui resetar as estatísticas de comandos para este chat. Talvez eu já as tenha resetado?'
     },
     ['control'] = {
         ['1'] = 'Pfft, querias!',
@@ -178,10 +178,10 @@ return {
     },
     ['exec'] = {
         ['1'] = 'Selecione a linguagem em que gostaria de executar o seu código:',
-        ['2'] = 'Ocurreu um erro! Tempo de ligação expirou. Está a tentar fazer-me lag?',
+        ['2'] = 'Ocorreu um erro! Tempo de ligação expirou. Está tentando me engasgar?',
         ['3'] = 'Selecionou "%s" – tem a certeza?',
         ['4'] = 'Voltar',
-        ['5'] = 'Tenho a certeza',
+        ['5'] = 'Tenho certeza',
         ['6'] = 'Introduza um fragmento de código que pretende executar. Não precisa especificar a linguagem, faremos isso depois!',
         ['7'] = 'Selecione a linguagem em que gostaria de executar o seu código:'
     },
@@ -571,7 +571,7 @@ Sistema:
     ['report'] = {
         ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
         ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
-        ['3'] = '<b>%s needs help in %s!</b>',
+        ['3'] = '<b>%s precisa de ajuda em %s!</b>',
         ['4'] = 'Click here to view the reported message.',
         ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
     },
@@ -597,8 +597,8 @@ Sistema:
         ['1'] = 'O idioma deste grupo foi alterado para %s!',
         ['2'] = 'This group\'s language is currently %s.\nPlease note that some strings may not be translated as of yet. If you\'d like to change your language, select one using the keyboard below:',
         ['3'] = 'The option to force users to use the same language in this group is currently disabled. This setting should be toggled from /administration but, to make things easier for you, I\'ve included a button below.',
-        ['4'] = 'Enable',
-        ['5'] = 'Disable'
+        ['4'] = 'Habilitar',
+        ['5'] = 'Desabilitar'
     },
     ['setlang'] = {
         ['1'] = 'O seu idioma foi definido para %s!',
