@@ -68,21 +68,14 @@ function unban:on_message(message, configuration, language)
             )
         end
         return
-    elseif not message.reply then
-        if input:match('^.- .-$')
-        then
-            reason = input:match(' (.-)$')
-            input = input:match('^(.-) ')
-        end
-    elseif mattata.input(message.text) then
-        reason = mattata.input(message.text)
     end
-    if tonumber(input) == nil
-    and not input:match('^%@')
+    if tonumber(user) == nil
+    and not user:match('^%@')
     then
-        input = '@' .. input
+        user = '@' .. user
     end
-    local user = mattata.get_user(input) -- Resolve the username/ID to a user object.
+    user = mattata.get_user(user)
+    or mattata.get_chat(user) -- Resolve the username/ID to a user object.
     if not user
     then
         return mattata.send_reply(
