@@ -19,7 +19,7 @@ setlang.languages = {
     ['de_de'] = 'Deutsch 🇩🇪',
     ['scottish'] = 'Scottish 🏴',
     ['pl_pl'] = 'Polski 🇵🇱',
-    ['pt_br'] = 'Português do Brasil 🇧🇷'
+    ['pt_br'] = 'Português do Brasil 🇧🇷',
     ['pt_pt'] = 'Português 🇵🇹',
     ['tr_tr'] = 'Türkçe 🇹🇷'
 }

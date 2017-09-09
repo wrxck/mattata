@@ -308,6 +308,22 @@ function administration.get_initial_keyboard(chat_id, page)
         :row(
             mattata.row()
             :callback_data_button(
+                'Delete Reply On Action?',
+                'administration:nil'
+            )
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'delete reply on action'
+                )
+                and utf8.char(9989)
+                or utf8.char(10060),
+                'administration:' .. chat_id .. ':delete_reply_on_action:3'
+            )
+        )
+        :row(
+            mattata.row()
+            :callback_data_button(
                 'Back',
                 'administration:' .. chat_id .. ':page:2'
             )
@@ -691,12 +707,14 @@ function administration.warn(message)
 end
 
 function administration:on_callback_query(callback_query, message, configuration)
-    if callback_query.data == 'nil' then
+    if callback_query.data == 'nil'
+    then
         return mattata.answer_callback_query(callback_query.id)
     elseif not mattata.is_group_admin(
         callback_query.data:match('^(%-%d+)'),
         callback_query.from.id
-    ) then
+    )
+    then
         return mattata.answer_callback_query(
             callback_query.id,
             'You\'re not an administrator in that chat!'
@@ -918,6 +936,14 @@ function administration:on_callback_query(callback_query, message, configuration
         mattata.toggle_setting(
             chat_id,
             'settings in group'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:delete_reply_on_action:%d*$')
+    then
+        local chat_id, page = callback_query.data:match('^(%-%d+):delete_reply_on_action:(%d*)$')
+        mattata.toggle_setting(
+            chat_id,
+            'delete reply on action'
         )
         keyboard = administration.get_initial_keyboard(chat_id, page)
     elseif callback_query.data:match('^%-%d+:enable_admins_only:%d*$')

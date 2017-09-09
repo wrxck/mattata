@@ -265,6 +265,17 @@ function warn:on_message(message, configuration, language)
             'html'
         )
     end
+    if message.reply
+    and mattata.get_setting(
+        message.chat.id,
+        'delete reply on action'
+    )
+    then
+        mattata.delete_message(
+            message.chat.id,
+            message.reply.message_id
+        )
+    end
     return mattata.send_message(
         message.chat.id,
         string.format(

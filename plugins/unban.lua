@@ -15,24 +15,44 @@ function unban:init()
     unban.help = '/unban [user] - Unbans a user from the current chat. This command can only be used by moderators and administrators of a supergroup.'
 end
 
-function unban:on_message(message, configuration)
-    if message.chat.type ~= 'supergroup' then
+function unban:on_message(message, configuration, language)
+    if message.chat.type ~= 'supergroup'
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.supergroup
+            language['errors']['supergroup']
         )
     elseif not mattata.is_group_admin(
         message.chat.id,
         message.from.id
-    ) then
+    )
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.admin
+            language['errors']['admin']
         )
     end
     local reason = false
-    local input = message.reply and (message.reply.from.username or tostring(message.reply.from.id)) or mattata.input(message.text)
-    if not input then
+    local user = false
+    local input = mattata.input(message.text)
+    -- Check the message object for any users this command
+    -- is intended to be executed on.
+    if message.reply
+    then
+        user = message.reply.from.id
+        if input
+        then
+            reason = input
+        end
+    elseif input
+    and input:match(' ')
+    then
+        user, reason = input:match('^(.-) (.-)$')
+    elseif input
+    then
+        user = input
+    end
+    if not user then
         local success = mattata.send_force_reply(
             message,
             'Which user would you like me to unban? You can specify this user by their @username or numerical ID.'
@@ -57,16 +77,20 @@ function unban:on_message(message, configuration)
     elseif mattata.input(message.text) then
         reason = mattata.input(message.text)
     end
-    if tonumber(input) == nil and not input:match('^%@') then
+    if tonumber(input) == nil
+    and not input:match('^%@')
+    then
         input = '@' .. input
     end
-    local user = mattata.get_user(input) or mattata.get_chat(input) -- Resolve the username/ID to a user object.
-    if not user then
+    local user = mattata.get_user(input) -- Resolve the username/ID to a user object.
+    if not user
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.unknown
+            language['errors']['unknown']
         )
-    elseif user.result.id == self.info.id then
+    elseif user.result.id == self.info.id
+    then
         return
     end
     user = user.result
@@ -74,17 +98,21 @@ function unban:on_message(message, configuration)
         message.chat.id,
         user.id
     )
-    if not status then
+    if not status
+    then
         return mattata.send_reply(
             message,
-            configuration.errors.generic
+            language['errors']['generic']
         )
-    elseif status.result.status == 'creator' or status.result.status == 'administrator' then -- We won't try and unban administrators.
+    elseif status.result.status == 'creator'
+    or status.result.status == 'administrator'
+    then -- We won't try and unban administrators.
         return mattata.send_reply(
             message,
             'I cannot unban this user because they are a moderator or an administrator in this chat.'
         )
-    elseif status.result.status == 'member' then -- Check if the user is in the group or not.
+    elseif status.result.status == 'member'
+    then -- Check if the user is in the group or not.
         return mattata.send_reply(
             message,
             'I cannot unban this user because they are still in this chat.'
@@ -94,7 +122,8 @@ function unban:on_message(message, configuration)
         message.chat.id,
         user.id
     )
-    if not success then -- Since we've ruled everything else out, it's safe to say if it wasn't a success then the bot isn't an administrator in the group.
+    if not success
+    then -- Since we've ruled everything else out, it's safe to say if it wasn't a success then the bot isn't an administrator in the group.
         return mattata.send_reply(
             message,
             'I need to have administrative permissions in order to unban this user. Please amend this issue, and try again.'
@@ -109,13 +138,11 @@ function unban:on_message(message, configuration)
         'unbans',
         1
     )
-    if redis:hget(
-        string.format(
-            'chat:%s:settings',
-            message.chat.id
-        ),
+    if mattata.get_setting(
+        message.chat.id,
         'log administrative actions'
-    ) then
+    )
+    then
         mattata.send_message(
             mattata.get_log_chat(message.chat.id),
             string.format(
@@ -132,6 +159,17 @@ function unban:on_message(message, configuration)
                 reason and ', for ' .. reason or ''
             ),
             'html'
+        )
+    end
+    if message.reply
+    and mattata.get_setting(
+        message.chat.id,
+        'delete reply on action'
+    )
+    then
+        mattata.delete_message(
+            message.chat.id,
+            message.reply.message_id
         )
     end
     return mattata.send_message(

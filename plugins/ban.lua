@@ -113,7 +113,7 @@ function ban:on_message(message, configuration, language)
             message,
             language['ban']['2']
         )
-    or status.result.status == 'kicked'
+    elseif status.result.status == 'kicked'
     then -- Check if the user has already been kicked.
         return mattata.send_reply(
             message,
@@ -146,7 +146,8 @@ function ban:on_message(message, configuration, language)
             message.chat.id
         ),
         'log administrative actions'
-    ) then
+    )
+    then
         mattata.send_message(
             mattata.get_log_chat(message.chat.id),
             string.format(
@@ -163,6 +164,17 @@ function ban:on_message(message, configuration, language)
                 reason and ', for ' .. reason or ''
             ),
             'html'
+        )
+    end
+    if message.reply
+    and mattata.get_setting(
+        message.chat.id,
+        'delete reply on action'
+    )
+    then
+        mattata.delete_message(
+            message.chat.id,
+            message.reply.message_id
         )
     end
     return mattata.send_message(
