@@ -64,7 +64,7 @@ then
 fi
 printf "[Info] Installing openssl...\n"
 sudo luarocks-5.3 install --server=http://luarocks.org/dev openssl
-rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem uuid html-entities luaossl feedparser telegram-bot-lua"
+rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem uuid html-entities luaossl feedparser telegram-bot-lua lbase64 luacrypto"
 for rock in $rocklist
 do
     printf "[Info] Installing $rock...\n"
