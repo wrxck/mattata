@@ -1,0 +1,10 @@
+version: '3.2'
+
+services:
+  bot:
+    build: .
+    command: ["lua5.3", "-e", "require('mattata').run({}, require('configuration'))"]
+    volumes:
+    - ./configuration.lua:/home/user/configuration.lua
+  broker:
+    image: redis:alpine
