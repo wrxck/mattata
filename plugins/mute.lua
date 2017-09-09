@@ -106,10 +106,7 @@ function mute:on_message(message, configuration, language)
             message,
             language['errors']['generic']
         )
-    elseif redis:sismember(
-        'chats:' .. message.chat.id .. ':muted_users',
-        user_object.id
-    )
+    elseif status.result.can_send_messages == false
     then -- The user is already muted.
         return mattata.send_reply(
             message,
@@ -145,10 +142,7 @@ function mute:on_message(message, configuration, language)
             language['mute']['5']
         )
     end
-    redis:sadd(
-        'chat:' .. message.chat.id .. ':muted_users',
-        user_object.id
-    )
+    mattata.restrict_chat_member(message.chat.id, user_object.id, nil, false)
     redis:hincrby(
         string.format(
             'chat:%s:%s',

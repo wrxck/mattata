@@ -2633,18 +2633,7 @@ function mattata.process_stickers(message)
 end
 
 function mattata.process_spam(message)
-    if redis:sismember(
-        'chat:' .. message.chat.id .. ':muted_users',
-        tostring(message.from.id)
-    )
-    then
-        print('Message deleted from ' .. message.from.id .. ' in ' .. message.chat.id)
-        mattata.delete_message(
-            message.chat.id,
-            message.message_id
-        )
-        return true
-    elseif message.chat
+    if message.chat
     and message.chat.title
     and message.chat.title:match('[Pp][Oo][Nn][Zz][Ii]')
     and message.chat.type ~= 'private'

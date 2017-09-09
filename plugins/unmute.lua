@@ -106,10 +106,7 @@ function unmute:on_message(message, configuration, language)
             message,
             language['errors']['generic']
         )
-    elseif redis:sismember(
-        'chats:' .. message.chat.id .. ':muted_users',
-        user_object.id
-    )
+    elseif status.result.status ~= 'restricted'
     then -- The user isn't currently muted.
         return mattata.send_reply(
             message,
@@ -134,10 +131,7 @@ function unmute:on_message(message, configuration, language)
             language['unmute']['4']
         )
     end
-    redis:srem(
-        'chat:' .. message.chat.id .. ':muted_users',
-        user_object.id
-    )
+    mattata.restrict_chat_member(message.chat.id, user_object.id, nil, true, true, true)
     redis:hincrby(
         string.format(
             'chat:%s:%s',
