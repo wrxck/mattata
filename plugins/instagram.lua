@@ -30,6 +30,7 @@ function instagram:on_inline_query(inline_query, configuration, language)
             ['url'] = 'http://instadp.com/run.php',
             ['method'] = 'POST',
             ['headers'] = {
+                ['Host'] = 'instadp.com',
                 ['Content-Length'] = body:len(),
                 ['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8',
                 ['Cookie'] = '_asomcnc=1',
@@ -48,7 +49,7 @@ function instagram:on_inline_query(inline_query, configuration, language)
             language['errors']['generic'],
             language['errors']['connection']
         )
-    elseif not str:match('%<a href%=%"%#%" onclick%=%"window%.open%(%\'(https%:%/%/scontent%.cdninstagram%.com%/.-)%\'%, %\'%_blank%\'%)%;%"%>')
+    elseif not str:match('%<a href%=%"%#%" onclick%=%"window%.open%(%\'(https%:%/%/.-%.com%/.-)%\'%, %\'%_blank%\'%)%;%"%>')
     then
         return mattata.send_inline_article(
             inline_query.id,
@@ -58,7 +59,7 @@ function instagram:on_inline_query(inline_query, configuration, language)
     end
     return mattata.send_inline_photo(
         inline_query.id,
-        str:match('%<a href%=%"%#%" onclick%=%"window%.open%(%\'(https%:%/%/scontent%.cdninstagram%.com%/.-)%\'%, %\'%_blank%\'%)%;%"%>')
+        str:match('%<a href%=%"%#%" onclick%=%"window%.open%(%\'(https%:%/%/.-%.com%/.-)%\'%, %\'%_blank%\'%)%;%"%>')
     )
 end
 
@@ -78,6 +79,7 @@ function instagram:on_message(message, configuration, language)
             ['url'] = 'http://instadp.com/run.php',
             ['method'] = 'POST',
             ['headers'] = {
+                ['Host'] = 'instadp.com',
                 ['Content-Length'] = body:len(),
                 ['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8',
                 ['Cookie'] = '_asomcnc=1',
@@ -95,7 +97,7 @@ function instagram:on_message(message, configuration, language)
             message,
             language['errors']['connection']
         )
-    elseif not str:match('%<a href%=%"%#%" onclick%=%"window%.open%(%\'(https%:%/%/scontent%.cdninstagram%.com%/.-)%\'%, %\'%_blank%\'%)%;%"%>')
+    elseif not str:match('%<a href%=%"%#%" onclick%=%"window%.open%(%\'(https%:%/%/.-%.com%/.-)%\'%, %\'%_blank%\'%)%;%"%>')
     then
         return mattata.send_reply(
             message,
@@ -104,7 +106,7 @@ function instagram:on_message(message, configuration, language)
     end
     return mattata.send_photo(
         message.chat.id,
-        str:match('%<a href%=%"%#%" onclick%=%"window%.open%(%\'(https%:%/%/scontent%.cdninstagram%.com%/.-)%\'%, %\'%_blank%\'%)%;%"%>'),
+        str:match('%<a href%=%"%#%" onclick%=%"window%.open%(%\'(https%:%/%/.-%.com%/.-)%\'%, %\'%_blank%\'%)%;%"%>'),
         nil,
         false,
         nil,

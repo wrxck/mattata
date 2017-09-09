@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v26.0
+      v26.1
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -26,6 +26,7 @@ local tools = require('telegram-bot-lua.tools')
 local socket = require('socket')
 local plugin_list = {}
 local inline_plugin_list = {}
+
 mattata.api = api
 mattata.tools = tools
 mattata.configuration = configuration
@@ -71,7 +72,7 @@ function mattata:init()
     end
     print('Connected to the Telegram bot API!')
     print('\n\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id .. '\n')
-    self.version = 'v26.0'
+    self.version = 'v26.1'
     if not redis:get('mattata:version')
     or redis:get('mattata:version') ~= self.version
     then -- Make necessary database changes if the version has changed.
@@ -2518,10 +2519,6 @@ function mattata.is_valid(message) -- Performs basic checks on the message objec
     if not message -- If the `message` object is nil, then we'll ignore it.
     or message.date < os.time() - 7 -- We don't want to process old messages, so anything
     -- older than the current system time (giving it a leeway of 7 seconds).
-    or not message.from -- If the message is coming from a channel with no `message.from`
-    -- object, this means that they haven't enabled the `Sign Messages` option in the channel
-    -- settings. We'll ignore this so it doesn't cause any problems with plugins which rely
-    -- on the values in the `message.from` object.
     then
         return false
     end
@@ -2915,7 +2912,6 @@ function mattata:process_message()
     local language = self.language
     local break_cycle = false
     if not message.chat
-    or message.chat.type ~= 'supergroup'
     then
         return true
     elseif message.new_chat_members
@@ -2992,7 +2988,8 @@ function mattata:process_message()
             break_cycle = true
         end
     end
-    if mattata.get_setting(
+    if message.chat.type == 'supergroup'
+    and mattata.get_setting(
         message.chat.id,
         'use administration'
     )
@@ -3068,7 +3065,8 @@ function mattata:process_message()
             end
         end
     end
-    if mattata.get_setting(
+    if message.chat.type == 'supergroup'
+    and mattata.get_setting(
         message.chat.id,
         'use administration'
     )

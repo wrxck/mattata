@@ -19,6 +19,7 @@ setgrouplang.languages = {
     ['de_de'] = 'Deutsch 🇩🇪',
     ['scottish'] = 'Scottish 🏴',
     ['pl_pl'] = 'Polski 🇵🇱',
+    ['pt_br'] = 'Português do Brasil 🇧🇷'
     ['pt_pt'] = 'Português 🇵🇹',
     ['tr_tr'] = 'Türkçe 🇹🇷'
 }
@@ -29,6 +30,7 @@ setgrouplang.languages_short = {
     ['de_de'] = '🇩🇪',
     ['scottish'] = '🏴',
     ['pl_pl'] = '🇵🇱',
+    ['pt_br'] = '🇧🇷',
     ['pt_pt'] = '🇵🇹',
     ['tr_tr'] = '🇹🇷'
 }

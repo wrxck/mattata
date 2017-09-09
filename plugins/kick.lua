@@ -35,23 +35,19 @@ function kick:on_message(message, configuration, language)
     -- Check the message object for any users this command
     -- is intended to be executed on.
     if message.reply
-    and not input
     then
         user = message.reply.from.id
-    elseif message.reply
-    and not input:match(' ')
-    then
-        user = input
-    elseif message.reply
+        if input
+        then
+            reason = input
+        end
+    elseif input
+    and input:match(' ')
     then
         user, reason = input:match('^(.-) (.-)$')
     elseif input
-    and not input:match(' ')
     then
         user = input
-    elseif input
-    then
-        user, reason = input:match('^(.-) (.-)$')
     end
     if not user
     then

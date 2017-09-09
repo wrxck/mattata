@@ -10,13 +10,13 @@
 
 return {
     ['errors'] = {
-        ['connection'] = 'Erro de ligação.',
+        ['connection'] = 'Erro de conexão.',
         ['results'] = 'Eu não consegui encontrar nenhum resultado para isso.',
         ['supergroup'] = 'Este comando só pode ser usado em super grupos.',
         ['admin'] = 'Precisa ser moderador ou administrador neste grupo para usar este comando.',
         ['unknown'] = 'Eu não reconheço esse(s) utilizador(es). Se gostaria de me ensinar quem ele(s) são, encaminhe-me uma mensagem dele(s) para qualquer conversa que eu estou.',
         ['generic'] = 'Ocorreu um erro!',
-        ['use'] = 'You are not allowed to use this!'
+        ['use'] = 'Você não tem permissão para usar isso!'
     },
     ['afk'] = {
         ['1'] = 'Desculpe, receio que este elemento esteja disponível somente para utilizadores com um @utilizador público!',
@@ -25,16 +25,16 @@ return {
         ['4'] = '%s está agora AFK.%s'
     },
     ['antispam'] = {
-        ['1'] = 'Disable',
-        ['2'] = 'Enable',
-        ['3'] = 'Disable limit',
-        ['4'] = 'Enable limits on %s',
-        ['5'] = 'All Administration Settings',
+        ['1'] = 'Desabilitar',
+        ['2'] = 'Habilitar',
+        ['3'] = 'Desabilitar limite',
+        ['4'] = 'Habilitar limite para %s',
+        ['5'] = 'Todas as Configurações de Administração',
         ['6'] = '%s [%s] has kicked %s [%s] from %s [%s] for hitting the configured anti-spam limit for [%s] media.',
         ['7'] = 'Kicked %s for hitting the configured antispam limit for [%s] media.',
         ['8'] = 'The maximum limit is 100.',
         ['9'] = 'The minimum limit is 1.',
-        ['10'] = 'Modify the anti-spam settings for %s below:'
+        ['10'] = 'Modificar as configurações de anti-spam para %s abaixo:'
     },
     ['appstore'] = {
         ['1'] = 'Ver no iTunes'
@@ -92,8 +92,8 @@ return {
         ['6'] = 'Não parece ser um administrador desse grupo!',
         ['7'] = 'Especifique a mensagem a enviar, utilizando a sintaxe /channel <canal> <mensagem>.',
         ['8'] = 'Tem certeza de que deseja enviar esta mensagem? É assim que vai aparecer:',
-        ['9'] = 'Sim, Tenho a certeza!',
-        ['10'] = 'Essa mensagem contém formatação Markdown inválido! Corrija a sintaxe e tente novamente.'
+        ['9'] = 'Sim, tenho a certeza!',
+        ['10'] = 'Essa mensagem contém formatação Markdown inválida! Corrija a sintaxe e tente novamente.'
     },
     ['chuck'] = {
         ['1'] = 'Clique para enviar o resultado.'
@@ -102,20 +102,20 @@ return {
         ['1'] = 'Gerar Outro'
     },
     ['coinflip'] = {
-        ['1'] = 'A moeda caiu ficando:',
+        ['1'] = 'A moeda caiu como:',
         ['2'] = 'Você estava correto!',
-        ['3'] = 'Você não estava correto, tente novamente...',
-        ['4'] = 'Foram dados argumentos inválidos. Deve especificar sua suposição, ela deve ser \'cara\' ou \'coroa\'.'
+        ['3'] = 'Você estava incorreto, tente novamente...',
+        ['4'] = 'Foram dados argumentos inválidos. Informe sua suposição; ela deve ser \'cara\' ou \'coroa\'.'
     },
     ['commandstats'] = {
-        ['1'] = 'No commands have been sent in this chat!',
-        ['2'] = '<b>Command statistics for:</b> %s\n\n%s\n<b>Total commands sent:</b> %s',
-        ['3'] = 'The command statistics for this chat have been reset!',
-        ['4'] = 'I could not reset the command statistics for this chat. Perhaps they have already been reset?'
+        ['1'] = 'Nenhum comando foi enviado neste chat!',
+        ['2'] = '<b>Estatísticas de comandos para:</b> %s\n\n%s\n<b>Total de comandos enviados:</b> %s',
+        ['3'] = 'As estatísticas de comandos para este chat foram resetadas!',
+        ['4'] = 'Não consegui resetar as estatísticas de comandos para este chat. Talvez eu já as tenha resetado?'
     },
     ['control'] = {
         ['1'] = 'Pfft, querias!',
-        ['2'] = '%s está a recarregar...'
+        ['2'] = '%s está recarregando...'
     },
     ['copypasta'] = {
         ['1'] = 'O texto respondido não deverá exceder %s caracteres!'
@@ -178,10 +178,10 @@ return {
     },
     ['exec'] = {
         ['1'] = 'Selecione a linguagem em que gostaria de executar o seu código:',
-        ['2'] = 'Ocurreu um erro! Tempo de ligação expirou. Está a tentar fazer-me lag?',
+        ['2'] = 'Ocorreu um erro! Tempo de ligação expirou. Está tentando me engasgar?',
         ['3'] = 'Selecionou "%s" – tem a certeza?',
         ['4'] = 'Voltar',
-        ['5'] = 'Tenho a certeza',
+        ['5'] = 'Tenho certeza',
         ['6'] = 'Introduza um fragmento de código que pretende executar. Não precisa especificar a linguagem, faremos isso depois!',
         ['7'] = 'Selecione a linguagem em que gostaria de executar o seu código:'
     },
@@ -448,14 +448,14 @@ Sistema:
         ['5'] = 'Eu preciso ter permissões administrativas para silenciar este utilizador. Corrija este problema e tente novamente.'
     },
     ['myspotify'] = {
-        ['1'] = 'Profile',
-        ['2'] = 'Following',
+        ['1'] = 'Perfil',
+        ['2'] = 'Seguindo',
         ['3'] = 'Recently Played',
         ['4'] = 'Currently Playing',
         ['5'] = 'Top Tracks',
-        ['6'] = 'Top Artists',
+        ['6'] = 'Top Artistas',
         ['7'] = 'You don\'t appear to be following any artists!',
-        ['8'] = 'Your Top Artists',
+        ['8'] = 'Seus Top Artistas',
         ['9'] = 'You don\'t appear to have any tracks in your library!',
         ['10'] = 'Your Top Tracks',
         ['11'] = 'You don\'t appear to be following any artists!',
@@ -492,7 +492,7 @@ Sistema:
         ['42'] = 'This message is using an old version of this plugin, please request a new one by sending /myspotify!'
     },
     ['name'] = {
-        ['1'] = 'O nome a qual respondo atualmente é "%s" - para alterar isso, use /name <texto> (onde <texto> o nome a qual quer que eu responda).',
+        ['1'] = 'O nome pelo qual respondo atualmente é "%s" - para alterar isso, use /name <texto> (onde <texto> é o nome pelo qual quer que eu responda).',
         ['2'] = 'Meu novo nome precisa ter entre 2 e 32 caracteres!',
         ['3'] = 'Meu nome só pode conter caracteres alfanuméricos!',
         ['4'] = 'Vou agora responder a "%s", em vez de "%s" - para alterar isso, use /name <texto> (onde <text> o nome a qual quer que eu responda).'
@@ -571,7 +571,7 @@ Sistema:
     ['report'] = {
         ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
         ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
-        ['3'] = '<b>%s needs help in %s!</b>',
+        ['3'] = '<b>%s precisa de ajuda em %s!</b>',
         ['4'] = 'Click here to view the reported message.',
         ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
     },
@@ -594,11 +594,11 @@ Sistema:
         ['9'] = 'Não tenho certeza'
     },
     ['setgrouplang'] = {
-        ['1'] = 'This group\'s language has been set to %s!',
+        ['1'] = 'O idioma deste grupo foi alterado para %s!',
         ['2'] = 'This group\'s language is currently %s.\nPlease note that some strings may not be translated as of yet. If you\'d like to change your language, select one using the keyboard below:',
         ['3'] = 'The option to force users to use the same language in this group is currently disabled. This setting should be toggled from /administration but, to make things easier for you, I\'ve included a button below.',
-        ['4'] = 'Enable',
-        ['5'] = 'Disable'
+        ['4'] = 'Habilitar',
+        ['5'] = 'Desabilitar'
     },
     ['setlang'] = {
         ['1'] = 'O seu idioma foi definido para %s!',
@@ -696,13 +696,13 @@ Sistema:
         ['2'] = 'Está atualmente %s (parece %s) em %s. %s'
     },
     ['welcome'] = {
-        ['1'] = 'Group Rules'
+        ['1'] = 'Regras do Grupo'
     },
     ['whitelist'] = {
-        ['1'] = 'Qual utilizador gostaria de adicionar a lista branca? Pode especificar este utilizador pelo seu @utilizador ou ID numérico.',
-        ['2'] = 'Não consigo adicionar a lista branca esse utilizador porque ele é um moderador ou administrador neste grupo.',
-        ['3'] = 'Não consigo adicionar a lista branca esse utilizador porque ele já deixou este grupo.',
-        ['4'] = 'Não consigo adicionar a lista branca esse utilizador porque ele já foi banido neste grupo.'
+        ['1'] = 'Qual utilizador gostaria de adicionar à white-list? Pode especificar este utilizador pelo seu @utilizador ou ID numérico.',
+        ['2'] = 'Não consigo adicionar à white-list esse utilizador porque ele é um moderador ou administrador neste grupo.',
+        ['3'] = 'Não consigo adicionar à white-list esse utilizador porque ele já deixou este grupo.',
+        ['4'] = 'Não consigo adicionar à white-list esse utilizador porque ele já foi banido neste grupo.'
     },
     ['wikipedia'] = {
         ['1'] = 'Ver mais.'

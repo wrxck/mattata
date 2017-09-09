@@ -35,23 +35,19 @@ function ban:on_message(message, configuration, language)
     -- Check the message object for any users this command
     -- is intended to be executed on.
     if message.reply
-    and not input
     then
         user = message.reply.from.id
-    elseif message.reply
-    and not input:match(' ')
-    then
-        user = input
-    elseif message.reply
+        if input
+        then
+            reason = input
+        end
+    elseif input
+    and input:match(' ')
     then
         user, reason = input:match('^(.-) (.-)$')
     elseif input
-    and not input:match(' ')
     then
         user = input
-    elseif input
-    then
-        user, reason = input:match('^(.-) (.-)$')
     end
     if not user
     then
@@ -117,14 +113,11 @@ function ban:on_message(message, configuration, language)
             message,
             language['ban']['2']
         )
-    elseif status.result.status == 'left'
     or status.result.status == 'kicked'
-    then -- Check if the user is in the group or not.
+    then -- Check if the user has already been kicked.
         return mattata.send_reply(
             message,
-            status.result.status == 'left'
-            and language['ban']['3']
-            or language['ban']['4']
+            language['ban']['4']
         )
     end
     local success = mattata.ban_chat_member( -- Attempt to ban the user from the group.

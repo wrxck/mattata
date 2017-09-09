@@ -18,7 +18,7 @@ function administration:init()
     :command('ops').table
 end
 
-function administration.get_initial_keyboard(chat_id)
+function administration.get_initial_keyboard(chat_id, page)
    if not mattata.get_setting(
        chat_id,
        'use administration'
@@ -31,237 +31,289 @@ function administration.get_initial_keyboard(chat_id)
             )
         )
     end
-    return mattata.inline_keyboard()
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Disable Administration',
-            'administration:' .. chat_id .. ':toggle'
-        )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Anti-Spam Settings',
-            'antispam:' .. chat_id
-        )
-        :callback_data_button(
-            'Warning Settings',
-            'administration:' .. chat_id .. ':warnings'
-        )
-    )
-    :row(
-        mattata.row():callback_data_button(
-            'Vote-Ban Settings',
-            'administration:' .. chat_id .. ':voteban'
-        )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Welcome New Users?',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'welcome message'
+    if not page
+    or tonumber(page) <= 1
+    then
+        return mattata.inline_keyboard()
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Disable Administration',
+                'administration:' .. chat_id .. ':toggle'
             )
-            and utf8.char(9989)
-            or utf8.char(10060),
-            'administration:' .. chat_id .. ':welcome_message'
         )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Send Rules On Join?',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'send rules on join'
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Anti-Spam Settings',
+                'antispam:' .. chat_id
             )
-            and utf8.char(9989)
-            or utf8.char(10060),
-            'administration:' .. chat_id .. ':rules_on_join'
-        )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Send Rules In Group?',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'send rules in group'
+            :callback_data_button(
+                'Warning Settings',
+                'administration:' .. chat_id .. ':warnings'
             )
-            and utf8.char(9989)
-            or utf8.char(10060),
-            'administration:' .. chat_id .. ':rules'
         )
-        :callback_data_button(
-            'Word Filter',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'word filter'
+        :row(
+            mattata.row():callback_data_button(
+                'Vote-Ban Settings',
+                'administration:' .. chat_id .. ':voteban'
             )
-            and 'On'
-            or 'Off',
-            'administration:' .. chat_id .. ':word_filter'
         )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Anti-Bot',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'antibot'
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Welcome New Users?',
+                'administration:nil'
             )
-            and utf8.char(9989)
-            or utf8.char(10060),
-            'administration:' .. chat_id .. ':antibot'
-        )
-        :callback_data_button(
-            'Anti-Link',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'antilink'
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'welcome message'
+                )
+                and utf8.char(9989)
+                or utf8.char(10060),
+                'administration:' .. chat_id .. ':welcome_message:1'
             )
-            and utf8.char(9989)
-            or utf8.char(10060),
-            'administration:' .. chat_id .. ':antilink'
         )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Log Actions?',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'log administrative actions'
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Send Rules On Join?',
+                'administration:nil'
             )
-            and utf8.char(9989)
-            or utf8.char(10060),
-            'administration:' .. chat_id .. ':log'
-        )
-        :callback_data_button(
-            'Anti-RTL',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'antirtl'
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'send rules on join'
+                )
+                and utf8.char(9989)
+                or utf8.char(10060),
+                'administration:' .. chat_id .. ':rules_on_join:1'
             )
-            and utf8.char(9989)
-            or utf8.char(10060),
-            'administration:' .. chat_id .. ':rtl'
         )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Anti-Spam Action',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'ban not kick'
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Send Rules In Group?',
+                'administration:nil'
             )
-            and 'Ban'
-            or 'Kick',
-            'administration:' .. chat_id .. ':action'
-        )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Delete Commands?',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'delete commands'
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'send rules in group'
+                )
+                and utf8.char(9989)
+                or utf8.char(10060),
+                'administration:' .. chat_id .. ':rules_in_group:1'
             )
-            and utf8.char(9989)
-            or utf8.char(10060),
-            'administration:' .. chat_id .. ':delete_commands'
         )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Send Misc Responses?',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'misc responses'
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Back',
+                'help:settings'
             )
-            and utf8.char(10060)
-            or utf8.char(9989),
-            'administration:' .. chat_id .. ':misc_responses'
-        )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Shared AI Conversation?',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'shared ai'
+            :callback_data_button(
+                'Next',
+                'administration:' .. chat_id .. ':page:2'
             )
-            and utf8.char(9989)
-            or utf8.char(10060),
-            'administration:' .. chat_id .. ':shared_ai'
         )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Force Group Language?',
-            'administration:nil'
-        )
-        :callback_data_button(
-            mattata.get_setting(
-                chat_id,
-                'force group language'
+    elseif tonumber(page) == 2
+    then
+        return mattata.inline_keyboard()
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Word Filter',
+                'administration:nil'
             )
-            and utf8.char(9989)
-            or utf8.char(10060),
-            'administration:' .. chat_id .. ':force_group_language'
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'word filter'
+                )
+                and 'On'
+                or 'Off',
+                'administration:' .. chat_id .. ':word_filter:2'
+            )
         )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            'Back',
-            'help:settings'
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Anti-Bot',
+                'administration:nil'
+            )
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'antibot'
+                )
+                and utf8.char(9989)
+                or utf8.char(10060),
+                'administration:' .. chat_id .. ':antibot:2'
+            )
+            :callback_data_button(
+                'Anti-Link',
+                'administration:nil'
+            )
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'antilink'
+                )
+                and utf8.char(9989)
+                or utf8.char(10060),
+                'administration:' .. chat_id .. ':antilink:2'
+            )
         )
-    )
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Log Actions?',
+                'administration:nil'
+            )
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'log administrative actions'
+                )
+                and utf8.char(9989)
+                or utf8.char(10060),
+                'administration:' .. chat_id .. ':log:2'
+            )
+            :callback_data_button(
+                'Anti-RTL',
+                'administration:nil'
+            )
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'antirtl'
+                )
+                and utf8.char(9989)
+                or utf8.char(10060),
+                'administration:' .. chat_id .. ':rtl:2'
+            )
+        )
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Anti-Spam Action',
+                'administration:nil'
+            )
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'ban not kick'
+                )
+                and 'Ban'
+                or 'Kick',
+                'administration:' .. chat_id .. ':action:2'
+            )
+        )
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Delete Commands?',
+                'administration:nil'
+            )
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'delete commands'
+                )
+                and utf8.char(9989)
+                or utf8.char(10060),
+                'administration:' .. chat_id .. ':delete_commands:2'
+            )
+        )
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Send Misc Responses?',
+                'administration:nil'
+            )
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'misc responses'
+                )
+                and utf8.char(10060)
+                or utf8.char(9989),
+                'administration:' .. chat_id .. ':misc_responses:2'
+            )
+        )
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Back',
+                'administration:' .. chat_id .. ':page:1'
+            )
+            :callback_data_button(
+                'Next',
+                'administration:' .. chat_id .. ':page:3'
+            )
+        )
+    elseif tonumber(page) >= 3
+    then
+        return mattata.inline_keyboard()
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Shared AI Conversation?',
+                'administration:nil'
+            )
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'shared ai'
+                )
+                and utf8.char(9989)
+                or utf8.char(10060),
+                'administration:' .. chat_id .. ':shared_ai:3'
+            )
+        )
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Force Group Language?',
+                'administration:nil'
+            )
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'force group language'
+                )
+                and utf8.char(9989)
+                or utf8.char(10060),
+                'administration:' .. chat_id .. ':force_group_language:3'
+            )
+        )
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Send Settings In Group?',
+                'administration:nil'
+            )
+            :callback_data_button(
+                mattata.get_setting(
+                    chat_id,
+                    'settings in group'
+                )
+                and utf8.char(9989)
+                or utf8.char(10060),
+                'administration:' .. chat_id .. ':settings_in_group:3'
+            )
+        )
+        :row(
+            mattata.row()
+            :callback_data_button(
+                'Back',
+                'administration:' .. chat_id .. ':page:2'
+            )
+        )
+    end
+    return false
 end
 
 function administration.check_links(message, process_type)
@@ -490,7 +542,7 @@ function administration.get_voteban_keyboard(chat_id)
         {
             {
                 ['text'] = 'Back',
-                ['callback_data'] = 'administration:' .. chat_id .. ':back'
+                ['callback_data'] = 'administration:' .. chat_id .. ':page:1'
             }
         }
     )
@@ -743,134 +795,134 @@ function administration:on_callback_query(callback_query, message, configuration
             'use administration'
         )
         keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:rtl$')
+    elseif callback_query.data:match('^%-%d+:rtl:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):rtl$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):rtl:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'antirtl'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:rules_on_join$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:rules_on_join:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):rules_on_join$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):rules_on_join:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'send rules on join'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:rules_in_group$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:rules_in_group:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):rules_in_group$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):rules_in_group:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'send rules in group'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:word_filter$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:word_filter:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):word_filter$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):word_filter:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'word filter'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
+        keyboard = administration.get_initial_keyboard(chat_id, page)
         mattata.answer_callback_query(
             callback_query.id,
             'You can add one or more words to the word filter by using /filter <word(s)>',
             true
         )
-    elseif callback_query.data:match('^%-%d+:inactive$')
+    elseif callback_query.data:match('^%-%d+:inactive:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):inactive$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):inactive:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'remove inactive users'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:action$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:action:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):action$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):action:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'ban not kick'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:antibot$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:antibot:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):antibot$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):antibot:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'antibot'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:antilink$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:antilink:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):antilink$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):antilink:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'antilink'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:antispam$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:antispam:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):antispam$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):antispam:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'antispam'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:welcome_message$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:welcome_message:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):welcome_message$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):welcome_message:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'welcome message'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:delete_commands$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:delete_commands:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):delete_commands$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):delete_commands:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'delete commands'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:misc_responses$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:misc_responses:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):misc_responses$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):misc_responses:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'misc responses'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:shared_ai$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:force_group_language:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):shared_ai$')
-        mattata.toggle_setting(
-            chat_id,
-            'shared ai'
-        )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:force_group_language$')
-    then
-        local chat_id = callback_query.data:match('^(%-%d+):force_group_language$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):force_group_language:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'force group language'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:log$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:log:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):log$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):log:(%d*)$')
         mattata.toggle_setting(
             chat_id,
             'log administrative actions'
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:enable_admins_only$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:settings_in_group:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):enable_admins_only$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):settings_in_group:(%d*)$')
+        mattata.toggle_setting(
+            chat_id,
+            'settings in group'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:enable_admins_only:%d*$')
+    then
+        local chat_id, page = callback_query.data:match('^(%-%d+):enable_admins_only:(%d*)$')
         redis:set(
             string.format(
                 'administration:%s:admins_only',
@@ -878,12 +930,12 @@ function administration:on_callback_query(callback_query, message, configuration
             ),
             true
         )
-        keyboard = administration.get_initial_keyboard(chat_id)
-    elseif callback_query.data:match('^%-%d+:disable_admins_only$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:disable_admins_only:%d*$')
     then
-        local chat_id = callback_query.data:match('^(%-%d+):disable_admins_only$')
+        local chat_id, page = callback_query.data:match('^(%-%d+):disable_admins_only:(%d*)$')
         redis:del('administration:' .. chat_id .. ':admins_only')
-        keyboard = administration.get_initial_keyboard(chat_id)
+        keyboard = administration.get_initial_keyboard(chat_id, page)
     elseif callback_query.data:match('^%-%d+:ahelp$')
     then
         keyboard = administration.get_help_keyboard(callback_query.data:match('^(%-%d+):ahelp$'))
@@ -901,9 +953,10 @@ function administration:on_callback_query(callback_query, message, configuration
             callback_query,
             callback_query.data:match('^%-%d+:ahelp:.-$')
         )
-    elseif callback_query.data:match('^%-%d+:back$')
+    elseif callback_query.data:match('^%-%d+:page:%d*$')
     then
-        keyboard = administration.get_initial_keyboard(callback_query.data:match('^(%-%d+):back$'))
+        local chat_id, page = callback_query.data:match('^(%-%d+):page:(%d*)$')
+        keyboard = administration.get_initial_keyboard(chat_id, page)
         return mattata.edit_message_reply_markup(
             message.chat.id,
             message.message_id,
@@ -913,19 +966,16 @@ function administration:on_callback_query(callback_query, message, configuration
     elseif callback_query.data == 'dismiss_disabled_message'
     then
         redis:set(
-            string.format(
-                'administration:%s:dismiss_disabled_message',
-                message.chat.id
-            ),
+            'administration:' .. message.chat.id .. ':dismiss_disabled_message',
             true
         )
         return mattata.answer_callback_query(
             callback_query.id,
-            [[You will no longer be reminded that the administration plugin is disabled. To enable it, use /administration.]],
+            'You will no longer be reminded that the administration plugin is disabled. To enable it, use /administration.',
             true
         )
     else
-        return
+        return false
     end
     return mattata.edit_message_reply_markup(
         message.chat.id,
@@ -1169,8 +1219,16 @@ function administration:on_message(message, configuration)
         )
     elseif message.text:match('^[/!#]antispam') or message.text:match('^[/!#]administration') then
         local keyboard = administration.get_initial_keyboard(message.chat.id)
+        local recipient = message.from.id
+        if mattata.get_setting(
+            message.chat.id,
+            'settings in group'
+        )
+        then
+            recipient = message.chat.id
+        end
         local success = mattata.send_message(
-            message.from.id,
+            recipient,
             string.format(
                 'Use the keyboard below to adjust the administration settings for <b>%s</b>:',
                 mattata.escape_html(message.chat.title)
@@ -1181,17 +1239,22 @@ function administration:on_message(message, configuration)
             nil,
             json.encode(keyboard)
         )
-        if not success then
+        if not success
+        and recipient == message.from.id
+        then
             return mattata.send_reply(
                 message,
                 'Please send me a [private message](https://t.me/' .. self.info.username:lower() .. '), so that I can send you this information.',
                 'markdown'
             )
+        elseif recipient == message.from.id
+        then
+            return mattata.send_reply(
+                message,
+                'I have sent you the information you requested via private chat.'
+            )
         end
-        return mattata.send_reply(
-            message,
-            'I have sent you the information you requested via private chat.'
-        )
+        return success
     elseif message.text:match('^[/%!%$]admins') or message.text:match('^[/!#]staff') then
         return administration.admins(message)
     elseif message.text:match('^[/!#]ops') or message.text:match('^[/!#]report') then
