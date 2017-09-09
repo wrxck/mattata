@@ -48,8 +48,6 @@ return {
     ['ban'] = {
         ['1'] = 'Qual utilizador gostaria que eu bane? Pode especificar esse utilizador pelo seu @username ou ID numérico.',
         ['2'] = 'Não consigo banir esse utilizador porque ele é um moderador ou um administrador neste grupo.',
-        ['3'] = 'Não consigo banir este utilizador porque ele saiu deste grupo.',
-        ['4'] = 'Não consigo banir este utilizador porque ele já foi banido deste grupo.',
         ['5'] = 'Eu preciso ter permissões administrativas para banir esse utilizador. Corrija este problema e tente novamente.'
     },
     ['bash'] = {

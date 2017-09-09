@@ -48,8 +48,6 @@ return {
     ['ban'] = {
         ['1'] = 'Which user would you like me to ban? You can specify this user by their @username or numerical ID.',
         ['2'] = 'I cannot ban this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot ban this user because they have already left this chat.',
-        ['4'] = 'I cannot ban this user because they have already been banned from this chat.',
         ['5'] = 'I need to have administrative permissions in order to ban this user. Please amend this issue, and try again.'
     },
     ['bash'] = {

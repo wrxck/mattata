@@ -48,8 +48,6 @@ return {
     ['ban'] = {
         ['1'] = 'Kogo mam zbanować? Podaj @username lub ID.',
         ['2'] = 'Nie mogę zbanować tego użytkownika, ponieważ jest to moderator lub administrator tej grupy.',
-        ['3'] = 'Nie mogę zbanować tego użytkownika, ponieważ opuścił on tę grupę.',
-        ['4'] = 'Nie mogę zbanować tego użytkownika, ponieważ został on zbanowany już wcześniej.',
         ['5'] = 'Potrzebuję uprawnień administratora aby móc banować.'
     },
     ['bash'] = {
