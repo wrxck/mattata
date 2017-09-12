@@ -3010,10 +3010,7 @@ function mattata:process_message()
             for k, v in pairs(words)
             do
                 local text = message.text:lower()
-                if text:match('^' .. v .. '$')
-                or text:match('^' .. v .. ' ')
-                or text:match(' ' .. v .. ' ')
-                or text:match(' ' .. v .. '$')
+                if text:match(v)
                 then
                     mattata.delete_message(
                         message.chat.id,
