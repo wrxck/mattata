@@ -32,7 +32,7 @@ function unfilter:on_message(message, configuration, language)
     end
     local input = mattata.input(message.text)
     if not input
-    or not input:match('%w+')
+    or not input:match('.+')
     then
         return mattata.send_reply(
             message,
@@ -40,7 +40,7 @@ function unfilter:on_message(message, configuration, language)
         )
     end
     local words = {}
-    for word in input:gmatch('%w+')
+    for word in input:gmatch('.+')
     do
         table.insert(
             words,
