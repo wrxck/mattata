@@ -601,7 +601,7 @@ Sistem:
         ['5'] = 'Devre dışı'
     },
     ['setlang'] = {
-        ['1'] = 'Diliniz ayarlandı %s!',
+        ['1'] = 'Diliniz ayarlandı (Türkçe Çeviri @By_Azade ) %s!',
         ['2'] = 'Diliniz şuanda %s.\nLütfen bazı dizelerin henüz tercüme edilmediğine dikkat ediniz. Dilinizi değiştirmek isterseniz, aşağıdaki klavyeyi kullanarak birini seçin:'
     },
     ['setlink'] = {
