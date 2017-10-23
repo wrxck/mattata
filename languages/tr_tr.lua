@@ -77,9 +77,6 @@ return {
     ['captionbotai'] = {
         ['1'] = 'Bu resmi gerçekten tarif edemiyorum!'
     },
-    ['catfact'] = {
-        ['1'] = 'Sonuç göndermek için tıklayın.'
-    },
     ['cats'] = {
         ['1'] = 'Miyavvv!'
     },
@@ -94,18 +91,6 @@ return {
         ['8'] = 'Bu mesajı göndermek istediğinizden emin misiniz? Nasıl görüneceği ise şöyledir:',
         ['9'] = 'Evet eminim!',
         ['10'] = 'Bu mesaj geçersiz Markdown biçimlendirme içeriyor! Lütfen sözdiziminizi düzeltin ve tekrar deneyin.'
-    },
-    ['chuck'] = {
-        ['1'] = 'Sonuç göndermek için tıklayın.'
-    },
-    ['clickbait'] = {
-        ['1'] = 'Başka Bir Tane Oluştur'
-    },
-    ['coinflip'] = {
-        ['1'] = 'Para indirildi:',
-        ['2'] = 'Haklıydın!',
-        ['3'] = 'Düzeltin, tekrar deneyin....',
-        ['4'] = 'Geçersiz argümanlar verildi. Tahmininizi belirtmeniz gerekir; tahminler heads veya tails olmalıdır..'
     },
     ['commandstats'] = {
         ['1'] = 'Bu sohbette hiçbir komut gönderilmedi!',
@@ -158,23 +143,8 @@ return {
         ['15'] = 'Instapaper',
         ['16'] = 'Wikipedia'
     },
-    ['dice'] = {
-        ['1'] = 'Minimum aralık:%s.',
-        ['2'] = 'Maksimum aralığı ve sayısı, her ikisi için de %s.',
-        ['3'] = 'Maksimum aralık %s, ve maksimum sayı %s.',
-        ['4'] = '%s yuvarlanan sayı %s:\n'
-    },
     ['doge'] = {
         ['1'] = 'Lütfen Dogeify istediğiniz metni girin. Her cümle eğik çizgi veya yeni satırlar kullanılarak ayrılmalıdır.'
-    },
-    ['duckduckgo'] = {
-        ['1'] = 'Bunun ne olduğundan emin değilim!'
-    },
-    ['eightball'] = {
-        ['1'] = 'Evet.',
-        ['2'] = 'Hayır.',
-        ['3'] = 'Muhtemelen öyledir.',
-        ['4'] = 'Yerinde olsaydım, tekrar ... ... tekrar sorarım.'
     },
     ['exec'] = {
         ['1'] = 'Lütfen kodunuzu yürütmek istediğiniz dili seçin:',
@@ -197,13 +167,6 @@ return {
         ['1'] = 'Aradığınız:',
         ['2'] = 'Lütfen bir arama sorgusu girin (Yani, Flickrı aramamı ne için istiyorsun, Örnek: "Kalem" kalem fotoğragları gösterilecek).',
         ['3'] = 'Daha fazla sonuç'
-    },
-    ['fortune'] = {
-        ['1'] = 'Servet göndermek için tıklayın!'
-    },
-    ['frombinary'] = {
-        ['1'] = 'Lütfen bir dizeye dönüştürmek istediğiniz ikili değeri girin.',
-        ['2'] = 'Hatalı biçimlendirilmiş ikili!'
     },
     ['game'] = {
         ['1'] = 'Toplam kazanç: %s\nToplam kayıp: %s\nKalan: %s mattacoins',
@@ -230,11 +193,6 @@ return {
     },
     ['gif'] = {
         ['1'] = 'Lütfen bir arama sorgusu girin (GIPHY de ne aramak istediğini belirt , örnek: "kedi" kedi ile ilgili olan GIF ler gösterilecek).'
-    },
-    ['godwords'] = {
-        ['1'] = 'Lütfen 1 ile 64 arasında bir sayısal değer girin!',
-        ['2'] = 'Bu sayı çok küçük, lütfen 1 ile 64 arasından birini belirtin!',
-        ['3'] = 'Bu sayı çok büyük, lütfen 1 ile 64 arasından birini belirtin!'
     },
     ['gwhitelist'] = {
         ['1'] = 'Lütfen genel olarak beyaz listeye eklemek isteyen kullanıcıyı yanıtlayın, kullanıcı adı veya kimlik numarasına göre belirtin.',
@@ -363,11 +321,6 @@ Sistem:
     ['ispwned'] = {
         ['1'] = 'Bu hesap aşağıdaki sızıntılarda bulundu:'
     },
-    ['isup'] = {
-        ['1'] = 'Bu web sitesi hazır gibi görünüyor, belki yalnızca sizinki?',
-        ['2'] = 'Bu geçerli bir site gibi gözükmüyor!',
-        ['3'] = 'Bu sadece sizin değil, bu web sitesi kapalı gözüküyor.'
-    },
     ['itunes'] = {
         ['1'] = 'İsim:',
         ['2'] = 'Sanatçı:',
@@ -396,9 +349,6 @@ Sistem:
         ['7'] = '%s en son dinlenilen:\n',
         ['8'] = 'Bilinmeyen',
         ['9'] = 'Sonuç göndermek için tıklayın.'
-    },
-    ['lmgtfy'] = {
-        ['1'] = 'Bana bunun için izin ver Google!'
     },
     ['location'] = {
         ['1'] = 'Ayarlanmış konumunuz yok. Yeni konum ayarlamak ister misiniz?'
@@ -434,11 +384,6 @@ Sistem:
         ['9'] = 'Lütfen özellik seçiniz:',
         ['10'] = 'Lütfen Minecraft oyuncusunun kullanıcı adını giriniz. (örnek: "By_Azade" By_Azade hakkında bilgi verecel).',
         ['11'] = 'Minecraft usernames are between 3 and 16 characters long.'
-    },
-    ['msglink'] = {
-        ['1'] = 'Bu komutu sadece süper gruplar ve kanallarda kullanabilirsiniz.',
-        ['2'] = '@kullanıcıadı %s hakla açık olmalı.',
-        ['3'] = 'Lütfen bağlantı almak istediğiniz iletiyi yanıtlayın.'
     },
     ['mute'] = {
         ['1'] = 'Hangi kullanıcıyı susturmak istersiniz? Bu kullanıcıyı @kulanıcıadı şeklinde veya kullanıcı IDsi ile belirtebilirsin.',
@@ -517,24 +462,12 @@ Sistem:
         ['1'] = 'Takma adınız şimdi unutuldu!',
         ['2'] = 'Takma adınız "%s"!'
     },
-    ['ninegag'] = {
-        ['1'] = 'Daha Fazla Bilgi Edinin'
-    },
     ['optout'] = {
         ['1'] = 'Toplanan verileri göndermeyi için seçtiniz! /optout komutunu kullanın.',
         ['2'] = 'Toplanan verileri göndermekten vazgeçtiniz! Etkinleştirmek için /optin komutunu kullanın.'
     },
     ['paste'] = {
         ['1'] = 'Lütfen yapıştırma dosyanızı yüklemek için bir hizmet seçin:'
-    },
-    ['pay'] = {
-        ['1'] = 'Şu anda mattacoins var. Tic-Tac-Toenin oyunlarında kazanarak daha fazla mattacoins elde edin, /game komutunu kullanın. - Kazandığınız her oyun için 100 mattacoin kazanacaksınız ve kaybettiğiniz her oyun için 50 kaybedersiniz.',
-        ['2'] = 'Bu komutu, mattacoins göndermek istediğiniz kullanıcıya cevap olarak kullanmanız gerekir.',
-        ['3'] = 'Lütfen vermek istediğiniz mattacoin miktarını belirtin %s.',
-        ['4'] = 'Belirtilen miktar sayısal bir değer olmalıdır, en az 0 olması gerekir.',
-        ['5'] = 'Kendinize para gönderemezsiniz!',
-        ['6'] = 'İşlemi tamamlamak için yeterli kaynağın yok!',
-        ['7'] = '%s mattacoins gönderildi %s. Yeni mattacoins %s bakiyen '
     },
     ['pin'] = {
         ['1'] = 'Daha önce bir mesaj sabitlemediniz. /pin <yazı> komutunu kullanarak bir tane oluşturun.Yazı tipi türlerini destekler.',
@@ -547,11 +480,6 @@ Sistem:
     ['pokedex'] = {
         ['1'] = 'İsim: %s\nKimlik: %s\nTip: %s\nAçıklama: %s'
     },
-    ['prime'] = {
-        ['1'] = 'Lütfen 1 ve 99999 arasında bir sayı giriniz.',
-        ['2'] = '%s asal sayı!',
-        ['3'] = '%s asal sayı değil...'
-    },
     ['promote'] = {
         ['1'] = 'Admini veya moderatörü yetkilendiremezsin.',
         ['2'] = 'Bu kullanıcıyı yetkilendiremiyorum çünkü bu sohbetten ayrılmış durumda.',
@@ -561,22 +489,12 @@ Sistem:
         ['1'] = 'Bu kullanıcı, veri saklama işlevini devre dışı bıraktı.',
         ['2'] = 'Bunun için kayıtlı söz yok! Onların gönderdikleri bir mesajı /save komutunu kullanarak kaydedebilirsiniz.'
     },
-    ['randomsite'] = {
-        ['1'] = 'Başka Oluştur'
-    },
-    ['randomword'] = {
-        ['1'] = 'Başka Oluştur',
-        ['2'] = 'Rastgele kelimen: <b>%s</b>!'
-    },
     ['report'] = {
         ['1'] = 'Lütfen grubun yöneticilerine bildirmek istediğiniz iletiyi yanıtlayın.',
         ['2'] = 'Kendi mesajlarınızı bildiremezsiniz, sadece komik olmaya mı çalışıyorsunuz?',
         ['3'] = '<b>%s içinde yardıma ihtiyacı var %s!</b>',
         ['4'] = 'Bildirilen mesajı görüntülemek için burayı tıklayın.',
         ['5'] = 'Bu mesajı  %s admin(ler) e başarıyla rapor ettim.!'
-    },
-    ['rms'] = {
-        ['1'] = 'Kutsal GNU!'
     },
     ['save'] = {
         ['1'] = 'Bu kullanıcı, veri saklama işlevini devre dışı bıraktı.',
@@ -640,15 +558,6 @@ Sistem:
         ['3'] = '%s Steam kullanıcısı %s, açık %s. En son kapattılanlar %s, açık %s. Tıkla <a href="%s">here</a> Steam profilini görüntüle.',
         ['4'] = '%s, AKA "%s",'
     },
-    ['synonym'] = {
-        ['1'] = 'Kelime yerine <b>%s</b>, kullanabilirsiniz %s.'
-    },
-    ['thoughts'] = {
-        ['1'] = '%s\n\nOlumlu: <code>%s%% [%s]</code>\nOlumsuz: <code>%s%% [%s]</code>\nKayıtsız: <code>%s%% [%s]</code>\nToplam düşünceler: <code>%s</code>'
-    },
-    ['tobinary'] = {
-        ['1'] = 'Binary-String dönüşümü yapılacak metni giriniz.'
-    },
     ['trust'] = {
         ['1'] = 'Admini ve moderatörü güvenli olarak işaretleyemem.',
         ['2'] = 'Bu kullanıcıyı güvenli olarak işaretleyemem,kullanıcı gruptan ayrılmış.',
@@ -672,9 +581,6 @@ Sistem:
         ['3'] = 'Bu dosyayı alamıyorum, muhtemelen çok eski.',
         ['4'] = 'Bu dosyayı alınırken bir hata meydana geldi.',
         ['5'] = 'Dosyayı sunucudan başarılı bir şekilde indirdiniz - bulunabilir <code>%s</code>!'
-    },
-    ['version'] = {
-        ['1'] = '@%s Versiyon %s `[%s]` çalışan mattata  %s, yapımcısı [Matthew Hesketh](https://t.me/wrxck). Kaynak kodu [GitHub](https://github.com/wrxck/mattata).'
     },
     ['voteban'] = {
         ['1'] = 'Hangi kullanıcı için oyla-banla özelliği kullanmak istiyorsun? Bu kullanıcıyı @kulanıcıadı şeklinde veya kullanıcı IDsi ile belirtebilirsin.',

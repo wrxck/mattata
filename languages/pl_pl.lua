@@ -77,9 +77,6 @@ return {
     ['captionbotai'] = {
         ['1'] = 'Nie potrafię opisać tego obrazka.'
     },
-    ['catfact'] = {
-        ['1'] = 'Klinknij aby wysłać.'
-    },
     ['cats'] = {
         ['1'] = 'Miau!'
     },
@@ -94,18 +91,6 @@ return {
         ['8'] = 'Czy jesteś pewien że chcesz wysłać tą wiadomość? Będzie ona wyglądać tak:',
         ['9'] = 'Potwierdź',
         ['10'] = 'Wiadmość zawiera niepoprawny Markdown! Popraw składnię i spróbuj ponownie.'
-    },
-    ['chuck'] = {
-        ['1'] = 'Kliknij aby wysłać.'
-    },
-    ['clickbait'] = {
-        ['1'] = 'Wygeneruj inny'
-    },
-    ['coinflip'] = {
-        ['1'] = 'Wynik rzutu:',
-        ['2'] = 'Dobrze obstawiłeś!',
-        ['3'] = 'Pudło, może następnym razem...',
-        ['4'] = 'Niepoprawny argument. Możesz obstawiać \'heads\' lub \'tails\'.'
     },
     ['commandstats'] = {
         ['1'] = 'Nie wysłano jeszcze żadnych komend w tej grupie!',

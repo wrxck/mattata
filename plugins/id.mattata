@@ -1,0 +1,85 @@
+--[[
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local id = {}
+local mattata = require('mattata')
+local json = require('dkjson')
+
+function id:init()
+    id.commands = mattata.commands(self.info.username)
+    :command('id')
+    :command('whoami').table
+    id.help = '/id [chat] - Sends information about the given chat. Input is also accepted via reply. Alias: /whoami.'
+end
+
+function id.resolve_chat(message, language)
+    if not message.query then
+        mattata.send_chat_action(message.chat.id)
+    end
+    local output = {}
+    local input = message.query and message.query or mattata.get_input(message)
+    if not input then
+        input = message.from.id
+    end
+    if tonumber(input) == nil and not input:match('^%@') then
+        input = '@' .. input
+    end
+    local success = mattata.get_user(input)
+    if not success then
+        success = mattata.get_chat(input)
+    else
+        success = mattata.get_chat(success.result.id)
+    end
+    if not success or not success.result then
+        return language['id']['1']
+    end
+    success.result.photo = nil -- We don't want to show the `file_id`, as these
+    -- make the message a lot longer than it needs to be.
+    success.result.id_str = nil -- This is useless for the command, since we already
+    -- have the `id` field being returned.
+    local output = json.encode(success.result, { ['indent'] = true })
+    output = '<pre>' .. mattata.escape_html(output) .. '</pre>'
+    return output
+end
+
+function id:on_inline_query(inline_query, configuration, language)
+    inline_query.query = mattata.input(inline_query.query)
+    or inline_query.from.username
+    or inline_query.from.id
+    return mattata.answer_inline_query(
+        inline_query.id,
+        mattata.inline_result()
+        :id()
+        :type('article')
+        :title(
+            tostring(inline_query.query)
+        )
+        :description(language['id']['4'])
+        :input_message_content(
+            mattata.input_text_message_content(
+                tostring(
+                    id.resolve_chat(
+                        inline_query,
+                        language
+                    )
+                ),
+                'html'
+            )
+        )
+    )
+end
+
+function id:on_message(message, configuration, language)
+    return mattata.send_message(
+        message,
+        id.resolve_chat(
+            message,
+            language
+        ),
+        'html'
+    )
+end
+
+return id

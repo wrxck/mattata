@@ -77,9 +77,6 @@ return {
     ['captionbotai'] = {
         ['1'] = 'Eu realmente não posso descrever essa imagem!'
     },
-    ['catfact'] = {
-        ['1'] = 'Clique para enviar o resultado.'
-    },
     ['cats'] = {
         ['1'] = 'Meow!'
     },
@@ -94,18 +91,6 @@ return {
         ['8'] = 'Tem certeza de que deseja enviar esta mensagem? É assim que vai aparecer:',
         ['9'] = 'Sim, tenho a certeza!',
         ['10'] = 'Essa mensagem contém formatação Markdown inválida! Corrija a sintaxe e tente novamente.'
-    },
-    ['chuck'] = {
-        ['1'] = 'Clique para enviar o resultado.'
-    },
-    ['clickbait'] = {
-        ['1'] = 'Gerar Outro'
-    },
-    ['coinflip'] = {
-        ['1'] = 'A moeda caiu como:',
-        ['2'] = 'Você estava correto!',
-        ['3'] = 'Você estava incorreto, tente novamente...',
-        ['4'] = 'Foram dados argumentos inválidos. Informe sua suposição; ela deve ser \'cara\' ou \'coroa\'.'
     },
     ['commandstats'] = {
         ['1'] = 'Nenhum comando foi enviado neste chat!',
@@ -158,23 +143,8 @@ return {
         ['15'] = 'Instapaper',
         ['16'] = 'Wikipedia'
     },
-    ['dice'] = {
-        ['1'] = 'A variação mínima é %s.',
-        ['2'] = 'A variação máxima e contagem são ambos %s.',
-        ['3'] = 'A variação máxima é %s, e a contagem máxima é %s.',
-        ['4'] = '%s jogadas com uma variação de %s:\n'
-    },
     ['doge'] = {
         ['1'] = 'Por favor, escreva o texto que deseja para Doge-ify. Cada sentença deve ser separada usando barras (/) ou novas linhas.'
-    },
-    ['duckduckgo'] = {
-        ['1'] = 'Eu não tenho certeza do que é isso!'
-    },
-    ['eightball'] = {
-        ['1'] = 'Sim.',
-        ['2'] = 'Não.',
-        ['3'] = 'Provavelmente.',
-        ['4'] = 'Bem, uh... Perguntava novamente mais tarde, se fosse a si.'
     },
     ['exec'] = {
         ['1'] = 'Selecione a linguagem em que gostaria de executar o seu código:',
@@ -197,13 +167,6 @@ return {
         ['1'] = 'Pesquisou por:',
         ['2'] = 'Introduza uma consulta de pesquisa (Ou seja, o que quer que eu procure no Flickr, i.e. "Big Ben" mostrara uma fotografia do Big Ben em Londres).',
         ['3'] = 'Mais Resultados'
-    },
-    ['fortune'] = {
-        ['1'] = 'Clique para ver a sua sorte!'
-    },
-    ['frombinary'] = {
-        ['1'] = 'Escreva o valor binário que gostaria de converter em uma sequencia de caracteres.',
-        ['2'] = 'Binário mal formado!'
     },
     ['game'] = {
         ['1'] = 'Total de vitórias: %s\nTotal de derrotas: %s\nBalanço: %s mattacoins',
@@ -230,11 +193,6 @@ return {
     },
     ['gif'] = {
         ['1'] = 'Introduza uma consulta de pesquisa (Que é, o que quer que eu procure no GIPHY, ex: "cat" irá mostrar um GIF de um gato).'
-    },
-    ['godwords'] = {
-        ['1'] = 'Introduza um valor numérico, entre 1 e 64!',
-        ['2'] = 'Esse número é muito pequeno, por favor especifique um entre 1 e 64!',
-        ['3'] = 'Esse número é muito grande, por favor especifique um entre 1 e 64!'
     },
     ['gwhitelist'] = {
         ['1'] = 'Responda ao utilizador que deseja incluir na lista branca global ou especifique-o por nome de utilizador/ID.',
@@ -363,11 +321,6 @@ Sistema:
     ['ispwned'] = {
         ['1'] = 'Essa conta foi encontrada nos seguintes fugas de informação:'
     },
-    ['isup'] = {
-        ['1'] = 'Este site parece estar a funcionar, talvez é apenas consigo?',
-        ['2'] = 'Isso não parece ser um site válido!',
-        ['3'] = 'Não é só você, este site parece estar baixo a aqui.'
-    },
     ['itunes'] = {
         ['1'] = 'Nome:',
         ['2'] = 'Artista:',
@@ -396,9 +349,6 @@ Sistema:
         ['7'] = '%s ouviu ultimamente:\n',
         ['8'] = 'Desconhecido',
         ['9'] = 'Clique para enviar o resultado.'
-    },
-    ['lmgtfy'] = {
-        ['1'] = 'Deixe-me usar o Google por si!'
     },
     ['location'] = {
         ['1'] = 'Não tem uma localização definida. O que nova localização gostaria que fosse?'
@@ -434,11 +384,6 @@ Sistema:
         ['9'] = 'Selecione uma opção:',
         ['10'] = 'Escreva o nome de utilizador do jogador do Minecraft que gostaria de ver informações (Ex: enviando "Notch" irá ver as informações sobre o jogador Notch).',
         ['11'] = 'Os nomes de utilizadores do Minecraft têm entre 3 e 16 caracteres.'
-    },
-    ['msglink'] = {
-        ['1'] = 'Só pode usar este comando em super grupos e canais.',
-        ['2'] = 'Este %s deve ser publico, com um @utilizador.',
-        ['3'] = 'Responda à mensagem que gostaria de obter um endereço.'
     },
     ['mute'] = {
         ['1'] = 'Que utilizador gostaria que ficasse silenciar? Pode especificar este utilizador pelo seu @utilizador ou ID numérico.',
@@ -517,9 +462,6 @@ Sistema:
         ['1'] = 'O seu nick foi esquecido!',
         ['2'] = 'O seu nick foi definido como "%s"!'
     },
-    ['ninegag'] = {
-        ['1'] = 'Ver mais'
-    },
     ['optout'] = {
         ['1'] = 'Optou por enviar os seus dados! Use /optout para excluir.',
         ['2'] = 'Optou por não enviar os seus dados! Use /optin para enviar.'
@@ -527,16 +469,7 @@ Sistema:
     ['paste'] = {
         ['1'] = 'Selecione um serviço para enviar copia:'
     },
-    ['pay'] = {
-        ['1'] = 'Tem %s mattacoins. Ganhe mais ganhando jogos do Jogo do Galo, usando /game - Ganhará 100 mattacoins por cada jogo que ganhar, e perderá 50 para cada jogo que perde.',
-        ['2'] = 'Deve usar este comando em resposta ao utilizador que gostaria de enviar mattacoins.',
-        ['3'] = 'Especifique a quantidade de mattacoins que gostaria de dar a %s.',
-        ['4'] = 'O valor especificado deve ser um valor numérico, o qual não pode ser inferior a 0.',
-        ['5'] = 'Não pode enviar dinheiro a si mesmo!',
-        ['6'] = 'Não tem fundos suficientes para completar essa transação!',
-        ['7'] = '%s mattacoins foram enviados para %s. O seu novo saldo é %s mattacoins.'
-    },
-        ['pin'] = {
+    ['pin'] = {
         ['1'] = 'Não definiu ainda uma mensagem afixada. Use /pin <texto> para definir uma. A formatação Markdown é suportada.',
         ['2'] = 'Aqui está a última mensagem gerada usando /pin.',
         ['3'] = 'Eu encontrei uma mensagem afixada existente na base de dados, mas a mensagem que enviei parece ter sido apagada, e não consigo mais encontra-la. Pode definir uma nova usando /pin <texto>. A formatação Markdown é suportada.',
@@ -547,11 +480,6 @@ Sistema:
     ['pokedex'] = {
         ['1'] = 'Nome: %s\nID: %s\nTipo: %s\nDescrição: %s'
     },
-    ['prime'] = {
-        ['1'] = 'Introduza um número entre 1 e 99999.',
-        ['2'] = '%s é um número primo!',
-        ['3'] = '%s NÃO é um número primo...'
-    },
     ['promote'] = {
         ['1'] = 'Não consigo promover este utilizador porque é moderador ou administrador deste grupo.',
         ['2'] = 'Não consigo promover este utilizador porque já saiu deste grupo.',
@@ -561,22 +489,12 @@ Sistema:
         ['1'] = 'Este utilizador desativou a funcionalidade de armazenamento de dados.',
         ['2'] = 'Não há citações guardadas para %s%s! Pode guardar um usando /save em resposta a uma mensagem que enviam.'
     },
-    ['randomsite'] = {
-        ['1'] = 'Gerar Outro'
-    },
-    ['randomword'] = {
-        ['1'] = 'Gerar Outra',
-        ['2'] = 'A sua palavra aleatória é <b>%s</b>!'
-    },
     ['report'] = {
         ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
         ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
         ['3'] = '<b>%s precisa de ajuda em %s!</b>',
         ['4'] = 'Click here to view the reported message.',
         ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
-    },
-    ['rms'] = {
-        ['1'] = 'Holy GNU!'
     },
     ['save'] = {
         ['1'] = 'Este utilizador desativou a funcionalidade de armazenamento de dados.',
@@ -640,15 +558,6 @@ Sistema:
         ['3'] = '%s é utilizador do Steam desde %s, em %s. Desligou a ultima vez %s, em %s. Clique <a href="%s">aqui</a> para ver o perfil no Steam.',
         ['4'] = '%s, AKA "%s",'
     },
-    ['synonym'] = {
-        ['1'] = 'Pode usar a palavra <b>%s</b>, em vez de %s.'
-    },
-    ['thoughts'] = {
-        ['1'] = '%s\n\nPositivo: <code>%s%% [%s]</code>\nNegativo: <code>%s%% [%s]</code>\nIndiferente: <code>%s%% [%s]</code>\nPensamentos totais: <code>%s</code>'
-    },
-    ['tobinary'] = {
-        ['1'] = 'Escreva a sequencia que gostaria de converter em binário.'
-    },
     ['trust'] = {
         ['1'] = 'I cannot trust this user because they are a moderator or an administrator of this chat.',
         ['2'] = 'I cannot trust this user because they have already left this chat.',
@@ -672,9 +581,6 @@ Sistema:
         ['3'] = 'Não consegui obter esse ficheiro, é provavelmente muito antigo.',
         ['4'] = 'Ocorreu um erro ao recuperar esse ficheiro.',
         ['5'] = 'Ficheiro transferido para o servidor com sucesso - pode ser encontrado em <code>%s</code>!'
-    },
-    ['version'] = {
-        ['1'] = '@%s AKA %s `[%s]` está a usar mattata %s, criado por [Matthew Hesketh](https://t.me/wrxck). Código fonte disponível em [GitHub](https://github.com/wrxck/mattata).'
     },
     ['voteban'] = {
         ['1'] = 'Qual utilizador gostaria de abrir uma votação para banir? Pode especificar este utilizador pelo seu @utilizador ou ID numérico.',

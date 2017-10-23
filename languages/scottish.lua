@@ -77,9 +77,6 @@ return {
     ['captionbotai'] = {
         ['1'] = 'A really cannae describe that picture!'
     },
-    ['catfact'] = {
-        ['1'] = 'Click tae send the result.'
-    },
     ['cats'] = {
         ['1'] = 'Meow!'
     },
@@ -94,18 +91,6 @@ return {
         ['8'] = 'Are ye sure ye want tae send thes message? This is how it will look:',
         ['9'] = 'Yes, Am sure!',
         ['10'] = 'That message contains invalid Markdoun formatting! Pleese correct yer syntax and pree again.'
-    },
-    ['chuck'] = {
-        ['1'] = 'Click tae send the result.'
-    },
-    ['clickbait'] = {
-        ['1'] = 'Generate Another'
-    },
-    ['coinflip'] = {
-        ['1'] = 'The coin landed on:',
-        ['2'] = 'Ye were correct!',
-        ['3'] = 'Ye weren\'t correct, pree again...',
-        ['4'] = 'Invalid arguments were given. Ye must specify yer guess, it should be either \'heads\' ore \'tails\'.'
     },
     ['commandstats'] = {
         ['1'] = 'No commands have been sent in this chat!',
@@ -158,23 +143,8 @@ return {
         ['15'] = 'Instapaper',
         ['16'] = 'Wikipedia'
     },
-    ['dice'] = {
-        ['1'] = 'The minimum range is %s.',
-        ['2'] = 'The maximum range and cownt be both %s.',
-        ['3'] = 'The maximum range is %s, and the maximum cownt is %s.',
-        ['4'] = '%s rolls with a range of %s:\n'
-    },
     ['doge'] = {
         ['1'] = 'Pleese enter the text ye want tae Doge-ify. Each sentence should be separated using slashes ore new lines.'
-    },
-    ['duckduckgo'] = {
-        ['1'] = 'Am not sure what that is!'
-    },
-    ['eightball'] = {
-        ['1'] = 'Yes.',
-        ['2'] = 'No.',
-        ['3'] = 'It is likely so.',
-        ['4'] = 'Well, uh... I\'d ask again later, if A were ye.'
     },
     ['exec'] = {
         ['1'] = 'Pleese select the language ye wud like tae execute yer code in:',
@@ -197,13 +167,6 @@ return {
         ['1'] = 'Ye serched for:',
         ['2'] = 'Pleese enter a serch query (that is, what ye want me tae serch Flickr for, i.e. "Big Ben" will return a photograph of Big Ben in London).',
         ['3'] = 'More Results'
-    },
-    ['fortune'] = {
-        ['1'] = 'Click tae send yer fortune!'
-    },
-    ['frombinary'] = {
-        ['1'] = 'Pleese enter the binary value ye wud like tae convert tae a string.',
-        ['2'] = 'Malformed binary!'
     },
     ['game'] = {
         ['1'] = 'Total wyns: %s\nTotal losses: %s\nBalance: %s mattacoins',
@@ -230,11 +193,6 @@ return {
     },
     ['gif'] = {
         ['1'] = 'Pleese enter a serch query (that is, what ye want me tae serch GIPHY for, i.e. "cat" will return a GIF of a cat).'
-    },
-    ['godwords'] = {
-        ['1'] = 'Pleese enter a numerical value, between 1 and 64!',
-        ['2'] = 'That number is too small, pleese specify one between 1 and 64!',
-        ['3'] = 'That number is too large, pleese specify one between 1 and 64!'
     },
     ['gwhitelist'] = {
         ['1'] = 'Pleese reply-to the usar ye\'d like tae globally whitelist, ore specify them by usarname/ID.',
@@ -363,11 +321,6 @@ System:
     ['ispwned'] = {
         ['1'] = 'That account was found in the following leaks:'
     },
-    ['isup'] = {
-        ['1'] = 'This website appeirs tae be up, maybe it\'s just ye?',
-        ['2'] = 'That daesna appeir tae be a valid site!',
-        ['3'] = 'It\'s not just ye, thes website looks doun from here.'
-    },
     ['itunes'] = {
         ['1'] = 'Name:',
         ['2'] = 'Artist:',
@@ -396,9 +349,6 @@ System:
         ['7'] = '%s last listened to:\n',
         ['8'] = 'Unknown',
         ['9'] = 'Click tae send the result.'
-    },
-    ['lmgtfy'] = {
-        ['1'] = 'Let me Google that for ye!'
     },
     ['location'] = {
         ['1'] = 'Ye daena have a location set. What wud ye like yer new location tae be?'
@@ -434,11 +384,6 @@ System:
         ['9'] = 'Pleese select an option:',
         ['10'] = 'Pleese enter the usarname of the Minecraft player ye wud like tae view information about (i.e. sending "Notch" will view information about the player Notch).',
         ['11'] = 'Minecraft usarnames be between 3 and 16 characters long.'
-    },
-    ['msglink'] = {
-        ['1'] = 'Ye can anely use thes commaund in supergruips and channels.',
-        ['2'] = 'This %s must be public, with a @usarname.',
-        ['3'] = 'Pleese reply tae the message ye\'d like tae get a link for.'
     },
     ['mute'] = {
         ['1'] = 'Which user would you like me to mute? You can specify this user by their @username or numerical ID.',
@@ -517,24 +462,12 @@ System:
         ['1'] = 'Your nickname has now been forgotten!',
         ['2'] = 'Your nickname has been set tae "%s"!'
     },
-    ['ninegag'] = {
-        ['1'] = 'Read More'
-    },
     ['optout'] = {
         ['1'] = 'Ye have opted-in tae having data ye send collected! Use /optout tae opt-out.',
         ['2'] = 'Ye have opted-out of having data ye send collected! Use /optin tae opt-in.'
     },
     ['paste'] = {
         ['1'] = 'Pleese select a service tae upload yer paste to:'
-    },
-    ['pay'] = {
-        ['1'] = 'Ye currently have %s mattacoins. Earn more by winning games of Tic-Tac-Toe, using /game - Ye will win 100 mattacoins for every game ye win, and ye will lose 50 for every game ye lose.',
-        ['2'] = 'Ye must use thes commaund in reply tae the usar ye\'d like tae send mattacoins to.',
-        ['3'] = 'Pleese specify the amount of mattacoins ye\'d like tae give %s.',
-        ['4'] = 'The amount specified should be a numerical value, of which can be no less than 0.',
-        ['5'] = 'Ye can\'t send money tae yerself!',
-        ['6'] = 'Ye daena have enough funds tae complete that transaction!',
-        ['7'] = '%s mattacoins have been sent tae %s. Your new balance is %s mattacoins.'
     },
     ['pin'] = {
         ['1'] = 'You haven\'t set a pin before. Use /pin <text> to set one. Markdown formatting is supported.',
@@ -547,11 +480,6 @@ System:
     ['pokedex'] = {
         ['1'] = 'Name: %s\nID: %s\nType: %s\nDescription: %s'
     },
-    ['prime'] = {
-        ['1'] = 'Pleese enter a number between 1 and 99999.',
-        ['2'] = '%s is a prime number!',
-        ['3'] = '%s is NOT a prime number...'
-    },
     ['promote'] = {
         ['1'] = 'A cannae promote thes usar becawis thei be a moderator ore an administrator of thes tauk.',
         ['2'] = 'A cannae promote thes usar becawis thei have alrady left thes tauk.',
@@ -561,22 +489,12 @@ System:
         ['1'] = 'This usar has opted out of data-storing functionality.',
         ['2'] = 'There be no saved quotes for %s%s! Ye can save one by using /save in reply tae a message thei send.'
     },
-    ['randomsite'] = {
-        ['1'] = 'Generate Another'
-    },
-    ['randomword'] = {
-        ['1'] = 'Generate Another',
-        ['2'] = 'Your random word is <b>%s</b>!'
-    },
     ['report'] = {
         ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
         ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
         ['3'] = '<b>%s needs help in %s!</b>',
         ['4'] = 'Click here to view the reported message.',
         ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
-    },
-    ['rms'] = {
-        ['1'] = 'Holy GNU!'
     },
     ['save'] = {
         ['1'] = 'This usar has opted out of data-storing functionality.',
@@ -640,15 +558,6 @@ System:
         ['3'] = '%s has been a usar on Steam since %s, on %s. They last logged off at %s, on %s. Click <a href="%s">here</a> tae view thair Steam profile.',
         ['4'] = '%s, AKA "%s",'
     },
-    ['synonym'] = {
-        ['1'] = 'Ye could use the word <b>%s</b>, instead of %s.'
-    },
-    ['thoughts'] = {
-        ['1'] = '%s\n\nPositive: <code>%s%% [%s]</code>\nNegative: <code>%s%% [%s]</code>\nIndifferent: <code>%s%% [%s]</code>\nTotal thoughts: <code>%s</code>'
-    },
-    ['tobinary'] = {
-        ['1'] = 'Pleese enter the string ye wud like tae convert tae binary.'
-    },
     ['trust'] = {
         ['1'] = 'I cannot trust this user because they are a moderator or an administrator of this chat.',
         ['2'] = 'I cannot trust this user because they have already left this chat.',
@@ -672,9 +581,6 @@ System:
         ['3'] = 'A coudna get thes file, it\'s probably too old.',
         ['4'] = 'There was a mistak whilst retrieving thes file.',
         ['5'] = 'Successfully dounloaded the file tae the server - it can be found at <code>%s</code>!'
-    },
-    ['version'] = {
-        ['1'] = '@%s AKA %s `[%s]` is running mattata %s, created by [Matthew Hesketh](https://t.me/wrxck). The source code is available on [GitHub](https://github.com/wrxck/mattata).'
     },
     ['voteban'] = {
         ['1'] = 'Which user would you like to open up a vote-ban for? You can specify this user by their @username or numerical ID.',

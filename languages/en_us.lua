@@ -77,9 +77,6 @@ return {
     ['captionbotai'] = {
         ['1'] = 'I really cannot describe that picture!'
     },
-    ['catfact'] = {
-        ['1'] = 'Click to send the result.'
-    },
     ['cats'] = {
         ['1'] = 'Meow!'
     },
@@ -94,18 +91,6 @@ return {
         ['8'] = 'Are you sure you want to send this message? This is how it will look:',
         ['9'] = 'Yes, I\'m sure!',
         ['10'] = 'That message contains invalid Markdown formatting! Please correct your syntax and try again.'
-    },
-    ['chuck'] = {
-        ['1'] = 'Click to send the result.'
-    },
-    ['clickbait'] = {
-        ['1'] = 'Generate Another'
-    },
-    ['coinflip'] = {
-        ['1'] = 'The coin landed on:',
-        ['2'] = 'You were correct!',
-        ['3'] = 'You weren\'t correct, try again...',
-        ['4'] = 'Invalid arguments were given. You must specify your guess, it should be either \'heads\' or \'tails\'.'
     },
     ['commandstats'] = {
         ['1'] = 'No commands have been sent in this chat!',

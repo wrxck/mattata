@@ -1,0 +1,227 @@
+--[[
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local antispam = {}
+local mattata = require('mattata')
+local json = require('dkjson')
+local redis = require('mattata-redis')
+
+function antispam:init()
+    antispam.commands = mattata.commands(self.info.username):command('antispam').table
+end
+
+antispam.media_types = {
+    'text',
+    'forwarded',
+    'sticker',
+    'photo',
+    'video',
+    'location',
+    'voice',
+    'game',
+    'venue',
+    'video note',
+    'invoice',
+    'contact'
+}
+
+antispam.default_values = {
+    ['text'] = 8,
+    ['forwarded'] = 16,
+    ['sticker'] = 4,
+    ['photo'] = 4,
+    ['video'] = 4,
+    ['location'] = 4,
+    ['voice'] = 4,
+    ['game'] = 2,
+    ['venue'] = 4,
+    ['video note'] = 4,
+    ['invoice'] = 2,
+    ['contact'] = 2
+}
+
+function antispam.get_keyboard(chat_id, language)
+    local status = redis:hget('chat:' .. chat_id .. ':settings', 'antispam') and true or false
+    local caption = status and language['antispam']['1'] or language['antispam']['2']
+    local keyboard = {
+        ['inline_keyboard'] = {}
+    }
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = caption,
+                ['callback_data'] = 'antispam:' .. chat_id .. ':' .. caption:lower()
+            }
+        }
+    )
+    if status then
+        for n, media in pairs(antispam.media_types) do
+            local current = mattata.get_value(chat_id, media .. ' limit') or antispam.default_values[media]
+            if not mattata.get_setting(chat_id, 'allow ' .. media) then
+                table.insert(
+                    keyboard.inline_keyboard,
+                    {
+                        {
+                            ['text'] = media:gsub('^%l', string.upper),
+                            ['callback_data'] = 'antispam:nil'
+                        },
+                        {
+                            ['text'] = '-',
+                            ['callback_data'] = 'antispam:' .. chat_id .. ':limit:' .. media .. ':' .. tonumber(current) - 1
+                        },
+                        {
+                            ['text'] = tostring(current),
+                            ['callback_data'] = 'antispam:nil'
+                        },
+                        {
+                            ['text'] = '+',
+                            ['callback_data'] = 'antispam:' .. chat_id .. ':limit:' .. media .. ':' .. tonumber(current) + 1
+                        },
+                        {
+                            ['text'] = language['antispam']['3'],
+                            ['callback_data'] = 'antispam:' .. chat_id .. ':toggle:' .. media
+                        }
+                    }
+                )
+            else
+                table.insert(
+                    keyboard.inline_keyboard,
+                    {
+                        {
+                            ['text'] = media:gsub('^%l', string.upper),
+                            ['callback_data'] = 'antispam:nil'
+                        },
+                        {
+                            ['text'] = string.format(language['antispam']['4'], media),
+                            ['callback_data'] = 'antispam:' .. chat_id .. ':toggle:' .. media
+                        }
+                    }
+                )
+            end
+        end
+    end
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = mattata.symbols.back .. ' ' .. language['antispam']['5'],
+                ['callback_data'] = 'administration:' .. chat_id .. ':page:1'
+            }
+        }
+    )
+    return keyboard
+end
+
+function antispam.is_user_spamming(message)
+    if message.media_type == '' or mattata.get_setting(message.chat.id, 'allow ' .. message.media_type) then
+        return false
+    end
+    local limit = mattata.get_value(message.chat.id, message.media_type .. ' limit') or antispam.default_values[message.media_type]
+    local current = redis:get('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id) or 1
+    redis:setex('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id, 5, tonumber(current) + 1)
+    if tonumber(current) == tonumber(limit) then
+        return true, message.media_type
+    elseif message.media_type == 'rtl' and mattata.get_setting(message.chat.id, 'antirtl') then
+        return true, 'rtl'
+    end
+    return false
+end
+
+function antispam:process_message(message, configuration, language)
+    if message.chat.type ~= 'supergroup' then
+        return false, 'The chat is not a supergroup!'
+    elseif mattata.is_group_admin(message.chat.id, message.from.id) then
+        return false, 'That user is an admin/mod in this chat!'
+    elseif mattata.is_global_admin(message.from.id) then
+        return false, 'That user is a global admin!'
+    elseif not mattata.get_setting(message.chat.id, 'use administration') then
+        return false, 'The administration plugin is switched off in this chat!'
+    elseif not mattata.get_setting(message.chat.id, 'antispam') then
+        return false, 'The antispam plugin is switched off in this chat!'
+    end
+    local is_spamming, media_type = antispam.is_user_spamming(message)
+    if not is_spamming then
+        return false, 'This user is not spamming!'
+    end
+    local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
+    local success, error_message = action(message.chat.id, message.from.id)
+    if not success then
+        return false, error_message
+    elseif mattata.get_setting(message.chat.id, 'log administrative actions') then
+        mattata.send_message(
+            mattata.get_log_chat(message.chat.id),
+            string.format(
+                '<pre>' .. language['antispam']['6'] .. '</pre>',
+                mattata.escape_html(self.info.first_name),
+                self.info.id,
+                mattata.escape_html(message.from.first_name),
+                message.from.id,
+                mattata.escape_html(message.chat.title),
+                message.chat.id,
+                media_type
+            ),
+            'html'
+        )
+    end
+    return mattata.send_message(
+        message,
+        string.format(
+            language['antispam']['7'],
+            message.from.username and '@' .. message.from.username or message.from.first_name,
+            media_type
+        )
+    )
+end
+
+function antispam:on_callback_query(callback_query, message, configuration, language)
+    local chat_id = (message and message.chat and message.chat.type == 'supergroup') and message.chat.id or callback_query.data:match('^(%-%d+):?')
+    if not chat_id then
+        mattata.answer_callback_query(callback_query.id, language['errors']['generic'])
+        return false, 'No chat ID was found!'
+    elseif not mattata.is_group_admin(chat_id, callback_query.from.id) then
+        mattata.answer_callback_query(callback_query.id, language['errors']['admin'])
+        return false, 'That user is not an admin/mod in this chat!'
+    end
+    if callback_query.data:match('^%-%d+:limit:.-:.-$') then
+        local spam_type, limit = callback_query.data:match('^%-%d+:limit:(.-):(.-)$')
+        if tonumber(limit) > 100 then
+            local output = language['antispam']['8']
+            mattata.answer_callback_query(callback_query.id, output)
+            return false, output
+        elseif tonumber(limit) < 1 then
+            local output = language['antispam']['9']
+            mattata.answer_callback_query(callback_query.id, output)
+            return false, output
+        elseif tonumber(limit) == nil then
+            return false, 'The limit given wasn\'t of type "number"!'
+        end
+        redis:hset('chat:' .. chat_id .. ':values', spam_type .. ' limit', tonumber(limit))
+    elseif callback_query.data:match('^%-%d+:toggle:.-$') then
+        local spam_type = callback_query.data:match('^%-%d+:toggle:(.-)$')
+        mattata.toggle_setting(chat_id, 'allow ' .. spam_type)
+    elseif callback_query.data:match('^%-%d+:disable$') then
+        redis:hdel('chat:' .. chat_id .. ':settings', 'antispam')
+    elseif callback_query.data:match('^%-%d+:enable$') then
+        redis:hset('chat:' .. chat_id .. ':settings', 'antispam', true)
+    end
+    local keyboard = antispam.get_keyboard(chat_id, language)
+    return mattata.edit_message_reply_markup(message.chat.id, message.message_id, nil, keyboard)
+end
+
+function antispam:on_message(message, configuration, language)
+    if message.chat.type ~= 'supergroup' then
+        mattata.send_reply(message, language['errors']['supergroup'])
+        return false, 'The chat is not a supergroup!'
+    elseif not mattata.is_group_admin(message.chat.id, message.from.id) then
+        mattata.send_reply(message, language['errors']['admin'])
+        return false, 'That user is not an admin/mod in this chat!'
+    end
+    local output = string.format(language['antispam']['10'], message.chat.title)
+    local keyboard = antispam.get_keyboard(message.chat.id, language)
+    return mattata.send_message(message.chat.id, output, nil, true, false, nil, keyboard)
+end
+
+return antispam

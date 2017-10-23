@@ -77,9 +77,6 @@ return {
     ['captionbotai'] = {
         ['1'] = 'Ich kann das Bild wirklich nicht beschreiben!'
     },
-    ['catfact'] = {
-        ['1'] = 'Zum senden des Ergebnis klicken.'
-    },
     ['cats'] = {
         ['1'] = 'Miau!'
     },
@@ -94,18 +91,6 @@ return {
         ['8'] = 'Bist du dir sicher, dass du die nachricht senden möchtest? Das ist wie es ausehen wird:',
         ['9'] = 'Ja, ich bin sicher!',
         ['10'] = 'Diese Nachricht hat ein falsches Format! Bitte korigiere den Syntax und versuche es noch einmal.'
-    },
-    ['chuck'] = {
-        ['1'] = 'Zum senden des Ergebnis klicken.'
-    },
-    ['clickbait'] = {
-        ['1'] = 'Generiere nochmal.'
-    },
-    ['coinflip'] = {
-        ['1'] = 'Die Münze landet auf:',
-        ['2'] = 'Du warst richtig!',
-        ['3'] = 'Du warst falsch, versuche es noch einmal...',
-        ['4'] = 'Falsches Argument eingegeben. Du musst eine genaue Angabe machen, es ist entweder \'Kopf\' oder \'Zahl\'.'
     },
     ['commandstats'] = {
         ['1'] = 'Es wurden keine Befehle in dieser Unterhaltung gesendet!',
