@@ -246,7 +246,7 @@ function voteban:on_message(message, configuration, language)
     end
     local reason = false
     local user = false
-    local input = mattata.input(message.text)
+    local input = mattata.input(message)
     -- Check the message object for any users this command
     -- is intended to be executed on.
     if message.reply

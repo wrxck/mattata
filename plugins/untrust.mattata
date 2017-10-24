@@ -32,7 +32,7 @@ function untrust:on_message(message, configuration, language)
     end
     local input = message.reply
     and tostring(message.reply.from.id)
-    or mattata.input(message.text)
+    or mattata.input(message)
     if not input
     then
         local success = mattata.send_force_reply(

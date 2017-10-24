@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v1.0.0
+      v1.0.1
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -65,7 +65,7 @@ function mattata:init()
     print(connected_message)
     local info_message = '\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id
     print('\n' .. info_message .. '\n')
-    self.version = 'v1.0.0'
+    self.version = 'v1.0.1'
     -- Make necessary database changes if the version has changed.
     if not redis:get('mattata:version') or redis:get('mattata:version') ~= self.version then
         redis:set('mattata:version', self.version)
@@ -679,21 +679,7 @@ function mattata.get_word(str, i)
     return false
 end
 
-function mattata.input(s)
-    if not s then
-        return false
-    end
-    if s:lower():match('^mattata search %a+ for .-$') then
-        return s:lower():match('^mattata search %a+ for (.-)$')
-    elseif not s:lower():match('^[%%/%%!%%$%%^%%?%%&%%%%]') then
-        return s
-    end
-    local input = s:find(' ')
-    if not input then
-        return false
-    end
-    return s:sub(input + 1)
-end
+mattata.input = utils.input
 
 function mattata:exception(err, message, log_chat)
     local output = string.format(
@@ -1183,20 +1169,20 @@ function mattata.process_stickers(message)
 end
 
 function mattata:process_natural_language(message)
-    message.text = message.text:lower()
+    local text = message.text:lower()
     local name = self.info.name:lower()
     if name:find(' ') then
         name = name:match('^(.-) ')
     end
-    if message.text:match(name .. '.- ban @?[%w_-]+ ?') then
-        message.text = '/ban ' .. message.text:match(name .. '.- ban (@?[%w_-]+) ?')
-    elseif message.text:match(name .. '.- warn @?[%w_-]+ ?') then
-        message.text = '/warn ' .. message.text:match(name .. '.- warn (@?[%w_-]+) ?')
-    elseif message.text:match(name .. '.- kick @?[%w_-]+ ?') then
-        message.text = '/kick ' .. message.text:match(name .. '.- kick (@?[%w_-]+) ?')
-    elseif message.text:match(name .. '.- unban @?[%w_-]+ ?') then
-        message.text = '/unban ' .. message.text:match(name .. '.- unban (@?[%w_-]+) ?')
-    elseif message.text:match(name .. '.- play.- spotify') then
+    if text:match(name .. '.- ban @?[%w_-]+ ?') then
+        message.text = '/ban ' .. text:match(name .. '.- ban (@?[%w_-]+) ?')
+    elseif text:match(name .. '.- warn @?[%w_-]+ ?') then
+        message.text = '/warn ' .. text:match(name .. '.- warn (@?[%w_-]+) ?')
+    elseif text:match(name .. '.- kick @?[%w_-]+ ?') then
+        message.text = '/kick ' .. text:match(name .. '.- kick (@?[%w_-]+) ?')
+    elseif text:match(name .. '.- unban @?[%w_-]+ ?') then
+        message.text = '/unban ' .. text:match(name .. '.- unban (@?[%w_-]+) ?')
+    elseif text:match(name .. '.- play.- spotify') then
         local myspotify = dofile('plugins/myspotify.mattata')
         local success = myspotify.reauthorise_account(message.from.id, configuration)
         local output = success and myspotify.play(message.from.id) or 'An error occured whilst trying to connect to your Spotify account, are you sure you\'ve connected me to it?'

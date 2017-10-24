@@ -298,8 +298,35 @@ function utils.reset_message_statistics(chat_id)
     return true
 end
 
+function utils.input(s)
+    local mentioned_user = false
+    if not s then
+        return false
+    elseif type(s) == 'table' then
+        if s.entities and #s.entities >= 2 and s.entities[2].type == 'text_mention' then
+            mentioned_user = s.entities[2].user.id
+        end
+        s = s.text
+    end
+    if s:lower():match('^mattata search %a+ for .-$') then
+        return s:lower():match('^mattata search %a+ for (.-)$')
+    elseif not s:lower():match('^[%%/%%!%%$%%^%%?%%&%%%%]') then
+        return s
+    end
+    local input = s:find(' ')
+    if not input then
+        return false
+    end
+    s = s:sub(input + 1)
+    input = s:find(' ')
+    if mentioned_user then
+        s = input and mentioned_user .. ' ' .. s:sub(input + 1) or mentioned_user
+    end
+    return s
+end
+
 function utils.get_input(message, has_reason)
-    local input = mattata.tools.input(message.text)
+    local input = utils.input(message)
     if message.reply then
         if not message.reply.from or message.reply.forward_from then
             return false

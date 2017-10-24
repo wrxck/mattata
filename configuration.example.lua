@@ -5,7 +5,7 @@
     | | | | | | (_| | |_| || (_| | || (_| |
     |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-    Configuration file for mattata v1.0.0
+    Configuration file for mattata v1.0.1
 
     Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
@@ -16,11 +16,11 @@
 ]]
 
 local get_plugins = function(extension, directory)
-    extension = tostring(extension) or 'mattata'
+    extension = extension and tostring(extension) or 'mattata'
     if extension:match('^%.') then
         extension = extension:match('^%.(.-)$')
     end
-    directory = tostring(directory) or 'plugins'
+    directory = directory and tostring(directory) or 'plugins'
     if directory:match('/$') then
         directory = directory:match('^(.-)/$')
     end

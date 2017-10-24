@@ -131,7 +131,7 @@ function warn:on_message(message, configuration, language)
     local reason = false
     local input = message.reply
     and tostring(message.reply.from.id)
-    or mattata.input(message.text)
+    or mattata.input(message)
     if not input
     then
         return mattata.send_reply(

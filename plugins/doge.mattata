@@ -14,39 +14,18 @@ end
 
 function doge:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    if not input
-    then
-        local success = mattata.send_force_reply(
-            message,
-            language['doge']['1']
-        )
-        if success
-        then
-            redis:set(
-                string.format(
-                    'action:%s:%s',
-                    message.chat.id,
-                    success.result.message_id
-                ),
-                '/doge'
-            )
+    if not input then
+        local success = mattata.send_force_reply(message, language['doge']['1'])
+        if success then
+            redis:set('action:' .. message.chat.id .. ':' .. success.result.message_id, '/doge')
         end
         return
     end
-    local url = 'http://dogr.io/' .. input
-    :gsub(' ', '%%20')
-    :gsub('\n', '/') .. '.png?split=false&.png'
-    if not url:match('https?://[%%%w-_%.%?%.:/%+=&]+') == url
-    then -- Validate the URL.
-        return mattata.send_reply(
-            message,
-            language['errors']['results']
-        )
+    local url = 'http://dogr.io/' .. input:gsub(' ', '%%20'):gsub('\n', '/') .. '.png?split=false&.png'
+    if not url:match('https?://[%%%w-_%.%?%.:/%+=&]+') == url then -- Validate the URL.
+        return mattata.send_reply(message, language['errors']['results'])
     end
-    return mattata.send_photo(
-        message.chat.id,
-        url
-    )
+    return mattata.send_photo(message.chat.id, url)
 end
 
 return doge
