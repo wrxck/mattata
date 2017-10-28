@@ -7,7 +7,7 @@ local facebook = {}
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function facebook:init()
     facebook.commands = mattata.commands(self.info.username)

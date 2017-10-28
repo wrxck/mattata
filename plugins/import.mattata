@@ -5,7 +5,7 @@
 
 local import = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function import:init()
     import.commands = mattata.commands(self.info.username):command('import').table

@@ -5,7 +5,7 @@
 
 local logchat = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function logchat:init()
     logchat.commands = mattata.commands(self.info.username):command('logchat').table

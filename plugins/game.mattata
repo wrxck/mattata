@@ -7,7 +7,7 @@ local game = {}
 local mattata = require('mattata')
 local socket = require('socket')
 local json = require('dkjson')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function game:init()
     game.commands = mattata.commands(self.info.username):command('game').table

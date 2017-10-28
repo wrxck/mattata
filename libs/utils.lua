@@ -1,5 +1,5 @@
 local utils = {}
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 local configuration = require('configuration')
 
 local mattata = {}
@@ -304,7 +304,7 @@ function utils.input(s)
         return false
     elseif type(s) == 'table' then
         if s.entities and #s.entities >= 2 and s.entities[2].type == 'text_mention' then
-            mentioned_user = s.entities[2].user.id
+            mentioned_user = tostring(s.entities[2].user.id)
         end
         s = s.text
     end
@@ -407,6 +407,33 @@ _G.table.random = function(tab, seed)
             return key
         end
     end
+end
+
+_G.string.hexdump = function(data, length, size, space)
+    data = tostring(data)
+    size = (tonumber(size) == nil or tonumber(size) < 1) and 1 or tonumber(size)
+    space = (tonumber(space) == nil or tonumber(space) < 1) and 8 or tonumber(space)
+    length = (tonumber(length) == nil or tonumber(length) < 1) and 32 or tonumber(length)
+    local output = {}
+    local column = 0
+    for i = 1, #data, size do
+        for j = size, 1, -1 do
+            local sub = string.sub(data, i + j - 1, i + j - 1)
+            if #sub > 0 then
+                local byte = string.byte(sub)
+                local formatted = string.format('%.2x', byte)
+                table.insert(output, formatted)
+            end
+        end
+        if column % space == 0 then
+            table.insert(output, ' ')
+        end
+        if (i + size - 1) % length == 0 then
+            table.insert(output, '\n')
+        end
+        column = column + 1
+    end
+    return table.concat(output)
 end
 
 return utils

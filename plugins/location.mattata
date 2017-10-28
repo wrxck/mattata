@@ -9,7 +9,7 @@ local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 local setloc = dofile('plugins/setloc.mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function location:init()
     location.commands = mattata.commands(self.info.username):command('location'):command('loc').table

@@ -125,24 +125,6 @@ return {
         ['3'] = 'A cannae demote thes usar becawis thei have alrady left thes tauk.',
         ['4'] = 'A cannae demote thes usar becawis thei have alrady been kicked from thes tauk.'
     },
-    ['developer'] = {
-        ['1'] = '"Am a web developer/programmer with a love for metal/rock music and spending time with friends!"',
-        ['2'] = 'Facebook',
-        ['3'] = 'Messenger',
-        ['4'] = 'Twitter',
-        ['5'] = 'Instagram',
-        ['6'] = 'Keybase',
-        ['7'] = 'Snapchat',
-        ['8'] = 'GitHub',
-        ['9'] = 'Telegram',
-        ['10'] = 'Trello',
-        ['11'] = 'Pinterest',
-        ['12'] = 'Google+',
-        ['13'] = 'tumblr',
-        ['14'] = 'Imgur',
-        ['15'] = 'Instapaper',
-        ['16'] = 'Wikipedia'
-    },
     ['doge'] = {
         ['1'] = 'Pleese enter the text ye want tae Doge-ify. Each sentence should be separated using slashes ore new lines.'
     },
@@ -256,8 +238,6 @@ Here be some administrative commands and a brief comment regarding what thei do:
         ['22'] = 'Plugins',
         ['23'] = [[
 <b>Hi %s! My name's %s, it's a pleasure tae meet ye</b> %s
-
-I'm a smart bot who is capable of having conversations with humans such as yerself, and A have the ability tae administrate yer gruips too!
 
 A understand many commands, which ye can learn more about by pressing the "Commands" button using the attached keyboard.
 

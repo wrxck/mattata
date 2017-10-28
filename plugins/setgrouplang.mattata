@@ -5,7 +5,7 @@
 
 local setgrouplang = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 local json = require('dkjson')
 
 function setgrouplang:init()

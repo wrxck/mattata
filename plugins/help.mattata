@@ -7,13 +7,11 @@ local help = {}
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 local configuration = require('configuration')
 
 function help:init()
-    help.commands = mattata.commands(self.info.username)
-    :command('help')
-    :command('start').table
+    help.commands = mattata.commands(self.info.username):command('help'):command('start').table
     help.help = '/help [plugin] - A help-orientated menu is sent if no arguments are given. If arguments are given, usage information for the given plugin is sent instead. Alias: /start.'
 end
 
@@ -36,6 +34,9 @@ function help.get_initial_keyboard()
         ):callback_data_button(
             'Settings',
             'help:settings'
+        ):callback_data_button(
+            'Channels',
+            'help:channels'
         )
     )
 end
@@ -44,192 +45,122 @@ function help.get_plugin_page(arguments_list, page)
     local plugin_count = #arguments_list
     local page_begins_at = tonumber(page) * 10 - 9
     local page_ends_at = tonumber(page_begins_at) + 9
-    if tonumber(page_ends_at) > tonumber(plugin_count)
-    then
+    if tonumber(page_ends_at) > tonumber(plugin_count) then
         page_ends_at = tonumber(plugin_count)
     end
     local page_plugins = {}
-    for i = tonumber(page_begins_at), tonumber(page_ends_at)
-    do
-        table.insert(
-            page_plugins,
-            arguments_list[i]
-        )
+    for i = tonumber(page_begins_at), tonumber(page_ends_at) do
+        table.insert(page_plugins, arguments_list[i])
     end
-    return table.concat(
-        page_plugins,
-        '\n'
-    )
+    return table.concat(page_plugins, '\n')
 end
 
 function help.get_back_keyboard()
     return mattata.inline_keyboard():row(
         mattata.row():callback_data_button(
-            'Back',
+            mattata.symbols.back .. ' Back',
             'help:back'
         )
     )
 end
 
 function help:on_inline_query(inline_query, configuration, language)
-    local offset = inline_query.offset
-    and tonumber(inline_query.offset)
-    or 0
-    local output = mattata.get_inline_help(
-        inline_query.query,
-        offset
-    )
-    if #output == 0
-    then
-        return mattata.send_inline_article(
-            inline_query.id,
-            language['help']['1'],
-            string.format(
-                language['help']['2'],
-                inline_query.query
-            )
-        )
+    local offset = inline_query.offset and tonumber(inline_query.offset) or 0
+    local output = mattata.get_inline_help(inline_query.query, offset)
+    if #output == 0 then
+        output = string.format(language['help']['2'], inline_query.query)
+        return mattata.send_inline_article(inline_query.id, language['help']['1'], output)
     end
-    return mattata.answer_inline_query(
-        inline_query.id,
-        output,
-        0,
-        false,
-        tostring(offset + 50)
-    )
+    offset = tostring(offset + 50)
+    return mattata.answer_inline_query(inline_query.id, output, 0, false, offset)
 end
 
 function help:on_callback_query(callback_query, message, configuration, language)
-    if callback_query.data == 'cmds'
-    then
+    if callback_query.data == 'cmds' then
         local arguments_list = mattata.get_help()
         local plugin_count = #arguments_list
-        local page_count = math.floor(
-            tonumber(plugin_count) / 10
-        )
-        if math.floor(
-            tonumber(plugin_count) / 10
-        ) ~= tonumber(plugin_count) / 10
-        then
+        local page_count = math.floor(tonumber(plugin_count) / 10)
+        if math.floor(tonumber(plugin_count) / 10) ~= tonumber(plugin_count) / 10 then
             page_count = page_count + 1
         end
+        local output = help.get_plugin_page(arguments_list, 1)
+        output = output .. string.format(language['help']['3'], self.info.username)
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
-            help.get_plugin_page(
-                arguments_list,
-                1
-            ) .. string.format(
-                language['help']['3'],
-                self.info.username
-            ),
+            output,
             nil,
             true,
-            mattata.inline_keyboard()
-            :row(
-                mattata.row()
-                :callback_data_button(
+            mattata.inline_keyboard():row(
+                mattata.row():callback_data_button(
                     mattata.symbols.back .. ' ' .. language['help']['4'],
                     'help:results:0'
-                )
-                :callback_data_button(
+                ):callback_data_button(
                     '1/' .. page_count,
                     'help:pages:1:' .. page_count
-                )
-                :callback_data_button(
+                ):callback_data_button(
                     language['help']['5'] .. ' ' .. mattata.symbols.next,
                     'help:results:2'
                 )
             ):row(
-                mattata.row()
-                :callback_data_button(
-                    language['help']['6'],
+                mattata.row():callback_data_button(
+                    mattata.symbols.back .. ' ' .. language['help']['6'],
                     'help:back'
-                )
-                :switch_inline_query_current_chat_button(
+                ):switch_inline_query_current_chat_button(
                     '🔎 ' .. language['help']['7'],
                     '/'
                 )
             )
         )
-    elseif callback_query.data:match('^results:%d*$')
-    then
+    elseif callback_query.data:match('^results:%d*$') then
         local new_page = callback_query.data:match('^results:(%d*)$')
         local arguments_list = mattata.get_help()
         local plugin_count = #arguments_list
-        local page_count = math.floor(
-            tonumber(plugin_count) / 10
-        )
-        if math.floor(
-            tonumber(plugin_count) / 10
-        ) ~= tonumber(plugin_count) / 10
-        then
+        local page_count = math.floor(tonumber(plugin_count) / 10)
+        if math.floor(tonumber(plugin_count) / 10) ~= tonumber(plugin_count) / 10 then
             page_count = page_count + 1
         end
-        if tonumber(new_page) > tonumber(page_count)
-        then
+        if tonumber(new_page) > tonumber(page_count) then
             new_page = 1
-        elseif tonumber(new_page) < 1
-        then
+        elseif tonumber(new_page) < 1 then
             new_page = tonumber(page_count)
         end
+        local output = help.get_plugin_page(arguments_list, new_page)
+        output = output .. string.format(language['help']['3'], self.info.username)
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
-            help.get_plugin_page(
-                arguments_list,
-                new_page
-            ) .. string.format(
-                language['help']['3'],
-                self.info.username
-            ),
+            output,
             nil,
             true,
-            mattata.inline_keyboard()
-            :row(
-                mattata.row()
-                :callback_data_button(
+            mattata.inline_keyboard():row(
+                mattata.row():callback_data_button(
                     mattata.symbols.back .. ' ' .. language['help']['4'],
-                    'help:results:' .. math.floor(
-                        tonumber(new_page) - 1
-                    )
-                )
-                :callback_data_button(
+                    'help:results:' .. math.floor(tonumber(new_page) - 1)
+                ):callback_data_button(
                     new_page .. '/' .. page_count,
                     'help:pages:' .. new_page .. ':' .. page_count
-                )
-                :callback_data_button(
+                ):callback_data_button(
                     language['help']['5'] .. ' ' .. mattata.symbols.next,
-                    'help:results:' .. math.floor(
-                        tonumber(new_page) + 1
-                    )
+                    'help:results:' .. math.floor(tonumber(new_page) + 1)
                 )
-            )
-            :row(
-                mattata.row()
-                :callback_data_button(
-                    language['help']['6'],
+            ):row(
+                mattata.row():callback_data_button(
+                    mattata.symbols.back .. ' ' .. language['help']['6'],
                     'help:back'
-                )
-                :switch_inline_query_current_chat_button(
+                ):switch_inline_query_current_chat_button(
                     '🔎 ' .. language['help']['7'],
                     '/'
                 )
             )
         )
-    elseif callback_query.data:match('^pages:%d*:%d*$')
-    then
+    elseif callback_query.data:match('^pages:%d*:%d*$') then
         local current_page, total_pages = callback_query.data:match('^pages:(%d*):(%d*)$')
         return mattata.answer_callback_query(
             callback_query.id,
-            string.format(
-                language['help']['8'],
-                current_page,
-                total_pages
-            )
+            string.format(language['help']['8'], current_page, total_pages)
         )
-    elseif callback_query.data == 'ahelp:1'
-    then
+    elseif callback_query.data == 'ahelp:1' then
         local administration_help_text = language['help']['9']
         return mattata.edit_message_text(
             message.chat.id,
@@ -237,21 +168,17 @@ function help:on_callback_query(callback_query, message, configuration, language
             administration_help_text,
             'markdown',
             true,
-            mattata.inline_keyboard()
-            :row(
-                mattata.row()
-                :callback_data_button(
+            mattata.inline_keyboard():row(
+                mattata.row():callback_data_button(
                     language['help']['6'],
                     'help:back'
-                )
-                :callback_data_button(
+                ):callback_data_button(
                     language['help']['5'],
                     'help:ahelp:2'
                 )
             )
         )
-    elseif callback_query.data == 'ahelp:2'
-    then
+    elseif callback_query.data == 'ahelp:2' then
         local administration_help_text = language['help']['10']
         return mattata.edit_message_text(
             message.chat.id,
@@ -259,21 +186,17 @@ function help:on_callback_query(callback_query, message, configuration, language
             administration_help_text,
             'markdown',
             true,
-            mattata.inline_keyboard()
-            :row(
-                mattata.row()
-                :callback_data_button(
+            mattata.inline_keyboard():row(
+                mattata.row():callback_data_button(
                     language['help']['6'],
                     'help:ahelp:1'
-                )
-                :callback_data_button(
+                ):callback_data_button(
                     language['help']['5'],
                     'help:ahelp:3'
                 )
             )
         )
-    elseif callback_query.data == 'ahelp:3'
-    then
+    elseif callback_query.data == 'ahelp:3' then
         local administration_help_text = language['help']['11']
         return mattata.edit_message_text(
             message.chat.id,
@@ -281,89 +204,88 @@ function help:on_callback_query(callback_query, message, configuration, language
             administration_help_text,
             'markdown',
             true,
-            mattata.inline_keyboard()
-            :row(
-                mattata.row()
-                :callback_data_button(
+            mattata.inline_keyboard():row(
+                mattata.row():callback_data_button(
                     language['help']['6'],
                     'help:ahelp:2'
                 )
             )
         )
-    elseif callback_query.data == 'links'
-    then
+    elseif callback_query.data == 'links' then
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
             language['help']['12'],
             nil,
             true,
-            mattata.inline_keyboard()
-            :row(
-                mattata.row()
-                :url_button(
+            mattata.inline_keyboard():row(
+                mattata.row():url_button(
                     language['help']['13'],
                     'https://t.me/mattataDev'
-                )
-                :url_button(
+                ):url_button(
                     language['help']['14'],
                     'https://t.me/mattata'
-                )
-                :url_button(
+                ):url_button(
                     language['help']['15'],
                     'https://t.me/mattataSupport'
                 )
-            )
-            :row(
-                mattata.row()
-                :url_button(
+            ):row(
+                mattata.row():url_button(
                     language['help']['16'],
                     'https://t.me/mattataFAQ'
-                )
-                :url_button(
+                ):url_button(
                     language['help']['17'],
                     'https://github.com/wrxck/mattata'
-                )
-                :url_button(
+                ):url_button(
                     language['help']['18'],
                     'https://paypal.me/wrxck'
                 )
-            )
-            :row(
-                mattata.row()
-                :url_button(
+            ):row(
+                mattata.row():url_button(
                     language['help']['19'],
                     'https://t.me/storebot?start=mattatabot'
-                )
-                :url_button(
+                ):url_button(
                     language['help']['20'],
                     'https://t.me/mattataLog'
-                )
-            )
-            :row(
-                mattata.row()
-                :callback_data_button(
-                    mattata.symbols.back .. ' ' .. language['help']['6'],
-                    'help:back'
-                )
-                :url_button(
+                ):url_button(
                     'Twitter',
                     'https://twitter.com/intent/user?screen_name=wrxck__'
                 )
+            ):row(
+                mattata.row():callback_data_button(
+                    mattata.symbols.back .. ' ' .. language['help']['6'],
+                    'help:back'
+                )
             )
         )
-    elseif callback_query.data == 'settings'
-    then
-        if message.chat.type == 'supergroup'
-        and not mattata.is_group_admin(
+    elseif callback_query.data == 'channels' then
+        return mattata.edit_message_text(
             message.chat.id,
-            callback_query.from.id
-        )
-        then
-            return mattata.answer_callback_query(
-                callback_query.id,
-                language['errors']['admin']
+            message.message_id,
+            language['help']['12'],
+            nil,
+            true,
+            mattata.inline_keyboard():row(
+                mattata.row():url_button(
+                    'Fun Anagrams',
+                    'https://t.me/joinchat/AAAAAELATAtOpNdrLRHtpg'
+                ):url_button(
+                    'ａｅｓｔｈｅｔｉｃ',
+                    'https://t.me/aesthetic_things'
+                ):url_button(
+                    'no context',
+                    'https://t.me/no_context'
+                )
+            ):row(
+                mattata.row():callback_data_button(
+                    mattata.symbols.back .. ' ' .. language['help']['6'],
+                    'help:back'
+                )
             )
+        )
+    elseif callback_query.data == 'settings' then
+        if message.chat.type == 'supergroup' and not mattata.is_group_admin(message.chat.id, callback_query.from.id) then
+            return mattata.answer_callback_query(callback_query.id, language['errors']['admin'])
         end
         return mattata.edit_message_reply_markup(
             message.chat.id,
@@ -378,20 +300,10 @@ function help:on_callback_query(callback_query, message, configuration, language
             )
             and mattata.inline_keyboard()
             :row(
-                mattata.row()
-                :callback_data_button(
-                    language['help']['21'],
-                    string.format(
-                        'administration:%s:back',
-                        message.chat.id
-                    )
-                )
-                :callback_data_button(
-                    language['help']['22'],
-                    string.format(
-                        'plugins:%s:page:1',
-                        message.chat.id
-                    )
+                mattata.row():callback_data_button(
+                    language['help']['21'], 'administration:' .. message.chat.id .. ':back'
+                ):callback_data_button(
+                    language['help']['22'], 'plugins:' .. message.chat.id .. ':page:1'
                 )
             )
             :row(
@@ -399,48 +311,32 @@ function help:on_callback_query(callback_query, message, configuration, language
                     language['help']['6'],
                     'help:back'
                 )
-            )
-            or mattata.inline_keyboard()
-            :row(
+            ) or mattata.inline_keyboard():row(
                 mattata.row():callback_data_button(
-                    language['help']['22'],
-                    string.format(
-                        'plugins:%s:page:1',
-                        message.chat.id
-                    )
+                    language['help']['22'], 'plugins:' .. message.chat.id .. ':page:1'
                 )
             ):row(
                 mattata.row():callback_data_button(
-                    language['help']['6'],
-                    'help:back'
+                    language['help']['6'], 'help:back'
                 )
             )
         )
-    elseif callback_query.data == 'back'
-    then
+    elseif callback_query.data == 'back' then
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
             string.format(
                 language['help']['23'],
                 mattata.escape_html(callback_query.from.first_name),
-                mattata.escape_html(
-                    mattata.get_me().result.first_name
-                ),
+                mattata.escape_html(self.info.first_name),
                 utf8.char(128513),
                 utf8.char(128161),
-                message.chat.type ~= 'private'
-                and ' ' .. language['help']['24'] .. ' ' .. mattata.escape_html(message.chat.title)
-                or '',
+                message.chat.type ~= 'private' and ' ' .. language['help']['24'] .. ' ' .. mattata.escape_html(message.chat.title) or '',
                 utf8.char(128176)
             ),
             'html',
             true,
-            help.get_initial_keyboard(
-                message.chat.type == 'supergroup'
-                and message.chat.id
-                or false
-            )
+            help.get_initial_keyboard(message.chat.type == 'supergroup' and message.chat.id or false)
         )
     end
 end
@@ -451,25 +347,17 @@ function help:on_message(message, configuration, language)
         string.format(
             language['help']['23'],
             mattata.escape_html(message.from.first_name),
-            mattata.escape_html(
-                mattata.get_me().result.first_name
-            ),
+            mattata.escape_html(self.info.first_name),
             utf8.char(128513),
             utf8.char(128161),
-            message.chat.type ~= 'private'
-            and ' ' .. language['help']['24'] .. ' ' .. mattata.escape_html(message.chat.title)
-            or '',
+            message.chat.type ~= 'private' and ' ' .. language['help']['24'] .. ' ' .. mattata.escape_html(message.chat.title) or '',
             utf8.char(128176)
         ),
         'html',
         true,
         false,
         nil,
-        help.get_initial_keyboard(
-            message.chat.type == 'supergroup'
-            and message.chat.id
-            or false
-        )
+        help.get_initial_keyboard(message.chat.type == 'supergroup' and message.chat.id or false)
     )
 end
 

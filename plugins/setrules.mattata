@@ -5,7 +5,7 @@
 
 local setrules = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function setrules:init()
     setrules.commands = mattata.commands(self.info.username):command('setrules').table

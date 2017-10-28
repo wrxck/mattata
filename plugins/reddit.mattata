@@ -6,7 +6,7 @@
 
 local reddit = {}
 local mattata = require('mattata')
-local https = require('mattata-https')
+local https = dofile('libs/https.lua')
 local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')

@@ -105,9 +105,6 @@ return {
     ['copypasta'] = {
         ['1'] = 'The replied-to text musn\'t be any longer than %s characters!'
     },
-    ['counter'] = {
-        ['1'] = 'I couldn\'t add a counter to that message!'
-    },
     ['custom'] = {
         ['1'] = 'Success! That message will now be sent every time somebody uses %s!',
         ['2'] = 'The trigger "%s" does not exist!',
@@ -125,41 +122,8 @@ return {
         ['3'] = 'I cannot demote this user because they have already left this chat.',
         ['4'] = 'I cannot demote this user because they have already been kicked from this chat.'
     },
-    ['developer'] = {
-        ['1'] = '"I\'m a web developer/programmer with a love for metal/rock music and spending time with friends!"',
-        ['2'] = 'Facebook',
-        ['3'] = 'Messenger',
-        ['4'] = 'Twitter',
-        ['5'] = 'Instagram',
-        ['6'] = 'Keybase',
-        ['7'] = 'Snapchat',
-        ['8'] = 'GitHub',
-        ['9'] = 'Telegram',
-        ['10'] = 'Trello',
-        ['11'] = 'Pinterest',
-        ['12'] = 'Google+',
-        ['13'] = 'tumblr',
-        ['14'] = 'Imgur',
-        ['15'] = 'Instapaper',
-        ['16'] = 'Wikipedia'
-    },
-    ['dice'] = {
-        ['1'] = 'The minimum range is %s.',
-        ['2'] = 'The maximum range and count are both %s.',
-        ['3'] = 'The maximum range is %s, and the maximum count is %s.',
-        ['4'] = '%s rolls with a range of %s:\n'
-    },
     ['doge'] = {
         ['1'] = 'Please enter the text you want to Doge-ify. Each sentence should be separated using slashes or new lines.'
-    },
-    ['duckduckgo'] = {
-        ['1'] = 'I\'m not sure what that is!'
-    },
-    ['eightball'] = {
-        ['1'] = 'Yes.',
-        ['2'] = 'No.',
-        ['3'] = 'It is likely so.',
-        ['4'] = 'Well, uh... I\'d ask again later, if I were you.'
     },
     ['exec'] = {
         ['1'] = 'Please select the language you would like to execute your code in:',
@@ -182,13 +146,6 @@ return {
         ['1'] = 'You searched for:',
         ['2'] = 'Please enter a search query (that is, what you want me to search Flickr for, i.e. "Big Ben" will return a photograph of Big Ben in London).',
         ['3'] = 'More Results'
-    },
-    ['fortune'] = {
-        ['1'] = 'Click to send your fortune!'
-    },
-    ['frombinary'] = {
-        ['1'] = 'Please enter the binary value you would like to convert to a string.',
-        ['2'] = 'Malformed binary!'
     },
     ['game'] = {
         ['1'] = 'Total wins: %s\nTotal losses: %s\nBalance: %s mattacoins',
@@ -215,11 +172,6 @@ return {
     },
     ['gif'] = {
         ['1'] = 'Please enter a search query (that is, what you want me to search GIPHY for, i.e. "cat" will return a GIF of a cat).'
-    },
-    ['godwords'] = {
-        ['1'] = 'Please enter a numerical value, between 1 and 64!',
-        ['2'] = 'That number is too small, please specify one between 1 and 64!',
-        ['3'] = 'That number is too large, please specify one between 1 and 64!'
     },
     ['gwhitelist'] = {
         ['1'] = 'Please reply-to the user you\'d like to globally whitelist, or specify them by username/ID.',
@@ -284,8 +236,6 @@ Here are some administrative commands and a brief comment regarding what they do
         ['23'] = [[
 <b>Hi %s! My name's %s, it's a pleasure to meet you</b> %s
 
-I'm a smart bot who is capable of having conversations with humans such as yourself, and I have the ability to administrate your groups too!
-
 I understand many commands, which you can learn more about by pressing the "Commands" button using the attached keyboard.
 
 %s <b>Tip:</b> Use the "Settings" button to change how I work%s!
@@ -348,11 +298,6 @@ System:
     ['ispwned'] = {
         ['1'] = 'That account was found in the following leaks:'
     },
-    ['isup'] = {
-        ['1'] = 'This website appears to be up, maybe it\'s just you?',
-        ['2'] = 'That doesn\'t appear to be a valid site!',
-        ['3'] = 'It\'s not just you, this website looks down from here.'
-    },
     ['itunes'] = {
         ['1'] = 'Name:',
         ['2'] = 'Artist:',
@@ -381,9 +326,6 @@ System:
         ['7'] = '%s last listened to:\n',
         ['8'] = 'Unknown',
         ['9'] = 'Click to send the result.'
-    },
-    ['lmgtfy'] = {
-        ['1'] = 'Let me Google that for you!'
     },
     ['location'] = {
         ['1'] = 'You don\'t have a location set. What would you like your new location to be?'
@@ -502,24 +444,12 @@ System:
         ['1'] = 'Your nickname has now been forgotten!',
         ['2'] = 'Your nickname has been set to "%s"!'
     },
-    ['ninegag'] = {
-        ['1'] = 'Read More'
-    },
     ['optout'] = {
         ['1'] = 'You have opted-in to having data you send collected! Use /optout to opt-out.',
         ['2'] = 'You have opted-out of having data you send collected! Use /optin to opt-in.'
     },
     ['paste'] = {
         ['1'] = 'Please select a service to upload your paste to:'
-    },
-    ['pay'] = {
-        ['1'] = 'You currently have %s mattacoins. Earn more by winning games of Tic-Tac-Toe, using /game - You will win 100 mattacoins for every game you win, and you will lose 50 for every game you lose.',
-        ['2'] = 'You must use this command in reply to the user you\'d like to send mattacoins to.',
-        ['3'] = 'Please specify the amount of mattacoins you\'d like to give %s.',
-        ['4'] = 'The amount specified should be a numerical value, of which can be no less than 0.',
-        ['5'] = 'You can\'t send money to yourself!',
-        ['6'] = 'You don\'t have enough funds to complete that transaction!',
-        ['7'] = '%s mattacoins have been sent to %s. Your new balance is %s mattacoins.'
     },
     ['pin'] = {
         ['1'] = 'You haven\'t set a pin before. Use /pin <text> to set one. Markdown formatting is supported.',
@@ -532,11 +462,6 @@ System:
     ['pokedex'] = {
         ['1'] = 'Name: %s\nID: %s\nType: %s\nDescription: %s'
     },
-    ['prime'] = {
-        ['1'] = 'Please enter a number between 1 and 99999.',
-        ['2'] = '%s is a prime number!',
-        ['3'] = '%s is NOT a prime number...'
-    },
     ['promote'] = {
         ['1'] = 'I cannot promote this user because they are a moderator or an administrator of this chat.',
         ['2'] = 'I cannot promote this user because they have already left this chat.',
@@ -546,22 +471,12 @@ System:
         ['1'] = 'This user has opted out of data-storing functionality.',
         ['2'] = 'There are no saved quotes for %s%s! You can save one by using /save in reply to a message they send.'
     },
-    ['randomsite'] = {
-        ['1'] = 'Generate Another'
-    },
-    ['randomword'] = {
-        ['1'] = 'Generate Another',
-        ['2'] = 'Your random word is <b>%s</b>!'
-    },
     ['report'] = {
         ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
         ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
         ['3'] = '<b>%s needs help in %s!</b>',
         ['4'] = 'Click here to view the reported message.',
         ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
-    },
-    ['rms'] = {
-        ['1'] = 'Holy GNU!'
     },
     ['save'] = {
         ['1'] = 'This user has opted out of data-storing functionality.',
@@ -624,15 +539,6 @@ System:
         ['2'] = '"%s" isn\'t a valid Steam username.',
         ['3'] = '%s has been a user on Steam since %s, on %s. They last logged off at %s, on %s. Click <a href="%s">here</a> to view their Steam profile.',
         ['4'] = '%s, AKA "%s",'
-    },
-    ['synonym'] = {
-        ['1'] = 'You could use the word <b>%s</b>, instead of %s.'
-    },
-    ['thoughts'] = {
-        ['1'] = '%s\n\nPositive: <code>%s%% [%s]</code>\nNegative: <code>%s%% [%s]</code>\nIndifferent: <code>%s%% [%s]</code>\nTotal thoughts: <code>%s</code>'
-    },
-    ['tobinary'] = {
-        ['1'] = 'Please enter the string you would like to convert to binary.'
     },
     ['trust'] = {
         ['1'] = 'I cannot trust this user because they are a moderator or an administrator of this chat.',

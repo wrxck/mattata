@@ -6,7 +6,7 @@
 local user = {}
 
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function user:init()
     user.commands = mattata.commands(

@@ -9,7 +9,7 @@ local https = require('ssl.https')
 local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function steam:init()
     steam.commands = mattata.commands(self.info.username)

@@ -5,7 +5,7 @@
 
 local blacklistchat = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function blacklistchat:init()
     blacklistchat.commands = mattata.commands(self.info.username):command('blacklistchat').table

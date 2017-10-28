@@ -125,24 +125,6 @@ return {
         ['3'] = 'Nie mogę zdegradować tego użytkownika, ponieważ opuścił on tę grupę.',
         ['4'] = 'Nie mogę zdegradować tego użytkownika, ponieważ został on wyrzucony z tej grupy.',
     },
-    ['developer'] = {
-        ['1'] = '"Jestem web-developerem/programistą kochającym metal/rock i spędzanie czasu z przyjaciółmi!"',
-        ['2'] = 'Facebook',
-        ['3'] = 'Messenger',
-        ['4'] = 'Twitter',
-        ['5'] = 'Instagram',
-        ['6'] = 'Keybase',
-        ['7'] = 'Snapchat',
-        ['8'] = 'GitHub',
-        ['9'] = 'Telegram',
-        ['10'] = 'Trello',
-        ['11'] = 'Pinterest',
-        ['12'] = 'Google+',
-        ['13'] = 'tumblr',
-        ['14'] = 'Imgur',
-        ['15'] = 'Instapaper',
-        ['16'] = 'Wikipedia'
-    },
     ['dice'] = {
         ['1'] = 'Najmniejsza dopuszczalna liczba ścian to %s.',
         ['2'] = '%s to limit liczby ścian, i liczby rzutów.',
@@ -283,8 +265,6 @@ Niektóre polecenia administracyjne i ich krótki opis:
         ['22'] = 'Plugins', --!
         ['23'] = [[
 <b>Cześć %s! Mam na imię %s, miło Cię poznać</b> %s
-
-Jestem inteligentnym botem, który potrafi rozmawiać z ludźmi takimi jak Ty, mogę także pomóc w administrowaniu Twoimi grupami!
 
 Rozumiem wiele poleceń, które możesz poznać klikając przycisk "Commands".
 

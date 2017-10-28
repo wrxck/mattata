@@ -5,7 +5,7 @@
 
 local trust = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function trust:init()
     trust.commands = mattata.commands(self.info.username):command('trust').table
