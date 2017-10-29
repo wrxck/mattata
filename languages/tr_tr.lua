@@ -20,7 +20,7 @@ return {
     },
     ['afk'] = {
         ['1'] = 'Üzgünüm, Bu özellik sadece aktif kullanıcılar için @kullanıcıadı şeklinde kullanılır!',
-        ['2'] = '%s klavyeden uzaklaşarak tekrar geri döndü %s!',
+        ['2'] = '%s klavyeye geri döndü %s!',
         ['3'] = 'Not',
         ['4'] = '%s şuan klavyeden uzaklaştı.%s'
     },
