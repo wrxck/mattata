@@ -556,7 +556,7 @@ Sistem:
         ['4'] = 'Bu kullanıcıyı güvenilmeyenler listesine ekleyemem, kullanıcı gruptan atılmış.'
     },
     ['upload'] = {
-        ['1'] = 'Please reply to the file you\'d like to download to the server. It must be <= 20 MB.',
+        ['1'] = 'Yüklemek istediğin dosyayı yanıtla. Dosya 20MB dan küçük olmalı!.',
         ['2'] = 'Dosya çok büyük boyutta. 20MBdan küçük olmalı <= 20 MB.',
         ['3'] = 'Bu dosyayı alamıyorum, muhtemelen çok eski.',
         ['4'] = 'Bu dosyayı alınırken bir hata meydana geldi.',
