@@ -160,3 +160,4 @@ I'd like to take a moment to thank the following people for their donation(s):
 * caidens
 * LKD70
 * xxdamage
+* aaomidi
