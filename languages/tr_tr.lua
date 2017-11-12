@@ -117,7 +117,7 @@ return {
         ['6'] = 'Yeni ve özel bir komut oluşturmak için şu sözdizimini kullanın:\n/custom new #tetikleyici <değer>.Tüm tetikleyiciler listesi için,  /custom list komutunu kullanın. Tetikleyiciyi silmek için ise, /custom del #trigger komutunu kullanın.'
     },
     ['delete'] = {
-        ['1'] = 'I could not delete that message. Perhaps the message is too old or non-existent?'
+        ['1'] = 'Bu mesajı silemedim. Belki de mesaj çok eskidir veya mevcut değildir?'
     },
     ['demote'] = {
         ['1'] = 'Hangi kullanıcının yetkisini almamı istersin ? Bu kullanıcıyı @kulanıcıadı şeklinde veya kullanıcı IDsi ile belirtebilirsin.',

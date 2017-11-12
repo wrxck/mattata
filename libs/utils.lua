@@ -131,46 +131,6 @@ function utils.get_log_chat(chat_id)
     return redis:hget('chat:' .. chat_id .. ':settings', 'log chat') or configuration.log_channel or false
 end
 
-function utils.get_missing_languages(delimiter)
-    local missing_languages = redis:smembers('mattata:missing_languages')
-    if not missing_languages then
-        return false
-    end
-    local output = {}
-    for k, v in pairs(missing_languages) do
-        table.insert(output, v)
-    end
-    local delimiter = delimiter or ', '
-    return table.concat(output, delimiter)
-end
-
-function utils.purge_user(user)
-    if type(user) ~= 'table' then
-        return false
-    end
-    user = user.from or user
-    redis:hdel('user:' .. user.id .. ':info', 'id')
-    if user.username or redis:hget('user:' .. user.id .. ':info', 'username') then
-        redis:hdel('user:' .. user.id .. ':info', 'username')
-        local all = redis:smembers('user:' .. user.id .. ':usernames')
-        for k, v in pairs(all) do
-            redis:srem('user:' .. user.id .. ':usernames', v)
-        end
-        redis:del('username:' .. user.id)
-    end
-    redis:hdel('user:' .. user.id .. ':info', 'first_name')
-    if user.name or redis:hget('user:' .. user.id .. ':info', 'name') then
-        redis:hdel('user:' .. user.id .. ':info', 'name')
-    end
-    if user.last_name or redis:hget('user:' .. user.id .. ':info', 'last_name') then
-        redis:hdel('user:' .. user.id .. ':info', 'last_name')
-    end
-    if user.language_code or redis:hget('user:' .. user.id .. ':info', 'language_code') then
-        redis:hdel('user:' .. user.id .. ':info', 'language_code')
-    end
-    return true
-end
-
 function utils.get_list(name)
     name = tostring(name)
     local length = redis:llen(name)
@@ -382,9 +342,219 @@ function utils.write_file(file_path, content)
     return file
 end
 
+function utils.does_language_exist(language)
+    return pcall(function()
+        return dofile('languages/' .. language .. '.lua')
+    end)
+end
+
+function utils.get_usernames(user_id)
+    if not user_id then
+        return false
+    elseif tonumber(user_id) == nil then
+        user_id = tostring(user_id):match('^@(.-)$') or tostring(user_id)
+        user_id = redis:get('username:' .. user_id:lower())
+        if not user_id then
+            return false
+        end
+    end
+    return redis:smembers('user:' .. user_id .. ':usernames')
+end
+
+function utils.is_valid(message) -- Performs basic checks on the message object to see if it's fit
+-- for its purpose. If it's valid, this function will return `true` - otherwise it will return `false`.
+    if not message then -- If the `message` object is nil, then we'll ignore it.
+        return false, 'No `message` object exists!'
+    elseif message.date < os.time() - 7 then -- We don't want to process old messages, so anything
+    -- older than the current system time (giving it a leeway of 7 seconds).
+        return false, 'This `message` object is too old!'
+    elseif not message.from then -- If the `message.from` object doesn't exist, this will likely
+    -- break some more code further down the line!
+        return false, 'No `message.from` object exists!'
+    end
+    return true
+end
+
+function utils.insert_keyboard_row(keyboard, first_text, first_callback, second_text, second_callback, third_text, third_callback)
+    table.insert(keyboard['inline_keyboard'], {
+        {
+            ['text'] = first_text,
+            ['callback_data'] = first_callback
+        },
+        {
+            ['text'] = second_text,
+            ['callback_data'] = second_callback
+        },
+        {
+            ['text'] = third_text,
+            ['callback_data'] = third_callback
+        }
+    })
+    return keyboard
+end
+
+function mattata.get_inline_list(username, offset)
+    offset = offset and tonumber(offset) or 0
+    local inline_list = {}
+    table.sort(mattata.inline_plugin_list)
+    for k, v in pairs(mattata.inline_plugin_list) do
+        if k > offset and k < offset + 50 then -- The bot API only accepts a maximum of 50 results, hence we need the offset.
+            v = v:gsub('\n', ' ')
+            table.insert(
+                inline_list,
+                api.inline_result():type('article'):id(tostring(k)):title(v:match('^(/.-) %- .-$')):description(v:match('^/.- %- (.-)$')):input_message_content(
+                    api.input_text_message_content(
+                        string.format(
+                            '• %s - %s\n\nTo use this command inline, you must use the syntax:\n@%s %s',
+                            v:match('^(/.-) %- .-$'),
+                            v:match('^/.- %- (.-)$'),
+                            username,
+                            v:match('^(/.-) %- .-$')
+                        )
+                    )
+                ):reply_markup(
+                    api.inline_keyboard():row(
+                        api.row():switch_inline_query_button('Show me how!', v:match('^(/.-) '))
+                    )
+                )
+            )
+        end
+    end
+    return inline_list
+end
+
+function utils.toggle_setting(chat_id, setting, value)
+    value = (type(value) ~= 'string' and tostring(value) ~= 'nil') and value or true
+    if not chat_id or not setting then
+        return false
+    elseif not redis:hexists('chat:' .. chat_id .. ':settings', tostring(setting)) then
+        return redis:hset('chat:' .. chat_id .. ':settings', tostring(setting), value)
+    end
+    return redis:hdel('chat:' .. chat_id .. ':settings', tostring(setting))
+end
+
+function utils.uses_administration(chat_id)
+    return utils.get_setting(message.chat.id, 'use administration')
+end
+
+function utils.format_time(seconds)
+    if not seconds or tonumber(seconds) == nil then
+        return false
+    end
+    local output = ''
+    seconds = tonumber(seconds) -- Make sure we're handling a numerical value
+    local minutes = math.floor(seconds / 60)
+    if minutes == 0 then
+        return seconds ~= 1 and seconds .. ' seconds' or seconds .. ' second'
+    elseif minutes < 60 then
+        return minutes ~= 1 and minutes .. ' minutes' or minutes .. ' minute'
+    end
+    local hours = math.floor(seconds / 3600)
+    if hours == 0 then
+        return minutes ~= 1 and minutes .. ' minutes' or minutes .. ' minute'
+    elseif hours < 24 then
+        return hours ~= 1 and hours .. ' hours' or hours .. ' hour'
+    end
+    local days = math.floor(seconds / 86400)
+    if days == 0 then
+        return hours ~= 1 and hours .. ' hours' or hours .. ' hour'
+    elseif days < 7 then
+        return days ~= 1 and days .. ' days' or days .. ' day'
+    end
+    local weeks = math.floor(seconds / 604800)
+    if weeks == 0 then
+        return days ~= 1 and days .. ' days' or days .. ' day'
+    else
+        return weeks ~= 1 and weeks .. ' weeks' or weeks .. ' week'
+    end
+end
+
+function utils.check_links(message, get_links, only_valid, whitelist)
+    local links = {}
+    if message.entities then
+        for i = 1, #message.entities do
+            if message.entities[i].type == 'text_link' then
+                message.text = message.text .. ' ' .. message.entities[i].url
+            end
+        end
+    end
+    for n in message.text:lower():gmatch('%@[%w_]+') do
+        table.insert(links, n:match('^%@([%w_]+)$'))
+    end
+    for n in message.text:lower():gmatch('t%.me/joinchat/[%w_]+') do
+        table.insert(links, n:match('/(joinchat/[%w_]+)$'))
+    end
+    for n in message.text:lower():gmatch('t%.me/[%w_]+') do
+        if not n:match('/joinchat$') then
+            table.insert(links, n:match('/([%w_]+)$'))
+        end
+    end
+    for n in message.text:lower():gmatch('telegram%.me/joinchat/[%w_]+') do
+        table.insert(links, n:match('/(joinchat/[%w_]+)$'))
+    end
+    for n in message.text:lower():gmatch('telegram%.me/[%w_]+') do
+        if not n:match('/joinchat$') then
+            table.insert(links, n:match('/([%w_]+)$'))
+        end
+    end
+    for n in message.text:lower():gmatch('telegram%.dog/joinchat/[%w_]+') do
+        table.insert(links, n:match('/(joinchat/[%w_]+)$'))
+    end
+    for n in message.text:lower():gmatch('telegram%.dog/[%w_]+') do
+        if not n:match('/joinchat$') then
+            table.insert(links, n:match('/([%w_]+)$'))
+        end
+    end
+    if whitelist then
+        local count = 0
+        for k, v in pairs(links) do
+            redis:set('whitelisted_links:' .. message.chat.id .. ':' .. v:lower(), true)
+            count = count + 1
+        end
+        return string.format(
+            '%s link%s ha%s been whitelisted in this chat!',
+            count,
+            count == 1 and '' or 's',
+            count == 1 and 's' or 've'
+        )
+    end
+    local checked = {}
+    local valid = {}
+    for k, v in pairs(links) do
+        if not redis:get('whitelisted_links:' .. message.chat.id .. ':' .. v:lower()) and not utils.is_whitelisted_link(v:lower()) then
+            if v:match('^joinchat/') then
+                return true
+            elseif not table.contains(checked, v) then
+                local success = api.get_chat(v:lower())
+                if success and success.result and success.result.type ~= 'private' then
+                    if not get_links then
+                        return true
+                    end
+                    table.insert(valid, v:lower())
+                end
+                table.insert(checked, v:lower())
+            end
+        end
+    end
+    if get_links then
+        if only_valid then
+            return valid
+        end
+        return checked
+    end
+    return false
+end
+
+function utils.is_whitelisted_link(link)
+    if link == 'username' or link == 'isiswatch' or link == 'mattata' or link == 'telegram' then
+        return true
+    end
+    return false
+end
+
 _G.table.contains = function(tab, match)
     for _, val in pairs(tab) do
-        if val == match then
+        if tostring(val):lower() == tostring(match):lower() then
             return true
         end
     end
