@@ -552,6 +552,28 @@ function utils.is_whitelisted_link(link)
     return false
 end
 
+function utils.process_stickers(message)
+    if message.chat.type == 'supergroup' and message.sticker and message.file_id then
+        -- Process each sticker to see if they are one of the configured, command-performing stickers.
+        for k, v in pairs(configuration.stickers.ban) do
+            if message.file_id == v then
+                message.text = '/ban'
+            end
+        end
+        for k, v in pairs(configuration.stickers.warn) do
+            if message.file_id == v then
+                message.text = '/warn'
+            end
+        end
+        for k, v in pairs(configuration.stickers.kick) do
+            if message.file_id == v then
+                message.text = '/kick'
+            end
+        end
+    end
+    return message
+end
+
 _G.table.contains = function(tab, match)
     for _, val in pairs(tab) do
         if tostring(val):lower() == tostring(match):lower() then

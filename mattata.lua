@@ -202,6 +202,7 @@ mattata.uses_administration = utils.uses_administration
 mattata.format_time = utils.format_time
 mattata.check_links = utils.check_links
 mattata.is_whitelisted_link = utils.is_whitelisted_link
+mattata.process_stickers = utils.process_stickers
 
 function mattata:run(configuration, token)
 -- mattata's main long-polling function which repeatedly checks the Telegram bot API for updates.
@@ -1003,28 +1004,6 @@ function mattata.process_afk(message) -- Checks if the message references an AFK
             )
         end
     end
-end
-
-function mattata.process_stickers(message)
-    if message.chat.type == 'supergroup' and message.sticker and message.file_id then
-        -- Process each sticker to see if they are one of the configured, command-performing stickers.
-        for k, v in pairs(configuration.stickers.ban) do
-            if message.file_id == v then
-                message.text = '/ban'
-            en
-        end
-        for k, v in pairs(configuration.stickers.warn) do
-            if message.file_id == v then
-                message.text = '/warn'
-            end
-        end
-        for k, v in pairs(configuration.stickers.kick) do
-            if message.file_id == v then
-                message.text = '/kick'
-            end
-        end
-    end
-    return message
 end
 
 function mattata:process_natural_language(message)
