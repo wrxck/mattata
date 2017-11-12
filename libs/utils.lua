@@ -574,6 +574,107 @@ function utils.process_stickers(message)
     return message
 end
 
+function utils.get_user(input)
+    input = tostring(input)
+    input = input:match('^%@(.-)$') or input
+    if tonumber(input) == nil then
+        input = redis:get('username:' .. input:lower())
+    end
+    if not input or tonumber(input) == nil then
+        return false
+    end
+    return api.get_chat(input)
+end
+
+function utils.is_plugin_disabled(plugin, chat_id)
+    chat_id = (type(chat_id) == 'table' and chat_id.chat) and chat_id.chat.id or chat_id
+    return (redis:hget('chat:' .. chat_id .. ':disabled_plugins', plugin) and plugin ~= 'plugins') and true or false
+end
+
+function utils.is_group_admin(chat_id, user_id, is_real_admin)
+    if utils.is_global_admin(chat_id) or utils.is_global_admin(user_id) then
+        return true
+    elseif not is_real_admin and utils.is_group_mod(chat_id, user_id) then
+        return true
+    end
+    local admins = api.get_chat_administrators(chat_id)
+    if not admins then
+        return false
+    end
+    for _, admin in ipairs(admins.result) do
+        if admin.user.id == user_id then
+            return true
+        end
+    end
+    return false
+end
+
+function utils.is_global_admin(id)
+    for k, v in pairs(configuration.admins) do
+        if id == v then
+            return true
+        end
+    end
+    return false
+end
+
+function utils.is_group_mod(chat_id, user_id)
+    if not chat_id or not user_id then
+        return false
+    elseif redis:sismember('administration:' .. chat_id .. ':mods', user_id) then
+        return true
+    end
+    return false
+end
+
+function utils.is_group_owner(chat_id, user_id)
+    local is_owner = false
+    local user = api.get_chat_member(chat_id, user_id)
+    if user.status == 'creator' then
+        is_owner = true
+    end
+    return is_owner
+end
+
+function utils.get_help()
+    local help = {}
+    local count = 1
+    table.sort(mattata.plugin_list)
+    for k, v in pairs(mattata.plugin_list) do
+        if v:match('^/.- %- .-$') then
+            table.insert(help, utf8.char(8226) .. ' ' .. v:match('^(/.-) %- .-$'))
+            count = count + 1
+        end
+    end
+    return help
+end
+
+function utils.is_privacy_enabled(user_id)
+    return redis:exists('user:' .. user_id .. ':opt_out')
+end
+
+function utils.is_user_blacklisted(message)
+    if not message or not message.from or not message.chat then
+        return false
+    end
+    local global = redis:get('global_blacklist:' .. message.from.id) -- Check if the user is globally
+    -- blacklisted from using the bot.
+    local group = redis:get('group_blacklist:' .. message.chat.id .. ':' .. message.from.id) -- Check
+    -- if the user is blacklisted from using the bot in the current group, or globally for that matter.
+    if global or group then
+        if global and message.chat.type ~= 'private' and not redis:sismember('global_blacklist_unban:' .. message.chat.id, message.from.id) then
+        -- If the user is globally blacklisted, and they haven't been banned before for this reason, add them to a set to exclude them from future checks.
+            local success = api.ban_chat_member(message.chat.id, message.from.id) -- Attempt to ban the blacklisted user.
+            local output = message.from.first_name .. ' [' .. message.from.username and '@' .. message.from.username or message.from.id .. '] is globally blacklisted.'
+            output = success and output .. ' For this reason, I have banned them from this group. If you choose to unban them, I will not ban them next time they join!' or ' I tried to ban them, but it seems I don\'t have the required permission to do this. You might like to consider banning them manually, since users on this global blacklist are present because they have flooded or caused other havoc in other groups.'
+            api.send_message(message.chat.id, output) -- Alert the group of this user's presence on the global blacklist.
+            redis:sadd('global_blacklist_unban:' .. message.chat.id, message.from.id)
+        end
+        return true
+    end
+    return false
+end
+
 _G.table.contains = function(tab, match)
     for _, val in pairs(tab) do
         if tostring(val):lower() == tostring(match):lower() then

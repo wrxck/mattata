@@ -26,8 +26,6 @@ local api = require('telegram-bot-lua.core').configure(configuration.bot_token)
 local tools = require('telegram-bot-lua.tools')
 local socket = require('socket')
 local utils = dofile('libs/utils.lua')
--- local driver = require('luasql.postgresql')
--- mattata.db = 'mattata.db'
 
 local plugin_list = {}
 local inline_plugin_list = {}
@@ -41,6 +39,8 @@ function mattata:init()
     self.tools = tools
     mattata.tools = tools
     self.configuration = configuration
+    self.plugin_list = {}
+    self.inline_plugin_list = {}
     for k, v in ipairs(configuration.plugins) do -- Iterate over all of the configured plugins.
         local plugin = dofile('plugins/' .. v .. '.mattata') -- Load each plugin.
         self.plugins[k] = plugin
@@ -53,16 +53,14 @@ function mattata:init()
         plugin.commands = plugin.commands or {} -- If the plugin hasn't got any commands configured, then set a blank
         -- table, so when it comes to iterating over the commands later on, the bot won't encounter any problems.
         if plugin.help then -- If the plugin has help documentation, then insert it into other tables (where necessary).
-            table.insert(plugin_list, plugin.help)
+            table.insert(self.plugin_list, plugin.help)
             if plugin.is_inline then -- If the plugin is inline and has documentation, then insert the documentation into
             -- the `inline_plugin_list` table.
-                table.insert(inline_plugin_list, plugin.help)
+                table.insert(self.inline_plugin_list, plugin.help)
             end
             plugin.help = 'Usage:\n' .. plugin.help:gsub('%. (Alias)', '.\n%1') -- Make the plugin's documentation style all
             -- nicely unified, for consistency.
         end
-        self.plugin_list = plugin_list
-        self.inline_plugin_list = inline_plugin_list
     end
     local connected_message = 'Connected to the Telegram bot API!'
     print(connected_message)
@@ -79,7 +77,7 @@ function mattata:init()
     self.last_cron = self.last_cron or os.date('%H')
     local init_message = '<pre>' .. connected_message .. '\n\n' .. mattata.escape_html(info_message) .. '\n\n\tPlugins loaded: ' .. #configuration.plugins .. '</pre>'
     mattata.send_message(configuration.log_chat, init_message:gsub('\t', ''), 'html')
-    for n, admin in pairs(configuration.admins) do
+    for _, admin in pairs(configuration.admins) do
         mattata.send_message(admin, init_message:gsub('\t', ''), 'html')
     end
     return true
@@ -203,6 +201,15 @@ mattata.format_time = utils.format_time
 mattata.check_links = utils.check_links
 mattata.is_whitelisted_link = utils.is_whitelisted_link
 mattata.process_stickers = utils.process_stickers
+mattata.get_user = utils.get_user
+mattata.is_plugin_disabled = utils.is_plugin_disabled
+mattata.is_group_admin = utils.is_group_admin
+mattata.is_global_admin = utils.is_global_admin
+mattata.is_group_mod = utils.is_group_mod
+mattata.is_group_owner = utils.is_group_owner
+mattata.get_help = utils.get_help
+mattata.is_privacy_enabled = utils.is_privacy_enabled
+mattata.is_user_blacklisted = utils.is_user_blacklisted
 
 function mattata:run(configuration, token)
 -- mattata's main long-polling function which repeatedly checks the Telegram bot API for updates.
@@ -337,11 +344,9 @@ function mattata:run(configuration, token)
             for i = 1, #self.plugins do
                 local plugin = self.plugins[i]
                 if plugin.cron then
-                    local success, res = pcall(
-                        function()
-                            plugin.cron(self, configuration)
-                        end
-                    )
+                    local success, res = pcall(function()
+                        plugin.cron(self, configuration)
+                    end)
                     if not success then
                         mattata.exception(self, res, 'CRON: ' .. i, configuration.log_chat)
                     end
@@ -628,16 +633,6 @@ function mattata.get_chat(chat_id, token)
     return success
 end
 
-function mattata.is_plugin_disabled(plugin, message)
-    if type(message) == 'table' and message.chat then
-        message = message.chat.id
-    end
-    if redis:hget('chat:' .. message .. ':disabled_plugins', plugin) == 'true' and plugin ~= 'plugins' then
-        return true
-    end
-    return false
-end
-
 function mattata.get_redis_hash(k, v)
     return string.format(
         'chat:%s:%s',
@@ -693,42 +688,6 @@ function mattata:exception(err, message, log_chat)
     err = nil
     message = nil
     log_chat = nil
-end
-
-function mattata.is_group_admin(chat_id, user_id, is_real_admin)
-    if mattata.is_global_admin(chat_id) or mattata.is_global_admin(user_id) then
-        return true
-    elseif not is_real_admin and mattata.is_group_mod(chat_id, user_id) then
-        return true
-    end
-    local admins = mattata.get_chat_administrators(chat_id)
-    if not admins then
-        return false
-    end
-    for _, admin in ipairs(admins.result) do
-        if admin.user.id == user_id then
-            return true
-        end
-    end
-    return false
-end
-
-function mattata.is_group_mod(chat_id, user_id)
-    if not chat_id or not user_id then
-        return false
-    elseif redis:sismember('administration:' .. chat_id .. ':mods', user_id) then
-        return true
-    end
-    return false
-end
-
-function mattata.is_group_owner(chat_id, user_id)
-    local is_owner = false
-    local user = mattata.get_chat_member(chat_id, user_id)
-    if user.status == 'creator' then
-        is_owner = true
-    end
-    return is_owner
 end
 
 function mattata.process_chat(chat)
@@ -890,118 +849,21 @@ function mattata.sort_message(message)
     return message
 end
 
-function mattata.is_global_admin(id)
-    for k, v in pairs(configuration.admins) do
-        if id == v then
-            return true
-        end
-    end
-    return false
-end
-
-function mattata.get_user(input, cached)
-    input = tostring(input)
-    input = input:match('^%@(.-)$') or input
-    input = input:lower()
-    if tonumber(input) == nil then
-        input = redis:get('username:' .. input)
-    end
-    if not input or tonumber(input) == nil then
-        return false
-    end
-    input = tonumber(input)
-    if cached then
-        local user = redis:hgetall('user:' .. input .. ':info')
-        return user
-    end
-    return api.get_chat(input)
-end
-
-function mattata.get_help()
-    local help = {}
-    local count = 1
-    table.sort(plugin_list)
-    for k, v in pairs(plugin_list) do
-        if v:match('^/.- %- .-$') then
-            table.insert(help, utf8.char(8226) .. ' ' .. v:match('^(/.-) %- .-$'))
-            count = count + 1
-        end
-    end
-    return help
-end
-
-function mattata.is_user_blacklisted(message)
-    if not message or not message.from or not message.chat then
-        return false
-    end
-    local global = redis:get('global_blacklist:' .. message.from.id) -- Check if the user is globally
-    -- blacklisted from using the bot.
-    local group = redis:get('group_blacklist:' .. message.chat.id .. ':' .. message.from.id) -- Check
-    -- if the user is blacklisted from using the bot in the current group, or globally for that matter.
-    if global or group then
-        if global and message.chat.type ~= 'private' and not redis:sismember('global_blacklist_unban:' .. message.chat.id, message.from.id) then
-        -- If the user is globally blacklisted, and they haven't been banned before for this reason, add them to a set to exclude them from future checks.
-            local success = mattata.ban_chat_member(message.chat.id, message.from.id) -- Attempt to ban the blacklisted user.
-            local output = message.from.first_name .. ' [' .. message.from.username and '@' .. message.from.username or message.from.id .. '] is globally blacklisted.'
-            output = success and output .. ' For this reason, I have banned them from this group. If you choose to unban them, I will not ban them next time they join!' or ' I tried to ban them, but it seems I don\'t have the required permission to do this. You might like to consider banning them manually, since users on this global blacklist are present because they have flooded or caused other havoc in other groups.'
-            mattata.send_message(message.chat.id, output) -- Alert the group of this user's presence on the global blacklist.
-            redis:sadd('global_blacklist_unban:' .. message.chat.id, message.from.id)
-        end
-        return true
-    end
-    return false
-end
-
 function mattata.process_afk(message) -- Checks if the message references an AFK user and tells the
 -- person mentioning them that they are marked AFK. If a user speaks and is currently marked as AFK,
 -- then the bot will announce their return along with how long they were gone for.
-    if message.from.username
-    and redis:hget(
-        'afk:' .. message.chat.id .. ':' .. message.from.id,
-        'since'
-    )
-    and not mattata.is_plugin_disabled(
-        'afk',
-        message
-    )
-    and not message.text:match('^[/!#]afk')
-    and not message.text:lower():match('^i?\'?m? ?back.?$')
-    and not message.text:lower():match('^i?\'?l?l? ?brb.?$')
-    then
-        local since = os.time() - tonumber(
-            redis:hget(
-                'afk:' .. message.chat.id .. ':' .. message.from.id,
-                'since'
-            )
-        )
-        redis:hdel(
-            'afk:' .. message.chat.id .. ':' .. message.from.id,
-            'since'
-        )
-        redis:hdel(
-            'afk:' .. message.chat.id .. ':' .. message.from.id,
-            'note'
-        )
-        mattata.send_message(
-            message.chat.id,
-            message.from.first_name .. ' has returned, after being AFK for ' .. mattata.format_time(since) .. '.'
-        )
-    elseif message.text:match('@[%w_]+') -- If a user gets mentioned, check to see if they're AFK.
-    then
+    if message.from.username and redis:hget('afk:' .. message.chat.id .. ':' .. message.from.id, 'since') and not utils.is_plugin_disabled('afk', message) and not message.text:match('^[/!#]afk') and not message.text:lower():match('^i?\'?m? ?back.?$') and not message.text:lower():match('^i?\'?l?l? ?brb.?$') then
+        local since = os.time() - tonumber(redis:hget('afk:' .. message.chat.id .. ':' .. message.from.id, 'since'))
+        redis:del('afk:' .. message.chat.id .. ':' .. message.from.id)
+        local output = message.from.first_name .. ' has returned, after being AFK for ' .. utils.format_time(since) .. '.'
+        api.send_message(message.chat.id, output)
+    elseif message.text:match('@[%w_]+') then -- If a user gets mentioned, check to see if they're AFK.
         local username = message.text:match('@([%w_]+)')
-        local success = mattata.get_user(username)
-        if success
-        and success.result
-        and redis:hexists(
-            'afk:' .. message.chat.id .. ':' .. success.result.id,
-            'since'
-        )
-        then -- If all the checks are positive, the mentioned user is AFK, so we'll tell the
-        -- person mentioning them that this is the case!
-            mattata.send_reply(
-                message,
-                success.result.first_name .. ' is currently AFK!'
-            )
+        local success = utils.get_user(username)
+        if success and success.result and redis:hexists('afk:' .. message.chat.id .. ':' .. success.result.id, 'since') then
+        -- If all the checks are positive, the mentioned user is AFK, so we'll tell the person mentioning
+        -- them that this is the case!
+            utils.send_reply(message, success.result.first_name .. ' is currently AFK!')
         end
     end
 end
@@ -1210,20 +1072,5 @@ function mattata:process_message()
     end
     return false
 end
-
-function mattata.is_privacy_enabled(user_id)
-    return redis:exists('user:' .. user_id .. ':opt_out')
-end
-
---[[ function mattata.get_user_value(id, column)
-    local env = assert(driver.postgresql())
-    local con = assert(env:connect(db))
-    local cur = assert(con:execute(string.format('SELECT %s FROM users WHERE id=%s', column, tonumber(id))))
-    local res = cur:fetch('', 'a')
-    cur:close()
-    con:close()
-    env:close()
-    return res
-end ]]
 
 return mattata
