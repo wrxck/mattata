@@ -27,9 +27,6 @@ local tools = require('telegram-bot-lua.tools')
 local socket = require('socket')
 local utils = dofile('libs/utils.lua')
 
-local plugin_list = {}
-local inline_plugin_list = {}
-
 function mattata:init()
     self.info = api.info -- Set the bot's information to the object fetched from the Telegram bot API.
     mattata.info = api.info
@@ -548,7 +545,7 @@ function mattata:on_inline_query()
     end
     if not inline_query.query or inline_query.query:gsub('%s', '') == '' then
         local offset = inline_query.offset and tonumber(inline_query.offset) or 0
-        local list = mattata.get_inline_list(self.info.username, offset, inline_plugin_list)
+        local list = mattata.get_inline_list(self.info.username, offset, self.inline_plugin_list)
         if #list == 0 then
             local title = 'No more results found!'
             local description = 'There were no more inline features found. Use @' .. self.info.username .. ' <query> to search for more information about commands matching the given search query.'
