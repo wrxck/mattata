@@ -703,6 +703,44 @@ function utils.is_user_blacklisted(message)
     return false
 end
 
+function utils.get_message_statistics(self)
+    local message = self.message
+    local language = self.language
+    if not message or not language then
+        return language['errors']['generic']
+    end
+    local users = redis:smembers('chat:' .. message.chat.id .. ':users')
+    local user_info = {}
+    for i = 1, #users do
+        local user = utils.get_user_message_statistics(users[i], message.chat.id)
+        if user.name and user.name ~= '' and user.messages > 0 and not utils.is_privacy_enabled(user.id) then
+            table.insert(user_info, user)
+        end
+    end
+    table.sort(user_info, function(a, b)
+        if a.messages and b.messages then
+            return a.messages > b.messages
+        end
+    end)
+    local total = 0
+    for n, user in pairs(user_info) do
+        local message_count = user_info[n].messages
+        total = total + message_count
+    end
+    local text = ''
+    local output = {}
+    for i = 1, 10 do table.insert(output, user_info[i]) end
+    for k, v in pairs(output) do
+        local message_count = v.messages
+        local percent = tostring(tools.round((message_count / total) * 100, 1))
+        text = text .. tools.escape_html(v.name) .. ': <b>' .. tools.comma_value(message_count) .. '</b> [' .. percent .. '%]\n'
+    end
+    if not text or text == '' then
+        return language['statistics']['1']
+    end
+    return string.format(language['statistics']['2'], tools.escape_html(message.chat.title), text, tools.comma_value(total))
+end
+
 _G.table.contains = function(tab, match)
     for _, val in pairs(tab) do
         if tostring(val):lower() == tostring(match):lower() then

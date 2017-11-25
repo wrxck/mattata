@@ -210,6 +210,7 @@ mattata.get_help = utils.get_help
 mattata.is_privacy_enabled = utils.is_privacy_enabled
 mattata.is_user_blacklisted = utils.is_user_blacklisted
 mattata.input = utils.input
+mattata.get_message_statistics = utils.get_message_statistics
 
 function mattata:run(configuration, token)
 -- mattata's main long-polling function which repeatedly checks the Telegram bot API for updates.
