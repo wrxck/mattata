@@ -67,7 +67,7 @@ end
 function help:on_inline_query(inline_query, configuration, language)
     local offset = inline_query.offset and tonumber(inline_query.offset) or 0
     local output = mattata.get_inline_help(inline_query.query, offset)
-    if #output == 0 then
+    if #output == 0 and tonumber(offset) == 0 then
         output = string.format(language['help']['2'], inline_query.query)
         return mattata.send_inline_article(inline_query.id, language['help']['1'], output)
     end
@@ -238,7 +238,7 @@ function help:on_callback_query(callback_query, message, configuration, language
                     'https://github.com/wrxck/mattata'
                 ):url_button(
                     language['help']['18'],
-                    'https://paypal.me/wrxck'
+                    'https://paypal.me/matthesketh'
                 )
             ):row(
                 mattata.row():url_button(
@@ -249,7 +249,7 @@ function help:on_callback_query(callback_query, message, configuration, language
                     'https://t.me/mattataLog'
                 ):url_button(
                     'Twitter',
-                    'https://twitter.com/intent/user?screen_name=wrxck__'
+                    'https://twitter.com/intent/user?screen_name=matthesketh0'
                 )
             ):row(
                 mattata.row():callback_data_button(

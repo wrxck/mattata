@@ -164,6 +164,34 @@ function utils.get_inline_help(input, offset)
     return inline_help
 end
 
+function utils.get_inline_list(query, offset)
+    query = query or ''
+    offset = offset and tonumber(offset) or 0
+    local inline_help = {}
+    local count = offset + 1
+    table.sort(mattata.inline_plugin_list)
+    for k, v in pairs(mattata.inline_plugin_list) do
+        -- The bot API only accepts a maximum of 50 results, hence we need the offset.
+        if k > offset and k < offset + 50 then
+            v = v:gsub('\n', ' ')
+            if v:match('^/.- %- .-$') and v:match(query) then
+                table.insert(inline_help,
+                {
+                    ['type'] = 'article',
+                    ['id'] = tostring(count),
+                    ['title'] = v:match('^(/.-) %- .-$'),
+                    ['description'] = v:match('^/.- %- (.-)$'),
+                    ['input_message_content'] = {
+                        ['message_text'] = utf8.char(8226) .. ' ' .. v:match('^(/.-) %- .-$') .. ' - ' .. v:match('^/.- %- (.-)$')
+                    }
+                })
+                count = count + 1
+            end
+        end
+    end
+    return inline_help
+end
+
 function utils.send_reply(message, text, parse_mode, disable_web_page_preview, reply_markup, token)
     reply_markup = reply_markup or {
         ['remove_keyboard'] = true
@@ -588,7 +616,7 @@ end
 
 function utils.is_plugin_disabled(plugin, chat_id)
     chat_id = (type(chat_id) == 'table' and chat_id.chat) and chat_id.chat.id or chat_id
-    return (redis:hget('chat:' .. chat_id .. ':disabled_plugins', plugin) and plugin ~= 'plugins') and true or false
+    return (tostring(redis:hget('chat:' .. chat_id .. ':disabled_plugins', plugin)) == 'true' and plugin ~= 'plugins') and true or false
 end
 
 function utils.is_group_admin(chat_id, user_id, is_real_admin)

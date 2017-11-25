@@ -80,7 +80,8 @@ function mattata:init()
     return true
 end
 
--- Set a bunch of function aliases, for consistency & compatibility.
+-- A bunch of function aliases, for consistency & backwards-compatibility.
+
 mattata.request = api.request
 mattata.get_me = api.get_me
 mattata.send_message = api.send_message
@@ -191,6 +192,7 @@ mattata.does_language_exist = utils.does_language_exist
 mattata.get_usernames = utils.get_usernames
 mattata.is_valid = utils.is_valid
 mattata.insert_keyboard_row = utils.insert_keyboard_row
+mattata.get_inline_help = utils.get_inline_help
 mattata.get_inline_list = utils.get_inline_list
 mattata.toggle_setting = utils.toggle_setting
 mattata.uses_administration = utils.uses_administration
@@ -207,6 +209,7 @@ mattata.is_group_owner = utils.is_group_owner
 mattata.get_help = utils.get_help
 mattata.is_privacy_enabled = utils.is_privacy_enabled
 mattata.is_user_blacklisted = utils.is_user_blacklisted
+mattata.input = utils.input
 
 function mattata:run(configuration, token)
 -- mattata's main long-polling function which repeatedly checks the Telegram bot API for updates.
@@ -411,11 +414,9 @@ function mattata:on_message()
                             end
                             return false
                         end
-                        local success, result = pcall(
-                            function()
-                                return plugin.on_message(self, message, configuration, language)
-                            end
-                        )
+                        local success, result = pcall(function()
+                            return plugin.on_message(self, message, configuration, language)
+                        end)
                         if not success then
                             mattata.exception(self, result, string.format('%s: %s', message.from.id, message.text), configuration.log_chat)
                         end
@@ -434,6 +435,8 @@ function mattata:on_message()
         self.is_done = false
         return true
     end
+    -- Anything miscellaneous is processed here, things which are perhaps plugin-specific
+    -- and just not relevant to the core `mattata.on_message` function.
     mattata.process_plugin_extras(self)
     return true
 end
@@ -455,21 +458,21 @@ function mattata:process_plugin_extras()
     -- Process custom commands with #hashtag triggers.
     if message.chat.type ~= 'private' and message.text:match('^%#%a+') and mattata.get_setting(message.chat.id, 'use administration') then
         local trigger = message.text:match('^(%#%a+)')
-        local custom_commands = redis:hkeys(string.format('administration:%s:custom', message.chat.id))
+        local custom_commands = redis:hkeys('administration:' .. message.chat.id .. ':custom')
         if custom_commands then
             for k, v in ipairs(custom_commands) do
                 if trigger == v then
-                    local value = redis:hget(string.format('administration:%s:custom', message.chat.id), trigger)
-                    if value then mattata.send_message(message.chat.id, value) end
+                    local value = redis:hget('administration:' .. message.chat.id .. ':custom', trigger)
+                    if value then
+                        mattata.send_message(message.chat.id, value)
+                    end
                 end
             end
         end
     end
 
     if not mattata.is_plugin_disabled('captionbotai', message) and (message.photo or (message.reply and message.reply.photo)) then
-        if message.reply then
-            message = message.reply
-        end
+        message = message.reply or message
         if message.text:lower():match('^wh?at .- th[ia][st].-') or message.text:lower():match('^who .- th[ia][st].-') then
             local captionbotai = dofile('plugins/captionbotai.mattata')
             captionbotai.on_message(self, message, configuration, language)
@@ -493,22 +496,10 @@ function mattata:process_plugin_extras()
         end
     end
 
-    if ( -- If a user executes a command and it's not recognised, provide a response
+    -- If a user executes a command and it's not recognised, provide a response
     -- explaining what's happened and how it can be resolved.
-        message.text:match('^[!/#]')
-        and message.chat.type == 'private'
-        and not self.is_commmand
-    )
-    or (
-        message.chat.type ~= 'private'
-        and message.text:match('^[!/#]%a+@' .. self.info.username)
-        and not self.is_command
-    )
-    then
-        mattata.send_reply(
-            message,
-            'Sorry, I don\'t understand that command.\nTip: Use /help to discover what else I can do!'
-        )
+    if (message.text:match('^[!/#]') and message.chat.type == 'private' and not self.is_commmand) or (message.chat.type ~= 'private' and message.text:match('^[!/#]%a+@' .. self.info.username) and not self.is_command) then
+        mattata.send_reply(message, 'Sorry, I don\'t understand that command.\nTip: Use /help to discover what else I can do!')
     end
     return true
 end
@@ -523,9 +514,8 @@ function mattata:on_inline_query()
     local language = dofile('languages/' .. mattata.get_user_language(inline_query.from.id) .. '.lua')
     inline_query.offset = inline_query.offset and tonumber(inline_query.offset) or 0
     for _, plugin in ipairs(self.plugins) do
-        local plugins = plugin.commands or {}
-        for i = 1, #plugins do
-            local command = plugin.commands[i]
+        local commands = plugin.commands or {}
+        for _, command in pairs(commands) do
             if not inline_query then
                 return false, 'No `inline_query` object was found!'
             end
@@ -534,24 +524,13 @@ function mattata:on_inline_query()
                     return plugin.on_inline_query(self, inline_query, configuration, language)
                 end)
                 if not success then
-                    local exception = string.format('%s: %s', inline_query.from.id, inline_query.query)
-                    mattata.exception(self, result, exception, configuration.log_chat)
+                    mattata.exception(self, result, inline_query.from.id .. ': ' .. inline_query.query, configuration.log_chat)
                     return false, result
-                elseif not result then
-                    return api.answer_inline_query(inline_query.id, api.inline_result():id():type('article'):title(configuration.errors.results):description(plugin.help):input_message_content(api.input_text_message_content(plugin.help)))
+                elseif result then
+                    return success, result
                 end
             end
         end
-    end
-    if not inline_query.query or inline_query.query:gsub('%s', '') == '' then
-        local offset = inline_query.offset and tonumber(inline_query.offset) or 0
-        local list = mattata.get_inline_list(self.info.username, offset, self.inline_plugin_list)
-        if #list == 0 then
-            local title = 'No more results found!'
-            local description = 'There were no more inline features found. Use @' .. self.info.username .. ' <query> to search for more information about commands matching the given search query.'
-            return mattata.send_inline_article(inline_query.id, title, description)
-        end
-        return mattata.answer_inline_query(inline_query.id, json.encode(list), 0, false, tostring(offset + 50))
     end
     local help = dofile('plugins/help.mattata')
     return help.on_inline_query(self, inline_query, configuration, language)
@@ -664,8 +643,6 @@ function mattata.get_word(str, i)
     end
     return false
 end
-
-mattata.input = utils.input
 
 function mattata:exception(err, message, log_chat)
     local output = string.format(
@@ -791,7 +768,11 @@ function mattata.sort_message(message)
     message.text = message.text or message.caption or '' -- Ensure there is always a value assigned to message.text.
     message.text = message.text:gsub('^/(%a+)%_', '/%1 ')
     if message.text:match('^[/!#]start .-$') then -- Allow deep-linking through the /start command.
-        message.text = '/' .. message.text:match('^[/!#]start (.-)$')
+        local payload = message.text:match('^[/!#]start (.-)$')
+        if payload:match('^[%w_]+_.-$') then
+            payload = payload:match('^([%w]+)_.-$') .. ' ' .. payload:match('^[%w]+_(.-)$')
+        end
+        message.text = '/' .. payload
     end
     message.is_media = mattata.is_media(message)
     message.media_type = mattata.media_type(message)
@@ -901,16 +882,14 @@ function mattata.process_spam(message)
     local msg_count = tonumber(
         redis:get('antispam:' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
         -- has already sent 1 or more messages to the current chat, in the past 5 seconds.
-    )
-    or 1 -- If this is the first time the user has posted in the past 5 seconds, we'll make it 1 accordingly.
+    ) or 1 -- If this is the first time the user has posted in the past 5 seconds, we'll make it 1 accordingly.
     redis:setex(
         'antispam:' .. message.chat.id .. ':' .. message.from.id,
         5, -- Set the time to live to 5 seconds.
         msg_count + 1 -- Increase the current message count by 1.
     )
     if msg_count == 7 -- If the user has sent 7 messages in the past 5 seconds, send them a warning.
-    and not mattata.is_global_admin(message.from.id)
-    then
+    and not mattata.is_global_admin(message.from.id) then
     -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
         mattata.send_reply( -- Send a warning message to the user who is at risk of being blacklisted for sending
         -- too many messages.
@@ -925,11 +904,7 @@ function mattata.process_spam(message)
     and not mattata.is_global_admin(message.from.id) -- Don't blacklist the user if they are configured as a global
     -- admin in `configuration.lua`.
     then
-        redis:setex(
-            'global_blacklist:' .. message.from.id,
-            86400,
-            true
-        )
+        redis:setex('global_blacklist:' .. message.from.id, 86400, true)
         mattata.send_reply(
             message,
             string.format(
