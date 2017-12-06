@@ -125,24 +125,6 @@ return {
         ['3'] = 'Eu não posso despromover esse utilizador porque ele já deixou este grupo.',
         ['4'] = 'Não consigo despromover esse utilizador porque ele já foi expulso deste grupo.'
     },
-    ['developer'] = {
-        ['1'] = '"Eu sou um programador com gosto para musica metal/rock e passar tempo com os amigos!"',
-        ['2'] = 'Facebook',
-        ['3'] = 'Messenger',
-        ['4'] = 'Twitter',
-        ['5'] = 'Instagram',
-        ['6'] = 'Keybase',
-        ['7'] = 'Snapchat',
-        ['8'] = 'GitHub',
-        ['9'] = 'Telegram',
-        ['10'] = 'Trello',
-        ['11'] = 'Pinterest',
-        ['12'] = 'Google+',
-        ['13'] = 'tumblr',
-        ['14'] = 'Imgur',
-        ['15'] = 'Instapaper',
-        ['16'] = 'Wikipedia'
-    },
     ['doge'] = {
         ['1'] = 'Por favor, escreva o texto que deseja para Doge-ify. Cada sentença deve ser separada usando barras (/) ou novas linhas.'
     },
@@ -256,8 +238,6 @@ Aqui estão alguns comandos administrativos e um breve comentário sobre o que e
         ['22'] = 'Plugins',
         ['23'] = [[
 <b>Olá %s! O meu nome é %s, é um prazer conhece-lo</b> %s
-
-Eu sou um bot inteligente que é capaz de ter conversas com seres humanos como você, e eu tenho a capacidade de administrar o seus grupos também!
 
 Eu entendo muitos comandos, que você pode aprender mais sobre pressionando o botão "Comandos" usando o teclado acoplado.
 

@@ -5,7 +5,7 @@
 
 local unban = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function unban:init()
     unban.commands = mattata.commands(self.info.username):command('unban').table

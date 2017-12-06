@@ -105,9 +105,6 @@ return {
     ['copypasta'] = {
         ['1'] = 'Der Antowrten-zu text kann nicht länger sein als %s Zeichen!'
     },
-    ['counter'] = {
-        ['1'] = 'Ich konnte keinen Zähler zu der Nachricht hinzufügen!'
-    },
     ['custom'] = {
         ['1'] = 'Erfolg! Die Nachricht wird nun jedesmal gesendet wen jemand %s benutzt!',
         ['2'] = 'Der Auslöser "%s" existiert nicht!',
@@ -124,24 +121,6 @@ return {
         ['2'] = 'Ich kann den Benutzer nicht degradieren, weil er/sie ein Moderator oder Administrator in dieser Gruppe ist.',
         ['3'] = 'Ich kann den Benutzer nicht degradieren, weil er/sie die Gruppe schon verlassen hat.',
         ['4'] = 'Ich kann den Benutzer nicht degradieren, weil er/sie von der Gruppe entfernt wurde.'
-    },
-    ['developer'] = {
-        ['1'] = '"Ich bin ein Web Developer/Programmer mit liebe zu Metal/Rock Musik und verbringe Zeit mit freunden!"',
-        ['2'] = 'Facebook',
-        ['3'] = 'Messenger',
-        ['4'] = 'Twitter',
-        ['5'] = 'Instagram',
-        ['6'] = 'Keybase',
-        ['7'] = 'Snapchat',
-        ['8'] = 'GitHub',
-        ['9'] = 'Telegram',
-        ['10'] = 'Trello',
-        ['11'] = 'Pinterest',
-        ['12'] = 'Google+',
-        ['13'] = 'tumblr',
-        ['14'] = 'Imgur',
-        ['15'] = 'Instapaper',
-        ['16'] = 'Wikipedia'
     },
     ['dice'] = {
         ['1'] = 'Die mindest Spannweite ist %s.',
@@ -183,13 +162,6 @@ return {
         ['2'] = 'Bitte gebe einen Suchbegriff ein (das ist, was ich in flickr für dich suchen soll, d.h. "Big Ben" will ein Bild vom Big Ben in London senden).',
         ['3'] = 'Mehr Ergebnisse.'
     },
-    ['fortune'] = {
-        ['1'] = 'Klick für deine Schicksal!'
-    },
-    ['frombinary'] = {
-        ['1'] = 'Bitte gebe den binary Wert ein, welchen ich in Buchstaben (Worten) umwandeln soll.',
-        ['2'] = 'Fehlerhafter binary!'
-    },
     ['game'] = {
         ['1'] = 'Total gewonnen: %s\nTotal verloren: %s\nGuthaben: %s mattacoins',
         ['2'] = 'Dem Spiel beitreten',
@@ -215,11 +187,6 @@ return {
     },
     ['gif'] = {
         ['1'] = 'Bitte gebe einen Suchbegriff ein (das ist, was ich in GIPHY für dich suchen soll, d.h. "Katze" will ein GIF von einer Katze senden).'
-    },
-    ['godwords'] = {
-        ['1'] = 'Bitte gebe eine Zahl zwischen 1 und 64 ein!',
-        ['2'] = 'Die Zahl ist zu klein. Bitte gebe eine Zahl zwischen 1 und 64 ein!',
-        ['3'] = 'Die Zahl ist zu klein. Bitte gebe eine Zahl zwischen 1 und 64 ein!'
     },
     ['gwhitelist'] = {
         ['1'] = 'Bitte Antworte-zu dem Benutzer, welchen du global auf der weißen Liste haben möchtest, oder gebe ihn/sie mit Benutzername/Identifikationsnummer an.',
@@ -284,8 +251,6 @@ Hier sind einige administrative Befehle und ein kurzer Kommentar bezüglich was 
         ['23'] = [[
 <b>Hallo %s! Mein Name ist %s, schön dich zu treffen.</b> %s
 
-Ich bin ein cleverer Bot, welcher sich mit Menschen unterhalten kann. Des weiteren habe ich auch die Möglichkeit in Gruppen zu administrieren.
-
 Ich verstehe viele Befehle, welche du lernen kannst wenn du den "Commands" Knopf drückst in der angehängten Tastatur.
 
 %s <b>Tip:</b> Benutze den "Settings" Knopf zum verändern wie ich arbeite%s!
@@ -348,11 +313,6 @@ System:
     ['ispwned'] = {
         ['1'] = 'Dieses Konto wurde in folgenden undichten Stellen gefunden:'
     },
-    ['isup'] = {
-        ['1'] = 'Diese Webseite erscheint online zusein, vielleicht liegt der Fehler bei dir?',
-        ['2'] = 'Es sieht so aus als wäre dies keine gültige Seite!',
-        ['3'] = 'Es ist nicht nur du, sieht so aus als wenn die Webseite offline ist.'
-    },
     ['itunes'] = {
         ['1'] = 'Name:',
         ['2'] = 'Artist:',
@@ -381,9 +341,6 @@ System:
         ['7'] = '%s hörte zuletzt:\n',
         ['8'] = 'Unbekannt',
         ['9'] = 'Klick zum senden des Ergebnis.'
-    },
-    ['lmgtfy'] = {
-        ['1'] = 'Lass mich das für dich googlen!'
     },
     ['location'] = {
         ['1'] = 'Du hast keinen Standort angegeben. Welchen Standort möchtest du haben?'
@@ -419,11 +376,6 @@ System:
         ['9'] = 'Bitte wähle eine Option:',
         ['10'] = 'Bitte gebe den Benutzernamen des Minecraft Spielers an, für welchen du Informationen sehen möchtest (d.h. wen du "Notch" sendest kannst du die Informationen von dem Spieler Notch einsehen).',
         ['11'] = 'Minecraft Benutzernamen sind zwischen 3 und 16 Zeichen lang.'
-    },
-    ['msglink'] = {
-        ['1'] = 'Du kannst diesen Befehl nur in Supergruppen und Kanälen benutzen.',
-        ['2'] = 'Diese %s muss öffentlich sein, mit einem @Benutzernamen.',
-        ['3'] = 'Bitte antworte zu einem Text, zu dem du einen Link erhalten möchtest.'
     },
     ['mute'] = {
         ['1'] = 'Welchen Benutzer soll ich stumm schalten? Du kannst den Benutzer mit dem @Benutzername oder mit der Indetifikationsnummer angeben.',
@@ -501,9 +453,6 @@ System:
     ['nick'] = {
         ['1'] = 'Dein Spitzname is vergessen!',
         ['2'] = 'Dein Spitzname wurde geändert zu "%s"!'
-    },
-    ['ninegag'] = {
-        ['1'] = 'Mehr lesen'
     },
     ['optout'] = {
         ['1'] = 'Du bist opted-in(beigetreten), dass die Daten, welche du sendest, gesammelt werden! Benutze /optout zum opt-out(austreten).',

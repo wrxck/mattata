@@ -9,7 +9,7 @@ local http = require('socket.http')
 local ltn12 = require('ltn12')
 local multipart = require('multipart-post')
 local json = require('dkjson')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function exec:init()
     exec.commands = mattata.commands(self.info.username):command('exec').table

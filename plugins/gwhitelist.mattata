@@ -5,7 +5,7 @@
 
 local gwhitelist = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function gwhitelist:init()
     gwhitelist.commands = mattata.commands(self.info.username):command('gwhitelist').table

@@ -5,7 +5,7 @@
 
 local blacklist = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function blacklist:init()
     blacklist.commands = mattata.commands(self.info.username):command('blacklist').table

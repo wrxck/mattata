@@ -5,7 +5,7 @@
     | | | | | | (_| | |_| || (_| | || (_| |
     |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-    Configuration file for mattata v1.0.1
+    Configuration file for mattata v1.1.0
 
     Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
     This code is licensed under the MIT. See LICENSE for details.
@@ -71,8 +71,6 @@ return { -- Rename this file to configuration.lua for the bot to work!
         ['cats'] = '', -- http://thecatapi.com/api-key-registration.html
         ['translate'] = '', -- https://tech.yandex.com/keys/get/?service=trnsl
         ['lyrics'] = '', -- https://developer.musixmatch.com/admin/applications
-        ['apod'] = '', -- https://api.nasa.gov/index.html#apply-for-an-api-key
-        ['synonym'] = '', -- https://tech.yandex.com/keys/get/?service=dict
         ['lastfm'] = '', -- http://www.last.fm/api/account/create
         ['weather'] = '', -- https://darksky.net/dev/register
         ['youtube'] = '', -- https://console.developers.google.com/apis
@@ -116,11 +114,6 @@ return { -- Rename this file to configuration.lua for the bot to work!
         ['admin'] = 'You need to be a moderator or an administrator in this chat in order to use this command.',
         ['unknown'] = 'I don\'t recognise that user. If you would like to teach me who they are, forward a message from them to any chat that I\'m in.',
         ['generic'] = 'An unexpected error occured. Please report this error using /bugreport.'
-    },
-    ['dice'] = { -- Values used in plugins/dice.lua.
-        ['max_range'] = 200,
-        ['max_count'] = 200,
-        ['min_range'] = 2
     },
     ['voteban'] = { -- Values used in plugins/administration.lua, for plugins/voteban.lua functionality.
         ['upvotes'] = {

@@ -5,7 +5,7 @@
 
 local setwelcome = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function setwelcome:init()
     setwelcome.commands = mattata.commands(self.info.username):command('setwelcome').table

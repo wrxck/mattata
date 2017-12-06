@@ -10,8 +10,7 @@ printf "This script is intended to work with macOS 10.12.3 (16D32), other versio
 printf "work. Root access is required to complete the installation. Press enter to continue,\n"
 printf "or press CTRL + C to abort.\n"
 read
-if [ ! -f "`which brew`" ]
-then
+if [ ! -f "`which brew`" ]; then
     printf "[Info] Installing Homebrew...\n"
     ruby -e $(sudo curl -fsSL "https://raw.githubusercontent.com/Homebrew/install/master/install")
 else
@@ -19,56 +18,60 @@ else
     brew update
 fi
 brewlist="git wget openssl md5sha1sum coreutils automake cmake readline fortune homebrew/dupes/unzip gnutls ruby"
-for formula in $brewlist
-do
+for formula in $brewlist; do
     printf "[Info] Installing $formula...\n"
     brew install $formula
 done
 brew link readline --force
 brew link unzip --force
-sudo wget -N http://download.redis.io/releases/redis-3.2.8.tar.gz
-tar zxf redis-3.2.8.tar.gz
-cd redis-3.2.8/
-sudo make install PREFIX=/usr/local/Cellar/redis/3.2.8 CC=clang
-sudo make test
-cd ../
+if [ ! -f "`which redis-cli`" ]; then
+    printf "[Info] Downloading redis 4.0.2...\n"
+    sudo wget -N http://download.redis.io/releases/redis-4.0.2.tar.gz
+    printf "[Info] Extracting redis 4.0.2...\n"
+    tar zxf redis-4.0.2.tar.gz
+    cd redis-4.0.2/
+    printf "[Info] Installing redis 4.0.2...\n"
+    sudo make install PREFIX=/usr/local/Cellar/redis/4.0.2 CC=clang
+    sudo make test
+    cd ../
+fi
 sudo cp -R /usr/local/Cellar/openssl/1.0.2k/lib/* /usr/lib/
 sudo cp -R /usr/local/Cellar/openssl/1.0.2k/lib/* /usr/local/lib/
-if [ ! -f "`which lua5.3`" ]
-then
+if [ ! -f "`which lua`" ]; then
     printf "[Info] Downloading Lua 5.3.4...\n"
     sudo wget -N http://www.lua.org/ftp/lua-5.3.4.tar.gz
     printf "[Info] Extracting Lua 5.3.4...\n"
     sudo tar zxf lua-5.3.4.tar.gz
     cd lua-5.3.4/
-    printf "[Info] Building Lua 5.3.4...\n"
-    sudo make macosx test
     printf "[Info] Installing Lua 5.3.4...\n"
+    sudo make macosx test
     sudo make install INSTALL_TOP=/usr
-    sudo mv -f /usr/bin/lua /usr/bin/lua5.3
-    sudo cp /usr/bin/lua5.3 /usr/local/bin/lua5.3
-    sudo mv -f /usr/bin/luac /usr/bin/luac5.3
-    sudo cp /usr/bin/luac5.3 /usr/local/bin/luac5.3
     cd ../
 fi
-if [ ! -f "`which luarocks-5.3`" ]
-then
+if [ ! -f "`which luarocks`" ]; then
     printf "[Info] Downloading LuaRocks...\n"
     sudo git clone https://github.com/keplerproject/luarocks
     cd luarocks/
     printf "[Info] Building LuaRocks...\n"
-    ./configure --lua-version=5.3 --versioned-rocks-dir --lua-suffix=5.3
+    ./configure --lua-version=5.3 --versioned-rocks-dir
     sudo make build
     printf "[Info] Installing LuaRocks...\n"
     sudo make install
 fi
 printf "[Info] Installing openssl...\n"
-sudo luarocks-5.3 install --server=http://luarocks.org/dev openssl
+sudo luarocks install --server=http://luarocks.org/dev openssl
 rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem uuid html-entities luaossl feedparser telegram-bot-lua lbase64 luacrypto"
-for rock in $rocklist
-do
+for rock in $rocklist; do
     printf "[Info] Installing $rock...\n"
-    sudo luarocks-5.3 install $rock
+    sudo luarocks install $rock
 done
+printf "[Info] Installing redis-dump...\n"
+sudo gem install redis-dump
+printf "[Info] Cleaning up installation files...\n"
+sudo rm -rf lua-5.3.4/
+sudo rm lua-5.3.4.tar.gz
+sudo rm -rf luarocks/
+sudo rm -rf redis-4.0.2/
+sudo rm redis-4.0.2.tar.gz
 sudo -k
 printf "[Info] Installation complete.\n"

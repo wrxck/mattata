@@ -5,7 +5,7 @@
 
 local wordfilter = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function wordfilter:init()
     wordfilter.commands = mattata.commands(self.info.username):command('wordfilter').table

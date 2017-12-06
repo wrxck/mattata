@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v1.0.1
+      v1.1.0
 
       Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
       See LICENSE for details
@@ -19,12 +19,12 @@ local url = require('socket.url')
 local ltn12 = require('ltn12')
 local multipart = require('multipart-post')
 local json = require('dkjson')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 local configuration = require('configuration')
 local api = require('telegram-bot-lua.core').configure(configuration.bot_token)
 local tools = require('telegram-bot-lua.tools')
 local socket = require('socket')
-local utils = dofile('utils.lua')
+local utils = dofile('libs/utils.lua')
 
 local plugin_list = {}
 local inline_plugin_list = {}
@@ -65,7 +65,7 @@ function mattata:init()
     print(connected_message)
     local info_message = '\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id
     print('\n' .. info_message .. '\n')
-    self.version = 'v1.0.1'
+    self.version = 'v1.1.0'
     -- Make necessary database changes if the version has changed.
     if not redis:get('mattata:version') or redis:get('mattata:version') ~= self.version then
         redis:set('mattata:version', self.version)
@@ -1086,7 +1086,6 @@ function mattata.is_user_blacklisted(message)
     local group = redis:get('group_blacklist:' .. message.chat.id .. ':' .. message.from.id) -- Check
     -- if the user is blacklisted from using the bot in the current group.
     if global or group then
-        print('xd')
         return true
     end
     return false

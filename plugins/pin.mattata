@@ -5,7 +5,7 @@
 
 local pin = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function pin:init()
     pin.commands = mattata.commands(self.info.username):command('pin').table

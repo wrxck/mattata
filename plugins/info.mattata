@@ -5,7 +5,7 @@
 
 local info = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function info:init()
     info.commands = mattata.commands(self.info.username):command('info').table

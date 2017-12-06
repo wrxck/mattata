@@ -6,7 +6,7 @@
 local unfilter = {}
 local mattata = require('mattata')
 local json = require('dkjson')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function unfilter:init()
     unfilter.commands = mattata.commands(self.info.username):command('unfilter').table

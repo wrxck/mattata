@@ -7,7 +7,7 @@ local news = {}
 local mattata = require('mattata')
 local https = require('ssl.https')
 local json = require('dkjson')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function news:init()
     news.commands = mattata.commands(self.info.username)

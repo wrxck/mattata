@@ -8,7 +8,7 @@ local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function itunes:init()
     itunes.commands = mattata.commands(self.info.username):command('itunes').table

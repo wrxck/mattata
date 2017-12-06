@@ -8,7 +8,7 @@ local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function minecraft:init()
     minecraft.commands = mattata.commands(self.info.username)

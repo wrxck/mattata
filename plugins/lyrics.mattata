@@ -11,7 +11,7 @@ local url = require('socket.url')
 local ltn12 = require('ltn12')
 local json = require('dkjson')
 local html = require('htmlEntities')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 local socket = require('socket')
 local configuration = require('configuration')
 

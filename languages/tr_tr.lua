@@ -117,31 +117,13 @@ return {
         ['6'] = 'Yeni ve özel bir komut oluşturmak için şu sözdizimini kullanın:\n/custom new #tetikleyici <değer>.Tüm tetikleyiciler listesi için,  /custom list komutunu kullanın. Tetikleyiciyi silmek için ise, /custom del #trigger komutunu kullanın.'
     },
     ['delete'] = {
-        ['1'] = 'I could not delete that message. Perhaps the message is too old or non-existent?'
+        ['1'] = 'Bu mesajı silemedim. Belki de mesaj çok eskidir veya mevcut değildir?'
     },
     ['demote'] = {
         ['1'] = 'Hangi kullanıcının yetkisini almamı istersin ? Bu kullanıcıyı @kulanıcıadı şeklinde veya kullanıcı IDsi ile belirtebilirsin.',
         ['2'] = 'Bu kullanıcıyı, bu sohbette bir moderatör veya yönetici olmadığı için yetkisini almam mümkün değil.',
         ['3'] = 'Bu sohbetten zaten ayrıldıı, bu kullanıcının yetkisini alamam.',
         ['4'] = 'Bu kullanıcı daha önce bu sohbetten atılmış ulduğu için yetkisini almam mümkün değil.'
-    },
-    ['developer'] = {
-        ['1'] = '"Ben web geliştiricisi/proğramlayıcıyım, arkadaşlarımla vakit geçirmeyi, metal/rock müzik dinlemeyi severim!"',
-        ['2'] = 'Facebook',
-        ['3'] = 'Messenger',
-        ['4'] = 'Twitter',
-        ['5'] = 'Instagram',
-        ['6'] = 'Keybase',
-        ['7'] = 'Snapchat',
-        ['8'] = 'GitHub',
-        ['9'] = 'Telegram',
-        ['10'] = 'Trello',
-        ['11'] = 'Pinterest',
-        ['12'] = 'Google+',
-        ['13'] = 'tumblr',
-        ['14'] = 'Imgur',
-        ['15'] = 'Instapaper',
-        ['16'] = 'Wikipedia'
     },
     ['doge'] = {
         ['1'] = 'Lütfen Dogeify istediğiniz metni girin. Her cümle eğik çizgi veya yeni satırlar kullanılarak ayrılmalıdır.'
@@ -256,8 +238,6 @@ Gruplarınızda birçok idari işlem yapabilirim, Beni yönetici olarak eklemeli
         ['22'] = 'Eklentiler',
         ['23'] = [[
 <b>Merhaba %s! Benim adım %s, sizinle tanışmak bir şeref idi</b> %s
-
-Sizin gibi insanlar ile olan konuşma yeteneğine sahip akıllı bir botum, ve ben de grupları yönetme yeteneğine sahibim!
 
 Bir çok komutu anlıyorum, hangi komutu öğrenmek istiyorsan satır içinde "Komutlar" butonunu seçin.
 

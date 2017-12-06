@@ -5,7 +5,7 @@
 
 local statistics = {}
 local mattata = require('mattata')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 
 function statistics:init()
     statistics.commands = mattata.commands(self.info.username)

@@ -6,7 +6,7 @@
 local administration = {}
 local mattata = require('mattata')
 local json = require('dkjson')
-local redis = require('mattata-redis')
+local redis = dofile('libs/redis.lua')
 local configuration = require('configuration')
 
 function administration:init()
@@ -14,8 +14,7 @@ function administration:init()
     :command('administration')
     :command('admins')
     :command('staff')
-    :command('whitelistlink')
-    :command('ops').table
+    :command('whitelistlink').table
 end
 
 function administration.get_initial_keyboard(chat_id, page)

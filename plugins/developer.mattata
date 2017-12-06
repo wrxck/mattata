@@ -7,55 +7,32 @@ local developer = {}
 local mattata = require('mattata')
 
 function developer:init()
-    developer.commands = mattata.commands(self.info.username)
-    :command('developer')
-    :command('dev').table
+    developer.commands = mattata.commands(self.info.username):command('developer'):command('dev').table
     developer.help = '/developer - Connect with the developer through his social media. Alias: /dev.'
 end
 
-function developer:on_message(message, configuration, language)
-    mattata.forward_message(
-        message.chat.id,
-        '@wrxck',
-        false,
-        33
-    )
+function developer:on_message(message)
+    mattata.forward_message(message.chat.id, '@wrxck', false, 33)
     return mattata.send_message(
         message.chat.id,
-        '_' .. language['developer']['1'] .. '_',
+        '_Hi, I\'m Matt. Below you\'ll be able to connect with me on various social networking sites!_',
         'markdown',
         true,
         false,
         nil,
-        mattata.inline_keyboard()
-        :row(
-            mattata.row()
-            :url_button(
-                language['developer']['2'],
+        mattata.inline_keyboard():row(
+            mattata.row():url_button(
+                'Facebook',
                 'https://fb.me/wrxck0'
-            )
-            :url_button(
-                language['developer']['4'],
+            ):url_button(
+                'Twitter',
                 'https://twitter.com/wrxck__'
-            )
-            :url_button(
-                language['developer']['5'],
+            ):url_button(
+                'Instagram',
                 'https://instagram.com/wrxck_'
-            )
-        )
-        :row(
-            mattata.row()
-            :url_button(
-                language['developer']['6'],
-                'https://keybase.io/wrxck'
-            )
-            :url_button(
-                language['developer']['7'],
+            ):url_button(
+                'Snapchat',
                 'https://www.snapchat.com/add/wrxck0'
-            )
-            :url_button(
-                language['developer']['8'],
-                'https://github.com/wrxck'
             )
         )
     )
