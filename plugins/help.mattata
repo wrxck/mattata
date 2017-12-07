@@ -220,36 +220,25 @@ function help:on_callback_query(callback_query, message, configuration, language
             true,
             mattata.inline_keyboard():row(
                 mattata.row():url_button(
-                    language['help']['13'],
-                    'https://t.me/mattataDev'
-                ):url_button(
                     language['help']['14'],
-                    'https://t.me/mattata'
-                ):url_button(
-                    language['help']['15'],
-                    'https://t.me/mattataSupport'
-                )
-            ):row(
-                mattata.row():url_button(
-                    language['help']['16'],
-                    'https://t.me/mattataFAQ'
+                    'https://t.me/Barreeeiroo_Ch'
                 ):url_button(
                     language['help']['17'],
-                    'https://github.com/wrxck/mattata'
+                    'https://github.com/barreeeiroo/mattata'
                 ):url_button(
                     language['help']['18'],
-                    'https://paypal.me/wrxck'
+                    'https://paypal.me/Makeroid'
                 )
             ):row(
                 mattata.row():url_button(
                     language['help']['19'],
-                    'https://t.me/storebot?start=mattatabot'
+                    'https://t.me/storebot?start=BarrePolice_Bot'
                 ):url_button(
                     language['help']['20'],
-                    'https://t.me/mattataLog'
+                    'https://t.me/joinchat/AAAAAEHCFLYFXDzX_SKvrg'
                 ):url_button(
                     'Twitter',
-                    'https://twitter.com/intent/user?screen_name=wrxck__'
+                    'https://twitter.com/intent/user?screen_name=barreeeiroo'
                 )
             ):row(
                 mattata.row():callback_data_button(
@@ -267,14 +256,8 @@ function help:on_callback_query(callback_query, message, configuration, language
             true,
             mattata.inline_keyboard():row(
                 mattata.row():url_button(
-                    'Fun Anagrams',
-                    'https://t.me/joinchat/AAAAAELATAtOpNdrLRHtpg'
-                ):url_button(
-                    'ａｅｓｔｈｅｔｉｃ',
-                    'https://t.me/aesthetic_things'
-                ):url_button(
-                    'no context',
-                    'https://t.me/no_context'
+                    'Makeroid',
+                    'https://t.me/Makeroid'
                 )
             ):row(
                 mattata.row():callback_data_button(
