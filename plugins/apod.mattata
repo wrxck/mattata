@@ -9,7 +9,7 @@ local mattata = require('mattata')
 
 apod.command = 'apod [date]'
 
-function apod:init(config)
+function apod:init(configuration)
 	apod.triggers = mattata.triggers(self.info.username, config.cmd_pat)
 		:t('apod', true):t('apodhd', true):t('apodtext', true).table
 	apod.doc = config.cmd_pat .. [[apod [query]
