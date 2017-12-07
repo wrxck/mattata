@@ -15,24 +15,24 @@ function developer:on_message(message)
     mattata.forward_message(message.chat.id, '@wrxck', false, 33)
     return mattata.send_message(
         message.chat.id,
-        '_Hi, I\'m Matt. Below you\'ll be able to connect with me on various social networking sites!_',
+        '_Hi, I\'m Diego. Below you\'ll be able to connect with me on various social networking sites!_',
         'markdown',
         true,
         false,
         nil,
         mattata.inline_keyboard():row(
             mattata.row():url_button(
-                'Facebook',
-                'https://fb.me/wrxck0'
-            ):url_button(
                 'Twitter',
-                'https://twitter.com/wrxck__'
+                'https://twitter.com/barreeeiroo'
             ):url_button(
                 'Instagram',
-                'https://instagram.com/wrxck_'
+                'https://instagram.com/_barreeeiroo'
             ):url_button(
                 'Snapchat',
-                'https://www.snapchat.com/add/wrxck0'
+                'https://www.snapchat.com/add/barreeeiroo'
+            ):url_button(
+                'GitHub',
+                'https://github.com/barreeeiroo'
             )
         )
     )
