@@ -474,7 +474,7 @@ function mattata:process_plugin_extras()
             'html'
         )
     elseif not mattata.is_plugin_disabled('ai', message) and message.chat.type ~= 'channel' and not redis:sismember('ainotice', tostring(message.chat.id)) then
-        local success = mattata.send_message(message.chat.id, '*IMPORTANT* My AI functionality has moved to a dedicated bot to allow me to do everything else even faster! This is one of many huge changes coming over the next couple of months! The new AI is @BarrePoliceBot (I am @BarrePolice\_Bot). It does NOT need administrative permissions to work!', 'markdown')
+        local success = mattata.send_message(message.chat.id, '*IMPORTANT* My AI functionality has moved to a dedicated bot to allow me to do everything else even faster! This is one of many huge changes coming over the next couple of months! The new AI is @BarrePoliceBot (I\'m @BarrePolice_Bot). It does NOT need administrative permissions to work!', 'markdown')
         if success then
             redis:sadd('ainotice', tostring(message.chat.id))
         end
