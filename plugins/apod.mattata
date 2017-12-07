@@ -5,12 +5,12 @@ local apod = {}
 local HTTPS = require('ssl.https')
 local JSON = require('dkjson')
 local URL = require('socket.url')
-local utilities = require('otouto.utilities')
+local mattata = require('mattata')
 
 apod.command = 'apod [date]'
 
 function apod:init(config)
-	apod.triggers = utilities.triggers(self.info.username, config.cmd_pat)
+	apod.triggers = mattata.triggers(self.info.username, config.cmd_pat)
 		:t('apod', true):t('apodhd', true):t('apodtext', true).table
 	apod.doc = config.cmd_pat .. [[apod [query]
 Returns the Astronomy Picture of the Day.
@@ -29,7 +29,7 @@ function apod:action(msg, config)
 		config.nasa_api_key = 'DEMO_KEY'
 	end
 
-	local input = utilities.input(msg.text)
+	local input = mattata.input(msg.text)
 	local date = '*'
 	local disable_page_preview = false
 
@@ -40,7 +40,7 @@ function apod:action(msg, config)
 			url = url .. '&date=' .. URL.escape(input)
 			date = date .. input
 		else
-			utilities.send_message(self, msg.chat.id, apod.doc, true, msg.message_id, true)
+			mattata.send_message(self, msg.chat.id, apod.doc, true, msg.message_id, true)
 			return
 		end
 	else
@@ -51,14 +51,14 @@ function apod:action(msg, config)
 
 	local jstr, res = HTTPS.request(url)
 	if res ~= 200 then
-		utilities.send_reply(self, msg, config.errors.connection)
+		mattata.send_reply(self, msg, config.errors.connection)
 		return
 	end
 
 	local jdat = JSON.decode(jstr)
 
 	if jdat.error then
-		utilities.send_reply(self, msg, config.errors.results)
+		mattata.send_reply(self, msg, config.errors.results)
 		return
 	end
 
@@ -79,7 +79,7 @@ function apod:action(msg, config)
 		output = output .. '\nCopyright: ' .. jdat.copyright
 	end
 
-	utilities.send_message(self, msg.chat.id, output, disable_page_preview, nil, true)
+	mattata.send_message(self, msg.chat.id, output, disable_page_preview, nil, true)
 
 end
 
