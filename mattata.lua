@@ -877,48 +877,79 @@ function mattata:process_natural_language(message)
 end
 
 function mattata.process_spam(message)
-    if message.chat and message.chat.title and message.chat.title:match('[Pp][Oo][Nn][Zz][Ii]') and message.chat.type ~= 'private' then
-        mattata.leave_chat(message.chat.id)
-        return true -- Ponzi scheme groups are considered a negative influence on the bot's
-        -- reputation and performance, so we'll leave the group and start processing the next update.
-        -- TODO: Implement a better detection that just matching the title for the word "PONZI".
-    end
-    local msg_count = tonumber(
-        redis:get('antispam:' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
-        -- has already sent 1 or more messages to the current chat, in the past 5 seconds.
-    ) or 1 -- If this is the first time the user has posted in the past 5 seconds, we'll make it 1 accordingly.
-    redis:setex(
-        'antispam:' .. message.chat.id .. ':' .. message.from.id,
-        5, -- Set the time to live to 5 seconds.
-        msg_count + 1 -- Increase the current message count by 1.
-    )
-    if msg_count == 7 -- If the user has sent 7 messages in the past 5 seconds, send them a warning.
-    and not mattata.is_global_admin(message.from.id) and msg.chat.type == "private" then
-    -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
-        mattata.send_reply( -- Send a warning message to the user who is at risk of being blacklisted for sending
-        -- too many messages.
-            message,
-            string.format(
-                'Hey %s, please don\'t send that many messages, or you\'ll be forbidden to use me for 24 hours!',
-                message.from.username and '@' .. message.from.username or message.from.name
-            )
+    if msg.chat.type == "private" then
+        if message.chat and message.chat.title and message.chat.title:match('[Pp][Oo][Nn][Zz][Ii]') and message.chat.type ~= 'private' then
+            mattata.leave_chat(message.chat.id)
+            return true -- Ponzi scheme groups are considered a negative influence on the bot's
+            -- reputation and performance, so we'll leave the group and start processing the next update.
+            -- TODO: Implement a better detection that just matching the title for the word "PONZI".
+        end
+        local msg_count = tonumber(
+            redis:get('antispam:' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
+            -- has already sent 1 or more messages to the current chat, in the past 5 seconds.
+        ) or 1 -- If this is the first time the user has posted in the past 5 seconds, we'll make it 1 accordingly.
+        redis:setex(
+            'antispam:' .. message.chat.id .. ':' .. message.from.id,
+            5, -- Set the time to live to 5 seconds.
+            msg_count + 1 -- Increase the current message count by 1.
         )
-    elseif msg_count == 15 -- If the user has sent 15 messages in the past 5 seconds, blacklist them globally from
-    -- using the bot for 24 hours.
-    and not mattata.is_global_admin(message.from.id) and msg.chat.type == "private" -- Don't blacklist the user if they are configured as a global
-    -- admin in `configuration.lua`.
-    then
-        redis:setex('global_blacklist:' .. message.from.id, 86400, true)
-        mattata.send_reply(
-            message,
-            string.format(
-                'Sorry, %s, but you have been blacklisted from using me for the next 24 hours because you have been spamming!',
-                message.from.username and '@' .. message.from.username or message.from.name
+        if msg_count == 7 -- If the user has sent 7 messages in the past 5 seconds, send them a warning.
+        and not mattata.is_global_admin(message.from.id)then
+        -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
+            mattata.send_reply( -- Send a warning message to the user who is at risk of being blacklisted for sending
+            -- too many messages.
+                message,
+                string.format(
+                    'Hey %s, please don\'t send that many messages, or you\'ll be forbidden to use me for 24 hours!',
+                    message.from.username and '@' .. message.from.username or message.from.name
+                )
             )
+        elseif msg_count == 15 -- If the user has sent 15 messages in the past 5 seconds, blacklist them globally from
+        -- using the bot for 24 hours.
+        and not mattata.is_global_admin(message.from.id) -- Don't blacklist the user if they are configured as a global
+        -- admin in `configuration.lua`.
+        then
+            redis:setex('global_blacklist:' .. message.from.id, 86400, true)
+            mattata.send_reply(
+                message,
+                string.format(
+                    'Sorry, %s, but you have been blacklisted from using me for the next 24 hours because you have been spamming!',
+                    message.from.username and '@' .. message.from.username or message.from.name
+                )
+            )
+            return true
+        end
+        return false
+    else
+        local msg_count = tonumber(
+            redis:get('antispam:' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
+            -- has already sent 1 or more messages to the current chat, in the past 5 seconds.
+        ) or 1 -- If this is the first time the user has posted in the past 5 seconds, we'll make it 1 accordingly.
+        redis:setex(
+            'antispam:' .. message.chat.id .. ':' .. message.from.id,
+            2, -- Set the time to live to 5 seconds.
+            msg_count + 1 -- Increase the current message count by 1.
         )
-        return true
+        if msg_count == 7 -- If the user has sent 7 messages in the past 5 seconds, send them a warning.
+        and not mattata.is_global_admin(message.from.id)then
+        -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
+            mattata.send_message(
+                mattata.get_log_chat(message.chat.id),
+                string.format(
+                    '<pre>' .. language['antispam']['6'] .. '</pre>',
+                    mattata.escape_html(self.info.first_name),
+                    self.info.id,
+                    mattata.escape_html(message.from.first_name),
+                    message.from.id,
+                    mattata.escape_html(message.chat.title),
+                    message.chat.id,
+                    media_type
+                ),
+                'html'
+            )
+        end
+        return false
     end
-    return false
 end
 
 function mattata:process_language(message)
