@@ -132,19 +132,23 @@ end
 
 function antispam:process_message(message, configuration, language)
     if message.chat.type ~= 'supergroup' then
+    print("Supergroup")
         return false, 'The chat is not a supergroup!'
     elseif mattata.is_group_admin(message.chat.id, message.from.id) then
+    print("AdminMod")
         return false, 'That user is an admin/mod in this chat!'
     elseif mattata.is_global_admin(message.from.id) then
+    print("GlobalAdmin")
         return false, 'That user is a global admin!'
     elseif not mattata.get_setting(message.chat.id, 'use administration') then
+    print("NoAdmin")
         return false, 'The administration plugin is switched off in this chat!'
     elseif not mattata.get_setting(message.chat.id, 'antispam') then
+    print("NoAntispam")
         return false, 'The antispam plugin is switched off in this chat!'
     end
     local is_spamming, media_type = antispam.is_user_spamming(message)
     if not is_spamming then
-        print("NotSpammingLol")
         return false, 'This user is not spamming!'
     end
     local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
