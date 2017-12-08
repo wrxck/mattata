@@ -693,7 +693,7 @@ function utils.is_user_blacklisted(message)
         if global and message.chat.type ~= 'private' and not redis:sismember('global_blacklist_unban:' .. message.chat.id, message.from.id) then
         -- If the user is globally blacklisted, and they haven't been banned before for this reason, add them to a set to exclude them from future checks.
             local success = api.ban_chat_member(message.chat.id, message.from.id) -- Attempt to ban the blacklisted user.
-            local output = message.from.first_name .. ' [' .. message.from.username and '@' .. message.from.username or message.from.id .. '] is globally blacklisted.'
+            local output = message.from.first_name .. ' [' .. message.from.username or message.from.first_name and '@' .. message.from.username or message.from.id .. '] is globally blacklisted.'
             output = success and output .. ' For this reason, I have banned them from this group. If you choose to unban them, I will not ban them next time they join!' or ' I tried to ban them, but it seems I don\'t have the required permission to do this. You might like to consider banning them manually, since users on this global blacklist are present because they have flooded or caused other havoc in other groups.'
             api.send_message(message.chat.id, output) -- Alert the group of this user's presence on the global blacklist.
             redis:sadd('global_blacklist_unban:' .. message.chat.id, message.from.id)
