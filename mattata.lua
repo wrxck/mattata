@@ -877,6 +877,11 @@ function mattata:process_natural_language(message)
 end
 
 function mattata.process_spam(message)
+    local language = dofile('languages/' .. mattata.get_user_language(callback_query.from.id) .. '.lua')
+    if message.chat.id and mattata.is_group(message) and mattata.get_setting(message.chat.id, 'force group language') then
+        language = dofile('languages/' .. (mattata.get_value(message.chat.id, 'group language') or 'en_gb') .. '.lua')
+    end
+    self.language = language
     if message.chat.type == "private" then
         if message.chat and message.chat.title and message.chat.title:match('[Pp][Oo][Nn][Zz][Ii]') and message.chat.type ~= 'private' then
             mattata.leave_chat(message.chat.id)
