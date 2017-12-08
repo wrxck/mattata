@@ -877,7 +877,7 @@ function mattata:process_natural_language(message)
 end
 
 function mattata.process_spam(message)
-    if msg.chat.type == "private" then
+    if message.chat.type == "private" then
         if message.chat and message.chat.title and message.chat.title:match('[Pp][Oo][Nn][Zz][Ii]') and message.chat.type ~= 'private' then
             mattata.leave_chat(message.chat.id)
             return true -- Ponzi scheme groups are considered a negative influence on the bot's
