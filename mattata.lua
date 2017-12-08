@@ -381,7 +381,7 @@ function mattata:on_message()
     -- stick with the default one that was set through @BotFather.
     self.info.nickname = redis:get('chat:' .. message.chat.id .. ':name') or self.info.name
     if message.forward_from or message.forward_from_chat or mattata.process_spam(message) then
-        return false -- We don't want to process these messages any further!
+        return true -- We don't want to process these messages any further!
     end
 
     if not self.is_user_blacklisted then -- Only perform the following operations if the user isn't blacklisted.
@@ -435,7 +435,6 @@ function mattata:on_message()
     end
     collectgarbage()
     mattata.process_message(self)
-    antispam.process_message(self)
     if self.is_done or self.is_user_blacklisted then
         self.is_done = false
         return true
