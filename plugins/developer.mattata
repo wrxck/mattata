@@ -15,7 +15,7 @@ function developer:on_message(message)
     mattata.forward_message(message.chat.id, '@wrxck', false, 33)
     return mattata.send_message(
         message.chat.id,
-        '_Hi, I\'m Diego. Below you\'ll be able to connect with me on various social networking sites!_',
+        'Hi, I\'m Diego.\nBelow you\'ll be able to connect with me on various social networking sites!\n\n_This bot is based on @mattatabot, written by the amazing @',
         'markdown',
         true,
         false,
