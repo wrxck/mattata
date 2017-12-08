@@ -1452,6 +1452,7 @@ function mattata:process_message()
                 local log_chat = mattata.get_log_chat(message.chat.id)
                 mattata.send_message(log_chat, string.format('<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending Telegram invite link(s)</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
             end
+            mattata.delete_message(message.chat.id, message.message_id)
             return mattata.send_message(message.chat.id, string.format('Kicked %s for sending Telegram invite link(s).', message.from.username and '@' .. message.from.username or message.from.first_name))
         end
     end
