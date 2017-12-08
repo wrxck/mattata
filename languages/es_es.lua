@@ -46,124 +46,124 @@ return {
         ['4'] = 'Ese usuario ha desactivado la opción de recogida de datos, por eso no puedo acceder a ninguna de sus fotos.'
     },
     ['ban'] = {
-        ['1'] = 'Que usuario querrías que banease? Especifica un alias o ID.',
-        ['2'] = 'I cannot ban this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot ban this user because they have already left this chat.',
-        ['4'] = 'I cannot ban this user because they have already been banned from this chat.',
-        ['5'] = 'I need to have administrative permissions in order to ban this user. Please amend this issue, and try again.'
+        ['1'] = 'Que usuario quieres que banee? Especifica un alias o ID.',
+        ['2'] = 'No puedo banear a este usuario porque es administrador o moderador.',
+        ['3'] = 'No puedo banear a este usuario porque ya ha abandonado el chat.',
+        ['4'] = 'No puedo banear a este usuario porque ya está baneado.',
+        ['5'] = 'Necesito ser administrador del grupo para banear al usuario. Por favor, otórgame permisos y prueba otra vez.'
     },
     ['bash'] = {
-        ['1'] = 'Please specify a command to run!',
-        ['2'] = 'Success!'
+        ['1'] = 'Por favor, especifica un comando a ejecutar!',
+        ['2'] = 'Éxito!'
     },
     ['blacklist'] = {
-        ['1'] = 'Which user would you like me to blacklist? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot blacklist this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot blacklist this user because they have already left this chat.',
-        ['4'] = 'I cannot blacklist this user because they have already been banned from this chat.'
+        ['1'] = 'Que usuairo quieres que ponga en la lista negra? Especifica un alias o ID.',
+        ['2'] = 'No puedo poner a este usuario en la lista negra porque es es administrador o moderador.',
+        ['3'] = 'No puedo poner a este usuario en la lista negra porque ha abandonado el chat.',
+        ['4'] = 'No puedo poner a este usuario en la lista negra porque ya está en la lista negra.'
     },
     ['blacklistchat'] = {
-        ['1'] = '%s has now been blacklisted, and I will leave whenever I am added there!',
-        ['2'] = '%s is a user, this command is only for blacklisting chats such as groups and channels!',
-        ['3'] = '%s doesn\'t appear to be a valid chat!'
+        ['1'] = '%s ha sido puesto en la lista negra. Me saldré en cuanto me metan en ese chat!',
+        ['2'] = '%s es un usuario, este comando solo funciona con grupos o canales!',
+        ['3'] = '%s no parece ser un chat válido!'
     },
     ['bugreport'] = {
-        ['1'] = 'Success! Your bug report has been sent. The ID of this report is #%s.',
-        ['2'] = 'There was a problem whilst reporting that bug! Ha, the irony!'
+        ['1'] = 'Listo! Tu reporte se ha enviad. El ID de tu reporte es #%s.',
+        ['2'] = 'Ha habido un error enviando el bug! Vaya, que ironía!'
     },
     ['calc'] = {
-        ['1'] = 'Click to send the result.'
+        ['1'] = 'Clica para enviar el resultado.'
     },
     ['captionbotai'] = {
-        ['1'] = 'I really cannot describe that picture!'
+        ['1'] = 'No puedo describir esta imagen!'
     },
     ['cats'] = {
-        ['1'] = 'Meow!'
+        ['1'] = 'Miau!'
     },
     ['channel'] = {
-        ['1'] = 'You are not allowed to use this!',
-        ['2'] = 'You don\'t appear to be an administrator in that chat anymore!',
-        ['3'] = 'I couldn\'t send your message, are you sure I still have permission to send messages in that chat?',
-        ['4'] = 'Your message has been sent!',
-        ['5'] = 'I was unable to retrieve a list of administrators for that chat!',
-        ['6'] = 'You don\'t appear to be an administrator in that chat!',
-        ['7'] = 'Please specify the message to send, using the syntax /channel <channel> <message>.',
-        ['8'] = 'Are you sure you want to send this message? This is how it will look:',
-        ['9'] = 'Yes, I\'m sure!',
-        ['10'] = 'That message contains invalid Markdown formatting! Please correct your syntax and try again.'
+        ['1'] = 'No estás autorizado para usar esto!',
+        ['2'] = 'No parece que seas administrador en ese chat!',
+        ['3'] = 'No he podido enviar el mensaje. Estás seguro de que soy administrador en él?',
+        ['4'] = 'Tu mensaje se ha enviado!',
+        ['5'] = 'No me ha sido posible obtener la lista de administradores de ese chat!',
+        ['6'] = 'No parece que seas administrador en ese chat!',
+        ['7'] = 'Especifica el mensaje a enviar, con /channel <canal> <mensaje>.',
+        ['8'] = 'Estás seguro de enviar este mensaje? Así es como quedará:',
+        ['9'] = 'Si, estoy seguro!',
+        ['10'] = 'Ese mensaje contiene markdown inválido! Corrige la sintaxis y prueba de nuevo.'
     },
     ['commandstats'] = {
-        ['1'] = 'No commands have been sent in this chat!',
-        ['2'] = '<b>Command statistics for:</b> %s\n\n%s\n<b>Total commands sent:</b> %s',
-        ['3'] = 'The command statistics for this chat have been reset!',
-        ['4'] = 'I could not reset the command statistics for this chat. Perhaps they have already been reset?'
+        ['1'] = 'No se han enviado comandos en ese chat!',
+        ['2'] = '<b>Estadísticas de comandos para:</b> %s\n\n%s\n<b>Total de comandos enviados:</b> %s',
+        ['3'] = 'Las estadísticas de comandos para este chat se han reseteado!',
+        ['4'] = 'No he podido resetear las estadísticas de comando para este chat. Puede que ya se hayan reseteado?'
     },
     ['control'] = {
-        ['1'] = 'Pfft, you wish!',
-        ['2'] = '%s is reloading...'
+        ['1'] = 'Psst, ya quisieras!',
+        ['2'] = '%s se está reiniciando...'
     },
     ['copypasta'] = {
-        ['1'] = 'The replied-to text musn\'t be any longer than %s characters!'
+        ['1'] = 'El mensaje respondido no puede ser superior a %s carácteres!'
     },
     ['custom'] = {
-        ['1'] = 'Success! That message will now be sent every time somebody uses %s!',
-        ['2'] = 'The trigger "%s" does not exist!',
-        ['3'] = 'The trigger "%s" has been deleted!',
-        ['4'] = 'You don\'t have any custom triggers set!',
-        ['5'] = 'Custom commands for %s:\n',
-        ['6'] = 'To create a new, custom command, use the following syntax:\n/custom new #trigger <value>. To list all current triggers, use /custom list. To delete a trigger, use /custom del #trigger.'
+        ['1'] = 'Listo! El mensaje será enviado cada vez que alguien use %s!',
+        ['2'] = 'El comando "%s" no existe!',
+        ['3'] = 'El comando "%s" se ha eliminado!',
+        ['4'] = 'No has puesto ningún comando personalizado!',
+        ['5'] = 'Comandos personalizados para %s:\n',
+        ['6'] = 'Para crear un nuevo comando personalizado, usa la siguiente sintaxis:\n/custom new #comando <mensaje>. Para mostrar la lista de comandos personalizados, usa /custom list. Para eliminar un comando personalizado, usa /custom del #comando.'
     },
     ['delete'] = {
-        ['1'] = 'I could not delete that message. Perhaps the message is too old or non-existent?'
+        ['1'] = 'No he podido eliminar ese mensaje. Puede que el mensaje sea demasiado viejo o inexistente?'
     },
     ['demote'] = {
-        ['1'] = 'Which user would you like me to demote? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot demote this user because they are not a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot demote this user because they have already left this chat.',
-        ['4'] = 'I cannot demote this user because they have already been kicked from this chat.'
+        ['1'] = 'Que usuairo quieres que degrade? Especifica un alias o ID.',
+        ['2'] = 'No puedo degradar a este usuario porque no es administrador o moderador.',
+        ['3'] = 'No puedo degradar a este usuario porque ha abandonado el chat.',
+        ['4'] = 'No puedo degradar a este usuario porque ha sido expulsado.'
     },
     ['doge'] = {
-        ['1'] = 'Please enter the text you want to Doge-ify. Each sentence should be separated using slashes or new lines.'
+        ['1'] = 'Introduce el texto a Doge-ficar. Cada frase debe ir separada en una línea nueva.'
     },
     ['exec'] = {
-        ['1'] = 'Please select the language you would like to execute your code in:',
-        ['2'] = 'An error occured! The connection timed-out. Were you trying to make me lag?',
-        ['3'] = 'You have selected "%s" – are you sure?',
-        ['4'] = 'Back',
-        ['5'] = 'I\'m sure',
-        ['6'] = 'Please enter a snippet of code that you would like to run. You don\'t need to specify the language, we will do that afterwards!',
-        ['7'] = 'Please select the language you would like to execute your code in:'
+        ['1'] = 'Selecciona el idioma de programación del código a ejecutar:',
+        ['2'] = 'Ha ocurrido un error! Tiempo de espera de conexión superior. Estás intentando volverme más lento?',
+        ['3'] = 'Has seleccionado "%s" – Estás seguro?',
+        ['4'] = 'Atrás',
+        ['5'] = 'Si, estoy seguro',
+        ['6'] = 'Introduce un fragmento del código a ejecutar. No tienes que especificar un lenguaje, lo haremos después!',
+        ['7'] = 'Selecciona el lenguaje de programación del código a ejecutar:'
     },
     ['facebook'] = {
-        ['1'] = 'An error occured!',
-        ['2'] = 'Please enter the name of the Facebook user you would like to get the profile picture of.',
-        ['3'] = 'View @%s on Facebook'
+        ['1'] = 'Ha ocurrido un error!',
+        ['2'] = 'Introduce el nombre de usuario de Facebook del que quieres obtener una foto.',
+        ['3'] = 'Ver a @%s en Facebook'
     },
     ['fact'] = {
-        ['1'] = 'Generate Another'
+        ['1'] = 'Generar otro'
     },
     ['flickr'] = {
-        ['1'] = 'You searched for:',
-        ['2'] = 'Please enter a search query (that is, what you want me to search Flickr for, i.e. "Big Ben" will return a photograph of Big Ben in London).',
+        ['1'] = 'Has buscado por:',
+        ['2'] = 'Introduce tu búsqueda (esto es, que quieres que busque yo en Flickr, por ejemplo "Big Ben" dará una foto del Big Ben de Londres).',
         ['3'] = 'More Results'
     },
     ['game'] = {
-        ['1'] = 'Total wins: %s\nTotal losses: %s\nBalance: %s mattacoins',
-        ['2'] = 'Join Game',
-        ['3'] = 'This game has already ended!',
-        ['4'] = 'It\'s not your turn!',
-        ['5'] = 'You are not part of this game!',
-        ['6'] = 'You cannot go here!',
-        ['7'] = 'You are already part of this game!',
-        ['8'] = 'This game has already started!',
-        ['9'] = '%s [%s] is playing against %s [%s]\nIt is currently %s\'s turn!',
-        ['10'] = '%s won the game against %s!',
-        ['11'] = '%s drew the game against %s!',
-        ['12'] = 'Waiting for opponent...',
-        ['13'] = 'Tic-Tac-Toe',
-        ['14'] = 'Click to send the game to your chat!',
-        ['15'] = 'Statistics for %s:\n',
-        ['16'] = 'Play Tic-Tac-Toe!'
+        ['1'] = 'Victorias: %s\nDerrotas: %s\nBalance: %s BarreMonedas',
+        ['2'] = 'Unirse al juego',
+        ['3'] = 'Este juego ya ha acabado!',
+        ['4'] = 'No es tu turno!',
+        ['5'] = 'No eres parte de este juego!',
+        ['6'] = 'No puedes ir aquí!',
+        ['7'] = 'Ya eres parte del juego!',
+        ['8'] = 'Este juego ya ha empezado!',
+        ['9'] = '%s [%s] está jugando contra %s [%s]\nLe toca a %s!',
+        ['10'] = '%s ganó contra %s!',
+        ['11'] = '%s empató contra %s!',
+        ['12'] = 'Esperando por oponente...',
+        ['13'] = '3 en Raya',
+        ['14'] = 'Clica para enviar el juego a algún chat!',
+        ['15'] = 'Estadísticas para %s:\n',
+        ['16'] = 'Jugar al 3 en Raya!'
     },
     ['gblacklist'] = {
         ['1'] = 'Please reply-to the user you\'d like to globally blacklist, or specify them by username/ID.',
@@ -264,19 +264,19 @@ I understand many commands, which you can learn more about by pressing the "Comm
         ['1'] = [[
 ```
 Redis:
-%s Config File: %s
-%s Mode: %s
-%s TCP Port: %s
-%s Version: %s
-%s Uptime: %s days
-%s Process ID: %s
-%s Expired Keys: %s
+%s Archivo de configuración: %s
+%s Modo: %s
+%s Puerto TCP: %s
+%s Versión: %s
+%s Tiempo encendido: %s days
+%s ID de proceso: %s
+%s Claves expiradas: %s
 
-%s User Count: %s
-%s Group Count: %s
+%s Número de usuarios: %s
+%s Número de grupos: %s
 
-System:
-%s OS: %s
+Sistema:
+%s SO: %s
 ```
         ]]
     },
