@@ -27,6 +27,9 @@ local tools = require('telegram-bot-lua.tools')
 local socket = require('socket')
 local utils = dofile('libs/utils.lua')
 
+-- Public JSON lib
+jsonlib = dofile('libs/json.lua')
+
 function mattata:init()
     self.info = api.info -- Set the bot's information to the object fetched from the Telegram bot API.
     mattata.info = api.info
