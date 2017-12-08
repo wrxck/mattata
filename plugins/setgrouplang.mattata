@@ -21,7 +21,8 @@ setgrouplang.languages = {
     ['pl_pl'] = 'Polski 🇵🇱',
     ['pt_br'] = 'Português do Brasil 🇧🇷',
     ['pt_pt'] = 'Português 🇵🇹',
-    ['tr_tr'] = 'Türkçe 🇹🇷'
+    ['tr_tr'] = 'Türkçe 🇹🇷',
+    ['es_es'] = 'Español 🇪🇸'
 }
 
 setgrouplang.languages_short = {
@@ -32,7 +33,8 @@ setgrouplang.languages_short = {
     ['pl_pl'] = '🇵🇱',
     ['pt_br'] = '🇧🇷',
     ['pt_pt'] = '🇵🇹',
-    ['tr_tr'] = '🇹🇷'
+    ['tr_tr'] = '🇹🇷',
+    ['es_es'] = '🇪🇸'
 }
 
 function setgrouplang.get_keyboard(chat_id, language)
