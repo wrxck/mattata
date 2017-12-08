@@ -55,9 +55,14 @@ local function getRandomBoobs(attempt)
 end
 
 function porn:on_inline_query(inline_query, configuration, language)
-    if string.match(inline_query, "boobs") then
+    local input = mattata.input(inline_query.query)
+    if not input
+    then
+        return
+    end
+    if string.match(input, "boobs") then
       local img = getRandomBoobs()
-    elseif string.match(inline_query, "butts") then
+    elseif string.match(input, "butts") then
       local img = getRandomButts
     end
     if img ~= "" then
@@ -74,6 +79,8 @@ function porn:on_inline_query(inline_query, configuration, language)
               }
           )
       )
+    else
+      return
     end
 end
 
