@@ -893,7 +893,7 @@ function mattata.process_spam(message)
         msg_count + 1 -- Increase the current message count by 1.
     )
     if msg_count == 7 -- If the user has sent 7 messages in the past 5 seconds, send them a warning.
-    and not mattata.is_global_admin(message.from.id) then
+    and not mattata.is_global_admin(message.from.id) and msg.chat.type == "private" then
     -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
         mattata.send_reply( -- Send a warning message to the user who is at risk of being blacklisted for sending
         -- too many messages.
@@ -905,7 +905,7 @@ function mattata.process_spam(message)
         )
     elseif msg_count == 15 -- If the user has sent 15 messages in the past 5 seconds, blacklist them globally from
     -- using the bot for 24 hours.
-    and not mattata.is_global_admin(message.from.id) -- Don't blacklist the user if they are configured as a global
+    and not mattata.is_global_admin(message.from.id) and msg.chat.type == "private" -- Don't blacklist the user if they are configured as a global
     -- admin in `configuration.lua`.
     then
         redis:setex('global_blacklist:' .. message.from.id, 86400, true)
