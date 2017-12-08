@@ -15,7 +15,7 @@ function porn:init(configuration)
     :command('boob')
     :command('boobs')
     :command('butt')
-    :command('butts').table -- Sarah likes cats!
+    :command('butts').table
     porn.help = '/boobs - Sends random boobs.\n/butts - Sends random button.'
 end
 
@@ -102,3 +102,5 @@ function porn:on_message(message, configuration, language)
         )
     end
 end
+
+return porn
