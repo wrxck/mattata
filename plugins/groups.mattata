@@ -60,7 +60,7 @@ function groups:on_message(message)
     end
     if not next(output)
     then
-        local output = 'No groups were found. If you\'d like your group to appear here, contact @wrxck0.'
+        local output = 'No groups were found. If you\'d like your group to appear here, contact @Barreeeiroo.'
         if input
         then
             output = string.format(
