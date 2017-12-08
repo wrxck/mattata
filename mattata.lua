@@ -381,7 +381,7 @@ function mattata:on_message()
     -- stick with the default one that was set through @BotFather.
     self.info.nickname = redis:get('chat:' .. message.chat.id .. ':name') or self.info.name
     if message.forward_from or message.forward_from_chat or mattata.process_spam(message) then
-        return true -- We don't want to process these messages any further!
+        return false -- We don't want to process these messages any further!
     end
 
     if not self.is_user_blacklisted then -- Only perform the following operations if the user isn't blacklisted.
@@ -903,7 +903,7 @@ function mattata.process_spam(message)
                 message.from.username and '@' .. message.from.username or message.from.name
             )
         )
-    elseif messages == 15 -- If the user has sent 15 messages in the past 5 seconds, blacklist them globally from
+    elseif msg_count == 15 -- If the user has sent 15 messages in the past 5 seconds, blacklist them globally from
     -- using the bot for 24 hours.
     and not mattata.is_global_admin(message.from.id) -- Don't blacklist the user if they are configured as a global
     -- admin in `configuration.lua`.
