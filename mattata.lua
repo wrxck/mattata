@@ -949,10 +949,9 @@ function mattata.process_spam(message)
         local antispam = {}
         antispam.default_values = { ['text'] = 8,['forwarded'] = 16,['sticker'] = 4, ['photo'] = 4,['video'] = 4,['location'] = 4,['voice'] = 4,['game'] = 2,['venue'] = 4,['video note'] = 4,['invoice'] = 2,['contact'] = 2 }
         local msg_limit = mattata.get_value(message.chat.id, message.media_type .. ' limit') or antispam.default_values[message.media_type]
-        if msg_count >= tonumber(msg_limit) then -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
+        if msg_count == tonumber(msg_limit) and not mattata.is_global_admin(message.from.id) then -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
             local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
             local success, error_message = action(message.chat.id, message.from.id)
-            print("Kicked")
             if not success then
                 return false, error_message
             elseif mattata.get_setting(message.chat.id, 'log administrative actions') then
