@@ -17,7 +17,7 @@ function porn:init(configuration)
     :command('boobs')
     :command('butt')
     :command('butts').table
-    porn.help = '/boobs - Sends random boobs.\n/butts - Sends random button.'
+    porn.help = '/porn - Displays this help\n/boobs - Sends random boobs.\n/butts - Sends random button.'
 end
 
 local function getRandomButts(attempt)
@@ -52,38 +52,6 @@ local function getRandomBoobs(attempt)
   end
 
   return 'http://media.oboobs.ru/' .. data.preview
-end
-
-function porn:on_inline_query(inline_query, configuration, language)
-    local input = mattata.input(inline_query.query) or inline_query.from.id
-    if not input
-    then
-        return
-    end
-    if string.match(input, "boob") or string.match(input, "boobs") then
-      local img = getRandomBoobs()
-    elseif string.match(input, "butt") or string.match(input, "butts") then
-      local img = getRandomButts()
-    end
-    if img ~= "" then
-      print(img)
-      return mattata.answer_inline_query(
-          inline_query.id,
-          json.encode(
-              {
-                  {
-                      ['type'] = 'photo',
-                      ['id'] = '1',
-                      ['photo_url'] = img,
-                      ['thumb_url'] = img,
-                      ['caption'] = porn.help
-                  }
-              }
-          )
-      )
-    else
-      return
-    end
 end
 
 function porn:on_message(message, configuration, language)
