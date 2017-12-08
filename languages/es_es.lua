@@ -31,7 +31,7 @@ return {
         ['4'] = 'Activar límites en %s',
         ['5'] = 'Todos los ajustes de administración',
         ['6'] = '%s [%s] ha sido expulsado %s [%s] de %s [%s] por alcanzar el límite anti-spam de [%s] multimedia.',
-        ['7'] = 'Expulsado %s por alcanzar el límite antispam de [%s] multimedia.',
+        ['7'] = 'Expulsado %s por alcanzar el límite antispam de [%s] mensajes.',
         ['8'] = 'El máximo límite es 100.',
         ['9'] = 'El mínimo límite es 1.',
         ['10'] = 'Edita la configuración antispam de %s aquí:'
