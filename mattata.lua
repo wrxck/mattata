@@ -941,8 +941,6 @@ function mattata.process_spam(message)
                 mattata.get_log_chat(message.chat.id),
                 string.format(
                     '<pre>' .. language['antispam']['6'] .. '</pre>',
-                    mattata.escape_html(self.info.first_name),
-                    self.info.id,
                     mattata.escape_html(message.from.first_name),
                     message.from.id,
                     mattata.escape_html(message.chat.title),
