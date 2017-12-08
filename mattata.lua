@@ -946,7 +946,7 @@ function mattata.process_spam(message)
             5, -- Set the time to live to 5 seconds.
             msg_count + 1 -- Increase the current message count by 1.
         )
-        antispam.default_values = { ['text'] = 8,['forwarded'] = 16,['sticker'] = 4, ['photo'] = 4,['video'] = 4,['location'] = 4,['voice'] = 4,['game'] = 2,['venue'] = 4,['video note'] = 4,['invoice'] = 2,['contact'] = 2 }
+        local antispam.default_values = { ['text'] = 8,['forwarded'] = 16,['sticker'] = 4, ['photo'] = 4,['video'] = 4,['location'] = 4,['voice'] = 4,['game'] = 2,['venue'] = 4,['video note'] = 4,['invoice'] = 2,['contact'] = 2 }
         if msg_count == mattata.get_value(message.chat.id, message.media_type .. ' limit') or antispam.default_values[message.media_type] -- If the user has sent 7 messages in the past 5 seconds, send them a warning.
         and not mattata.is_global_admin(message.from.id) then -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
             local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
