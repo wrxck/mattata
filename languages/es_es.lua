@@ -57,7 +57,7 @@ return {
         ['2'] = 'Éxito!'
     },
     ['blacklist'] = {
-        ['1'] = 'Que usuairo quieres que ponga en la lista negra? Especifica un alias o ID.',
+        ['1'] = 'Que usuario quieres que ponga en la lista negra? Especifica un alias o ID.',
         ['2'] = 'No puedo poner a este usuario en la lista negra porque es es administrador o moderador.',
         ['3'] = 'No puedo poner a este usuario en la lista negra porque ha abandonado el chat.',
         ['4'] = 'No puedo poner a este usuario en la lista negra porque ya está en la lista negra.'
@@ -117,7 +117,7 @@ return {
         ['1'] = 'No he podido eliminar ese mensaje. Puede que el mensaje sea demasiado viejo o inexistente?'
     },
     ['demote'] = {
-        ['1'] = 'Que usuairo quieres que degrade? Especifica un alias o ID.',
+        ['1'] = 'Que usuario quieres que degrade? Especifica un alias o ID.',
         ['2'] = 'No puedo degradar a este usuario porque no es administrador o moderador.',
         ['3'] = 'No puedo degradar a este usuario porque ha abandonado el chat.',
         ['4'] = 'No puedo degradar a este usuario porque ha sido expulsado.'
@@ -166,99 +166,99 @@ return {
         ['16'] = 'Jugar al 3 en Raya!'
     },
     ['gblacklist'] = {
-        ['1'] = 'Please reply-to the user you\'d like to globally blacklist, or specify them by username/ID.',
-        ['2'] = 'I couldn\'t get information about "%s", please check it\'s a valid username/ID and try again.',
-        ['3'] = 'That\'s a %s, not a user!'
+        ['1'] = 'Responde al usuario que quieras poner en la lista negra global, o dime su alias o ID.',
+        ['2'] = 'No he podido obtener la información de "%s", comprueba que es un alias o ID válido y prueba de nuevo.',
+        ['3'] = 'Eso es un %s, no un usuario!'
     },
     ['gif'] = {
-        ['1'] = 'Please enter a search query (that is, what you want me to search GIPHY for, i.e. "cat" will return a GIF of a cat).'
+        ['1'] = 'Introduce un término de búsqueda (esto es, quieres que busque en GIPHY, por ejemplo "gato" dará un GIF de un gato).'
     },
     ['gwhitelist'] = {
-        ['1'] = 'Please reply-to the user you\'d like to globally whitelist, or specify them by username/ID.',
-        ['2'] = 'I couldn\'t get information about "%s", please check it\'s a valid username/ID and try again.',
-        ['3'] = 'That\'s a %s, not a user!'
+        ['1'] = 'Responde al usuario que quieras quitar de la lista negra global, o dime su alias o ID.',
+        ['2'] = 'No he podido obtener la información de "%s", comprueba que es un alias o ID válido y prueba de nuevo.',
+        ['3'] = 'Eso es un %s, no un usuario!'
     },
     ['hackernews'] = {
-        ['1'] = 'Top Stories from Hacker News:'
+        ['1'] = 'Últimas historias de Hacker News:'
     },
     ['help'] = {
-        ['1'] = 'No results found!',
-        ['2'] = 'There were no features found matching "%s", please try and be more specific!',
-        ['3'] = '\n\nArguments: <required> [optional]\n\nSearch for a feature or get help with a command by using my inline search functionality - just mention me in any chat using the syntax @%s <search query>.',
-        ['4'] = 'Previous',
-        ['5'] = 'Next',
-        ['6'] = 'Back',
-        ['7'] = 'Search',
-        ['8'] = 'You are on page %s of %s!',
+        ['1'] = 'No se han encontrado resultados!',
+        ['2'] = 'No hay funciones que coincidan con "%s", intenta ser más específico!',
+        ['3'] = '\n\Argumentos: <requerido> [opcional]\n\nBusca una función o recibe ayuda con un comando con mi funcionalidad inline - solo mencióname en cualquier chat con @%s <búsqueda>.',
+        ['4'] = 'Anterior',
+        ['5'] = 'Siguiente',
+        ['6'] = 'Atrás',
+        ['7'] = 'Buscar',
+        ['8'] = 'Página %s de %s!',
         ['9'] = [[
-I can perform many administrative actions in your groups, just add me as an administrator and send /administration to adjust the settings for your group.
-Here are some administrative commands and a brief comment regarding what they do:
+Puedo realizar funciones de administración en grupos, simplemente añádeme a uno con todos los poderes administrativos y envía /administration para ajustar las configuraciones del grupo.
+Algunos comandos administrativos con una pequeña descripción:
 
-• /pin <text> - Send a Markdown-formatted message which can be edited by using the same command with different text, to save you from having to re-pin a message if you can't edit it (which happens if the message is older than 48 hours)
+• /pin <texto> - Envía un mensaje con formateo markdown que puede ser editado con el mismo comando, que puede ser guardado, editado y anclado en cualquier momento (esto no ocurre se puede hacer si el mensaje es más viejo que 48 horas, pero con el bot si)
 
-• /ban - Ban a user by replying to one of their messages, or by specifying them by username/ID
+• /ban - Banea a un usuario respondiendo a un mensaje, o poniendo su alias o ID
 
-• /kick - Kick (ban and then unban) a user by replying to one of their messages, or by specifying them by username/ID
+• /kick - Expulsa (baneo y luego desbaneo) a un usuario respondiendo a un mensaje, o poniendo su alias o ID
 
-• /unban - Unban a user by replying to one of their messages, or by specifying them by username/ID
+• /unban - Desbanea a un usuario respondiendo a un mensaje, o poniendo su alias o ID
 
-• /setrules <text> - Set the given Markdown-formatted text as the group rules, which will be sent whenever somebody uses /rules
+• /setrules <texto> - Pone las reglas con formateo markdown, que serán enviadas con el comando /rules
         ]],
         ['10'] = [[
-• /setwelcome - Set the given Markdown-formatted text as a welcome message that will be sent every time a user joins your group (the welcome message can be disabled in the administration menu, accessible via /administration). You can use placeholders to automatically customise the welcome message for each user. Use $user\_id to insert the user's numerical ID, $chat\_id to insert the chat's numerical ID, $name to insert the user's name, $title to insert the chat title and $username to insert the user's username (if the user doesn't have an @username, their name will be used instead, so it is best to avoid using this with $name)
+• /setwelcome - Pone el texto recibido con formateo markdown como mensaje de bienvenida, que será enviado cada vez que alguien se una al grupo (este mensaje se puede desactivar desde la configuración del grupo, con el comando /administration). Puedes usar campos predefinidos para poner un mensaje personalizado. Usa $user\_id para insertar el ID númerico del usuario, $chat\_id para el ID númerico de chat, $name para insertar el nombre del usuario, $title para insertar el título de chat y $username para insertar el alias del usuario (si el usuario no tiene un alias como @username, se mostrará su nombre, así que es mejor usar $name en vez de este)
 
-• /warn - Warn a user, and ban them when they hit the maximum number of warnings
+• /warn - Avisa a un usuario, y lo banea cuando se alcanza el número máximo de avisos
 
-• /mod - Promote the replied-to user, giving them access to administrative commands such as /ban, /kick, /warn etc. (this is useful when you don't want somebody to have the ability to delete messages!)
+• /mod - Asciende al usuario al que se responde, dándole acceso a comandos como /ban, /kick, /warn etc. (esto es útil si quieres que un administrador no tenga permiso para eliminar mensajes)
 
-• /demod - Demote the replied-to user, stripping them from their moderation status and revoking their ability to use administrative commands
+• /demod - Desciende al usuario al que se responde, retirándole sus privilegios de moderación y evitar que use comandos de administración
 
-• /staff - View the group's creator, administrators, and moderators in a neatly-formatted list
+• /staff - Mira al creador, administradores y moderadores en una bonita lista
         ]],
         ['11'] = [[
-• /report - Forwards the replied-to message to all administrators and alerts them of the current situation
+• /report - Reenvia el mensaje al que se responde a los administradores y les avisa de la situación
 
-• /setlink <URL> - Set the group's link to the given URL, which will be sent whenever somebody uses /link
+• /setlink <URL> - Fija el link del grupo a una URL fija, que será enviada con el comando /link
 
-• /links <text> - Whitelists all of the Telegram links found in the given text (includes @username links)
+• /links <texto> - Ignora los enlaces de Telegram encontrados en ese texto (incluyendo enlaces de alias como @username)
         ]],
-        ['12'] = 'Below are some links you might find useful:',
-        ['13'] = 'Development',
-        ['14'] = 'Channel',
-        ['15'] = 'Support',
+        ['12'] = 'Algunos links que pueden ser útiles:',
+        ['13'] = 'Desarrollo',
+        ['14'] = 'Canal',
+        ['15'] = 'Soporte',
         ['16'] = 'FAQ',
-        ['17'] = 'Source',
-        ['18'] = 'Donate',
-        ['19'] = 'Rate',
-        ['20'] = 'Administration Log',
-        ['21'] = 'Admin Settings',
+        ['17'] = 'Código Fuente',
+        ['18'] = 'Donar',
+        ['19'] = 'Evaluar',
+        ['20'] = 'Registro de Administraciones',
+        ['21'] = 'Ajustes de Administración',
         ['22'] = 'Plugins',
         ['23'] = [[
-<b>Hi %s! My name's %s, it's a pleasure to meet you</b> %s
+<b>Hola %s! Mi nombre es %s, es un placer conocerte</b> %s
 
-I understand many commands, which you can learn more about by pressing the "Commands" button using the attached keyboard.
+Entiendo muchos comandos, de los cuales puedes aprender más pulsando el botón "Comandos" usando el teclado de abajo.
 
-%s <b>Tip:</b> Use the "Settings" button to change how I work%s!
+%s <b>Truco:</b> Usa el botón "Ajustes" Para cambiar como funciono%s!
 
-%s <b>Find me useful, or just want to help?</b> Donations are very much appreciated, use /donate for more information!
+%s <b>Me encuentras útil, o me quieres ayudar?</b> Las donaciones son muy apreciadas, usa /donate para más información!
         ]],
-        ['24'] = 'in'
+        ['24'] = 'en'
     },
     ['id'] = {
-        ['1'] = 'I\'m sorry, but I don\'t recognise that user. To teach me who they are, forward a message from them to me or get them to send me a message.',
-        ['2'] = 'Queried Chat:',
-        ['3'] = 'This Chat:',
-        ['4'] = 'Click to send the result!'
+        ['1'] = 'Ooops, no reconozco a ese usuario. Para enseñarme quien es, reenvíame un mensaje o dile que me hable.',
+        ['2'] = 'Chat solicitado:',
+        ['3'] = 'Este chat:',
+        ['4'] = 'Clica para enviar el resultado!'
     },
     ['imdb'] = {
-        ['1'] = 'Previous',
-        ['2'] = 'Next',
-        ['3'] = 'You are on page %s of %s!'
+        ['1'] = 'Anterior',
+        ['2'] = 'Siguiente',
+        ['3'] = 'Página %s de %s!'
     },
     ['import'] = {
-        ['1'] = 'I don\'t recognise that chat!',
-        ['2'] = 'That\'s not a supergroup, therefore I cannot import any settings from it!',
-        ['3'] = 'Successfully imported administrative settings & toggled plugins from %s to %s!'
+        ['1'] = 'No reconozco ese chat!',
+        ['2'] = 'No es un supergrupo, por eso no puedo importar la configuración!',
+        ['3'] = 'Importadas las configuraciones administrativas y de plugins de %s a %s!'
     },
     ['info'] = {
         ['1'] = [[
@@ -281,86 +281,86 @@ Sistema:
         ]]
     },
     ['instagram'] = {
-        ['1'] = '@%s on Instagram'
+        ['1'] = '@%s en Instagram'
     },
     ['ipsw'] = {
-        ['1'] = '<b>%s</b> iOS %s\n\n<code>MD5 sum: %s\nSHA1 sum: %s\nFile size: %s GB</code>\n\n<i>%s %s</i>',
-        ['2'] = 'This firmware is no longer being signed!',
-        ['3'] = 'This firmware is still being signed!',
-        ['4'] = 'Please select your model:',
-        ['5'] = 'Please select your firmware version:',
-        ['6'] = 'Please select your device type:',
+        ['1'] = '<b>%s</b> iOS %s\n\n<code>Firma MD5: %s\nFirma SHA1: %s\nTamaño del archivo: %s GB</code>\n\n<i>%s %s</i>',
+        ['2'] = 'Este firmware ya no está firmado!',
+        ['3'] = 'Este firmware aún se firma!',
+        ['4'] = 'Selecciona tu modelo:',
+        ['5'] = 'Selecciona la versión del firmware:',
+        ['6'] = 'Selecciona el tipo de dispositivo:',
         ['7'] = 'iPod Touch',
         ['8'] = 'iPhone',
         ['9'] = 'iPad',
         ['10'] = 'Apple TV'
     },
     ['ispwned'] = {
-        ['1'] = 'That account was found in the following leaks:'
+        ['1'] = 'Esa cuenta se ha encontrado en las siguientes bases de datos:'
     },
     ['itunes'] = {
-        ['1'] = 'Name:',
-        ['2'] = 'Artist:',
-        ['3'] = 'Album:',
-        ['4'] = 'Track:',
-        ['5'] = 'Disc:',
-        ['6'] = 'The original query could not be found, you\'ve probably deleted the original message.',
-        ['7'] = 'The artwork can be found below:',
-        ['8'] = 'Please enter a search query (that is, what you want me to search iTunes for, i.e. "Green Day American Idiot" will return information about the first result for American Idiot by Green Day).',
-        ['9'] = 'Get Album Artwork'
+        ['1'] = 'Nombre:',
+        ['2'] = 'Artista:',
+        ['3'] = 'Álbum:',
+        ['4'] = 'Pista:',
+        ['5'] = 'Disco:',
+        ['6'] = 'La búsqueda original no pudo ser encontrada, posiblemente se haya borrado el mensaje.',
+        ['7'] = 'El resultado se puede encontrar aquí:',
+        ['8'] = 'Introduce tu término de bísqueda (esto es, si quieres que busque en iTunes, por ejemplo "Green Day American Idiot" devolverá el primer resultado de American Idiot by Green Day).',
+        ['9'] = 'Obtener resultados del trabajo'
     },
     ['kick'] = {
-        ['1'] = 'Which user would you like me to kick? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot kick this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot kick this user because they have already left this chat.',
-        ['4'] = 'I cannot kick this user because they have already been kicked from this chat.',
-        ['5'] = 'I need to have administrative permissions in order to kick this user. Please amend this issue, and try again.'
+        ['1'] = 'Que usuario quieres que expulse? Especifica un alias o ID.',
+        ['2'] = 'No puedo expulsar a este usuario porque es administrador o moderador.',
+        ['3'] = 'No puedo expulsar a este usuario porque ya ha abandonado el chat.',
+        ['4'] = 'No puedo expulsar a este usuario porque ya está expulsado.',
+        ['5'] = 'Necesito ser administrador del grupo para expulsar al usuario. Por favor, otórgame permisos y prueba otra vez.'
     },
     ['lastfm'] = {
-        ['1'] = '%s\'s last.fm username has been set to "%s".',
-        ['2'] = 'Your last.fm username has been forgotten!',
-        ['3'] = 'You don\'t currently have a last.fm username set!',
-        ['4'] = 'Please specify your last.fm username or set it with /fmset.',
-        ['5'] = 'No history was found for this user.',
-        ['6'] = '%s is currently listening to:\n',
-        ['7'] = '%s last listened to:\n',
-        ['8'] = 'Unknown',
-        ['9'] = 'Click to send the result.'
+        ['1'] = 'El usuario de last.fm de %s se ha guardado a "%s".',
+        ['2'] = 'He borrado tu usuario de last.fm!',
+        ['3'] = 'No tienes guardad un usuario de last.fm!',
+        ['4'] = 'Especifica tu usuario de last.fm o ponlo con /fmset.',
+        ['5'] = 'No se ha encontrado historial para ese usuario.',
+        ['6'] = '%s ahora mismo está escuchando a:\n',
+        ['7'] = '%s por última vez ha escuchado:\n',
+        ['8'] = 'Desconocido',
+        ['9'] = 'Clica para enviar el resultado.'
     },
     ['location'] = {
-        ['1'] = 'You don\'t have a location set. What would you like your new location to be?'
+        ['1'] = 'No tienes ninguna ubicación puesta. Que ubicación quieres usar?'
     },
     ['logchat'] = {
-        ['1'] = 'Please enter the username or numerical ID of the chat you wish to log all administrative actions into.',
-        ['2'] = 'Checking to see whether that chat is valid...',
-        ['3'] = 'I\'m sorry, it appears you\'ve either specified an invalid chat, or you\'ve specified a chat I haven\'t been added to yet. Please rectify this and try again.',
-        ['4'] = 'You can\'t set a user as your log chat!',
-        ['5'] = 'You don\'t appear to be an administrator in that chat!',
-        ['6'] = 'It seems I\'m already logging administrative actions into that chat! Use /logchat to specify a new one.',
-        ['7'] = 'That chat is valid, I\'m now going to try and send a test message to it, just to ensure I have permission to post!',
-        ['8'] = 'Hello, World - this is a test message to check my posting permissions - if you\'re reading this, then everything went OK!',
-        ['9'] = 'All done! From now on, any administrative actions in this chat will be logged into %s - to change the chat you want me to log administrative actions into, just send /logchat.'
+        ['1'] = 'Introduce el alias o ID del chat al que quieres reenviar el registro de todas las acciones administrativas.',
+        ['2'] = 'Comprobando si es un chat válido...',
+        ['3'] = 'Ooops, parece que me has dado un chat inválido, o me has especificado un chat al que no he sido añadido. Corrígelo y prueba de nuevo.',
+        ['4'] = 'No puedes poner un usuario como chat de registro!',
+        ['5'] = 'No parece que seas administrador en el chat!',
+        ['6'] = 'Parece que ya estoy usando ese chat como registro de acciones! Usa /logchat para especificar uno distinto.',
+        ['7'] = 'Ese chat es válido, voy a intentar enviar un mensaje de prueba, para comprobar que tengo permiso para enviar mensajes!',
+        ['8'] = 'Hola Mundo! - este es un mensaje de prueba para comprobar si tengo permiso para enviar mensajes - si estás leyendo esto es porque todo está OK!',
+        ['9'] = 'Todo correcto! Desde ahora, todas las acciones serán registradas a %s - para cambiar a donde envío el registro, solo envía /logchat.'
     },
     ['lua'] = {
-        ['1'] = 'Please enter a string of Lua to execute!'
+        ['1'] = 'Introduce la línea de Lua a ejecutar!'
     },
     ['lyrics'] = {
         ['1'] = 'Spotify',
-        ['2'] = 'Show Lyrics',
-        ['3'] = 'Please enter a search query (that is, what song/artist/lyrics you want me to get lyrics for, i.e. "Green Day Basket Case" will return the lyrics for the song Basket Case by Green Day).'
+        ['2'] = 'Mostrar letra',
+        ['3'] = 'Introduce un término de búsqueda (esto es, de que canción quieres que muestre la letra, por ejemplo "Despacito" dará la letra de la canción Despacito de Luis Fonsi).'
     },
     ['minecraft'] = {
-        ['1'] = '<b>%s has changed his/her username %s time</b>',
-        ['2'] = '<b>%s has changed his/her username %s times</b>',
-        ['3'] = 'Previous',
-        ['4'] = 'Next',
-        ['5'] = 'Back',
+        ['1'] = '<b>%s ha cambiado su nombre de usuario %s vez</b>',
+        ['2'] = '<b>%s ha cambiado su nombre de usuario %s veces</b>',
+        ['3'] = 'Anterior',
+        ['4'] = 'Siguiente',
+        ['5'] = 'Atrás',
         ['6'] = 'UUID',
         ['7'] = 'Avatar',
-        ['8'] = 'Username History',
-        ['9'] = 'Please select an option:',
-        ['10'] = 'Please enter the username of the Minecraft player you would like to view information about (i.e. sending "Notch" will view information about the player Notch).',
-        ['11'] = 'Minecraft usernames are between 3 and 16 characters long.'
+        ['8'] = 'Historial de Nombre de Usuario',
+        ['9'] = 'Selecciona una opción:',
+        ['10'] = 'Introduce el nombre de usuario del jugador de Minecraft del que quieras sacar la información (por ejemplo, enviando "Notch" dará la información del jugar Notch).',
+        ['11'] = 'Los nombres de usuario de Minecraft son de 3 a 16 carácteres de largo.'
     },
     ['msglink'] = {
         ['1'] = 'You can only use this command in supergroups and channels.',
@@ -529,10 +529,10 @@ Sistema:
         ['3'] = 'Download .zip'
     },
     ['statistics'] = {
-        ['1'] = 'No messages have been sent in this chat!',
-        ['2'] = '<b>Statistics for:</b> %s\n\n%s\n<b>Total messages sent:</b> %s',
-        ['3'] = 'The statistics for this chat have been reset!',
-        ['4'] = 'I could not reset the statistics for this chat. Perhaps they have already been reset?'
+        ['1'] = 'No se han enviado mensajes en este chat!',
+        ['2'] = '<b>Estadísticas para:</b> %s\n\n%s\n<b>Número total de mensajes:</b> %s',
+        ['3'] = 'Las estadísticas para este chat se han reseteado!',
+        ['4'] = 'No he podido resetear las estadísticas para este chat. Puede que ya se hayan reseteado'
     },
     ['steam'] = {
         ['1'] = 'Your Steam username has been set to "%s".',
