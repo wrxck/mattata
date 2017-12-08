@@ -940,7 +940,7 @@ function mattata.process_spam(message)
         local msg_count = tonumber(
             redis:get('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
             -- has already sent 1 or more messages to the current chat, in the past 5 seconds.
-        ) or 1 -- If this is the first time the user has posted in the past 5 seconds, we'll make it 1 accordingly.
+        ) or 0 -- If this is the first time the user has posted in the past 5 seconds, we'll make it 1 accordingly.
         redis:setex(
             'antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id,
             5, -- Set the time to live to 5 seconds.
@@ -959,8 +959,8 @@ function mattata.process_spam(message)
                     mattata.get_log_chat(message.chat.id),
                     string.format(
                         '<pre>' .. language['antispam']['6'] .. '</pre>',
-                        mattata.escape_html(self.info.first_name),
-                        self.info.id,
+                        mattata.escape_html(api.info.first_name),
+                        api.info.id,
                         mattata.escape_html(message.from.first_name),
                         message.from.id,
                         mattata.escape_html(message.chat.title),
