@@ -925,32 +925,49 @@ function mattata.process_spam(message)
         end
         return false
     else
+        if message.chat.type ~= 'supergroup' then
+            return false, 'The chat is not a supergroup!'
+        elseif mattata.is_group_admin(message.chat.id, message.from.id) then
+            return false, 'That user is an admin/mod in this chat!'
+        elseif mattata.is_global_admin(message.from.id) then
+            return false, 'That user is a global admin!'
+        elseif not mattata.get_setting(message.chat.id, 'use administration') then
+            return false, 'The administration plugin is switched off in this chat!'
+        elseif not mattata.get_setting(message.chat.id, 'antispam') then
+            return false, 'The antispam plugin is switched off in this chat!'
+        end
+
         local msg_count = tonumber(
-            redis:get('antispam:' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
+            redis:get('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
             -- has already sent 1 or more messages to the current chat, in the past 5 seconds.
         ) or 1 -- If this is the first time the user has posted in the past 5 seconds, we'll make it 1 accordingly.
         redis:setex(
-            'antispam:' .. message.chat.id .. ':' .. message.from.id,
-            2, -- Set the time to live to 5 seconds.
+            'antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id,
+            5, -- Set the time to live to 5 seconds.
             msg_count + 1 -- Increase the current message count by 1.
         )
-        if msg_count == 7 -- If the user has sent 7 messages in the past 5 seconds, send them a warning.
-        and not mattata.is_global_admin(message.from.id)then
-        -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
-            mattata.send_message(
-                mattata.get_log_chat(message.chat.id),
-                string.format(
-                    '<pre>' .. language['antispam']['6'] .. '</pre>',
-                    mattata.escape_html("BarrePolice"),
-                    "Bot",
-                    mattata.escape_html(message.from.first_name),
-                    message.from.id,
-                    mattata.escape_html(message.chat.title),
-                    message.chat.id,
-                    media_type
-                ),
-                'html'
-            )
+        if msg_count == mattata.get_value(message.chat.id, message.media_type .. ' limit') or antispam.default_values[message.media_type] -- If the user has sent 7 messages in the past 5 seconds, send them a warning.
+        and not mattata.is_global_admin(message.from.id) then -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
+            local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
+            local success, error_message = action(message.chat.id, message.from.id)
+            if not success then
+                return false, error_message
+            elseif mattata.get_setting(message.chat.id, 'log administrative actions') then
+                mattata.send_message(
+                    mattata.get_log_chat(message.chat.id),
+                    string.format(
+                        '<pre>' .. language['antispam']['6'] .. '</pre>',
+                        mattata.escape_html(self.info.first_name),
+                        self.info.id,
+                        mattata.escape_html(message.from.first_name),
+                        message.from.id,
+                        mattata.escape_html(message.chat.title),
+                        message.chat.id,
+                        message.media_type
+                    ),
+                    'html'
+                )
+            end
         end
         return false
     end
