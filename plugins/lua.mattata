@@ -38,7 +38,7 @@ function lua:on_message(message, configuration, language)
             language['lua']['1']
         )
     end
-    local output, success = load('local mattata = require(\'mattata\')\nlocal api = require(\'telegram-bot-lua.core\')\nlocal tools = require(\'telegram-bot-lua.tools\')\nlocal https = require(\'ssl.https\')\nlocal http = require(\'socket.http\')\nlocal url = require(\'socket.url\')\nlocal ltn12 = require(\'ltn12\')\nlocal json = require(\'dkjson\')\nlocal utf8 = require(\'lua-utf8\')\nlocal redis = require(\'mattata-redis\')\nlocal socket = require(\'socket\')\nreturn function (message, configuration, self)\n' .. input .. '\nend')
+    local output, success = load('local mattata = require(\'mattata\')\nlocal api = require(\'telegram-bot-lua.core\')\nlocal tools = require(\'telegram-bot-lua.tools\')\nlocal https = dofile(\'libs/https.lua\')\nlocal http = require(\'socket.http\')\nlocal url = require(\'socket.url\')\nlocal ltn12 = require(\'ltn12\')\nlocal json = require(\'dkjson\')\nlocal utf8 = require(\'lua-utf8\')\nlocal redis = dofile(\'libs/redis.lua\')\nlocal socket = require(\'socket\')\nreturn function (message, configuration, self)\n' .. input .. '\nend')
     if success == nil
     then
         success, output = xpcall(
