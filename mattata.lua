@@ -435,6 +435,7 @@ function mattata:on_message()
     end
     collectgarbage()
     mattata.process_message(self)
+    antispam.process_message(self)
     if self.is_done or self.is_user_blacklisted then
         self.is_done = false
         return true
