@@ -8,6 +8,7 @@ local porn = {}
 local mattata = require('mattata')
 local http = require('socket.http')
 local url = require('socket.url')
+local json = require('dkjson')
 
 function porn:init(configuration)
     porn.commands = mattata.commands(self.info.username)
@@ -26,7 +27,7 @@ local function getRandomButts(attempt)
   local res,status = http.request("http://api.obutts.ru/noise/1")
 
   if status ~= 200 then return mattata.send_reply(message, language['errors']['connection']) end
-  local data = json:decode(res)[1]
+  local data = jsonlib:decode(res)[1]
 
   -- The OpenBoobs API sometimes returns an empty array
   if not data and attempt <= 3 then
@@ -43,7 +44,7 @@ local function getRandomBoobs(attempt)
   local res,status = http.request("http://api.oboobs.ru/noise/1")
 
   if status ~= 200 then return mattata.send_reply(message, language['errors']['connection']) end
-  local data = json:decode(res)[1]
+  local data = jsonlib:decode(res)[1]
 
   -- The OpenBoobs API sometimes returns an empty array
   if not data and attempt < 10 then
