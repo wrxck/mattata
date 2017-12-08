@@ -22,7 +22,8 @@ setlang.languages = {
     ['pt_br'] = 'Português do Brasil 🇧🇷',
     ['pt_pt'] = 'Português 🇵🇹',
     ['tr_tr'] = 'Türkçe 🇹🇷',
-    ['es_es'] = 'Español 🇪🇸'
+    ['es_es'] = 'Español 🇪🇸',
+    ['gl_gl'] = 'Galician 🏴󠁥󠁳󠁧󠁡󠁿'
 }
 
 setlang.languages_short = {
@@ -34,7 +35,8 @@ setlang.languages_short = {
     ['pt_br'] = '🇧🇷',
     ['pt_pt'] = '🇵🇹',
     ['tr_tr'] = '🇹🇷',
-    ['es_es'] = '🇪🇸'
+    ['es_es'] = '🇪🇸',
+    ['gl_gl'] = '🏴󠁥󠁳󠁧󠁡󠁿'
 }
 
 function setlang.get_keyboard(user_id)
