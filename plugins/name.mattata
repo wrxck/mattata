@@ -29,7 +29,7 @@ function name.get_name(chat_id)
             chat_id
         )
     )
-    or 'mattata'
+    or 'BarrePolice'
 end
 
 function name:on_message(message, configuration, language)
