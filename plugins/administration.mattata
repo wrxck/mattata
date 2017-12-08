@@ -730,7 +730,7 @@ function administration.get_help_text(section)
     elseif section == 'administration' then
         return [[There are 4 main parts to the <i>actual</i> administration part of my functionality. These can be used by all group administrators and moderators. <code>/ban</code>, <code>/kick</code>, <code>/unban</code>, and <code>/warn</code>. <code>/kick</code> and <code>/ban</code> remove the targeted user from the chat. The only difference is that <code>/kick</code> will automatically unban the user after removing them, thus acting as a soft-ban. <code>/unban</code> will unban the targeted user from the chat, and <code>/warn</code> will warn the targeted user. A user will be banned after 3 warnings. <code>/kick</code>, <code>/ban</code>, and <code>/unban</code> can be used in reply to a user, or you can specify the user as an argument via their numerical ID or username (with or without a preceding <code>@</code>).]]
     elseif section == 'back' then
-        return [[Learn more about using mattata for administrating your group by navigating using the buttons below:]]
+        return [[Learn more about using BarrePolice for administrating your group by navigating using the buttons below:]]
     end
     return false
 end

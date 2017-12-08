@@ -145,6 +145,7 @@ function antispam:process_message(message, configuration, language)
     local is_spamming, media_type = antispam.is_user_spamming(message)
     if not is_spamming then
         return false, 'This user is not spamming!'
+        print("NotSpammingLol")
     end
     local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
     local success, error_message = action(message.chat.id, message.from.id)
