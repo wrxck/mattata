@@ -236,9 +236,9 @@ Algunos comandos administrativos con una pequeña descripción:
         ['23'] = [[
 <b>Hola %s! Mi nombre es %s, es un placer conocerte</b> %s
 
-Entiendo muchos comandos, de los cuales puedes aprender más pulsando el botón "Comandos" usando el teclado de abajo.
+Entiendo muchos comandos, de los cuales puedes aprender más pulsando el botón "Commands" usando el teclado de abajo.
 
-%s <b>Truco:</b> Usa el botón "Ajustes" Para cambiar como funciono%s!
+%s <b>Truco:</b> Usa el botón "Settings" Para cambiar como funciono%s!
 
 %s <b>Me encuentras útil, o me quieres ayudar?</b> Las donaciones son muy apreciadas, usa /donate para más información!
         ]],
