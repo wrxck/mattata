@@ -184,7 +184,7 @@ return {
     ['help'] = {
         ['1'] = 'No se han encontrado resultados!',
         ['2'] = 'No hay funciones que coincidan con "%s", intenta ser más específico!',
-        ['3'] = '\n\Argumentos: <requerido> [opcional]\n\nBusca una función o recibe ayuda con un comando con mi funcionalidad inline - solo mencióname en cualquier chat con @%s <búsqueda>.',
+        ['3'] = '\n\nArgumentos: <requerido> [opcional]\n\nBusca una función o recibe ayuda con un comando con mi funcionalidad inline - solo mencióname en cualquier chat con @%s <búsqueda>.',
         ['4'] = 'Anterior',
         ['5'] = 'Siguiente',
         ['6'] = 'Atrás',
