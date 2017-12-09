@@ -937,7 +937,7 @@ function administration:on_message(message, configuration)
             message,
             self.info
         )
-    elseif message.text:match('^[/!#]antispam') or message.text:match('^[/!#]administration') or message.text:match('^[/!#]config') or message.text:match('^[/!#]admin') then
+    elseif message.text:match('^[/!#]antispam') or message.text:match('^[/!#]administration') or message.text:match('^[/!#]config') or message.text:match('^[/!#]admin') and not message.text:match('^[/!#]admins') then
         local keyboard = administration.get_initial_keyboard(message.chat.id)
         local recipient = message.from.id
         if mattata.get_setting(
