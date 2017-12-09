@@ -1,0 +1,47 @@
+--[[
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local delchat = {}
+local mattata = require('mattata')
+local redis = dofile('libs/redis.lua')
+local json = require('dkjson')
+
+function delchat:init()
+    delchat.commands = mattata.commands(self.info.username):command('delchat').table
+end
+
+function delchat:on_message(message, configuration, language)
+    if not mattata.is_global_admin(message.from.id)
+    then
+        return false
+    end
+    local title = message.text:match('^/delchat (.-)$')
+    if not title then
+        return
+    end
+    for k, v in pairs(redis:smembers('mattata:configuration:chats')) do
+        if not v then
+            return
+        end
+        if not json.decode(v).link or not json.decode(v).title then
+            return
+        elseif json.decode(v).title == title then
+            redis:srem(
+                'mattata:configuration:chats',
+                v
+            )
+            return mattata.send_reply(
+                message,
+                'Deleted ' .. title .. ', and its matching link from the database!'
+            )
+        end
+    end
+    return mattata.send_reply(
+        message,
+        'There were no entries found in the database matching "' .. title .. '"!'
+    )
+end
+
+return delchat
