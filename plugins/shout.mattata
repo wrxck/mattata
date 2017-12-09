@@ -10,6 +10,10 @@ local http = require('socket.http')
 local url = require('socket.url')
 local json = require('dkjson')
 
+local utf8 = utf8 or require('lua-utf8')
+local utf = {}
+utf.char = {utf_8 = '[%z\1-\127\194-\244][\128-\191]'}
+
 function shout:init()
     shout.commands = mattata.commands(self.info.username):command('shout').table
     shout.help = '/shout <text> - Shout the text!'
@@ -21,7 +25,7 @@ function shout.process(input)
     local output = ''
     local inc = 0
     local ilen = 0
-    local utf8_char = '('..u.char.utf_8..'*)'
+    local utf8_char = '('..utf.char.utf_8..'*)'
     for match in input:gmatch(utf8_char) do
       if ilen < 20 then
         ilen = ilen + 1
