@@ -61,8 +61,8 @@ function shout:on_inline_query(inline_query, configuration, language)
                 {
                     ['type'] = 'article',
                     ['id'] = '1',
-                    ['title'] = "SHOUT",
-                    ['description'] = "SHOUT",
+                    ['title'] = "shout",
+                    ['description'] = "shout",
                     ['input_message_content'] = {
                         ['message_text'] = shout.process(input)
                     }
@@ -83,7 +83,8 @@ function shout:on_message(message, configuration)
     end
     return mattata.send_reply(
         message,
-        shout.process(input)
+        shout.process(input),
+        'markdown'
     )
 end
 
