@@ -481,6 +481,7 @@ function administration:on_callback_query(callback_query, message, configuration
                 callback_query.id,
                 'The minimum number of warnings is 2.'
             )
+        print(max_warnings)
         elseif tonumber(max_warnings) == nil
         then
             return
