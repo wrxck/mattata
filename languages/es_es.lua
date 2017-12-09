@@ -460,7 +460,7 @@ Sistema:
         ['6'] = 'Click here to see the pin, updated to contain the text you gave me.'
     },
     ['pokedex'] = {
-        ['1'] = 'Nombre: %s\nID: %s\Tipo: %s\nDescripción: %s'
+        ['1'] = 'Nombre: %s\nID: %s\nTipo: %s\nDescripción: %s'
     },
     ['promote'] = {
         ['1'] = 'I cannot promote this user because they are a moderator or an administrator of this chat.',
