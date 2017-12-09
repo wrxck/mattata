@@ -69,8 +69,8 @@ function groups:on_message(message)
             )
         end
         return mattata.send_reply(
-            message .. "\n\nIf you\'d like your group to appear here, contact @Barreeeiroo.",
-            output
+            message,
+            output .. "\n\nIf you\'d like your group to appear here, contact @Barreeeiroo."
         )
     end
     table.sort(output)
@@ -86,8 +86,8 @@ function groups:on_message(message)
         ) .. output
     end
     return mattata.send_message(
-        message.chat.id .. "<br><br>If you\'d like your group to appear here, contact @Barreeeiroo.",
-        output,
+        message.chat.id,
+        output .. "<br><br>If you\'d like your group to appear here, contact @Barreeeiroo.",
         'html'
     )
 end
