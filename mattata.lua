@@ -1220,7 +1220,7 @@ function mattata.process_spam(message)
                 message.from.username and '@' .. message.from.username or message.from.name
             )
         )
-    elseif messages == 15 -- If the user has sent 15 messages in the past 5 seconds, blacklist them globally from
+    elseif msg_count == 15 -- If the user has sent 15 messages in the past 5 seconds, blacklist them globally from
     -- using the bot for 24 hours.
     and not mattata.is_global_admin(message.from.id) -- Don't blacklist the user if they are configured as a global
     -- admin in `configuration.lua`.
