@@ -117,67 +117,6 @@ function antispam.get_keyboard(chat_id, language)
     return keyboard
 end
 
-function antispam.is_user_spamming(message)
-    if message.media_type == '' or mattata.get_setting(message.chat.id, 'allow ' .. message.media_type) then
-        return false
-    end
-    local limit = mattata.get_value(message.chat.id, message.media_type .. ' limit') or antispam.default_values[message.media_type]
-    local current = redis:get('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id) or 1
-    redis:setex('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id, 5, tonumber(current) + 1)
-    if tonumber(current) == tonumber(limit) then
-        return true, message.media_type
-    elseif message.media_type == 'rtl' and mattata.get_setting(message.chat.id, 'antirtl') then
-        return true, 'rtl'
-    end
-    return false
-end
-
-function antispam:process_message(message, configuration, language)
-    if message.chat.type ~= 'supergroup' then
-        return false, 'The chat is not a supergroup!'
-    elseif mattata.is_group_admin(message.chat.id, message.from.id) then
-        return false, 'That user is an admin/mod in this chat!'
-    elseif mattata.is_global_admin(message.from.id) then
-        return false, 'That user is a global admin!'
-    elseif not mattata.get_setting(message.chat.id, 'use administration') then
-        return false, 'The administration plugin is switched off in this chat!'
-    elseif not mattata.get_setting(message.chat.id, 'antispam') then
-        return false, 'The antispam plugin is switched off in this chat!'
-    end
-    local is_spamming, media_type = antispam.is_user_spamming(message)
-    if not is_spamming then
-        return false, 'This user is not spamming!'
-    end
-    local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
-    local success, error_message = action(message.chat.id, message.from.id)
-    if not success then
-        return false, error_message
-    elseif mattata.get_setting(message.chat.id, 'log administrative actions') then
-        mattata.send_message(
-            mattata.get_log_chat(message.chat.id),
-            string.format(
-                '<pre>' .. language['antispam']['6'] .. '</pre>',
-                mattata.escape_html(self.info.first_name),
-                self.info.id,
-                mattata.escape_html(message.from.first_name),
-                message.from.id,
-                mattata.escape_html(message.chat.title),
-                message.chat.id,
-                media_type
-            ),
-            'html'
-        )
-    end
-    return mattata.send_message(
-        message,
-        string.format(
-            language['antispam']['7'],
-            message.from.username and '@' .. message.from.username or message.from.first_name,
-            media_type
-        )
-    )
-end
-
 function antispam:on_callback_query(callback_query, message, configuration, language)
     local chat_id = (message and message.chat and message.chat.type == 'supergroup') and message.chat.id or callback_query.data:match('^(%-%d+):?')
     if not chat_id then
