@@ -6,6 +6,7 @@
 local newchat = {}
 local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
+local json = require('dkjson')
 
 function newchat:init()
     newchat.commands = mattata.commands(self.info.username):command('newchat').table
