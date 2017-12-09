@@ -780,7 +780,6 @@ function mattata.sort_message(message)
     end
     message.is_media = mattata.is_media(message)
     message.media_type = mattata.media_type(message)
-    print(message.media_type)
     message.file_id = mattata.file_id(message)
     message.is_service_message, message.service_message = mattata.service_message(message)
     if message.caption_entities then
