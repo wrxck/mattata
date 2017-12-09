@@ -103,7 +103,7 @@ function import:on_message(message, configuration, language)
     local antispam = redis:hget('chat:' .. input.result.id .. ':settings', 'antispam') or false
     if antispam then
         values = redis:hgetall('chat:' .. input.result.id .. ':values') or {}
-        import.debug(antispam)
+        print(antispam)
     else
         redis:hdel('chat:' .. chat_id .. ':settings', 'antispam')
     end
