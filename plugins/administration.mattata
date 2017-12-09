@@ -14,7 +14,9 @@ function administration:init()
     :command('administration')
     :command('admins')
     :command('staff')
-    :command('whitelistlink').table
+    :command('whitelistlink')
+    :command('config')
+    :command('admin').table
 end
 
 function administration.get_initial_keyboard(chat_id, page)
@@ -931,7 +933,7 @@ function administration:on_message(message, configuration)
             message,
             self.info
         )
-    elseif message.text:match('^[/!#]antispam') or message.text:match('^[/!#]administration') then
+    elseif message.text:match('^[/!#]antispam') or message.text:match('^[/!#]administration') or message.text:match('^[/!#]config') or message.text:match('^[/!#]admin') then
         local keyboard = administration.get_initial_keyboard(message.chat.id)
         local recipient = message.from.id
         if mattata.get_setting(
