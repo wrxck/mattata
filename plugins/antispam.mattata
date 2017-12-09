@@ -223,7 +223,14 @@ function antispam:on_message(message, configuration, language)
     end
     local output = string.format(language['antispam']['10'], message.chat.title)
     local keyboard = antispam.get_keyboard(message.chat.id, language)
-    return mattata.send_message(message.chat.id, output, nil, true, false, nil, keyboard)
+    if mattata.get_setting(
+        message.chat.id,
+        'settings in group'
+    ) then
+        return mattata.send_message(message.chat.id, output, nil, true, false, nil, keyboard)
+    end
+    mattata.send_message(message.chat.id, "I have sent you the plugin management menu via private chat.", nil)
+    return mattata.send_message(message.from.id, output, nil, true, false, nil, keyboard)
 end
 
 return antispam
