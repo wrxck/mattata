@@ -490,9 +490,11 @@ function administration:on_callback_query(callback_query, message, configuration
             'max warnings',
             tonumber(max_warnings)
         )
-        print("1")
         keyboard = administration.get_warnings(chat_id)
-        print("2")
+    elseif callback_query.data.match('^%-%d+:back$') then
+        local chat_id = callback_query.data:match('^(%-%d+):back$')
+        keyboard = administration.get_initial_keyboard(message.chat.id)
+    end
     elseif callback_query.data:match('^%-%d+:toggle$')
     then
         local chat_id = callback_query.data:match('^(%-%d+):toggle$')
