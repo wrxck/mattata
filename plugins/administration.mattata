@@ -706,6 +706,7 @@ function administration:on_callback_query(callback_query, message, configuration
     else
         return false
     end
+    print(message.chat.id.." - "..message.message_id.." - "..json.encode(keyboard))
     return mattata.edit_message_reply_markup(
         message.chat.id,
         message.message_id,
