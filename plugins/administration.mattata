@@ -468,19 +468,15 @@ function administration:on_callback_query(callback_query, message, configuration
         keyboard = administration.get_warnings(chat_id)
     elseif callback_query.data:match('^%-%d+:max_warnings:.-$')
     then
-        print("1")
         local chat_id, max_warnings = callback_query.data:match('^(%-%d+):max_warnings:(.-)$')
-        print("2")
         if tonumber(max_warnings) > configuration.administration.warnings.maximum
         then
-            print("3")
             return mattata.answer_callback_query(
                 callback_query.id,
                 'The maximum number of warnings is 10.'
             )
         elseif tonumber(max_warnings) < configuration.administration.warnings.minimum
         then
-            print("4")
             return mattata.answer_callback_query(
                 callback_query.id,
                 'The minimum number of warnings is 2.'
@@ -489,13 +485,14 @@ function administration:on_callback_query(callback_query, message, configuration
         then
             return
         end
-        print("5")
         redis:hset(
             'chat:' .. chat_id .. ':values',
             'max warnings',
             tonumber(max_warnings)
         )
+        print("1")
         keyboard = administration.get_warnings(chat_id)
+        print("2")
     elseif callback_query.data:match('^%-%d+:toggle$')
     then
         local chat_id = callback_query.data:match('^(%-%d+):toggle$')
