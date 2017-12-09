@@ -60,11 +60,11 @@ function groups:on_message(message)
     end
     if not next(output)
     then
-        local output = 'No groups were found. If you\'d like your group to appear here, contact @Barreeeiroo.'
+        local output = 'No groups were found.\n\nIf you\'d like your group to appear here, contact @Barreeeiroo.'
         if input
         then
             output = string.format(
-                'No groups were found matching "%s"! Use /groups to view a complete list of available groups.',
+                'No groups were found matching "%s"!\nUse /groups to view a complete list of available groups.\n\nIf you\'d like your group to appear here, contact @Barreeeiroo.',
                 input
             )
         end
@@ -86,7 +86,7 @@ function groups:on_message(message)
         ) .. output
     end
     return mattata.send_message(
-        message.chat.id,
+        message.chat.id .. "<br><br>If you\'d like your group to appear here, contact @Barreeeiroo.",
         output,
         'html'
     )
