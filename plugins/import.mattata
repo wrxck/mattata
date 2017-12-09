@@ -83,7 +83,7 @@ function import:on_message(message, configuration, language)
         )
     end
     local antispam = redis:hgetall('chat:' .. input.result.id .. ':settings') or {}
-    print(antispam)
+    require 'pl.pretty'.dump(antispam)
     return mattata.send_message(
         message.chat.id,
         string.format(
