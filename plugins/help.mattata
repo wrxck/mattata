@@ -224,10 +224,10 @@ function help:on_callback_query(callback_query, message, configuration, language
                     'https://t.me/Barreeeiroo_Ch'
                 ):url_button(
                     language['help']['17'],
-                    'https://github.com/barreeeiroo/mattata'
+                    'https://github.com/barreeeiroo/BarrePolice'
                 ):url_button(
-                    language['help']['18'],
-                    'https://paypal.me/Makeroid'
+                    language['help']['15'],
+                    'https://t.me/BarrePolice'
                 )
             ):row(
                 mattata.row():url_button(
@@ -237,8 +237,8 @@ function help:on_callback_query(callback_query, message, configuration, language
                     language['help']['20'],
                     'https://t.me/joinchat/AAAAAEHCFLYFXDzX_SKvrg'
                 ):url_button(
-                    'Twitter',
-                    'https://twitter.com/intent/user?screen_name=wrxck__'
+                    language['help']['18'],
+                    'https://paypal.me/Makeroid'
                 )
             ):row(
                 mattata.row():url_button(
