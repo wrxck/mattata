@@ -12,24 +12,6 @@ function import:init()
     import.help = '/import - Import administrative settings & toggled plugins from another mattata-administrated group.'
 end
 
-function import.debug(t, s)
-    for k, v in pairs(t) do
-        local kfmt = '["' .. tostring(k) ..'"]'
-        if type(k) ~= 'string' then
-            kfmt = '[' .. k .. ']'
-        end
-        local vfmt = '"'.. tostring(v) ..'"'
-        if type(v) == 'table' then
-            tprint(v, (s or '')..kfmt)
-        else
-            if type(v) ~= 'string' then
-                vfmt = tostring(v)
-            end
-            print(type(t)..(s or '')..kfmt..' = '..vfmt)
-        end
-    end
-end
-
 function import:on_message(message, configuration, language)
     if message.chat.type ~= 'supergroup'
     then
@@ -102,8 +84,18 @@ function import:on_message(message, configuration, language)
     end
     local antispam = redis:hget('chat:' .. input.result.id .. ':settings', 'antispam') or false
     if antispam then
-        values = redis:hgetall('chat:' .. input.result.id .. ':values') or {}
-        print(antispam)
+        if tonumber(mattata.get_value(input.result.id, 'allow ' .. spam_type)) ~= tonumber(mattata.get_value(chat_id, 'allow ' .. spam_type)) then
+            mattata.toggle_setting(chat_id, 'allow ' .. spam_type)
+        end
+        antispam = {}
+        antispam.default_values = { ['text'] = 8,['forwarded'] = 16,['sticker'] = 4, ['photo'] = 4,['video'] = 4,['document'] = 4,['location'] = 4,['voice'] = 4,['game'] = 2,['venue'] = 4,['video note'] = 4,['invoice'] = 2,['contact'] = 2 }
+        for k, v in pairs(antispam.default_values)
+        do
+            redis:hset('chat:' .. message.chat.id .. ':values',
+                k .. ' limit',
+                mattata.get_value(input.result.id, k .. ' limit') or tonumber(v)
+            )
+        end
     else
         redis:hdel('chat:' .. chat_id .. ':settings', 'antispam')
     end
