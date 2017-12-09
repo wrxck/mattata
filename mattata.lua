@@ -380,7 +380,7 @@ function mattata:on_message()
     -- If the chat doesn't have a custom nickname for the bot to respond by, we'll
     -- stick with the default one that was set through @BotFather.
     self.info.nickname = redis:get('chat:' .. message.chat.id .. ':name') or self.info.name
-    if message.forward_from or message.forward_from_chat or mattata.process_spam(message) then
+    if mattata.process_spam(message) then
         return false -- We don't want to process these messages any further!
     end
 
