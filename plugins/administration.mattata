@@ -277,34 +277,6 @@ function administration.get_hash_status(chat_id, hash_type)
     return false
 end
 
-function administration.del_chat(message)
-    local title = message.text:match('^/chats del (.-)$')
-    if not title then
-        return
-    end
-    for k, v in pairs(redis:smembers('mattata:configuration:chats')) do
-        if not v then
-            return
-        end
-        if not json.decode(v).link or not json.decode(v).title then
-            return
-        elseif json.decode(v).title == title then
-            redis:srem(
-                'mattata:configuration:chats',
-                v
-            )
-            return mattata.send_reply(
-                message,
-                'Deleted ' .. title .. ', and its matching link from the database!'
-            )
-        end
-    end
-    return mattata.send_reply(
-        message,
-        'There were no entries found in the database matching "' .. title .. '"!'
-    )
-end
-
 function administration.warn(message)
     if not mattata.is_group_admin(
         message.chat.id,
