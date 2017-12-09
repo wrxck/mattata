@@ -69,6 +69,14 @@ function administration.get_initial_keyboard(chat_id, page)
                 'administration:' .. chat_id .. ':word_filter:2'
             )
         )
+        --[[ :row(
+            mattata.row()
+            :callback_data_button('Anti-Porn', 'administration:nil')
+            :callback_data_button(
+                mattata.get_setting(chat_id, 'anti porn') and 'On' or 'Off',
+                'administration:' .. chat_id .. ':anti_porn:2'
+            )
+        ) ]]
         :row(
             mattata.row()
             :callback_data_button('Anti-Bot', 'administration:nil')
@@ -526,6 +534,19 @@ function administration:on_callback_query(callback_query, message, configuration
             'You can add one or more words to the word filter by using /filter <word(s)>',
             true
         )
+    --[[ elseif callback_query.data:match('^%-%d+:anti_porn:%d*$')
+    then
+        local chat_id, page = callback_query.data:match('^(%-%d+):anti_porn:(%d*)$')
+        mattata.toggle_setting(
+            chat_id,
+            'anti porn'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+        mattata.answer_callback_query(
+            callback_query.id,
+            'Now I will punish any pornographic image',
+            true
+        ) ]]
     elseif callback_query.data:match('^%-%d+:inactive:%d*$')
     then
         local chat_id, page = callback_query.data:match('^(%-%d+):inactive:(%d*)$')

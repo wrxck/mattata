@@ -1009,6 +1009,32 @@ function mattata.process_deeplinks(message)
     end
 end
 
+--[[ function mattata.isX(imageUrl)
+   local api_key = configuration.keys.mashape
+   if isempty(api_key) then
+      return nil, 'Configure your Mashape API Key'
+   end
+
+   local api = "https://sphirelabs-advanced-porn-nudity-and-adult-content-detection.p.mashape.com/v1/get/index.php"
+   local parameters = "?url="..(URL.escape(imageUrl) or "")
+   local url = api..parameters
+   local respbody = {}
+   local headers = {
+      ["X-Mashape-Key"] = api_key,
+      ["Accept"] = "Accept: application/json"
+   }
+   local body, code, headers, status = https.request{
+      url = url,
+      method = "GET",
+      headers = headers,
+      sink = ltn12.sink.table(respbody),
+      protocol = "tlsv1"
+   }
+   if code ~= 200 then return "", code end
+   local body = table.concat(respbody)
+   return body, code
+end ]]
+
 function mattata:process_message()
     local message = self.message
     local language = self.language
@@ -1067,6 +1093,24 @@ function mattata:process_message()
             if break_cycle then return true end
         end
     end
+    --[[ if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'anti porn') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and message.photo then
+        jsonlib = dofile('libs/json.lua')
+        local file = mattata.get_file(message.photo[#message.photo].file_id)
+        if not file then
+            return false
+        end
+        local request_url = string.format('https://api.telegram.org/file/bot%s/%s', configuration.bot_token, file.result.file_path)
+
+        local jsonBody = jsonlib:decode(mattata.isX(request_url))
+        local response = ""
+        if jsonBody["Error Occured"] ~= nil then
+           return false
+        elseif jsonBody["Is Porn"] == nil or jsonBody["Reason"] == nil then
+           return false
+        else
+           response = "Skin Colors Level: `" .. jsonBody["Skin Colors"] .. "`\nContains Bad Words: `" .. jsonBody["Is Contain Bad Words"] .. "`\n\n*Is Porn:* " .. jsonBody["Is Porn"] .. "\n*Reason:* _" .. jsonBody["Reason"] .. "_"
+        end
+    end ]]
     if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'antilink') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.check_links(message) then
         local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
         local success = action(message.chat.id, message.from.id)

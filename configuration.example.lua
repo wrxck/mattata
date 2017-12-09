@@ -79,6 +79,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         ['news'] = '', -- https://newsapi.org/
         ['twitch'] = '', -- https://twitchapps.com/tmi/
         ['pastebin'] = '', -- https://pastebin.com/api
+        -- ['mashape'] = '', -- https://market.mashape.com/sphirelabs/advanced-porn-nudity-and-adult-content-detection
         ['dictionary'] = {  -- https://developer.oxforddictionaries.com/
             ['id'] = '',
             ['key'] = ''
