@@ -469,7 +469,6 @@ function administration:on_callback_query(callback_query, message, configuration
     elseif callback_query.data:match('^%-%d+:max_warnings:.-$')
     then
         local chat_id, max_warnings = callback_query.data:match('^(%-%d+):max_warnings:(.-)$')
-        print(max_warnings)
         if tonumber(max_warnings) > configuration.administration.warnings.maximum
         then
             return mattata.answer_callback_query(
@@ -487,7 +486,7 @@ function administration:on_callback_query(callback_query, message, configuration
             return
         end
         redis:hset(
-            'chat:' .. chat_id .. ':values',
+            'chat:' .. chat_id .. ':settings',
             'max warnings',
             tonumber(max_warnings)
         )
@@ -707,7 +706,6 @@ function administration:on_callback_query(callback_query, message, configuration
     else
         return false
     end
-    print(message.chat.id.." - "..message.message_id.." - "..json.encode(keyboard))
     return mattata.edit_message_reply_markup(
         message.chat.id,
         message.message_id,
