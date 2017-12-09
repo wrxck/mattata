@@ -468,6 +468,7 @@ function administration:on_callback_query(callback_query, message, configuration
         keyboard = administration.get_warnings(chat_id)
     elseif callback_query.data:match('^%-%d+:max_warnings:.-$')
     then
+        print("max_Warnings")
         local chat_id, max_warnings = callback_query.data:match('^(%-%d+):max_warnings:(.-)$')
         if tonumber(max_warnings) > configuration.administration.warnings.maximum
         then
