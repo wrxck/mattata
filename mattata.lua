@@ -264,7 +264,7 @@ function mattata:run(configuration, token)
                     if configuration.debug then
                         print(
                             string.format(
-                                '%s[36m[Update Message #%s] Message from %s [%s] to  %s [%s]%s[0m',
+                                '%s[36m[Update Message #%s] Message from %s [%s] to %s [%s]%s[0m',
                                 string.char(27),
                                 v.update_id,
                                 v.message.from.first_name,
