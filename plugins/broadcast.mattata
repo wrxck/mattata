@@ -41,19 +41,16 @@ function broadcast:on_message(message, configuration, language)
         )
     end
     if ids then
-        print("IDs")
         for i=1,#ids do
             if string.match(ids[i], "chat") then
-            print("Chat")
                 id = math.floor(tonumber(-1*string.match(ids[i], "%d+")))
             else
-            print("User")
                 id = math.floor(tonumber(string.match(ids[i], "%d+")))
             end
             mattata.send_message(
                 id,
                 input,
-                markdown
+                'markdown'
             )
         end
     end
