@@ -553,7 +553,13 @@ function utils.check_links(message, get_links, only_valid, whitelist)
             if v:match('^joinchat/') then
                 return true
             elseif not table.contains(checked, v) then
-                local success = api.get_chat(v:lower())
+                local success = utils.get_user(v:lower())
+                if not success then
+                    success = api.get_chat(v:lower())
+                else
+                    success = api.get_chat(success.result.id)
+                end
+                print(table.tostring(success.result))
                 if success and success.result and success.result.type ~= 'private' then
                     if not get_links then
                         return true
