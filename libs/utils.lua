@@ -559,7 +559,6 @@ function utils.check_links(message, get_links, only_valid, whitelist)
                 else
                     success = api.get_chat(success.result.id)
                 end
-                print(table.tostring(success.result))
                 if success and success.result and success.result.type ~= 'private' then
                     if not get_links then
                         return true
