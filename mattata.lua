@@ -264,10 +264,12 @@ function mattata:run(configuration, token)
                     if configuration.debug then
                         print(
                             string.format(
-                                '%s[36m[Update #%s] Message from %s to %s%s[0m',
+                                '%s[36m[Update Message #%s] Message from %s [%s] to  %s [%s]%s[0m',
                                 string.char(27),
                                 v.update_id,
+                                v.message.from.first_name,
                                 v.message.from.id,
+                                v.message.chat.title or "me",
                                 v.message.chat.id,
                                 string.char(27)
                             )
@@ -283,9 +285,10 @@ function mattata:run(configuration, token)
                     if configuration.debug then
                         print(
                             string.format(
-                                '%s[37m[Update #%s] Channel post from %s%s[0m',
+                                '%s[37m[Update Message #%s] Channel post from %s [%s]%s[0m',
                                 string.char(27),
-                                v.update_id,
+                                v.update_id,,
+                                v.channel_post.chat.title,
                                 v.channel_post.chat.id,
                                 string.char(27)
                             )
@@ -297,9 +300,10 @@ function mattata:run(configuration, token)
                     if configuration.debug then
                         print(
                             string.format(
-                                '%s[35m[Update #%s] Inline query from %s%s[0m',
+                                '%s[35m[Update Inline #%s] Inline query from %s [%s]%s[0m',
                                 string.char(27),
                                 v.update_id,
+                                v.inline_query.from.first_name,
                                 v.inline_query.from.id,
                                 string.char(27)
                             )
@@ -316,9 +320,10 @@ function mattata:run(configuration, token)
                     if configuration.debug then
                         print(
                             string.format(
-                                '%s[33m[Update #%s] Callback query from %s%s[0m',
+                                '%s[33m[Update Callback #%s] Callback query from %s [%s]%s[0m',
                                 string.char(27),
                                 v.update_id,
+                                v.callback_query.from.first_name,
                                 v.callback_query.from.id,
                                 string.char(27)
                             )
