@@ -497,6 +497,115 @@ function utils.format_time(seconds)
     end
 end
 
+function utils.process_chat_hard(chat)
+    chat.id_str = tostring(chat.id)
+    if chat.type == 'private' then
+        return chat
+    end
+    if not redis:hexists('chat:' .. chat.id .. ':info', 'id') then
+        print(
+            string.format(
+                '%s[34m[+] Added the chat %s to the database!%s[0m',
+                string.char(27),
+                chat.username and '@' .. chat.username or chat.id,
+                string.char(27)
+            )
+        )
+    end
+    redis:hset('chat:' .. chat.id .. ':info', 'title', chat.title)
+    redis:hset('chat:' .. chat.id .. ':info', 'type', chat.type)
+    if chat.username then
+        chat.username = chat.username:lower()
+        redis:hset('chat:' .. chat.id .. ':info', 'username', chat.username)
+        redis:set('username:' .. chat.username, chat.id)
+        if not redis:sismember('chat:' .. chat.id .. ':usernames', chat.username) then
+            redis:sadd('chat:' .. chat.id .. ':usernames', chat.username)
+        end
+    end
+    redis:hset('chat:' .. chat.id .. ':info', 'id', chat.id)
+    return chat
+end
+
+function utils.process_user_hard(user)
+    if not user.id or not user.first_name then
+        return false
+    end
+    local new = false
+    user.name = user.first_name
+    if user.last_name then
+        user.name = user.name .. ' ' .. user.last_name
+    end
+    if not redis:hget('user:' .. user.id .. ':info', 'id') and configuration.debug then
+        print(
+            string.format(
+                '%s[34m[+] Added the user %s to the database!%s%s[0m',
+                string.char(27),
+                user.username and '@' .. user.username or user.id,
+                user.language_code and ' Language: ' .. user.language_code or '',
+                string.char(27)
+            )
+        )
+        new = true
+    elseif configuration.debug then
+        print(
+            string.format(
+                '%s[34m[+] Updated information about the user %s in the database!%s%s[0m',
+                string.char(27),
+                user.username and '@' .. user.username or user.id,
+                user.language_code and ' Language: ' .. user.language_code or '',
+                string.char(27)
+            )
+        )
+    end
+    redis:hset('user:' .. user.id .. ':info', 'name', user.name)
+    redis:hset('user:' .. user.id .. ':info', 'first_name', user.first_name)
+    if user.last_name then
+        redis:hset('user:' .. user.id .. ':info', 'last_name', user.last_name)
+    else
+        redis:hdel('user:' .. user.id .. ':info', 'last_name')
+    end
+    if user.username then
+        user.username = user.username:lower()
+        redis:hset('user:' .. user.id .. ':info', 'username', user.username)
+        redis:set('username:' .. user.username, user.id)
+        if not redis:sismember('user:' .. user.id .. ':usernames', user.username) then
+            redis:sadd('user:' .. user.id .. ':usernames', user.username)
+        end
+    else
+        redis:hdel('user:' .. user.id .. ':info', 'username')
+    end
+    if user.language_code then
+        if mattata.does_language_exist(user.language_code) and not redis:hget('chat:' .. user.id .. ':settings', 'language') then
+        -- If a translation exists for the user's language code, and they haven't selected
+        -- a language already, then set it as their primary language!
+            redis:hset('chat:' .. user.id .. ':settings', 'language', user.language_code)
+        end
+        redis:hset('user:' .. user.id .. ':info', 'language_code', user.language_code)
+    else
+        redis:hdel('user:' .. user.id .. ':info', 'language_code')
+    end
+    redis:hset('user:' .. user.id .. ':info', 'is_bot', tostring(user.is_bot))
+    if new then
+        redis:hset('user:' .. user.id .. ':info', 'id', user.id)
+    end
+    if redis:get('nick:' .. user.id) then
+        user.first_name = redis:get('nick:' .. user.id)
+        user.name = user.first_name
+        user.last_name = nil
+    end
+    return user, new
+end
+
+function utils.get_chat_hard(chat_id, token)
+    local success = api.get_chat(chat_id, token)
+    if success and success.result and success.result.type and success.result.type == 'private' then
+        utils.process_user_hard(success.result)
+    elseif success and success.result then
+        utils.process_chat_hard(success.result)
+    end
+    return success
+end
+
 function utils.check_links(message, get_links, only_valid, whitelist)
     local links = {}
     if message.entities then
@@ -555,7 +664,7 @@ function utils.check_links(message, get_links, only_valid, whitelist)
             elseif not table.contains(checked, v) then
                 local success = utils.get_user(v:lower())
                 if not success then
-                    success = api.get_chat(v:lower())
+                    success = utils.get_chat_hard("@"..v:lower())
                 else
                     success = api.get_chat(success.result.id)
                 end
