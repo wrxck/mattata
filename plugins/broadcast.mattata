@@ -1,0 +1,66 @@
+--[[
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local broadcast = {}
+local mattata = require('mattata')
+local redis = dofile('libs/redis.lua')
+
+function broadcast:init()
+    broadcast.commands = mattata.commands(self.info.username):command('broadcast'):command('bc'):command('bcg'):command('bcu').table
+    broadcast.help = '/broadcast - See the help of the Broadcast plugin.\n/bc <message> - Send the message to all users and groups using BarrePolice.\n/bcg <messsage> - Send the message to all groups using BarrePolice./bcu <messsage> - Send the message to all users using BarrePolice.\n\n*Supports MakrDown*'
+end
+
+function broadcast:on_message(message, configuration, language)
+    if not mattata.is_global_admin(message.from.id) then return false end
+    local input = mattata.input(message.text)
+    if not input
+    then
+        return mattata.send_reply(
+            message,
+            broadcast.help,
+            'markdown'
+        )
+    end
+    local ids
+    if message.text:match('^[/!#]bc') and not message.text:match('^[/!#]bcg') and not message.text:match('^[/!#]bcu')
+    then
+        ids = redis:keys('*:*:info')
+    elseif message.text:match('^[/!#]bcg')
+    then
+        ids = redis:keys('chat:*:info')
+    elseif message.text:match('^[/!#]bcu')
+    then
+        ids = redis:keys('user:*:info')
+    else
+        return mattata.send_reply(
+            message,
+            broadcast.help,
+            'markdown'
+        )
+    end
+    if ids then
+        print("IDs")
+        for i=1,#ids do
+            if string.match(ids[i], "chat") then
+            print("Chat")
+                id = math.floor(tonumber(-1*string.match(ids[i], "%d+")))
+            else
+            print("User")
+                id = math.floor(tonumber(string.match(ids[i], "%d+")))
+            end
+            mattata.send_message(
+                id,
+                input,
+                markdown
+            )
+        end
+    end
+    return mattata.send_reply(
+        message,
+        "Successfully broadcasted!"
+    )
+end
+
+return broadcast
