@@ -68,6 +68,7 @@ return { -- Rename this file to configuration.lua for the bot to work!
         ['db'] = 2
     },
     ['keys'] = { -- API keys needed for the full functionality of several plugins.
+        ['apod'] = '', -- https://api.nasa.gov/api.html
         ['cats'] = '', -- http://thecatapi.com/api-key-registration.html
         ['translate'] = '', -- https://tech.yandex.com/keys/get/?service=trnsl
         ['lyrics'] = '', -- https://developer.musixmatch.com/admin/applications
