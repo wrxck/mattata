@@ -224,7 +224,6 @@ function administration.get_voteban_keyboard(chat_id)
         ),
         'required upvotes for vote bans'
     ) or 5
-    print(current_required_upvotes)
     local current_required_downvotes = redis:hget(
         string.format(
             'chat:%s:settings',
@@ -232,7 +231,6 @@ function administration.get_voteban_keyboard(chat_id)
         ),
         'required downvotes for vote bans'
     ) or 5
-    print(current_required_downvotes)
     table.insert(
         keyboard.inline_keyboard,
         {

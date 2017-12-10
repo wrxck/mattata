@@ -134,7 +134,6 @@ function twitter:on_message(message, configuration, language)
                 redis:del(v)
             end
             local erased_user = message.from.username and '@' .. message.from.username or message.from.id
-            print('Erased saved Twitter credentials for ' .. erased_user)
         end
         local output = 'I could not send your tweet. Are you sure you\'ve authorised your Twitter to be used with me? Try sending /authtwitter to re-authorise your account.'
         return mattata.send_reply(message, output)
