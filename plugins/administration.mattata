@@ -14,7 +14,9 @@ function administration:init()
     :command('administration')
     :command('admins')
     :command('staff')
+    :command('links')
     :command('whitelistlink')
+    :command('whitelistlinks')
     :command('config')
     :command('admin').table
 end
