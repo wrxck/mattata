@@ -287,7 +287,7 @@ function mattata:run(configuration, token)
                             string.format(
                                 '%s[37m[Update Message #%s] Channel post from %s [%s]%s[0m',
                                 string.char(27),
-                                v.update_id,,
+                                v.update_id,
                                 v.channel_post.chat.title,
                                 v.channel_post.chat.id,
                                 string.char(27)
