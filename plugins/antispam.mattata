@@ -166,7 +166,7 @@ function antispam:process_message(message, configuration, language)
             'html'
         )
     end
-    return mattata.send_message(
+    return true, mattata.send_message(
         message,
         string.format(
             language['antispam']['7'],

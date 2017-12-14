@@ -12,6 +12,10 @@ function ping:init()
 end
 
 function ping:on_message(message)
+    local input = mattata.input(message.text)
+    if input and input == '-t' then
+        return mattata.send_reply(message, 'PONG!')
+    end
     return mattata.send_sticker(message.chat.id, 'CAADBAAD1QIAAlAYNw2Pr-ymr7r8TgI')
 end
 
