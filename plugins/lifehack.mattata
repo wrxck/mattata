@@ -1,0 +1,37 @@
+--[[
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local lifehack = {}
+local mattata = require('mattata')
+local http = require('socket.http')
+
+function lifehack:init()
+    lifehack.commands = mattata.commands(self.info.username):command('lifehack'):command('lh').table
+    lifehack.help = '/lifehack - Returns a random life hack. Alieas: /lh'
+end
+
+function lifehack:on_message(message, configuration, language)
+    local _, _, headers = http.request('http://1000lifehacks.com/?random=1')
+    if type(headers) ~= 'table' or not headers.location then
+        local output = language['errors']['connection']
+        mattata.send_reply(message, output)
+        return false, output
+    end
+    local body, res = http.request(headers.location)
+    if res ~= 200 then
+        local output = language['errors']['connection']
+        mattata.send_reply(message, output)
+        return false, output
+    end
+    local image = body:match('<img src="(http://1000lifehacks%.com/wp%-content/uploads/%d+/%d+/%d+%.png)"')
+    if not image then
+        local output = language['errors']['results']
+        mattata.send_reply(message, output)
+        return false, output
+    end
+    return mattata.send_photo(message.chat.id, image)
+end
+
+return lifehack
