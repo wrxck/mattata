@@ -1076,7 +1076,7 @@ function mattata:process_message()
         redis:incr('messages:' .. message.from.id .. ':' .. message.chat.id)
     end
     if message.new_chat_members and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'antibot') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) then
-        if not mattata.is_trusted_user(message.chat.id, message.from.id) and not mattata.get_setting(message.chat.id, 'trusted permissions antibot') then
+        if mattata.is_trusted_user(message.chat.id, message.from.id) and mattata.get_setting(message.chat.id, 'trusted permissions antibot') then else
             local kicked = {}
             local usernames = {}
             for k, v in pairs(message.new_chat_members) do
@@ -1096,7 +1096,7 @@ function mattata:process_message()
         end
     end
     if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'word filter') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) then
-        if not mattata.is_trusted_user(message.chat.id, message.from.id) and not mattata.get_setting(message.chat.id, 'trusted permissions wordfilter') then
+        if mattata.is_trusted_user(message.chat.id, message.from.id) and mattata.get_setting(message.chat.id, 'trusted permissions wordfilter') then else
             local words = redis:smembers('word_filter:' .. message.chat.id)
             if words and #words > 0 then
                 for k, v in pairs(words) do
@@ -1138,18 +1138,18 @@ function mattata:process_message()
         end
     end ]]
     if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'antilink') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.check_links(message) then
-        if not mattata.is_trusted_user(message.chat.id, message.from.id) and not mattata.get_setting(message.chat.id, 'trusted permissions antilink') then
-            local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
-            local success = action(message.chat.id, message.from.id)
-            if success then
-                if mattata.get_setting(message.chat.id, 'log administrative actions') then
-                    local log_chat = mattata.get_log_chat(message.chat.id)
-                    mattata.send_message(log_chat, string.format('<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending Telegram invite link(s) from unauthorized groups/channels</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
-                end
-                mattata.delete_message(message.chat.id, message.message_id)
-                return mattata.send_message(message.chat.id, string.format('Kicked %s for sending Telegram invite link(s) from unauthorized groups/channels.', message.from.username and '@' .. message.from.username or message.from.first_name))
-            end
-        end
+        if mattata.is_trusted_user(message.chat.id, message.from.id) and mattata.get_setting(message.chat.id, 'trusted permissions antilink') then else
+          local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
+          local success = action(message.chat.id, message.from.id)
+          if success then
+              if mattata.get_setting(message.chat.id, 'log administrative actions') then
+                  local log_chat = mattata.get_log_chat(message.chat.id)
+                  mattata.send_message(log_chat, string.format('<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending Telegram invite link(s) from unauthorized groups/channels</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
+              end
+              mattata.delete_message(message.chat.id, message.message_id)
+              return mattata.send_message(message.chat.id, string.format('Kicked %s for sending Telegram invite link(s) from unauthorized groups/channels.', message.from.username and '@' .. message.from.username or message.from.first_name))
+          end
+       end
     end
     if message.new_chat_members and message.chat.type ~= 'private' and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'welcome message') then
         local name = message.new_chat_members[1].first_name

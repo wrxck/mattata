@@ -336,7 +336,7 @@ function administration.get_trusted_permissions(chat_id)
     })
     table.insert(keyboard.inline_keyboard, {
         {
-            ['text'] = 'AntiBot Immune:',
+            ['text'] = 'AntiLink Immune:',
             ['callback_data'] = 'administration:nil'
         },
         {
