@@ -8,8 +8,8 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 
 function ban:init()
-    ban.commands = mattata.commands(self.info.username):command('ban').table
-    ban.help = '/ban [user] - Bans a user from the current chat. This command can only be used by moderators and administrators of a supergroup.'
+    ban.commands = mattata.commands(self.info.username):command('ban'):command('b').table
+    ban.help = '/ban [user] - Bans a user from the current chat. This command can only be used by moderators and administrators of a supergroup. Alias: /b'
 end
 
 function ban:on_message(message, configuration, language)

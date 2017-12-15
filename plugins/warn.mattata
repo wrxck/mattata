@@ -8,8 +8,8 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 
 function warn:init()
-    warn.commands = mattata.commands(self.info.username):command('warn').table
-    warn.help = '/warn [user] - Warns a user in the current chat. This command can only be used by moderators and administrators of a supergroup. Once a user has reached the maximum allowed number of warnings allowed in the chat, the configured action for the chat is performed on them.'
+    warn.commands = mattata.commands(self.info.username):command('warn'):command('w').table
+    warn.help = '/warn [user] - Warns a user in the current chat. This command can only be used by moderators and administrators of a supergroup. Once a user has reached the maximum allowed number of warnings allowed in the chat, the configured action for the chat is performed on them. Alias: /w'
 end
 
 function warn:on_callback_query(callback_query, message, configuration)

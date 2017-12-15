@@ -8,8 +8,8 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 
 function kick:init()
-    kick.commands = mattata.commands(self.info.username):command('kick').table
-    kick.help = '/kick [user] - Kicks a user from the current chat. This command can only be used by moderators and administrators of a supergroup.'
+    kick.commands = mattata.commands(self.info.username):command('kick'):command('k').table
+    kick.help = '/kick [user] - Kicks a user from the current chat. This command can only be used by moderators and administrators of a supergroup. Alias: /k'
 end
 
 function kick:on_message(message, configuration, language)

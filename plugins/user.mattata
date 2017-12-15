@@ -12,13 +12,14 @@ function user:init()
     user.commands = mattata.commands(
         self.info.username
     ):command('user')
+     :command('u')
      :command('warns')
      :command('bans')
      :command('kicks')
      :command('unbans')
      :command('warnings')
      :command('status').table
-    user.help = '/user [user] - Displays information about the given user.'
+    user.help = '/user [user] - Displays information about the given user. Alias: /u'
 end
 
 function user:on_message(message, configuration)

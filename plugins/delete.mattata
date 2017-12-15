@@ -7,8 +7,8 @@ local delete = {}
 local mattata = require('mattata')
 
 function delete:init()
-    delete.commands = mattata.commands(self.info.username):command('delete').table
-    delete.help = '/delete [message ID] - Deletes the specified (or replied-to) message.'
+    delete.commands = mattata.commands(self.info.username):command('delete'):command('del'):command('d').table
+    delete.help = '/delete [message ID] - Deletes the specified (or replied-to) message. Alias: /del /d'
 end
 
 function delete:on_message(message, configuration, language)
