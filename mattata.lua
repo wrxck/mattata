@@ -75,6 +75,7 @@ function mattata:init()
     -- problems when it tries to add the necessary increment.
     self.last_backup = self.last_backup or os.date('%V')
     self.last_cron = self.last_cron or os.date('%H')
+    self.last_m_cron = self.last_m_cron or os.date('%M')
     local init_message = '<pre>' .. connected_message .. '\n\n' .. mattata.escape_html(info_message) .. '\n\n\tPlugins loaded: ' .. #configuration.plugins .. '</pre>'
     mattata.send_message(configuration.log_chat, init_message:gsub('\t', ''), 'html')
     for _, admin in pairs(configuration.admins) do
@@ -355,6 +356,20 @@ function mattata:run(configuration, token)
                 if plugin.cron then
                     local success, res = pcall(function()
                         plugin.cron(self, configuration)
+                    end)
+                    if not success then
+                        mattata.exception(self, res, 'CRON: ' .. i, configuration.log_chat)
+                    end
+                end
+            end
+        end
+        if self.last_m_cron ~= os.date('%M') then -- Perform minutely CRON jobs.
+            self.last_m_cron = os.date('%M')
+            for i = 1, #self.plugins do
+                local plugin = self.plugins[i]
+                if plugin.m_cron then
+                    local success, res = pcall(function()
+                            plugin.m_cron(self, configuration)
                     end)
                     if not success then
                         mattata.exception(self, res, 'CRON: ' .. i, configuration.log_chat)
