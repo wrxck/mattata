@@ -107,6 +107,7 @@ function administration.get_initial_keyboard(chat_id, page)
                 'administration:' .. chat_id .. ':rtl:2'
             )
         )
+        :row(mattata.row():callback_data_button('Trusted Users Permissions', 'administration:' .. chat_id .. ':trusted_permissions'))
         :row(
             mattata.row()
             :callback_data_button('Anti-Spam Action', 'administration:nil')
@@ -128,7 +129,7 @@ function administration.get_initial_keyboard(chat_id, page)
             :callback_data_button('Force Group Language?', 'administration:nil')
             :callback_data_button(
                 mattata.get_setting(chat_id, 'force group language') and utf8.char(9989) or utf8.char(10060),
-                'administration:' .. chat_id .. ':force_group_language:3'
+                'administration:' .. chat_id .. ':force_group_language:2'
             )
         )
         :row(
@@ -279,6 +280,92 @@ function administration.get_voteban_keyboard(chat_id)
     return keyboard
 end
 
+function administration.get_trusted_permissions(chat_id)
+    local keyboard = {
+        ['inline_keyboard'] = {}
+    }
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'AntiSpam Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions antispam') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:antispam'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Warnings Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions warnings') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:warnings'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Vote-Ban Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions voteban') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:voteban'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'WordFilter Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions wordfilter') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:wordfilter'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'AntiBot Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions antibot') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:antibot'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'AntiBot Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions antilink') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:antilink'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'AntiRTL Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions antirtl') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:antirtl'
+        }
+    })
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = 'Back',
+                ['callback_data'] = 'administration:' .. chat_id .. ':page:2'
+            }
+        }
+    )
+    return keyboard
+end
+
 function administration.get_hash_status(chat_id, hash_type)
     if redis:get('administration:' .. chat_id .. ':' .. hash_type)
     then
@@ -407,10 +494,16 @@ function administration:on_callback_query(callback_query, message, configuration
         )
     end
     local keyboard
+    print(callback_query.data)
     if callback_query.data:match('^%-%d+:voteban$')
     then
         keyboard = administration.get_voteban_keyboard(
             callback_query.data:match('^(%-%d+):voteban$')
+        )
+    elseif callback_query.data:match('^%-%d+:trusted_permissions$')
+    then
+        keyboard = administration.get_trusted_permissions(
+            callback_query.data:match('^(%-%d+):trusted_permissions$')
         )
     elseif callback_query.data:match('^%-%d+:voteban_upvotes:.-$')
     then
@@ -609,6 +702,14 @@ function administration:on_callback_query(callback_query, message, configuration
             'delete commands'
         )
         keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:trusted_toggle:%a*$')
+    then
+        local chat_id, trusted_setting = callback_query.data:match('^(%-%d+):trusted_toggle:(%a*)$')
+        mattata.toggle_setting(
+            chat_id,
+            'trusted permissions '..trusted_setting
+        )
+        keyboard = administration.get_trusted_permissions(chat_id)
     elseif callback_query.data:match('^%-%d+:misc_responses:%d*$')
     then
         local chat_id, page = callback_query.data:match('^(%-%d+):misc_responses:(%d*)$')
