@@ -10,7 +10,7 @@ local https = require('ssl.https')
 local http = require('socket.http')
 local ltn12 = require('ltn12')
 local json = require('dkjson')
-local redis = require('mattata-redis')
+local redis = require('redis')
 local feedparser = require('feedparser')
 
 function rss:init()
