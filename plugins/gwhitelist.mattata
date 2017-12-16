@@ -67,7 +67,7 @@ function gwhitelist:on_message(message, configuration, language)
     then
         mattata.send_message(
             configuration.log_channel,
-            '<pre>' .. mattata.escape_html(output) .. '</pre>',
+            '#action #gwhitelist #admin_'..message.from.id..' #user_'..resolved.result.id..'\n\n<pre>' .. mattata.escape_html(output) .. '</pre>',
             'html'
         )
     end
