@@ -8,8 +8,8 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 
 function logchat:init()
-    logchat.commands = mattata.commands(self.info.username):command('logchat').table
-    logchat.help = '/logchat [chat] - Specify the chat that you wish to log all of this chat\'s administrative actions into.'
+    logchat.commands = mattata.commands(self.info.username):command('logchat'):command('setlog'):command('setlogchat').table
+    logchat.help = '/logchat [chat] - Specify the chat that you wish to log all of this chat\'s administrative actions into. Alias: /setlog'
 end
 
 function logchat:on_message(message, configuration, language)
