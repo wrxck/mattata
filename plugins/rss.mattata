@@ -294,7 +294,7 @@ function rss:on_message(message, configuration)
 end
 
 function rss:cron()
-    local keys = redis:keys(
+    local keys = redis:hkeys(
         rss.get_redis_hash(
             '*',
             'subscriptions'
