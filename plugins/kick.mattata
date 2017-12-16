@@ -46,7 +46,12 @@ function kick:on_message(message, configuration, language)
     if tonumber(user) == nil and not user:match('^%@') then
         user = '@' .. user
     end
-    local user_object = mattata.get_user(user) -- Resolve the username/ID to a user object.
+    local success = mattata.get_user(user)
+    if not success then
+        user_object = mattata.get_chat(user)
+    else
+        user_object = mattata.get_chat(success.result.id)
+    end
     if not user_object then
         mattata.send_reply(message, language['errors']['unknown'])
         return false, 'No user object was found!'

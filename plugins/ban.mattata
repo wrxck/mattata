@@ -79,8 +79,12 @@ function ban:on_message(message, configuration, language)
     then
         user = '@' .. user
     end
-    local user_object = mattata.get_user(user)
-    or mattata.get_chat(user) -- Resolve the username/ID to a user object.
+    local success = mattata.get_user(user)
+    if not success then
+        user_object = mattata.get_chat(user)
+    else
+        user_object = mattata.get_chat(success.result.id)
+    end
     if not user_object
     then
         return mattata.send_reply(

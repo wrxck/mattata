@@ -56,8 +56,12 @@ function untrust:on_message(message, configuration, language)
     then
         input = '@' .. input
     end
-    local user = mattata.get_user(input)
-    or mattata.get_chat(input) -- Resolve the username/ID to a user object.
+    local success = mattata.get_user(input)
+    if not success then
+        user = mattata.get_chat(input)
+    else
+        user = mattata.get_chat(success.result.id)
+    end
     if not user
     then
         return mattata.send_reply(

@@ -44,7 +44,12 @@ function unban:on_message(message, configuration, language)
     if tonumber(user) == nil and not user:match('^%@') then
         user = '@' .. user
     end
-    user = mattata.get_user(user) -- Resolve the username/ID to a user object.
+    local success = mattata.get_user(user)
+    if not success then
+        user = mattata.get_chat(user)
+    else
+        user = mattata.get_chat(success.result.id)
+    end
     if not user then
         return mattata.send_reply(message, language['errors']['unknown'])
     elseif user.result.id == self.info.id then
