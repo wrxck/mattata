@@ -10,7 +10,7 @@ local https = require('ssl.https')
 local http = require('socket.http')
 local ltn12 = require('ltn12')
 local json = require('dkjson')
-local redis = require('redis')
+local redis = dofile('libs/redis.lua')
 local feedparser = require('feedparser')
 
 function rss:init()
@@ -207,11 +207,7 @@ function rss.unsubscribe(id, n)
 end
 
 function rss.get_subs(id)
-    local subs = rss.get_redis_hash(id)
-    if not subs then
-        return "", ""
-    end
-    local subscriptions = redis:smembers(subs)
+    local subscriptions = redis:smembers(rss.get_redis_hash(id))
     if not subscriptions[1] then
         return 'You are not subscribed to any RSS feeds!'
     end
@@ -249,15 +245,9 @@ function rss:on_message(message, configuration)
     ) and not mattata.is_global_admin(message.from.id) then
         return
     end
-    local input = mattata.input(message.text)
-    if not input or input == 'del' then
+    local input = tostring(mattata.input(message.text))
+    if input == 'del' then
         local output, keyboard = rss.get_subs(message.chat.id)
-        if output == "" then
-            return mattata.send_reply(
-                message,
-                rss.help
-            )
-        end
         return mattata.send_message(
             message.chat.id,
             output,
@@ -296,9 +286,15 @@ function rss:on_message(message, configuration)
             'Checking for RSS updates...'
         )
     else
+        local output, keyboard = rss.get_subs(message.chat.id)
+        if output == 'You are not subscribed to any RSS feeds!' then
+            msg = rss.help
+        else
+            msg = rss.help.."\n\n"..output
+        end
         return mattata.send_reply(
             message,
-            rss.help
+            msg
         )
     end
 end
