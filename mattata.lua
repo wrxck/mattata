@@ -972,6 +972,12 @@ function mattata.process_spam(message)
             5, -- Set the time to live to 5 seconds.
             msg_count + 1 -- Increase the current message count by 1.
         )
+        local antispam_delete_setting = 'antispam delete ' .. message.media_type
+        print(antispam_delete_setting)
+        if mattata.get_setting(message.chat.id, antispam_delete_setting) then
+            redis:expire('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages', 10)
+            redis:sadd('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages', message.message_id)
+        end
         local antispam = {}
         antispam.default_values = { ['text'] = 8,['forwarded'] = 16,['sticker'] = 4, ['photo'] = 4,['video'] = 4,['document'] = 4,['location'] = 4,['voice'] = 4,['game'] = 2,['venue'] = 4,['video note'] = 4,['invoice'] = 2,['contact'] = 2 }
         local msg_limit = mattata.get_value(message.chat.id, message.media_type .. ' limit') or antispam.default_values[message.media_type]
@@ -1012,6 +1018,14 @@ function mattata.process_spam(message)
                       ),
                       'html'
                   )
+                end
+            end
+            if mattata.get_setting(message.chat.id, antispam_delete_setting) then
+                for k, v in pairs(redis:smembers('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages')) do
+                    mattata.delete_message(
+                        message.chat.id,
+                        tonumber(v)
+                    )
                 end
             end
         end
