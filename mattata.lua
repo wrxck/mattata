@@ -921,7 +921,7 @@ function mattata.process_spam(message)
             5, -- Set the time to live to 5 seconds.
             msg_count + 1 -- Increase the current message count by 1.
         )
-        if msg_count == 7 -- If the user has sent 7 messages in the past 5 seconds, send them a warning.
+        if msg_count == 5 -- If the user has sent 5 messages in the past 5 seconds, send them a warning.
         and not mattata.is_global_admin(message.from.id)then
         -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
             mattata.send_reply( -- Send a warning message to the user who is at risk of being blacklisted for sending
@@ -932,7 +932,7 @@ function mattata.process_spam(message)
                     message.from.username and '@' .. message.from.username or message.from.name
                 )
             )
-        elseif msg_count == 15 -- If the user has sent 15 messages in the past 5 seconds, blacklist them globally from
+        elseif msg_count == 10 -- If the user has sent 10 messages in the past 5 seconds, blacklist them globally from
         -- using the bot for 24 hours.
         and not mattata.is_global_admin(message.from.id) -- Don't blacklist the user if they are configured as a global
         -- admin in `configuration.lua`.
