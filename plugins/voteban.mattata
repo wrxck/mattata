@@ -332,6 +332,12 @@ function voteban:on_message(message, configuration, language)
             message,
             language['voteban']['2']
         )
+    elseif mattata.get_setting(message.chat.id, 'trusted permissions warnings') and mattata.is_trusted_user(message.chat.id, user.id)
+    then
+        return mattata.send_reply(
+            message,
+            'I cannot start a voteban against this user because he is a trusted user and trusted users are immune to warns in this chat.'
+        )
     elseif status.result.status == 'left'
     or status.result.status == 'kicked'
     then -- Check if the user is in the group or not.
