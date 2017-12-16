@@ -14,6 +14,7 @@ function administration:init()
     :command('administration')
     :command('admins')
     :command('staff')
+    :command('trusted')
     :command('whitelistlink').table
 end
 
@@ -95,6 +96,7 @@ function administration.get_initial_keyboard(chat_id, page)
                 'administration:' .. chat_id .. ':rtl:2'
             )
         )
+        :row(mattata.row():callback_data_button('Trusted Users Permissions', 'administration:' .. chat_id .. ':trusted_permissions'))
         :row(
             mattata.row()
             :callback_data_button('Anti-Spam Action', 'administration:nil')
@@ -269,6 +271,92 @@ function administration.get_voteban_keyboard(chat_id)
     return keyboard
 end
 
+function administration.get_trusted_permissions(chat_id)
+    local keyboard = {
+        ['inline_keyboard'] = {}
+    }
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'AntiSpam Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions antispam') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:antispam'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Warnings Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions warnings') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:warnings'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Vote-Ban Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions voteban') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:voteban'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'WordFilter Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions wordfilter') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:wordfilter'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'AntiBot Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions antibot') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:antibot'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'AntiLink Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions antilink') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:antilink'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'AntiRTL Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions antirtl') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:antirtl'
+        }
+    })
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = 'Back',
+                ['callback_data'] = 'administration:' .. chat_id .. ':page:2'
+            }
+        }
+    )
+    return keyboard
+end
+
 function administration.get_hash_status(chat_id, hash_type)
     if redis:get('administration:' .. chat_id .. ':' .. hash_type)
     then
@@ -425,7 +513,12 @@ function administration:on_callback_query(callback_query, message, configuration
         )
     end
     local keyboard
-    if callback_query.data:match('^%-%d+:voteban$')
+    if callback_query.data:match('^%-%d+:trusted_permissions$')
+    then
+        keyboard = administration.get_trusted_permissions(
+            callback_query.data:match('^(%-%d+):trusted_permissions$')
+        )
+    elseif callback_query.data:match('^%-%d+:voteban$')
     then
         keyboard = administration.get_voteban_keyboard(
             callback_query.data:match('^(%-%d+):voteban$')
@@ -610,6 +703,14 @@ function administration:on_callback_query(callback_query, message, configuration
             'delete commands'
         )
         keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:trusted_toggle:%a*$')
+    then
+        local chat_id, trusted_setting = callback_query.data:match('^(%-%d+):trusted_toggle:(%a*)$')
+        mattata.toggle_setting(
+            chat_id,
+            'trusted permissions '..trusted_setting
+        )
+        keyboard = administration.get_trusted_permissions(chat_id)
     elseif callback_query.data:match('^%-%d+:misc_responses:%d*$')
     then
         local chat_id, page = callback_query.data:match('^(%-%d+):misc_responses:(%d*)$')
@@ -873,6 +974,44 @@ function administration.admins(message)
     )
 end
 
+function administration.trusted(message)
+    local success = mattata.get_trusted_users(message.chat.id)
+    local output = "👨 <b>Trusted Users</b> ("..#success..")\n"
+    if not success then
+        return mattata.send_reply(
+            message,
+            'I couldn\'t get a list of trusted users in this chat.'
+        )
+    end
+    local user_count = 0
+    for i, trusted in pairs(success) do
+        local user_output
+        local user = mattata.get_user(trusted) or mattata.get_chat(input)
+        user = user.result
+        print(user.first_name)
+        local branch = ' ├ '
+        if user.username then
+            user_output = string.format(
+                '<a href="https://t.me/%s">%s</a>',
+                user.username,
+                user.first_name
+            )
+        else
+            user_output = user.first_name
+        end
+        user_count = user_count + 1
+        if user_count == #success then
+            branch = ' └ '
+        end
+        output = output .. branch .. user_output .. '\n'
+    end
+    return mattata.send_message(
+        message,
+        output,
+        'html'
+    )
+end
+
 function administration.whitelist_links(message)
     local input = mattata.input(message.text)
     if not input then
@@ -978,6 +1117,8 @@ function administration:on_message(message, configuration)
         return success
     elseif message.text:match('^[/%!%$]admins') or message.text:match('^[/!#]staff') then
         return administration.admins(message)
+    elseif message.text:match('^[/!#]trusted') then
+        return administration.trusted(message)
     elseif message.text:match('^[/!#]ops') or message.text:match('^[/!#]report') then
         return administration.report(
             message,
