@@ -974,31 +974,35 @@ function administration.admins(message)
 end
 
 function administration.trusted(message)
-    local output = "👨 *Trusted Users*"
     local success = mattata.get_trusted_users(message.chat.id)
+    local output = "👨 <b>Trusted Users</b> ("..#success..")\n"
     if not success then
         return mattata.send_reply(
             message,
             'I couldn\'t get a list of trusted users in this chat.'
         )
     end
-    local user_count = 1
+    local user_count = 0
     for i, trusted in pairs(success) do
-        local uservar
+        local user_output
+        local user = mattata.get_user(trusted) or mattata.get_chat(input)
+        user = user.result
+        print(user.first_name)
         local branch = ' ├ '
-        user = mattata.escape_html(mattata.get_user(trusted).first_name)
-        if mattata.get_username(trusted) then
-            user = string.format(
+        if user.username then
+            user_output = string.format(
                 '<a href="https://t.me/%s">%s</a>',
-                mattata.get_username(trusted),
-                user
+                user.username,
+                user.first_name
             )
+        else
+            user_output = user.first_name
         end
         user_count = user_count + 1
-        if user_count == #output then
+        if user_count == #success then
             branch = ' └ '
         end
-        output = output .. branch .. user .. '\n'
+        output = output .. branch .. user_output .. '\n'
     end
     return mattata.send_message(
         message,
