@@ -21,7 +21,7 @@ local ltn12 = require('ltn12')
 local multipart = require('multipart-post')
 local json = require('dkjson')
 local redis = dofile('libs/redis.lua')
-local configuration = require('configuration')
+local configuration = dofile('configuration.lua')
 local api = require('telegram-bot-lua.core').configure(configuration.bot_token)
 local tools = require('telegram-bot-lua.tools')
 local socket = require('socket')
@@ -602,7 +602,7 @@ end
 
 function mattata.get_chat(chat_id, token)
     local success = api.get_chat(chat_id, token)
-    if success and success.result and success.result.type and success.result.type == 'private' then
+    if success and success.result and success.result.type == 'private' then
         mattata.process_user(success.result)
     elseif success and success.result then
         mattata.process_chat(success.result)
@@ -666,102 +666,89 @@ function mattata:exception(err, message, log_chat)
 end
 
 function mattata.process_chat(chat)
-    chat.id_str = tostring(chat.id)
+    if chat.result then
+        chat = chat.result
+    end
+    local chat_id = tostring(chat.id)
     if chat.type == 'private' then
         return chat
+    elseif type(chat) ~= 'table' then
+        return false
     end
-    if not redis:hexists('chat:' .. chat.id .. ':info', 'id') then
-        print(
-            string.format(
-                '%s[34m[+] Added the chat %s to the database!%s[0m',
-                string.char(27),
-                chat.username and '@' .. chat.username or chat.id,
-                string.char(27)
-            )
-        )
-    end
-    redis:hset('chat:' .. chat.id .. ':info', 'title', chat.title)
-    redis:hset('chat:' .. chat.id .. ':info', 'type', chat.type)
-    if chat.username then
-        chat.username = chat.username:lower()
-        redis:hset('chat:' .. chat.id .. ':info', 'username', chat.username)
-        redis:set('username:' .. chat.username, chat.id)
-        if not redis:sismember('chat:' .. chat.id .. ':usernames', chat.username) then
-            redis:sadd('chat:' .. chat.id .. ':usernames', chat.username)
+    local data = json.encode(chat, {
+        ['indent'] = true
+    })
+    local file, message, code = io.open('data/chats/' .. chat_id .. '/info.json', 'w+')
+    if tonumber(code) == 2 then
+        os.execute('mkdir -p data/chats/' .. chat_id .. '/')
+        file, message, code = io.open('data/chats/' .. chat_id .. '/info.json', 'w+')
+        if code ~= nil then
+            if configuration.debug then
+                print(message, code)
+            end
+            return chat
         end
     end
-    redis:hset('chat:' .. chat.id .. ':info', 'id', chat.id)
+    file:write(data)
+    file:close()
+    if chat.username then
+        if chat.username ~= chat.username:lower() then
+            redis:del('username:' .. chat.username)
+        end
+        redis:set('username:' .. chat.username:lower(), chat.id)
+    end
     return chat
 end
 
 function mattata.process_user(user)
-    if not user.id or not user.first_name then
+    if type(user) ~= 'table' or not user.id then
         return false
+    elseif user.result then
+        user = user.result
     end
-    local new = false
+    if user.type and user.type ~= 'private' then
+        return user
+    end
     user.name = user.first_name
     if user.last_name then
         user.name = user.name .. ' ' .. user.last_name
-    end
-    if not redis:hget('user:' .. user.id .. ':info', 'id') and configuration.debug then
-        print(
-            string.format(
-                '%s[34m[+] Added the user %s to the database!%s%s[0m',
-                string.char(27),
-                user.username and '@' .. user.username or user.id,
-                user.language_code and ' Language: ' .. user.language_code or '',
-                string.char(27)
-            )
-        )
-        new = true
-    elseif configuration.debug then
-        print(
-            string.format(
-                '%s[34m[+] Updated information about the user %s in the database!%s%s[0m',
-                string.char(27),
-                user.username and '@' .. user.username or user.id,
-                user.language_code and ' Language: ' .. user.language_code or '',
-                string.char(27)
-            )
-        )
-    end
-    redis:hset('user:' .. user.id .. ':info', 'name', user.name)
-    redis:hset('user:' .. user.id .. ':info', 'first_name', user.first_name)
-    if user.last_name then
-        redis:hset('user:' .. user.id .. ':info', 'last_name', user.last_name)
-    else
-        redis:hdel('user:' .. user.id .. ':info', 'last_name')
-    end
-    if user.username then
-        user.username = user.username:lower()
-        redis:hset('user:' .. user.id .. ':info', 'username', user.username)
-        redis:set('username:' .. user.username, user.id)
-        if not redis:sismember('user:' .. user.id .. ':usernames', user.username) then
-            redis:sadd('user:' .. user.id .. ':usernames', user.username)
-        end
-    else
-        redis:hdel('user:' .. user.id .. ':info', 'username')
-    end
-    if user.language_code then
-        if mattata.does_language_exist(user.language_code) and not redis:hget('chat:' .. user.id .. ':settings', 'language') then
-        -- If a translation exists for the user's language code, and they haven't selected
-        -- a language already, then set it as their primary language!
-            redis:hset('chat:' .. user.id .. ':settings', 'language', user.language_code)
-        end
-        redis:hset('user:' .. user.id .. ':info', 'language_code', user.language_code)
-    else
-        redis:hdel('user:' .. user.id .. ':info', 'language_code')
-    end
-    redis:hset('user:' .. user.id .. ':info', 'is_bot', tostring(user.is_bot))
-    if new then
-        redis:hset('user:' .. user.id .. ':info', 'id', user.id)
     end
     if redis:get('nick:' .. user.id) then
         user.first_name = redis:get('nick:' .. user.id)
         user.name = user.first_name
         user.last_name = nil
     end
-    return user, new
+    if user.language_code then
+        if mattata.does_language_exist(user.language_code) and not redis:hget('chat:' .. user.id .. ':settings', 'language') then
+            -- If a translation exists for the user's language code, and they haven't selected
+            -- a language already, then set it as their primary language!
+            redis:hset('chat:' .. user.id .. ':settings', 'language', user.language_code)
+        end
+    end
+    local chat_id = tostring(user.id)
+    local data = json.encode(user, {
+        ['indent'] = true
+    })
+    local file, message, code = io.open('data/users/' .. chat_id .. '/info.json', 'w+')
+    if tonumber(code) == 2 then
+        os.execute('mkdir -p data/users/' .. chat_id .. '/')
+        file, message, code = io.open('data/users/' .. chat_id .. '/info.json', 'w+')
+        if code ~= nil then
+            if configuration.debug then
+                print(message, code)
+            end
+            return user
+        end
+    end
+    file:write(data)
+    file:close()
+    if user.username then
+        if user.username ~= user.username:lower() then
+            redis:del('username:' .. user.username)
+        end
+        redis:set('username:' .. user.username:lower(), user.id)
+    end
+    return user
 end
 
 function mattata.sort_message(message)
@@ -825,6 +812,12 @@ function mattata.sort_message(message)
             -- with it now.
         end
     end
+    if message.from then
+        message.from = mattata.process_user(message.from)
+    end
+    if message.chat then
+        message.chat = mattata.process_chat(message.chat)
+    end
     return message
 end
 
@@ -878,7 +871,7 @@ function mattata.process_spam(message)
         mattata.leave_chat(message.chat.id)
         return true -- Ponzi scheme groups are considered a negative influence on the bot's
         -- reputation and performance, so we'll leave the group and start processing the next update.
-        -- TODO: Implement a better detection that just matching the title for the word "PONZI".
+        -- TODO: Implement a better detection than just matching the title for the word "PONZI".
     end
     local msg_count = tonumber(
         redis:get('antispam:' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
@@ -900,7 +893,7 @@ function mattata.process_spam(message)
                 message.from.username and '@' .. message.from.username or message.from.name
             )
         )
-    elseif messages == 15 -- If the user has sent 15 messages in the past 5 seconds, blacklist them globally from
+    elseif msg_count == 15 -- If the user has sent 15 messages in the past 5 seconds, blacklist them globally from
     -- using the bot for 24 hours.
     and not mattata.is_global_admin(message.from.id) -- Don't blacklist the user if they are configured as a global
     -- admin in `configuration.lua`.
@@ -915,7 +908,11 @@ function mattata.process_spam(message)
         )
         return true
     end
-    return false
+    if not mattata.is_plugin_disabled(message, 'antispam') then
+        local antispam = dofile('plugins/antispam.mattata')
+        local is_spamming, res = antispam.process_message(self, message, configuration, language)
+        return is_spamming, res
+    end
 end
 
 function mattata:process_language(message)
@@ -1044,6 +1041,54 @@ function mattata:process_message()
         return mattata.send_message(message, welcome_message, 'markdown', true, false, nil, keyboard)
     end
     return false
+end
+
+function mattata.migrate_all_users()
+    local file = io.open('backups/temp4.json')
+    if not file then
+        print('hi')
+        return false
+    end
+    local data = file:read('*all')
+    file:close()
+    data = json.decode(data)
+    print(json.encode(data[1],{indent=true}))
+    for k, v in ipairs(data) do
+        local obj = v
+        if obj.db == 2 and obj.key:match('^user:%d+:info$') then
+            local user = obj.value
+            user.id = tonumber(user.id)
+            if user.id then
+                if user.is_bot ~= nil then
+                    user.is_bot = user.is_bot == "true" and true or false
+                end
+                local success = mattata.process_user(user)
+                print('Migrating ' .. user.id .. '!')
+                if success then
+                    data[k] = nil
+                end
+            end
+        end
+    end
+    local file = io.open('backups/temp4.json', 'w+')
+    data = json.encode(data, {
+        ['indent'] = true
+    })
+    file:write(data)
+    file:close()
+end
+
+function mattata.migrate_all_chats()
+    local chats = redis:keys('chat:*:info')
+    for _, v in pairs(chats) do
+        local chat = redis:hgetall(v)
+        if chat and chat.id then
+            chat.id = tonumber(chat.id)
+            mattata.process_chat(chat)
+            print('Migrating ' .. chat.id .. '!')
+            redis:del(v)
+        end
+    end
 end
 
 return mattata

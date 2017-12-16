@@ -1,6 +1,7 @@
 local utils = {}
 local redis = dofile('libs/redis.lua')
-local configuration = require('configuration')
+local configuration = dofile('configuration.lua')
+local json = require('dkjson')
 
 local mattata = {}
 local api = {}
@@ -341,11 +342,32 @@ function utils.get_chat_id(chat)
     return success.result.id
 end
 
+function utils.get_settings(chat_id)
+    if not chat_id then
+        return false
+    end
+    local file = io.open('data/chats/' .. tostring(chat_id) .. '/settings.json') or io.open('data/users/' .. tostring(chat_id) .. '/settings.json')
+    if not file then
+        return false
+    end
+    local settings = file:read('*all')
+    file:close()
+    settings = json.decode(settings)
+    if type(settings) ~= 'table' then
+        return false
+    end
+    return settings
+end
+
 function utils.get_setting(chat_id, setting)
     if not chat_id or not setting then
         return false
     end
-    return redis:hget('chat:' .. chat_id .. ':settings', tostring(setting))
+    local settings = utils.get_settings(chat_id)
+    if type(settings) ~= 'table' or not settings[setting] then
+        return false
+    end
+    return settings[setting]
 end
 
 function utils.get_value(chat_id, value)
@@ -361,32 +383,40 @@ function utils.log_error(error_message)
     print(output)
 end
 
-function utils.write_file(file_path, content)
+function utils.update_settings(chat_id, settings)
+    if type(settings) ~= 'table' then
+        return false
+    end
+    settings = json.encode(settings, {
+        ['indent'] = true
+    })
+    return utils.write_file('data/chats/' .. chat_id .. '/', 'settings.json', settings)
+end
+
+function utils.write_file(file_path, file_name, content)
     file_path = tostring(file_path)
+    if not file_path:match('/$') then
+        file_path = file_path .. '/'
+    end
+    file_name = tostring(file_name)
     content = tostring(content)
-    local file = io.open(file_path, 'w+')
-    file:write(content)
+    local file, message, code = io.open(file_path .. file_name, 'w+')
+    if tonumber(code) == 2 then
+        os.execute('mkdir -p ' .. file_path)
+        file, message, code = io.open(file_path .. file_name, 'w+')
+        if code ~= nil then
+            return content
+        end
+    end
+    local success = file:write(content)
     file:close()
-    return file
+    return success, file, content
 end
 
 function utils.does_language_exist(language)
     return pcall(function()
         return dofile('languages/' .. language .. '.lua')
     end)
-end
-
-function utils.get_usernames(user_id)
-    if not user_id then
-        return false
-    elseif tonumber(user_id) == nil then
-        user_id = tostring(user_id):match('^@(.-)$') or tostring(user_id)
-        user_id = redis:get('username:' .. user_id:lower())
-        if not user_id then
-            return false
-        end
-    end
-    return redis:smembers('user:' .. user_id .. ':usernames')
 end
 
 function utils.is_valid(message) -- Performs basic checks on the message object to see if it's fit
@@ -453,12 +483,12 @@ end
 
 function utils.toggle_setting(chat_id, setting, value)
     value = (type(value) ~= 'string' and tostring(value) ~= 'nil') and value or true
-    if not chat_id or not setting then
+    local settings = utils.get_settings(chat_id)
+    if not chat_id or not setting or type(settings) ~= 'table' then
         return false
-    elseif not redis:hexists('chat:' .. chat_id .. ':settings', tostring(setting)) then
-        return redis:hset('chat:' .. chat_id .. ':settings', tostring(setting), value)
     end
-    return redis:hdel('chat:' .. chat_id .. ':settings', tostring(setting))
+    settings[setting] = settings[setting] == nil and value or nil
+    return utils.update_settings(chat_id, settings)
 end
 
 function utils.uses_administration(chat_id)
@@ -611,7 +641,34 @@ function utils.get_user(input)
     if not input or tonumber(input) == nil then
         return false
     end
+    local success = utils.load_chat_info(input)
+    if success and type(success) == 'table' and success.result then
+        return success
+    end
     return api.get_chat(input)
+end
+
+function utils.load_chat_info(chat_id, search_usernames)
+    if search_usernames and tonumber(chat_id) == nil then
+        chat_id = redis:get('username:' .. tostring(chat_id):lower())
+    end
+    if not chat_id then
+        return false
+    end
+    local file = io.open('data/chats/' .. tostring(chat_id) .. '/info.json') or io.open('data/users/' .. tostring(chat_id) .. '/info.json')
+    if not file then
+        return false
+    end
+    local data = file:read('*all')
+    file:close()
+    data = json.decode(data)
+    if type(data) ~= 'table' then
+        return false
+    end
+    return {
+        ['ok'] = true,
+        ['result'] = data
+    }
 end
 
 function utils.is_plugin_disabled(plugin, chat_id)

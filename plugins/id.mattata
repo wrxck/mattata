@@ -29,8 +29,6 @@ function id.resolve_chat(message, language)
     local success = mattata.get_user(input)
     if not success then
         success = mattata.get_chat(input)
-    else
-        success = mattata.get_chat(success.result.id)
     end
     if not success or not success.result then
         return language['id']['1']
@@ -41,7 +39,7 @@ function id.resolve_chat(message, language)
     -- have the `id` field being returned.
     local output = json.encode(success.result, { ['indent'] = true })
     output = '<pre>' .. mattata.escape_html(output) .. '</pre>'
-    return output
+    return output, success.result.id
 end
 
 function id:on_inline_query(inline_query, configuration, language)
@@ -72,14 +70,14 @@ function id:on_inline_query(inline_query, configuration, language)
 end
 
 function id:on_message(message, configuration, language)
-    return mattata.send_message(
-        message,
-        id.resolve_chat(
-            message,
-            language
-        ),
-        'html'
-    )
+    local output, id = id.resolve_chat(message, language)
+    if id == message.from.id then
+        local success = mattata.send_document(message.chat.id, 'data/users/' .. id .. '/info.json')
+        if success then
+            return success
+        end
+    end
+    return mattata.send_message(message, output, 'html')
 end
 
 return id
