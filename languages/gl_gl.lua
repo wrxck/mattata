@@ -274,6 +274,7 @@ Redis:
 
 %s User Count: %s
 %s Group Count: %s
+%s Mensaxes Recividos: %s
 
 System:
 %s OS: %s

@@ -280,6 +280,10 @@ function utils.get_user_message_statistics(user_id, chat_id)
     }
 end
 
+function utils.get_messages_count()
+    return tonumber(redis:get('messages_count')) or 0
+end
+
 function utils.reset_message_statistics(chat_id)
     if not chat_id or tonumber(chat_id) == nil then
         return false

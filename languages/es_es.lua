@@ -276,6 +276,7 @@ Redis:
 
 %s Número de usuarios: %s
 %s Número de grupos: %s
+%s Número de mensajes recibidos: %s
 
 Sistema:
 %s SO: %s

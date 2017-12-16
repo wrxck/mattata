@@ -277,6 +277,7 @@ Dağıtım:
 
 %s Kullanıcı Sayısı: %s
 %s Grup Sayısı: %s
+%s Received Messages Count: %s
 
 Sistem:
 %s İşletim sistemi: %s

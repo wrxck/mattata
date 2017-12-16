@@ -217,6 +217,7 @@ mattata.is_privacy_enabled = utils.is_privacy_enabled
 mattata.is_user_blacklisted = utils.is_user_blacklisted
 mattata.input = utils.input
 mattata.get_message_statistics = utils.get_message_statistics
+mattata.get_messages_count = utils.get_messages_count
 
 function mattata:run(configuration, token)
 -- mattata's main long-polling function which repeatedly checks the Telegram bot API for updates.
@@ -464,6 +465,7 @@ function mattata:on_message()
     -- Anything miscellaneous is processed here, things which are perhaps plugin-specific
     -- and just not relevant to the core `mattata.on_message` function.
     mattata.process_plugin_extras(self)
+    redis:incr('messages_count')
     return true
 end
 

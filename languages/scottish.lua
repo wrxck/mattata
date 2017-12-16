@@ -277,6 +277,7 @@ Redis:
 
 %s Usar Cownt: %s
 %s Gruip Cownt: %s
+%s Received Messages Count: %s
 
 System:
 %s OS: %s

@@ -277,6 +277,7 @@ Redis:
 
 %s Contagem de Utilizadores: %s
 %s Contagem de Grupos: %s
+%s Received Messages Count: %s
 
 Sistema:
 %s OS: %s

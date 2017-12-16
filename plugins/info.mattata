@@ -41,6 +41,8 @@ function info:on_message(message, configuration, language)
             mattata.symbols.bullet,
             mattata.comma_value(mattata.get_group_count()),
             mattata.symbols.bullet,
+            mattata.comma_value(mattata.get_messages_count()),
+            mattata.symbols.bullet,
             io.popen('uname -a'):read('*all')
         ),
         'markdown'
