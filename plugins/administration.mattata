@@ -14,6 +14,7 @@ function administration:init()
     :command('administration')
     :command('admins')
     :command('staff')
+    :command('trusted')
     :command('links')
     :command('whitelistlink')
     :command('whitelistlinks')
@@ -494,7 +495,6 @@ function administration:on_callback_query(callback_query, message, configuration
         )
     end
     local keyboard
-    print(callback_query.data)
     if callback_query.data:match('^%-%d+:voteban$')
     then
         keyboard = administration.get_voteban_keyboard(
@@ -973,6 +973,40 @@ function administration.admins(message)
     )
 end
 
+function administration.trusted(message)
+    local output = "👨 *Trusted Users*"
+    local success = mattata.get_trusted_users(message.chat.id)
+    if not success then
+        return mattata.send_reply(
+            message,
+            'I couldn\'t get a list of trusted users in this chat.'
+        )
+    end
+    local user_count = 1
+    for i, trusted in pairs(success) do
+        local uservar
+        local branch = ' ├ '
+        user = mattata.escape_html(mattata.get_user(trusted).first_name)
+        if mattata.get_username(trusted) then
+            user = string.format(
+                '<a href="https://t.me/%s">%s</a>',
+                mattata.get_username(trusted),
+                user
+            )
+        end
+        user_count = user_count + 1
+        if user_count == #output then
+            branch = ' └ '
+        end
+        output = output .. branch .. user .. '\n'
+    end
+    return mattata.send_message(
+        message,
+        output,
+        'html'
+    )
+end
+
 function administration.whitelist_links(message)
     local input = mattata.input(message.text)
     if not input then
@@ -1078,6 +1112,8 @@ function administration:on_message(message, configuration)
         return success
     elseif message.text:match('^[/%!%$]admins') or message.text:match('^[/!#]staff') then
         return administration.admins(message)
+    elseif message.text:match('^[/!#]trusted') then
+        return administration.trusted(message)
     elseif message.text:match('^[/!#]ops') or message.text:match('^[/!#]report') then
         return administration.report(
             message,
