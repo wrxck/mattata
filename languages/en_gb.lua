@@ -203,6 +203,8 @@ Here are some administrative commands and a brief comment regarding what they do
 • /unban - Unban a user by replying to one of their messages, or by specifying them by username/ID
 
 • /setrules <text> - Set the given Markdown-formatted text as the group rules, which will be sent whenever somebody uses /rules
+
+• /trust - Promotes an user to a trusted user of the current chat. This command can only be used by administrators of a supergroup. Admins can set their permissions to be immune to some filters.
         ]],
         ['10'] = [[
 • /setwelcome - Set the given Markdown-formatted text as a welcome message that will be sent every time a user joins your group (the welcome message can be disabled in the administration menu, accessible via /administration). You can use placeholders to automatically customise the welcome message for each user. Use $user\_id to insert the user's numerical ID, $chat\_id to insert the chat's numerical ID, $name to insert the user's name, $title to insert the chat title and $username to insert the user's username (if the user doesn't have an @username, their name will be used instead, so it is best to avoid using this with $name)

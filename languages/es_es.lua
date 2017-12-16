@@ -203,6 +203,8 @@ Algunos comandos administrativos con una pequeña descripción:
 • /unban - Desbanea a un usuario respondiendo a un mensaje, o poniendo su alias o ID
 
 • /setrules <texto> - Pone las reglas con formateo markdown, que serán enviadas con el comando /rules
+
+• /trust - Confía en un usuario. Sólo administradores y usuarios pueden usarlo, y ellos pueden darle permisos para saltarse filtros.
         ]],
         ['10'] = [[
 • /setwelcome - Pone el texto recibido con formateo markdown como mensaje de bienvenida, que será enviado cada vez que alguien se una al grupo (este mensaje se puede desactivar desde la configuración del grupo, con el comando /administration). Puedes usar campos predefinidos para poner un mensaje personalizado. Usa $user\_id para insertar el ID númerico del usuario, $chat\_id para el ID númerico de chat, $name para insertar el nombre del usuario, $title para insertar el título de chat y $username para insertar el alias del usuario (si el usuario no tiene un alias como @username, se mostrará su nombre, así que es mejor usar $name en vez de este)
