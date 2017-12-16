@@ -273,7 +273,7 @@ function mattata:run(configuration, token)
                                 v.update_id,
                                 v.message.from.first_name,
                                 v.message.from.id,
-                                v.message.chat.title or "me",
+                                v.message.chat.title or self.info.name,
                                 v.message.chat.id,
                                 string.char(27)
                             )
@@ -908,7 +908,6 @@ function mattata.process_spam(message)
                     action:gsub("%:delete", ":messages"):match('antispam:.-:(.-):.-:messages$'),
                     tonumber(message)
                 )
-                redis:srem(action:gsub("%:delete", ":messages"), message)
             end
             redis:del(action)
         end
