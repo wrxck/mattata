@@ -184,7 +184,7 @@ function warn:on_message(message, configuration, language)
             message,
             'I cannot warn this user because they are a moderator or an administrator in this chat.'
         )
-    elseif mattata.get_setting(message.chat.id, 'trusted permissions warnings') and mattata.is_trusted_user(message.chat.id, message.from.id)
+    elseif mattata.get_setting(message.chat.id, 'trusted permissions warnings') and mattata.is_trusted_user(message.chat.id, user.id)
     then
         return mattata.send_reply(
             message,
