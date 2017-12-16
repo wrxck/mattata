@@ -21,6 +21,14 @@ function utils.is_trusted_user(chat_id, user_id)
     return false
 end
 
+function utils.get_trusted_users(chat_id)
+    return redis:smembers('administration:' .. chat_id .. ':trusted')
+end
+
+function utils.get_trusted_users_count(chat_id)
+    return #redis:smembers('administration:' .. chat_id .. ':trusted')
+end
+
 function utils.service_message(message)
     if message.new_chat_member then
         return true, 'new_chat_member'
