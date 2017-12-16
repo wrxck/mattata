@@ -1015,6 +1015,48 @@ function mattata.process_spam(message)
         end
         return false
     end
+    if message.media_type == 'rtl' and mattata.get_setting(message.chat.id, 'antirtl') then
+        if mattata.is_trusted_user(message.chat.id, message.from.id) and mattata.get_setting(message.chat.id, 'trusted permissions antirtl') then else
+            local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
+            local success, error_message = action(message.chat.id, message.from.id)
+            if not success then
+                return false, error_message
+            elseif mattata.get_setting(message.chat.id, 'log administrative actions') then
+                mattata.send_message(
+                    mattata.get_log_chat(message.chat.id),
+                    string.format(
+                        '#action #antirtl #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                        mattata.escape_html(api.info.first_name),
+                        api.info.id,
+                        mattata.escape_html(message.from.first_name),
+                        message.from.id,
+                        mattata.escape_html(message.chat.title),
+                        message.chat.id,
+                        message.media_type
+                    ),
+                    'html'
+                )
+            end
+            if mattata.get_setting(message.chat.id, 'notify admins actions') then
+                for i, admin in pairs(mattata.get_chat_administrators(message.chat.id).result) do
+                  mattata.send_message(
+                      admin.user.id,
+                      string.format(
+                          '#action #antirtl #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                          mattata.escape_html(api.info.first_name),
+                          api.info.id,
+                          mattata.escape_html(message.from.first_name),
+                          message.from.id,
+                          mattata.escape_html(message.chat.title),
+                          message.chat.id,
+                          message.media_type
+                      ),
+                      'html'
+                  )
+                end
+            end
+        end
+    end
 end
 
 function mattata:process_language(message)
