@@ -83,6 +83,10 @@ function antispam.get_keyboard(chat_id, language)
                             ['callback_data'] = 'antispam:' .. chat_id .. ':limit:' .. media .. ':' .. tonumber(current) + 1
                         },
                         {
+                            ['text'] = mattata.get_setting(chat_id, 'delete antispam ' .. media) and "🗑"..utf8.char(9989) or "🗑"..utf8.char(10060),
+                            ['callback_data'] = 'antispam:' .. chat_id .. ':delete:' .. media
+                        },
+                        {
                             ['text'] = language['antispam']['3'],
                             ['callback_data'] = 'antispam:' .. chat_id .. ':toggle:' .. media
                         }
@@ -143,6 +147,9 @@ function antispam:on_callback_query(callback_query, message, configuration, lang
     elseif callback_query.data:match('^%-%d+:toggle:.-$') then
         local spam_type = callback_query.data:match('^%-%d+:toggle:(.-)$')
         mattata.toggle_setting(chat_id, 'allow ' .. spam_type)
+    elseif callback_query.data:match('^%-%d+:delete:.-$') then
+        local chat_id, spam_type = callback_query.data:match('^(%-%d+):delete:(.-)$')
+        mattata.toggle_setting(chat_id, 'antispam delete ' .. spam_type)
     elseif callback_query.data:match('^%-%d+:disable$') then
         redis:hdel('chat:' .. chat_id .. ':settings', 'antispam')
     elseif callback_query.data:match('^%-%d+:enable$') then
