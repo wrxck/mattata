@@ -83,7 +83,7 @@ function antispam.get_keyboard(chat_id, language)
                             ['callback_data'] = 'antispam:' .. chat_id .. ':limit:' .. media .. ':' .. tonumber(current) + 1
                         },
                         {
-                            ['text'] = mattata.get_setting(chat_id, 'delete antispam ' .. media) and "🗑"..utf8.char(9989) or "🗑"..utf8.char(10060),
+                            ['text'] = mattata.get_setting(chat_id, 'antispam delete ' .. media) and "🗑"..utf8.char(9989) or "🗑"..utf8.char(10060),
                             ['callback_data'] = 'antispam:' .. chat_id .. ':delete:' .. media
                         },
                         {
