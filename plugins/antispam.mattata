@@ -141,6 +141,8 @@ function antispam:process_message(message, configuration, language)
         return false, 'The administration plugin is switched off in this chat!'
     elseif not mattata.get_setting(message.chat.id, 'antispam') then
         return false, 'The antispam plugin is switched off in this chat!'
+    elseif mattata.get_setting(message.chat.id, 'trusted permissions antispam') and mattata.is_trusted_user(message.chat.id, message.from.id) then
+        return false, 'That user is a trusted user and he has authorization to spam!
     end
     local is_spamming, media_type = antispam.is_user_spamming(message)
     if not is_spamming then
