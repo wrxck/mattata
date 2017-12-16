@@ -260,7 +260,7 @@ function warn:on_message(message, configuration, language)
         mattata.send_message(
             mattata.get_log_chat(message.chat.id),
             string.format(
-                '#action #warn #admin_'..message.from.id..' #user_'..user.id..' #group_'..message.chat.id:gsub("%-", "")..'\n\n<pre>%s%s [%s] has warned %s%s [%s] in %s%s [%s]%s.</pre>',
+                '#action #warn #admin_'..message.from.id..' #user_'..user.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s%s [%s] has warned %s%s [%s] in %s%s [%s]%s.</pre>',
                 message.from.username and '@' or '',
                 message.from.username or mattata.escape_html(message.from.first_name),
                 message.from.id,
