@@ -902,10 +902,12 @@ end
 
 function mattata.process_spam(message)
     if #redis:keys('antispam:*:*:*:delete') > 0 then
-        for i, action in pairs(redis:keys('antispam:*:*:*:delete')) do
-            for k, message in pairs(redis:smembers(action:gsub("%:delete", ":messages"))) do
+        local keys_to_delete = redis:keys('antispam:*:*:*:delete')
+        for i, action in pairs(keys_to_delete) do
+            local messages_to_delete = redis:smembers(action:gsub("%:delete", ":messages"))
+            for k, message in pairs(messages_to_delete) do
                 mattata.delete_message(
-                    action:gsub("%:delete", ":messages"):match('antispam:.-:(.-):.-:messages$'),
+                    messages_to_delete:match('antispam:.-:(.-):.-:messages$'),
                     tonumber(message)
                 )
             end
@@ -1037,7 +1039,7 @@ function mattata.process_spam(message)
                         tonumber(v)
                     )
                     redis:srem('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages', message.message_id)
-                    redis:setex('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':delete', 30, "true")
+                    redis:setex('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':delete', 10, "true")
                 end
             end
         end
