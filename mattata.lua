@@ -1111,7 +1111,6 @@ function mattata:process_message()
             if #kicked > 0 and #usernames > 0 and #kicked == #usernames then
                 local log_chat = mattata.get_log_chat(message.chat.id)
                 mattata.send_message(log_chat, string.format('#action #antibot #admin_'..self.info.id..' #user_'..message.from.id..' #group_'..message.chat.id:gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s from %s [%s] because anti-bot is enabled.</pre>', mattata.escape_html(self.info.first_name), self.info.id, table.concat(kicked, ', '), mattata.escape_html(message.chat.title), message.chat.id), 'html')
-                return mattata.send_message(message, string.format('Kicked %s because anti-bot is enabled.', table.concat(usernames, ', ')))
                 if mattata.get_setting(message.chat.id, 'notify admins actions') then
                     for i, admin in pairs(mattata.get_chat_administrators(message.chat.id).result) do
                       mattata.send_message(
@@ -1130,6 +1129,7 @@ function mattata:process_message()
                       )
                     end
                 end
+                return mattata.send_message(message, string.format('Kicked %s because anti-bot is enabled.', table.concat(usernames, ', ')))
             end
         end
     end
