@@ -1,0 +1,32 @@
+--[[
+    Based on a plugin by topkecleon.
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local commands = {}
+local mattata = require('mattata')
+local https = require('ssl.https')
+local url = require('socket.url')
+local redis = dofile('libs/redis.lua')
+local configuration = require('configuration')
+
+function commands:init(configuration)
+    commands.commands = mattata.commands(self.info.username):command('commands').table
+    commands.help = '/commands - Sends the full list of avaliable commands.'
+end
+
+function commands:on_message(message, configuration, language)
+    local arguments_list = mattata.get_help()
+    local output = "*List of Avaliable Commands:*\n\n"
+    for k, v in pairs(arguments_list) do
+        output = output .. "\n" .. v
+    end
+    return mattata.send_reply(
+        message,
+        output,
+        'markdown'
+  )
+end
+
+return commands
