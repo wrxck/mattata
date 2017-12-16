@@ -901,6 +901,18 @@ function mattata:process_natural_language(message)
 end
 
 function mattata.process_spam(message)
+    if #redis:keys('antispam:*:*:*:delete') > 0 then
+        for i, action in pairs(redis:keys('antispam:*:*:*:delete')) do
+            for k, message in pairs(redis:smembers(action:gsub("%:delete", ":messages"))) do
+                mattata.delete_message(
+                    action:gsub("%:delete", ":messages"):match('antispam:.-:(.-):.-:messages$'),
+                    tonumber(message)
+                )
+                redis:srem(action:gsub("%:delete", ":messages"), message)
+            end
+            redis:del(action)
+        end
+    end
     local language = dofile('languages/' .. mattata.get_user_language(message.from.id) .. '.lua')
     if message.chat.id and mattata.is_group(message) and mattata.get_setting(message.chat.id, 'force group language') then
         language = dofile('languages/' .. (mattata.get_value(message.chat.id, 'group language') or 'en_gb') .. '.lua')
@@ -973,9 +985,8 @@ function mattata.process_spam(message)
             msg_count + 1 -- Increase the current message count by 1.
         )
         local antispam_delete_setting = 'antispam delete ' .. message.media_type
-        print(antispam_delete_setting)
         if mattata.get_setting(message.chat.id, antispam_delete_setting) then
-            redis:expire('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages', 10)
+            redis:expire('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages', 5)
             redis:sadd('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages', message.message_id)
         end
         local antispam = {}
@@ -1026,6 +1037,8 @@ function mattata.process_spam(message)
                         message.chat.id,
                         tonumber(v)
                     )
+                    redis:srem('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages', message.message_id)
+                    redis:setex('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':delete', 30, "true")
                 end
             end
         end
