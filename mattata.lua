@@ -901,16 +901,12 @@ function mattata:process_natural_language(message)
 end
 
 function mattata.process_spam(message)
-    print(#redis:keys('antispam:*:*:*:delete'))
     if #redis:keys('antispam:*:*:*:delete') > 0 then
         local keys_to_delete = redis:keys('antispam:*:*:*:delete')
-        print(keys_to_delete)
         for i, action in pairs(keys_to_delete) do
-            print(action)
-            local messages_to_delete = redis:smembers(action:gsub("%:delete", ":messages"))
-            print(messages_to_delete)
+            local smembers_key = action:gsub("%:delete", ":messages")
+            local messages_to_delete = redis:smembers(smembers_key)
             for k, message in pairs(messages_to_delete) do
-                print(message)
                 mattata.delete_message(
                     messages_to_delete:match('antispam:.-:(.-):.-:messages$'),
                     tonumber(message)
