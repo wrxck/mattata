@@ -61,6 +61,14 @@ function administration.get_initial_keyboard(chat_id, page)
         )
         :row(
             mattata.row()
+            :callback_data_button('Notify Admins on Actions?', 'administration:nil')
+            :callback_data_button(
+                mattata.get_setting(chat_id, 'notify admins actions') and utf8.char(9989) or utf8.char(10060),
+                'administration:' .. chat_id .. ':notify_admins_actions:1'
+            )
+        )
+        :row(
+            mattata.row()
             :callback_data_button('Back', 'help:settings')
             :callback_data_button('Next', 'administration:' .. chat_id .. ':page:2')
         )
@@ -618,6 +626,14 @@ function administration:on_callback_query(callback_query, message, configuration
         mattata.toggle_setting(
             chat_id,
             'send rules in group'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:notify_admins_actions:%d*$')
+    then
+        local chat_id, page = callback_query.data:match('^(%-%d+):notify_admins_actions:(%d*)$')
+        mattata.toggle_setting(
+            chat_id,
+            'notify admins actions'
         )
         keyboard = administration.get_initial_keyboard(chat_id, page)
     elseif callback_query.data:match('^%-%d+:word_filter:%d*$')
