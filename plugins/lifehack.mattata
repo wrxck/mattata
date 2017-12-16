@@ -9,7 +9,7 @@ local http = require('socket.http')
 
 function lifehack:init()
     lifehack.commands = mattata.commands(self.info.username):command('lifehack'):command('lh').table
-    lifehack.help = '/lifehack - Returns a random life hack. Alieas: /lh'
+    lifehack.help = '/lifehack - Returns a random life hack. Alias: /lh'
 end
 
 function lifehack:on_message(message, configuration, language)
