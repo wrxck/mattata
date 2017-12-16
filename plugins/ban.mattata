@@ -155,7 +155,7 @@ function ban:on_message(message, configuration, language)
         mattata.send_message(
             mattata.get_log_chat(message.chat.id),
             string.format(
-                '#action #ban #admin_'..message.from.id..' #user_'..user.id..' #group_'..message.chat.id..'\n\n<pre>%s%s [%s] has banned %s%s [%s] from %s%s [%s]%s.</pre>',
+                '#action #ban #admin_'..message.from.id..' #user_'..user.id..' #group_'..message.chat.id:gsub("%-", "")..'\n\n<pre>%s%s [%s] has banned %s%s [%s] from %s%s [%s]%s.</pre>',
                 message.from.username and '@' or '',
                 message.from.username or mattata.escape_html(message.from.first_name),
                 message.from.id,

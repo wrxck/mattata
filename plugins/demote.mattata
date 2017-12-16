@@ -117,7 +117,7 @@ function demote:on_message(message, configuration, language)
         mattata.send_message(
             mattata.get_log_chat(message.chat.id),
             string.format(
-                '#action #demote #admin_'..message.from.id..' #user_'..user.id..' #group_'..message.chat.id..'\n\n<pre>%s%s [%s] has demoted %s%s [%s] in %s%s [%s].</pre>',
+                '#action #demote #admin_'..message.from.id..' #user_'..user.id..' #group_'..message.chat.id:gsub("%-", "")..'\n\n<pre>%s%s [%s] has demoted %s%s [%s] in %s%s [%s].</pre>',
                 message.from.username
                 and '@'
                 or '',
