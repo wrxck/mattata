@@ -1275,7 +1275,7 @@ function mattata:process_message()
         end
         if mattata.get_setting(message.chat.id, 'log administrative actions') then
             local log_chat = mattata.get_log_chat(message.chat.id)
-            mattata.send_message(log_chat, string.format('#newmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has joined from %s [%s]</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
+            mattata.send_message(log_chat, string.format('#newmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has joined %s [%s]</pre>', mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
         end
     end
     if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.is_muted_user(message.chat.id, message.from.id) then
