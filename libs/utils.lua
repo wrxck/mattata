@@ -24,15 +24,15 @@ function utils.get_trusted_users(chat_id)
     return redis:smembers('administration:' .. chat_id .. ':trusted')
 end
 
-function utils.get_trusted_users_count(chat_id)
-    return #redis:smembers('administration:' .. chat_id .. ':trusted')
-end
-
 function utils.is_muted_user(chat_id, user_id)
     if redis:sismember('administration:' .. chat_id .. ':muted', user_id) then
         return true
     end
     return false
+end
+
+function utils.get_muted_users(chat_id)
+    return redis:smembers('administration:' .. chat_id .. ':muted')
 end
 
 function utils.service_message(message)

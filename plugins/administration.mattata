@@ -15,6 +15,7 @@ function administration:init()
     :command('admins')
     :command('staff')
     :command('trusted')
+    :command('muted')
     :command('links')
     :command('whitelistlink')
     :command('whitelistlinks')
@@ -1027,6 +1028,44 @@ function administration.trusted(message)
     )
 end
 
+function administration.muted(message)
+    local success = mattata.get_muted_users(message.chat.id)
+    local output = "🤐 <b>Muted Users</b> ("..#success..")\n"
+    if not success then
+        return mattata.send_reply(
+            message,
+            'I couldn\'t get a list of muted users in this chat.'
+        )
+    end
+    local user_count = 0
+    for i, muted in pairs(success) do
+        local user_output
+        local user = mattata.get_user(muted) or mattata.get_chat(input)
+        user = user.result
+        print(user.first_name)
+        local branch = ' ├ '
+        if user.username then
+            user_output = string.format(
+                '<a href="https://t.me/%s">%s</a>',
+                user.username,
+                user.first_name
+            )
+        else
+            user_output = user.first_name
+        end
+        user_count = user_count + 1
+        if user_count == #success then
+            branch = ' └ '
+        end
+        output = output .. branch .. user_output .. '\n'
+    end
+    return mattata.send_message(
+        message,
+        output,
+        'html'
+    )
+end
+
 function administration.whitelist_links(message)
     local input = mattata.input(message.text)
     if not input then
@@ -1134,6 +1173,8 @@ function administration:on_message(message, configuration)
         return administration.admins(message)
     elseif message.text:match('^[/!#]trusted') then
         return administration.trusted(message)
+    elseif message.text:match('^[/!#]muted') then
+        return administration.muted(message)
     elseif message.text:match('^[/!#]ops') or message.text:match('^[/!#]report') then
         return administration.report(
             message,
