@@ -901,19 +901,11 @@ function mattata:process_natural_language(message)
 end
 
 function mattata.process_spam(message)
-    if #redis:keys('antispam:*:*:*:delete') > 0 then
-        local keys_to_delete = redis:keys('antispam:*:*:*:delete')
-        for i, action in pairs(keys_to_delete) do
-            local smembers_key = action:gsub("%:delete", ":messages")
-            local messages_to_delete = redis:smembers(smembers_key)
-            for k, message in pairs(messages_to_delete) do
-                mattata.delete_message(
-                    action:match('antispam:.-:(.-):.-:messages$'),
-                    tonumber(message)
-                )
-            end
-            redis:del(action)
-        end
+    if #redis:keys('antispam:'..message.chat.id..':'..message.from.id..':delete') > 0 then
+        mattata.delete_message(
+            message.chat.id,
+            message.message_id
+        )
     end
     local language = dofile('languages/' .. mattata.get_user_language(message.from.id) .. '.lua')
     if message.chat.id and mattata.is_group(message) and mattata.get_setting(message.chat.id, 'force group language') then
@@ -1040,7 +1032,7 @@ function mattata.process_spam(message)
                         tonumber(v)
                     )
                     redis:srem('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages', message.message_id)
-                    redis:setex('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':delete', 10, "true")
+                    redis:setex('antispam:' .. message.chat.id .. ':' .. message.from.id .. ':delete', 10, "true")
                 end
             end
         end
