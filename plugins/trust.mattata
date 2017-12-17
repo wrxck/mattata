@@ -8,8 +8,8 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 
 function trust:init()
-    trust.commands = mattata.commands(self.info.username):command('trust').table
-    trust.help = '/trust [user] - Promotes a user to a trusted user of the current chat. This command can only be used by administrators of a supergroup.'
+    trust.commands = mattata.commands(self.info.username):command('trust'):command('t').table
+    trust.help = '/trust [user] - Promotes a user to a trusted user of the current chat. This command can only be used by administrators of a supergroup. Alias: /t.'
 end
 
 function trust:on_message(message, configuration, language)
