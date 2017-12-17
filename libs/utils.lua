@@ -35,6 +35,13 @@ function utils.get_muted_users(chat_id)
     return redis:smembers('administration:' .. chat_id .. ':muted')
 end
 
+function utils.is_muted_group(chat_id)
+    if redis:sismember('administration:groups:muted', chat_id) then
+        return true
+    end
+    return false
+end
+
 function utils.service_message(message)
     if message.new_chat_member then
         return true, 'new_chat_member'

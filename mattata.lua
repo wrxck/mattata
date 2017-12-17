@@ -179,6 +179,7 @@ mattata.is_trusted_user = utils.is_trusted_user
 mattata.get_trusted_users = utils.get_trusted_users
 mattata.is_muted_user = utils.is_muted_user
 mattata.get_muted_users = utils.get_muted_users
+mattata.is_muted_group = utils.is_muted_group
 mattata.get_inline_help = utils.get_inline_help
 mattata.get_chat_id = utils.get_chat_id
 mattata.get_setting = utils.get_setting
@@ -1149,6 +1150,9 @@ function mattata:process_message()
     end
     -- Just in case Telegram doesn't work properly, BarrePolice will delete messages manually from muted users
     if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.is_muted_user(message.chat.id, message.from.id) then
+        mattata.delete_message(message.chat.id, message.message_id)
+    end
+    if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.is_muted_group(message.chat.id) then
         mattata.delete_message(message.chat.id, message.message_id)
     end
     if message.new_chat_members and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'antibot') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) then
