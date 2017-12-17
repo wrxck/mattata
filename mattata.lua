@@ -178,6 +178,7 @@ mattata.file_id = utils.file_id
 mattata.is_trusted_user = utils.is_trusted_user
 mattata.get_trusted_users = utils.get_trusted_users
 mattata.get_trusted_users_count = utils.get_trusted_users_count
+mattata.is_muted_user = utils.is_muted_user
 mattata.get_inline_help = utils.get_inline_help
 mattata.get_chat_id = utils.get_chat_id
 mattata.get_setting = utils.get_setting
@@ -1276,6 +1277,9 @@ function mattata:process_message()
             local log_chat = mattata.get_log_chat(message.chat.id)
             mattata.send_message(log_chat, string.format('#newmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has joined from %s [%s]</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
         end
+    end
+    if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.is_muted_user(message.chat.id, message.from.id) then
+        mattata.delete_message(message.chat.id, message.message_id)
     end
     return false
 end

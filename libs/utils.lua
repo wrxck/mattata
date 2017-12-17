@@ -28,6 +28,13 @@ function utils.get_trusted_users_count(chat_id)
     return #redis:smembers('administration:' .. chat_id .. ':trusted')
 end
 
+function utils.is_muted_user(chat_id, user_id)
+    if redis:sismember('administration:' .. chat_id .. ':muted', user_id) then
+        return true
+    end
+    return false
+end
+
 function utils.service_message(message)
     if message.new_chat_member then
         return true, 'new_chat_member'
