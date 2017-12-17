@@ -908,7 +908,7 @@ function mattata.process_spam(message)
             local messages_to_delete = redis:smembers(smembers_key)
             for k, message in pairs(messages_to_delete) do
                 mattata.delete_message(
-                    messages_to_delete:match('antispam:.-:(.-):.-:messages$'),
+                    action:match('antispam:.-:(.-):.-:messages$'),
                     tonumber(message)
                 )
             end
