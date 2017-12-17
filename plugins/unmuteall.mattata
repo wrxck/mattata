@@ -45,19 +45,13 @@ function unmuteall:on_message(message, configuration, language)
         mattata.send_message(
             mattata.get_log_chat(message.chat.id),
             string.format(
-                '#action #unmuteall #admin_'..tostring(message.from.id)..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s%s [%s] has muteed %s%s [%s] in %s%s [%s].</pre>',
+                '#action #unmuteall #admin_'..tostring(message.from.id)..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s%s [%s] has unmuted everyone in %s%s [%s].</pre>',
                 message.from.username
                 and '@'
                 or '',
                 message.from.username
                 or mattata.escape_html(message.from.first_name),
                 message.from.id,
-                user.username
-                and '@'
-                or '',
-                user.username
-                or mattata.escape_html(user.first_name),
-                user.id,
                 message.chat.username
                 and '@'
                 or '',
