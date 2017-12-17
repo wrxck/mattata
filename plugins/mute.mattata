@@ -97,6 +97,7 @@ function mute:on_message(message, configuration, language)
         'administration:' .. message.chat.id .. ':muted',
         user.id
     )
+    mattata.restrict_chat_member(message.chat.id, user.id, 0, false, false, false, false)
     if redis:hget(
         string.format(
             'chat:%s:settings',

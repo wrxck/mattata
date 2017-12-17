@@ -838,7 +838,7 @@ function mattata.sort_message(message)
         redis:srem('chat:' .. message.chat.id .. ':users', message.left_chat_member.id)
         if mattata.get_setting(message.chat.id, 'log administrative actions') then
             local log_chat = mattata.get_log_chat(message.chat.id)
-            mattata.send_message(log_chat, string.format('#leftmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has joined from %s [%s]</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
+            mattata.send_message(log_chat, string.format('#leftmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] left %s [%s]</pre>', mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
         end
     end
     if message.forward_from_chat then
@@ -1147,6 +1147,10 @@ function mattata:process_message()
     if message.chat and message.chat.type ~= 'private' and not mattata.service_message(message) and not mattata.is_plugin_disabled('statistics', message.chat.id) and not mattata.is_privacy_enabled(message.from.id) then
         redis:incr('messages:' .. message.from.id .. ':' .. message.chat.id)
     end
+    -- Just in case Telegram doesn't work properly, BarrePolice will delete messages manually from muted users
+    if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.is_muted_user(message.chat.id, message.from.id) then
+        mattata.delete_message(message.chat.id, message.message_id)
+    end
     if message.new_chat_members and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'antibot') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) then
         if mattata.is_trusted_user(message.chat.id, message.from.id) and mattata.get_setting(message.chat.id, 'trusted permissions antibot') then else
             local kicked = {}
@@ -1277,9 +1281,6 @@ function mattata:process_message()
             local log_chat = mattata.get_log_chat(message.chat.id)
             mattata.send_message(log_chat, string.format('#newmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has joined %s [%s]</pre>', mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
         end
-    end
-    if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.is_muted_user(message.chat.id, message.from.id) then
-        mattata.delete_message(message.chat.id, message.message_id)
     end
     return false
 end
