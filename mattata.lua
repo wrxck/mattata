@@ -835,6 +835,10 @@ function mattata.sort_message(message)
         message.chat = mattata.process_chat(message.chat)
         message.left_chat_member = mattata.process_user(message.left_chat_member)
         redis:srem('chat:' .. message.chat.id .. ':users', message.left_chat_member.id)
+        if mattata.get_setting(message.chat.id, 'log administrative actions') then
+            local log_chat = mattata.get_log_chat(message.chat.id)
+            mattata.send_message(log_chat, string.format('#leftmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has joined from %s [%s]</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
+        end
     end
     if message.forward_from_chat then
         mattata.process_chat(message.forward_from_chat)
@@ -1245,27 +1249,33 @@ function mattata:process_message()
           end
        end
     end
-    if message.new_chat_members and message.chat.type ~= 'private' and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'welcome message') then
-        local name = message.new_chat_members[1].first_name
-        local first_name = mattata.escape_markdown(name)
-        if message.new_chat_members[1].last_name then
-            name = name .. ' ' .. message.new_chat_members[1].last_name
+    if message.new_chat_members and message.chat.type ~= 'private' and mattata.get_setting(message.chat.id, 'use administration') then
+        if mattata.get_setting(message.chat.id, 'welcome message') then
+            local name = message.new_chat_members[1].first_name
+            local first_name = mattata.escape_markdown(name)
+            if message.new_chat_members[1].last_name then
+                name = name .. ' ' .. message.new_chat_members[1].last_name
+            end
+            name = name:gsub('%%', '%%%%')
+            name = mattata.escape_markdown(name)
+            local title = message.chat.title:gsub('%%', '%%%%')
+            title = mattata.escape_markdown(title)
+            local username = message.new_chat_members[1].username and '@' .. message.new_chat_members[1].username or name
+            local welcome_message = mattata.get_value(message.chat.id, 'welcome message') or configuration.join_messages
+            if type(welcome_message) == 'table' then
+                welcome_message = welcome_message[math.random(#welcome_message)]:gsub('NAME', name)
+            end
+            welcome_message = welcome_message:gsub('%$user_id', message.new_chat_member.id):gsub('%$chat_id', message.chat.id):gsub('%$first_name', first_name):gsub('%$name', name):gsub('%$title', title):gsub('%$username', username)
+            local keyboard
+            if mattata.get_setting(message.chat.id, 'send rules on join') then
+                keyboard = mattata.inline_keyboard():row(mattata.row():url_button(utf8.char(128218) .. ' ' .. language['welcome']['1'], 'https://t.me/' .. self.info.username .. '?start=' .. message.chat.id .. '_rules'))
+            end
+            return mattata.send_message(message, welcome_message, 'markdown', true, false, nil, keyboard)
         end
-        name = name:gsub('%%', '%%%%')
-        name = mattata.escape_markdown(name)
-        local title = message.chat.title:gsub('%%', '%%%%')
-        title = mattata.escape_markdown(title)
-        local username = message.new_chat_members[1].username and '@' .. message.new_chat_members[1].username or name
-        local welcome_message = mattata.get_value(message.chat.id, 'welcome message') or configuration.join_messages
-        if type(welcome_message) == 'table' then
-            welcome_message = welcome_message[math.random(#welcome_message)]:gsub('NAME', name)
+        if mattata.get_setting(message.chat.id, 'log administrative actions') then
+            local log_chat = mattata.get_log_chat(message.chat.id)
+            mattata.send_message(log_chat, string.format('#newmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has joined from %s [%s]</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
         end
-        welcome_message = welcome_message:gsub('%$user_id', message.new_chat_member.id):gsub('%$chat_id', message.chat.id):gsub('%$first_name', first_name):gsub('%$name', name):gsub('%$title', title):gsub('%$username', username)
-        local keyboard
-        if mattata.get_setting(message.chat.id, 'send rules on join') then
-            keyboard = mattata.inline_keyboard():row(mattata.row():url_button(utf8.char(128218) .. ' ' .. language['welcome']['1'], 'https://t.me/' .. self.info.username .. '?start=' .. message.chat.id .. '_rules'))
-        end
-        return mattata.send_message(message, welcome_message, 'markdown', true, false, nil, keyboard)
     end
     return false
 end
