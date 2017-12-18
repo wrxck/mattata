@@ -356,12 +356,22 @@ function administration.get_trusted_permissions(chat_id)
     })
     table.insert(keyboard.inline_keyboard, {
         {
-            ['text'] = 'AntiRTL Immune:',
+            ['text'] = 'Anti-RTL Immune:',
             ['callback_data'] = 'administration:nil'
         },
         {
             ['text'] = mattata.get_setting(chat_id, 'trusted permissions antirtl') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:antirtl'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'MuteAll Immune:',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'trusted permissions muteall') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:muteall'
         }
     })
     table.insert(

@@ -1157,7 +1157,9 @@ function mattata:process_message()
         mattata.delete_message(message.chat.id, message.message_id)
     end
     if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.is_muted_group(message.chat.id) then
-        mattata.delete_message(message.chat.id, message.message_id)
+        if mattata.get_setting(message.chat.id, 'trusted permissions muteall') and mattata.is_trusted_user(message.chat.id, message.from.id) then else
+            mattata.delete_message(message.chat.id, message.message_id)
+        end
     end
     if message.new_chat_members and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'antibot') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) then
         if mattata.is_trusted_user(message.chat.id, message.from.id) and mattata.get_setting(message.chat.id, 'trusted permissions antibot') then else

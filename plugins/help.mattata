@@ -292,7 +292,7 @@ function help:on_callback_query(callback_query, message, configuration, language
             and mattata.inline_keyboard()
             :row(
                 mattata.row():callback_data_button(
-                    language['help']['21'], 'administration:' .. message.chat.id .. ':back'
+                    language['help']['21'], 'administration:' .. message.chat.id .. ':page:1'
                 ):callback_data_button(
                     language['help']['22'], 'plugins:' .. message.chat.id .. ':page:1'
                 )
