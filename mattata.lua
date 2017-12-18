@@ -1015,7 +1015,22 @@ function mattata.process_spam(message)
             end
             if mattata.get_setting(message.chat.id, 'notify admins actions') then
                 for i, admin in pairs(mattata.get_chat_administrators(message.chat.id).result) do
-                    if admin.username and not admin.username:lower():match('bot$') then
+                    if not admin.username then
+                        mattata.send_message(
+                            admin.user.id,
+                            string.format(
+                                '#action #antispam #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                                mattata.escape_html(api.info.first_name),
+                                api.info.id,
+                                mattata.escape_html(message.from.first_name),
+                                message.from.id,
+                                mattata.escape_html(message.chat.title),
+                                message.chat.id,
+                                message.media_type
+                            ),
+                            'html'
+                        )
+                    elseif not admin.username:lower():match('bot$') then
                         mattata.send_message(
                             admin.user.id,
                             string.format(
