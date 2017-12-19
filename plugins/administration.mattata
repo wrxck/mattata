@@ -109,7 +109,7 @@ function administration.get_initial_keyboard(chat_id, page)
             :callback_data_button('Log Actions?', 'administration:' .. chat_id .. ':log:keyboard')
             :callback_data_button(
                 mattata.get_setting(chat_id, 'log administrative actions') and utf8.char(9989) or utf8.char(10060),
-                'administration:' .. chat_id .. ':log:2'
+                'administration:' .. chat_id .. ':log:toggle'
             )
             :callback_data_button('Anti-RTL', 'administration:nil')
             :callback_data_button(
@@ -936,7 +936,7 @@ function administration:on_callback_query(callback_query, message, configuration
         keyboard = administration.get_initial_keyboard(chat_id, page)
     elseif callback_query.data:match('^%-%d+:log:%d*$')
     then
-        local chat_id, input = callback_query.data:match('^(%-%d+):log:(%d*)$')
+        local chat_id, input = callback_query.data:match('^(%-%d+):log:(%a*)$')
         print(input)
         if input == "keyboard" then
             keyboard = administration.get_logchat_settings(chat_id)
