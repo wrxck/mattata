@@ -695,7 +695,6 @@ function administration:on_callback_query(callback_query, message, configuration
         )
     end
     local keyboard
-    print(callback_query.data)
     if callback_query.data:match('^%-%d+:voteban$')
     then
         keyboard = administration.get_voteban_keyboard(
@@ -938,7 +937,6 @@ function administration:on_callback_query(callback_query, message, configuration
     elseif callback_query.data:match('^%-%d+:log:%a*$')
     then
         local chat_id, input = callback_query.data:match('^(%-%d+):log:(%a*)$')
-        print(input)
         if input == "keyboard" then
             keyboard = administration.get_logchat_settings(chat_id)
         elseif input == "toggle" then
@@ -950,7 +948,7 @@ function administration:on_callback_query(callback_query, message, configuration
                 keyboard = administration.get_initial_keyboard(chat_id, "2")
             end
           elseif input == "all" or input == "none" then
-              local settings = ['joingroup', 'leftgroup', 'moderation', 'blacklist', 'warn', 'kick', 'ban', 'trust', 'mute', 'antispam', 'wordfilter', 'antibot', 'antilink', 'antirtl', 'muteall']
+              local settings = {'joingroup', 'leftgroup', 'moderation', 'blacklist', 'warn', 'kick', 'ban', 'trust', 'mute', 'antispam', 'wordfilter', 'antibot', 'antilink', 'antirtl', 'muteall'}
               for k, v in pairs(settings) do
                   if input == "all" then
                       if not redis:hexists('chat:' .. chat_id .. ':settings', 'log '..v) then
@@ -1220,7 +1218,6 @@ function administration.trusted(message)
         local user_output
         local user = mattata.get_user(trusted) or mattata.get_chat(input)
         user = user.result
-        print(user.first_name)
         local branch = ' ├ '
         if user.username then
             user_output = string.format(
@@ -1258,7 +1255,6 @@ function administration.muted(message)
         local user_output
         local user = mattata.get_user(muted) or mattata.get_chat(input)
         user = user.result
-        print(user.first_name)
         local branch = ' ├ '
         if user.username then
             user_output = string.format(
