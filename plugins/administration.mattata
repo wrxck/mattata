@@ -543,6 +543,18 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:' .. chat_id .. ':log:muteall'
         }
     })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = "Enable All",
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:all'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = "Disable All",
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:none'
+        }
+    })
     table.insert(
         keyboard.inline_keyboard,
         {
@@ -925,6 +937,7 @@ function administration:on_callback_query(callback_query, message, configuration
     elseif callback_query.data:match('^%-%d+:log:%d*$')
     then
         local chat_id, input = callback_query.data:match('^(%-%d+):log:(%d*)$')
+        print(input)
         if input == "keyboard" then
             keyboard = administration.get_logchat_settings(chat_id)
         elseif input == "toggle" then
