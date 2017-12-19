@@ -937,6 +937,7 @@ function administration:on_callback_query(callback_query, message, configuration
         keyboard = administration.get_initial_keyboard(chat_id, page)
     elseif callback_query.data:match('^%-%d+:log:%d*$')
     then
+        print("DETECTED")
         local chat_id, input = callback_query.data:match('^(%-%d+):log:(%d*)$')
         print(input)
         if input == "keyboard" then
