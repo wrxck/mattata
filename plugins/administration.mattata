@@ -399,8 +399,8 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'log newmember') and utf8.char(9989) or utf8.char(10060),
-            ['callback_data'] = 'administration:' .. chat_id .. ':log:newmember'
+            ['text'] = mattata.get_setting(chat_id, 'log joingroup') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:joingroup'
         }
     })
     table.insert(keyboard.inline_keyboard, {
@@ -465,6 +465,26 @@ function administration.get_logchat_settings(chat_id)
     })
     table.insert(keyboard.inline_keyboard, {
         {
+            ['text'] = 'Trust/Untrust Trigger',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'log trust') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:trust'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Mute/Unmute Trigger',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'log mute') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:mute'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
             ['text'] = 'Antispam Trigger',
             ['callback_data'] = 'administration:nil'
         },
@@ -515,27 +535,7 @@ function administration.get_logchat_settings(chat_id)
     })
     table.insert(keyboard.inline_keyboard, {
         {
-            ['text'] = 'Trust/Untrust Trigger',
-            ['callback_data'] = 'administration:nil'
-        },
-        {
-            ['text'] = mattata.get_setting(chat_id, 'log trust') and utf8.char(9989) or utf8.char(10060),
-            ['callback_data'] = 'administration:' .. chat_id .. ':log:trust'
-        }
-    })
-    table.insert(keyboard.inline_keyboard, {
-        {
-            ['text'] = 'Mute/Unmute Trigger',
-            ['callback_data'] = 'administration:nil'
-        },
-        {
-            ['text'] = mattata.get_setting(chat_id, 'log mute') and utf8.char(9989) or utf8.char(10060),
-            ['callback_data'] = 'administration:' .. chat_id .. ':log:mute'
-        }
-    })
-    table.insert(keyboard.inline_keyboard, {
-        {
-            ['text'] = 'Muteall/Unmuteall Trigger',
+            ['text'] = 'Muteall/Unmuteall Group',
             ['callback_data'] = 'administration:nil'
         },
         {
@@ -949,9 +949,23 @@ function administration:on_callback_query(callback_query, message, configuration
             else
                 keyboard = administration.get_initial_keyboard(chat_id, "2")
             end
-        else
-            mattata.toggle_setting(chat_id, 'log '..input)
-            keyboard = administration.get_logchat_settings(chat_id)
+          elseif input == "all" or input == "none" then
+              local settings = ['joingroup', 'leftgroup', 'moderation', 'blacklist', 'warn', 'kick', 'ban', 'trust', 'mute', 'antispam', 'wordfilter', 'antibot', 'antilink', 'antirtl', 'muteall']
+              for k, v in pairs(settings) do
+                  if input == "all" then
+                      if not redis:hexists('chat:' .. chat_id .. ':settings', 'log '..v) then
+                          redis:hset('chat:' .. chat_id .. ':settings', 'log '..v, true)
+                      end
+                  else
+                    if redis:hexists('chat:' .. chat_id .. ':settings', 'log '..v) then
+                        redis:hdel('chat:' .. chat_id .. ':settings', 'log '..v, true)
+                    end
+                  end
+              end
+              keyboard = administration.get_logchat_settings(chat_id)
+          else
+              mattata.toggle_setting(chat_id, 'log '..input)
+              keyboard = administration.get_logchat_settings(chat_id)
         end
     elseif callback_query.data:match('^%-%d+:settings_in_group:%d*$')
     then
