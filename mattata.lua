@@ -837,7 +837,7 @@ function mattata.sort_message(message)
         message.chat = mattata.process_chat(message.chat)
         message.left_chat_member = mattata.process_user(message.left_chat_member)
         redis:srem('chat:' .. message.chat.id .. ':users', message.left_chat_member.id)
-        if mattata.get_setting(message.chat.id, 'log administrative actions') then
+        if mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(chat_id, 'log leftgroup') then
             local log_chat = mattata.get_log_chat(message.chat.id)
             mattata.send_message(log_chat, string.format('#leftmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] left %s [%s]</pre>', mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
         end
@@ -997,7 +997,7 @@ function mattata.process_spam(message)
             local success, error_message = action(message.chat.id, message.from.id)
             if not success then
                 return false, error_message
-            elseif mattata.get_setting(message.chat.id, 'log administrative actions') then
+            elseif mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(chat_id, 'log antispam') then
                 mattata.send_message(
                     mattata.get_log_chat(message.chat.id),
                     string.format(
@@ -1067,7 +1067,7 @@ function mattata.process_spam(message)
             local success, error_message = action(message.chat.id, message.from.id)
             if not success then
                 return false, error_message
-            elseif mattata.get_setting(message.chat.id, 'log administrative actions') then
+            elseif mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(chat_id, 'log antirtl') then
                 mattata.send_message(
                     mattata.get_log_chat(message.chat.id),
                     string.format('#action #antirtl #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending messages with RTL writing</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id),
@@ -1218,7 +1218,7 @@ function mattata:process_message()
                         local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
                         local success = action(message.chat.id, message.from.id)
                         if success then
-                            if mattata.get_setting(message.chat.id, 'log administrative actions') then
+                            if mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(chat_id, 'log wordfilter') then
                                 local log_chat = mattata.get_log_chat(message.chat.id)
                                 mattata.send_message(log_chat, string.format('#action #wordfilter #admin_'..self.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending one or more prohibited words.</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
                             end
@@ -1265,7 +1265,7 @@ function mattata:process_message()
           local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
           local success = action(message.chat.id, message.from.id)
           if success then
-              if mattata.get_setting(message.chat.id, 'log administrative actions') then
+              if mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(chat_id, 'log antilink') then
                   local log_chat = mattata.get_log_chat(message.chat.id)
                   mattata.send_message(log_chat, string.format('#action #antilink #admin_'..self.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending Telegram invite link(s) from unauthorized groups/channels</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
               end
@@ -1308,7 +1308,7 @@ function mattata:process_message()
             end
             return mattata.send_message(message, welcome_message, 'markdown', true, false, nil, keyboard)
         end
-        if mattata.get_setting(message.chat.id, 'log administrative actions') then
+        if mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(chat_id, 'log joingroup') then
             local log_chat = mattata.get_log_chat(message.chat.id)
             mattata.send_message(log_chat, string.format('#newmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has joined %s [%s]</pre>', mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
         end
