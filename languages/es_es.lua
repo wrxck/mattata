@@ -455,12 +455,12 @@ Sistema:
         ['1'] = 'Selecciona un servicio al que quieres subir la nota:'
     },
     ['pin'] = {
-        ['1'] = 'You haven\'t set a pin before. Use /pin <text> to set one. Markdown formatting is supported.',
-        ['2'] = 'Here is the last message generated using /pin.',
-        ['3'] = 'I found an existing pin in the database, but the message I sent it in seems to have been deleted, and I can\'t find it anymore. You can set a new one with /pin <text>. Markdown formatting is supported.',
-        ['4'] = 'There was an error whilst updating your pin. Either the text you entered contained invalid Markdown syntax, or the pin has been deleted. I\'m now going to try and send you a new pin, which you\'ll be able to find below - if you need to modify it then, after ensuring the message still exists, use /pin <text>.',
-        ['5'] = 'I couldn\'t send that text because it contains invalid Markdown syntax.',
-        ['6'] = 'Click here to see the pin, updated to contain the text you gave me.'
+        ['1'] = 'No has anclado ningún mensaje. Usa /pin <texto> para poner uno. Formateado markdown está permitido.',
+        ['2'] = 'Aquí está el último mensaje generado con /pin.',
+        ['3'] = 'He encontrado un mensaje con /pin en la base de datos, pero parece que se ha eliminado y no lo puedo encontrar. Puedes poner uno nuevo con /pin <texto>. Formateado markdown está permitido.',
+        ['4'] = 'Hubo un error poniendo el nuevo mensaje anclado. Puede que tuviese Markdown inválido, o el mensaje anclado se haya eliminado. Voy a intentar anclar un nuevo mensaje - si necesitas editarlo, después de comprobar que exista, usa /pin <texto>.',
+        ['5'] = 'No pude anclar ese mensaje porque contiene Markdown inválido.',
+        ['6'] = 'Clica aquí para ver el nuevo mensaje anclado.'
     },
     ['pokedex'] = {
         ['1'] = 'Nombre: %s\nID: %s\nTipo: %s\nDescripción: %s'
