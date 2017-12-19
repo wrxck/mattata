@@ -399,7 +399,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat newmember') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log newmember') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:newmember'
         }
     })
@@ -409,7 +409,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat leftgroup') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log leftgroup') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:leftgroup'
         }
     })
@@ -419,7 +419,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat moderation') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log moderation') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:moderation'
         }
     })
@@ -429,7 +429,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat blacklist') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log blacklist') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:blacklist'
         }
     })
@@ -439,7 +439,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat warn') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log warn') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:warn'
         }
     })
@@ -449,7 +449,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat kick') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log kick') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:kick'
         }
     })
@@ -459,7 +459,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat ban') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log ban') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:ban'
         }
     })
@@ -469,7 +469,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat antispam') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log antispam') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:antispam'
         }
     })
@@ -479,7 +479,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat wordfilter') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log wordfilter') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:wordfilter'
         }
     })
@@ -489,7 +489,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat antibot') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log antibot') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:antibot'
         }
     })
@@ -499,7 +499,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat antilink') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log antilink') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:antilink'
         }
     })
@@ -509,7 +509,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat antirtl') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log antirtl') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:antirtl'
         }
     })
@@ -519,7 +519,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat trust') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log trust') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:trust'
         }
     })
@@ -529,7 +529,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat mute') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log mute') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:mute'
         }
     })
@@ -539,7 +539,7 @@ function administration.get_logchat_settings(chat_id)
             ['callback_data'] = 'administration:nil'
         },
         {
-            ['text'] = mattata.get_setting(chat_id, 'logchat muteall') and utf8.char(9989) or utf8.char(10060),
+            ['text'] = mattata.get_setting(chat_id, 'log muteall') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':log:muteall'
         }
     })
