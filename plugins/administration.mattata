@@ -695,6 +695,7 @@ function administration:on_callback_query(callback_query, message, configuration
         )
     end
     local keyboard
+    print(callback_query.data)
     if callback_query.data:match('^%-%d+:voteban$')
     then
         keyboard = administration.get_voteban_keyboard(
