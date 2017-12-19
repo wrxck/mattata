@@ -106,7 +106,7 @@ function administration.get_initial_keyboard(chat_id, page)
         )
         :row(
             mattata.row()
-            :callback_data_button('Log Actions?', 'administration:nil')
+            :callback_data_button('Log Actions?', 'administration:' .. chat_id .. ':log:keyboard')
             :callback_data_button(
                 mattata.get_setting(chat_id, 'log administrative actions') and utf8.char(9989) or utf8.char(10060),
                 'administration:' .. chat_id .. ':log:2'
@@ -372,6 +372,175 @@ function administration.get_trusted_permissions(chat_id)
         {
             ['text'] = mattata.get_setting(chat_id, 'trusted permissions muteall') and utf8.char(9989) or utf8.char(10060),
             ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:muteall'
+        }
+    })
+    table.insert(
+        keyboard.inline_keyboard,
+        {
+            {
+                ['text'] = 'Back',
+                ['callback_data'] = 'administration:' .. chat_id .. ':page:2'
+            }
+        }
+    )
+    return keyboard
+end
+
+function administration.get_logchat_settings(chat_id)
+    if not mattata.get_setting(chat_id, 'log administrative actions') then
+        return mattata.inline_keyboard():row(mattata.row():callback_data_button('Enable LogChat', 'administration:' .. chat_id .. ':log:toggle'))
+    end
+    local keyboard = {
+        ['inline_keyboard'] = {}
+    }
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Join Group messages',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat newmember') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:newmember'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Left Group messages',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat leftgroup') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:leftgroup'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Promote/Demote User',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat moderation') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:moderation'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Blacklist/Whitelist User',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat blacklist') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:blacklist'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Warned User',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat warn') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:warn'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Kicked User',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat kick') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:kick'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Banned/Unbanned User',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat ban') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:ban'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Antispam Trigger',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat antispam') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:antispam'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'WordFilter Trigger',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat wordfilter') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:wordfilter'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'AntiBot Trigger',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat antibot') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:antibot'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'AntiLink Trigger',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat antilink') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:antilink'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'AntiRTL Trigger',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat antirtl') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:antirtl'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Trust/Untrust Trigger',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat trust') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:trust'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Mute/Unmute Trigger',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat mute') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:mute'
+        }
+    })
+    table.insert(keyboard.inline_keyboard, {
+        {
+            ['text'] = 'Muteall/Unmuteall Trigger',
+            ['callback_data'] = 'administration:nil'
+        },
+        {
+            ['text'] = mattata.get_setting(chat_id, 'logchat muteall') and utf8.char(9989) or utf8.char(10060),
+            ['callback_data'] = 'administration:' .. chat_id .. ':log:muteall'
         }
     })
     table.insert(
@@ -755,12 +924,21 @@ function administration:on_callback_query(callback_query, message, configuration
         keyboard = administration.get_initial_keyboard(chat_id, page)
     elseif callback_query.data:match('^%-%d+:log:%d*$')
     then
-        local chat_id, page = callback_query.data:match('^(%-%d+):log:(%d*)$')
-        mattata.toggle_setting(
-            chat_id,
-            'log administrative actions'
-        )
-        keyboard = administration.get_initial_keyboard(chat_id, page)
+        local chat_id, input = callback_query.data:match('^(%-%d+):log:(%d*)$')
+        if input == "keyboard" then
+            keyboard = administration.get_logchat_settings(chat_id)
+        elseif input == "toggle" then
+            mattata.toggle_setting(chat_id, 'log administrative actions')
+            if mattata.get_setting(chat_id, 'log administrative actions') then
+                mattata.answer_callback_query(callback_query.id, 'You can change what to log at the logchat by hitting the Log Actions? button (I\'ve redirected you to the settings keyboard)', true)
+                keyboard = administration.get_logchat_settings(chat_id)
+            else
+                keyboard = administration.get_initial_keyboard(chat_id, "2")
+            end
+        else
+            mattata.toggle_setting(chat_id, 'log '..input)
+            keyboard = administration.get_logchat_settings(chat_id)
+        end
     elseif callback_query.data:match('^%-%d+:settings_in_group:%d*$')
     then
         local chat_id, page = callback_query.data:match('^(%-%d+):settings_in_group:(%d*)$')
