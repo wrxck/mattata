@@ -979,7 +979,7 @@ function mattata.process_spam(message)
             redis:get('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
             -- has already sent 1 or more messages to the current chat, in the past 5 seconds.
         ) or 1 -- If this is the first time the user has posted in the past 5 seconds, we'll make it 1 accordingly.
-        if #message.photo and #message.photo > 1 then -- Handle albums
+        if message.photo and #message.photo > 1 then -- Handle albums
             redis:setex(
                 'antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id,
                 5, -- Set the time to live to 5 seconds.
