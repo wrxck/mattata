@@ -1073,7 +1073,7 @@ function administration.trusted(message)
     local user_count = 0
     for i, trusted in pairs(success) do
         local user_output
-        local user = mattata.get_user(trusted) or mattata.get_chat(input)
+        local user = mattata.get_user(trusted) or mattata.get_chat(trusted)
         user = user.result
         local branch = ' ├ '
         if user.username then
@@ -1110,7 +1110,7 @@ function administration.muted(message)
     local user_count = 0
     for i, muted in pairs(success) do
         local user_output
-        local user = mattata.get_user(muted) or mattata.get_chat(input)
+        local user = mattata.get_user(muted) or mattata.get_chat(muted)
         user = user.result
         local branch = ' ├ '
         if user.username then
