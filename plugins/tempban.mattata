@@ -13,61 +13,69 @@ function tempban:init()
     tempban.help = '/tempban [user]  - Temporarily ban a user from the chat. The user may be specified by username, ID or by replying to one of their messages.'
 end
 
-function tempban.get_keyboard(chat_id, user_id)
+function tempban.get_keyboard(chat_id, user_id, value, unit)
     return mattata.inline_keyboard()
     :row(
         mattata.row()
         :callback_data_button(
-            '1 minute',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':60:1 minute'
+            '⏪',
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':decrease2_value'
         )
         :callback_data_button(
-            '5 minutes',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':300:5 minutes'
+            '◀️',
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':decrease_value'
         )
         :callback_data_button(
-            '15 minutes',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':900:15 minutes'
-        )
-    )
-    :row(
-        mattata.row()
-        :callback_data_button(
-            '30 minutes',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':1800:30 minutes'
+            value,
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':nil'
         )
         :callback_data_button(
-            '1 hour',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':3600:1 hour'
+            '▶️',
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':increase_value'
         )
         :callback_data_button(
-            '6 hours',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':21600:6 hours'
+            '⏩',
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':increase2_value'
         )
     )
     :row(
         mattata.row()
         :callback_data_button(
-            '12 hours',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':43200:12 hours'
+            '◀️',
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':decrease_unit'
         )
         :callback_data_button(
-            '1 day',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':86400:1 day'
+            unit,
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':nil'
         )
         :callback_data_button(
-            '1 week',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':604800:1 week'
+            '▶️',
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':increase_unit'
+        )
+    )
+    :row(
+        mattata.row()
+        :callback_data_button(
+            'Ban Temporally',
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':accept'
         )
     )
 end
 
+function tempban.in_list(tbl, item)
+    for key, value in pairs(tbl) do
+        if value == item then return key end
+    end
+    return false
+end
+
 function tempban:on_callback_query(callback_query, message, configuration, language)
+    local units = {'seconds', 'minutes', 'hours', 'days', 'weeks', 'months', 'years'}
     if not callback_query.data:match('^%-?%d+:%d+:%d%d?%d?%d?%d?%d?:.-$')
     then
         return mattata.answer_callback_query(callback_query.id)
     end
-    local chat_id, user_id, duration, formatted_duration = callback_query.data:match('^(%-?%d+):(%d+):(%d%d?%d?%d?%d?%d?):(.-)$')
+    local chat_id, user_id, value, unit, action = callback_query.data:match('^(%-?%d+):(%d+):(%d+):(%a*):(.-)$')
     if not mattata.is_group_admin(
         chat_id,
         callback_query.from.id
@@ -100,28 +108,76 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
             true
         )
     end
-    local success = mattata.ban_chat_member(
-        chat_id,
-        user_id,
-        os.time() + tonumber(duration)
-    )
-    local user = mattata.get_user(user_id)
-    user = user.result
-    if not success
-    then
+    if action == "accept" then
+        local success = mattata.ban_chat_member(
+            chat_id,
+            user_id,
+            os.time() + tonumber(duration)
+        )
+        local user = mattata.get_user(user_id)
+        user = user.result
+        if not success
+        then
+            return mattata.edit_message_text(
+                message.chat.id,
+                message.message_id,
+                'I could not ban <b>' .. mattata.escape_html(user.first_name) .. '</b>!',
+                'html'
+            )
+        end
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
-            'I could not ban <b>' .. mattata.escape_html(user.first_name) .. '</b>!',
+            'I have successfully temp-banned <b>' .. mattata.escape_html(user.first_name) .. '</b> for ' .. value .. ' ' .. unit .. '!',
             'html'
         )
+    elseif action == "increase_unit" then
+        if unit ~= "years" then
+            mattata.edit_message_reply_markup(
+                message.chat.id,
+                message.message_id,
+                nil,
+                tempban.get_keyboard(message.chat.id, user.id, unit, units[tempban.in_list(units, unit)+1])
+            )
+        end
+    elseif action == "decrease_unit" then
+        if unit ~= "seconds" then
+            mattata.edit_message_reply_markup(
+                message.chat.id,
+                message.message_id,
+                nil,
+                tempban.get_keyboard(message.chat.id, user.id, unit, units[tempban.in_list(units, unit)-1])
+            )
+        end
+    elseif action == "increase2_value" then
+        mattata.edit_message_reply_markup(
+            message.chat.id,
+            message.message_id,
+            nil,
+            tempban.get_keyboard(message.chat.id, user.id, unit+10, 'minutes')
+        )
+    elseif action == "increase_value" then
+        mattata.edit_message_reply_markup(
+            message.chat.id,
+            message.message_id,
+            nil,
+            tempban.get_keyboard(message.chat.id, user.id, unit+1, 'minutes')
+        )
+    elseif action == "decrease_value" then
+          mattata.edit_message_reply_markup(
+              message.chat.id,
+              message.message_id,
+              nil,
+              tempban.get_keyboard(message.chat.id, user.id, unit-1, 'minutes')
+          )
+    elseif action == "decrease2_value" then
+          mattata.edit_message_reply_markup(
+              message.chat.id,
+              message.message_id,
+              nil,
+              tempban.get_keyboard(message.chat.id, user.id, unit-10, 'minutes')
+          )
     end
-    return mattata.edit_message_text(
-        message.chat.id,
-        message.message_id,
-        'I have successfully temp-banned <b>' .. mattata.escape_html(user.first_name) .. '</b> for ' .. formatted_duration .. '!',
-        'html'
-    )
 end
 
 function tempban:on_message(message, configuration, language)
@@ -220,7 +276,9 @@ function tempban:on_message(message, configuration, language)
         nil,
         tempban.get_keyboard(
             message.chat.id,
-            user.id
+            user.id,
+            5,
+            'minutes'
         )
     )
 end
