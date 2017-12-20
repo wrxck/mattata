@@ -486,7 +486,7 @@ function administration.warn(message)
             'chat:' .. message.chat.id .. ':warnings',
             message.reply.from.id
         )
-        return mattata.send_message(
+        return mattata.send_reply(
             message,
             text
         )
@@ -526,7 +526,7 @@ function administration.warn(message)
             }
         }
     )
-    return mattata.send_message(
+    return mattata.send_reply(
         message,
         text,
         'markdown',
@@ -1054,7 +1054,7 @@ function administration.admins(message)
             'I couldn\'t get a list of administrators in this chat.'
         )
     end
-    return mattata.send_message(
+    return mattata.send_reply(
         message,
         administration.format_admin_list(success, message.chat.id),
         'html'
@@ -1091,7 +1091,7 @@ function administration.trusted(message)
         end
         output = output .. branch .. user_output .. '\n'
     end
-    return mattata.send_message(
+    return mattata.send_reply(
         message,
         output,
         'html'
@@ -1128,7 +1128,7 @@ function administration.muted(message)
         end
         output = output .. branch .. user_output .. '\n'
     end
-    return mattata.send_message(
+    return mattata.send_reply(
         message,
         output,
         'html'
