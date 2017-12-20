@@ -19,45 +19,45 @@ function tempban.get_keyboard(chat_id, user_id, value, unit)
         mattata.row()
         :callback_data_button(
             '⏪',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. mattata.round(value, 0) .. ':' .. unit .. ':decrease2_value'
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':decrease2_value'
         )
         :callback_data_button(
             '◀️',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. mattata.round(value, 0) .. ':' .. unit .. ':decrease_value'
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':decrease_value'
         )
         :callback_data_button(
             value,
-            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. mattata.round(value, 0) .. ':' .. unit .. ':nil'
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':nil'
         )
         :callback_data_button(
             '▶️',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. mattata.round(value, 0) .. ':' .. unit .. ':increase_value'
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':increase_value'
         )
         :callback_data_button(
             '⏩',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. mattata.round(value, 0) .. ':' .. unit .. ':increase2_value'
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':increase2_value'
         )
     )
     :row(
         mattata.row()
         :callback_data_button(
             '◀️',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. mattata.round(value, 0) .. ':' .. unit .. ':decrease_unit'
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':decrease_unit'
         )
         :callback_data_button(
             unit,
-            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. mattata.round(value, 0) .. ':' .. unit .. ':nil'
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':nil'
         )
         :callback_data_button(
             '▶️',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. mattata.round(value, 0) .. ':' .. unit .. ':increase_unit'
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':increase_unit'
         )
     )
     :row(
         mattata.row()
         :callback_data_button(
             'Ban Temporally',
-            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. mattata.round(value, 0) .. ':' .. unit .. ':accept'
+            'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':accept'
         )
     )
 end
@@ -154,14 +154,14 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
             message.chat.id,
             message.message_id,
             nil,
-            tempban.get_keyboard(message.chat.id, user_id, value+10, unit)
+            tempban.get_keyboard(message.chat.id, user_id, (value+10):gsub("%.?0+$", ""), unit)
         )
     elseif action == "increase_value" then
         mattata.edit_message_reply_markup(
             message.chat.id,
             message.message_id,
             nil,
-            tempban.get_keyboard(message.chat.id, user_id, value+1, unit)
+            tempban.get_keyboard(message.chat.id, user_id, (value+1):gsub("%.?0+$", ""), unit)
         )
     elseif action == "decrease_value" then
           if tonumber(value) >= 2 then
@@ -169,7 +169,7 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
                   message.chat.id,
                   message.message_id,
                   nil,
-                  tempban.get_keyboard(message.chat.id, user_id, value-1, unit)
+                  tempban.get_keyboard(message.chat.id, user_id, (value-1):gsub("%.?0+$", ""), unit)
               )
           end
     elseif action == "decrease2_value" then
@@ -178,7 +178,7 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
               message.chat.id,
               message.message_id,
               nil,
-              tempban.get_keyboard(message.chat.id, user_id, value-10, unit)
+              tempban.get_keyboard(message.chat.id, user_id, (value-10):gsub("%.?0+$", ""), unit)
           )
       end
     end
