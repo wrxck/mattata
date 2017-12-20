@@ -1089,7 +1089,22 @@ function mattata.process_spam(message)
             end
             if mattata.get_setting(message.chat.id, 'notify admins actions') then
                 for i, admin in pairs(mattata.get_chat_administrators(message.chat.id).result) do
-                  if not admin.username:lower():match('bot$') then
+                  if not admin.username then
+                      mattata.send_message(
+                          admin.user.id,
+                          string.format(
+                              '#action #antirtl #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                              mattata.escape_html(api.info.first_name),
+                              api.info.id,
+                              mattata.escape_html(message.from.first_name),
+                              message.from.id,
+                              mattata.escape_html(message.chat.title),
+                              message.chat.id,
+                              message.media_type
+                          ),
+                          'html'
+                      )
+                  elseif not admin.username:lower():match('bot$') then
                       mattata.send_message(
                           admin.user.id,
                           string.format('#action #antirtl #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending messages with RTL writing</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id),
@@ -1207,7 +1222,22 @@ function mattata:process_message()
                 mattata.send_message(log_chat, string.format('#action #antibot #admin_'..self.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s from %s [%s] because anti-bot is enabled.</pre>', mattata.escape_html(self.info.first_name), self.info.id, table.concat(kicked, ', '), mattata.escape_html(message.chat.title), message.chat.id), 'html')
                 if mattata.get_setting(message.chat.id, 'notify admins actions') then
                     for i, admin in pairs(mattata.get_chat_administrators(message.chat.id).result) do
-                        if not admin.username:lower():match('bot$') then
+                      if not admin.username then
+                          mattata.send_message(
+                              admin.user.id,
+                              string.format(
+                                  '#action #antibot #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                                  mattata.escape_html(api.info.first_name),
+                                  api.info.id,
+                                  mattata.escape_html(message.from.first_name),
+                                  message.from.id,
+                                  mattata.escape_html(message.chat.title),
+                                  message.chat.id,
+                                  message.media_type
+                              ),
+                              'html'
+                          )
+                      elseif not admin.username:lower():match('bot$') then
                             mattata.send_message(
                                 admin.user.id,
                                 string.format('#action #antibot #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s from %s [%s] because anti-bot is enabled.</pre>', mattata.escape_html(self.info.first_name), self.info.id, table.concat(kicked, ', '), mattata.escape_html(message.chat.title), message.chat.id),
@@ -1237,7 +1267,22 @@ function mattata:process_message()
                             end
                             if mattata.get_setting(message.chat.id, 'notify admins actions') then
                                 for i, admin in pairs(mattata.get_chat_administrators(message.chat.id).result) do
-                                    if not admin.username:lower():match('bot$') then
+                                  if not admin.username then
+                                      mattata.send_message(
+                                          admin.user.id,
+                                          string.format(
+                                              '#action #wordfilter #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                                              mattata.escape_html(api.info.first_name),
+                                              api.info.id,
+                                              mattata.escape_html(message.from.first_name),
+                                              message.from.id,
+                                              mattata.escape_html(message.chat.title),
+                                              message.chat.id,
+                                              message.media_type
+                                          ),
+                                          'html'
+                                      )
+                                  elseif not admin.username:lower():match('bot$') then
                                         mattata.send_message(
                                             admin.user.id,
                                             string.format('#action #wordfilter #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending one or more prohibited words.</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id),
@@ -1284,7 +1329,22 @@ function mattata:process_message()
               end
               if mattata.get_setting(message.chat.id, 'notify admins actions') then
                   for i, admin in pairs(mattata.get_chat_administrators(message.chat.id).result) do
-                      if not admin.username:lower():match('bot$') then
+                    if not admin.username then
+                        mattata.send_message(
+                            admin.user.id,
+                            string.format(
+                                '#action #antilink #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                                mattata.escape_html(api.info.first_name),
+                                api.info.id,
+                                mattata.escape_html(message.from.first_name),
+                                message.from.id,
+                                mattata.escape_html(message.chat.title),
+                                message.chat.id,
+                                message.media_type
+                            ),
+                            'html'
+                        )
+                    elseif not admin.username:lower():match('bot$') then
                           mattata.send_message(
                               admin.user.id,
                               string.format('#action #antilink #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending Telegram invite link(s) from unauthorized groups/channels</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id),
