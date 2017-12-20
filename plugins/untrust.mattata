@@ -114,7 +114,7 @@ function untrust:on_message(message, configuration, language)
             message.chat.id
         ),
         'log administrative actions'
-    ) and mattata.get_setting(chat_id, 'log trust')
+    ) and mattata.get_setting(chat_id, 'log untrust')
     then
         mattata.send_message(
             mattata.get_log_chat(message.chat.id),

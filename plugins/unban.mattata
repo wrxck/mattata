@@ -71,7 +71,7 @@ function unban:on_message(message, configuration, language)
         return mattata.send_reply(message, output)
     end
     redis:hincrby('chat:' .. message.chat.id .. ':' .. user.id, 'unbans', 1)
-    if mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(chat_id, 'log ban') then
+    if mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(chat_id, 'log unban') then
         mattata.send_message(
             mattata.get_log_chat(message.chat.id),
             string.format(

@@ -130,7 +130,7 @@ function whitelist:on_message(message, configuration, language)
             message.chat.id
         ),
         'log administrative actions'
-    ) and mattata.get_setting(chat_id, 'log blacklist') then
+    ) and mattata.get_setting(chat_id, 'log whitelist') then
         mattata.send_message(
             mattata.get_log_chat(message.chat.id),
             string.format(
