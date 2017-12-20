@@ -182,6 +182,7 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
           )
       end
     end
+    print(value.." - "..unit)
 end
 
 function tempban:on_message(message, configuration, language)
