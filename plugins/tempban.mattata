@@ -56,7 +56,7 @@ function tempban.get_keyboard(chat_id, user_id, value, unit)
     :row(
         mattata.row()
         :callback_data_button(
-            'Ban Temporally',
+            'Accept ✅',
             'tempban:' .. chat_id .. ':' .. user_id .. ':' .. value .. ':' .. unit .. ':accept'
         )
     )
@@ -109,6 +109,21 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
         )
     end
     if action == "accept" then
+        if unit == "seconds" then
+            local duration = value*1
+        elseif unit == "minutes" then
+            local duration = value*60
+        elseif unit == "hours" then
+            local duration = value*3600
+        elseif unit == "days" then
+            local duration = value*86400
+        elseif unit == "weeks" then
+            local duration = value*604800
+        elseif unit == "months" then
+            local duration = value*2628000
+        elseif unit == "years" then
+            local duration = value*31540000
+        end
         local success = mattata.ban_chat_member(
             chat_id,
             user_id,
@@ -154,14 +169,14 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
             message.chat.id,
             message.message_id,
             nil,
-            tempban.get_keyboard(message.chat.id, user_id, (value+10):gsub("%.?0+$", ""), unit)
+            tempban.get_keyboard(message.chat.id, user_id, math.floor(value+10), unit)
         )
     elseif action == "increase_value" then
         mattata.edit_message_reply_markup(
             message.chat.id,
             message.message_id,
             nil,
-            tempban.get_keyboard(message.chat.id, user_id, (value+1):gsub("%.?0+$", ""), unit)
+            tempban.get_keyboard(message.chat.id, user_id, math.floor(value+1), unit)
         )
     elseif action == "decrease_value" then
           if tonumber(value) >= 2 then
@@ -169,7 +184,7 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
                   message.chat.id,
                   message.message_id,
                   nil,
-                  tempban.get_keyboard(message.chat.id, user_id, (value-1):gsub("%.?0+$", ""), unit)
+                  tempban.get_keyboard(message.chat.id, user_id, math.floor(value-1), unit)
               )
           end
     elseif action == "decrease2_value" then
@@ -178,7 +193,7 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
               message.chat.id,
               message.message_id,
               nil,
-              tempban.get_keyboard(message.chat.id, user_id, (value-10):gsub("%.?0+$", ""), unit)
+              tempban.get_keyboard(message.chat.id, user_id, math.floor(value-10), unit)
           )
       end
     end
