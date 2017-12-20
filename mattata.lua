@@ -219,7 +219,10 @@ mattata.is_privacy_enabled = utils.is_privacy_enabled
 mattata.is_user_blacklisted = utils.is_user_blacklisted
 mattata.input = utils.input
 mattata.get_message_statistics = utils.get_message_statistics
-mattata.get_messages_count = utils.get_messages_count
+mattata.get_received_messages_count = utils.get_received_messages_count
+mattata.get_sent_messages_count = utils.get_sent_messages_count
+mattata.get_received_callbacks_count = utils.get_received_callbacks_count
+mattata.get_received_inlines_count = utils.get_received_inlines_count
 
 function mattata:run(configuration, token)
 -- mattata's main long-polling function which repeatedly checks the Telegram bot API for updates.
@@ -467,7 +470,7 @@ function mattata:on_message()
     -- Anything miscellaneous is processed here, things which are perhaps plugin-specific
     -- and just not relevant to the core `mattata.on_message` function.
     mattata.process_plugin_extras(self)
-    redis:incr('messages_count')
+    redis:incr('stats:messages:received')
     return true
 end
 
@@ -535,6 +538,7 @@ function mattata:process_plugin_extras()
 end
 
 function mattata:on_inline_query()
+    redis:incr('stats:inlines:received')
     local inline_query = self.inline_query
     if not inline_query.from then
         return false, 'No `inline_query.from` object was found!'
@@ -567,6 +571,7 @@ function mattata:on_inline_query()
 end
 
 function mattata:on_callback_query()
+    redis:incr('stats:callbacks:received')
     local callback_query = self.callback_query
     local message = self.message
     if not callback_query.message or not callback_query.message.chat then

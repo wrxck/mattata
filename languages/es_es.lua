@@ -276,7 +276,10 @@ Redis:
 
 %s Número de usuarios: %s
 %s Número de grupos: %s
-%s Número de mensajes recibidos: %s
+%s Mensajes recibidos: %s
+%s Mensajes enviados: %s
+%s Peticiones Callback recibidos: %s
+%s Peticiones Inline recibidos: %s
 
 Sistema:
 %s SO: %s
