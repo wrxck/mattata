@@ -9,7 +9,7 @@ local redis = dofile('libs/redis.lua')
 
 function import:init()
     import.commands = mattata.commands(self.info.username):command('import').table
-    import.help = '/import - Import administrative settings & toggled plugins from another mattata-administrated group.'
+    import.help = '/import - Import administrative settings & toggled plugins from another BarrePolice-administrated group.'
 end
 
 function import:on_message(message, configuration, language)
