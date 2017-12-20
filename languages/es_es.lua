@@ -278,8 +278,8 @@ Redis:
 %s Número de grupos: %s
 %s Mensajes recibidos: %s
 %s Mensajes enviados: %s
-%s Peticiones Callback recibidos: %s
-%s Peticiones Inline recibidos: %s
+%s Peticiones Callback recibidas: %s
+%s Peticiones Inline recibidas: %s
 
 Sistema:
 %s SO: %s
