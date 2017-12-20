@@ -137,7 +137,7 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
                 message.chat.id,
                 message.message_id,
                 nil,
-                tempban.get_keyboard(message.chat.id, user_id, unit, units[tonumber(tempban.in_list(units, unit))+1])
+                tempban.get_keyboard(message.chat.id, user_id, value, units[tempban.in_list(units, unit)+1])
             )
         end
     elseif action == "decrease_unit" then
@@ -146,7 +146,7 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
                 message.chat.id,
                 message.message_id,
                 nil,
-                tempban.get_keyboard(message.chat.id, user_id, unit, units[tonumber(tempban.in_list(units, unit))-1])
+                tempban.get_keyboard(message.chat.id, user_id, value, units[tempban.in_list(units, unit)-1])
             )
         end
     elseif action == "increase2_value" then
@@ -154,29 +154,33 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
             message.chat.id,
             message.message_id,
             nil,
-            tempban.get_keyboard(message.chat.id, user_id, tonumber(unit)+10, 'minutes')
+            tempban.get_keyboard(message.chat.id, user_id, tonumber(value+10), unit)
         )
     elseif action == "increase_value" then
         mattata.edit_message_reply_markup(
             message.chat.id,
             message.message_id,
             nil,
-            tempban.get_keyboard(message.chat.id, user_id, tonumber(unit)+1, 'minutes')
+            tempban.get_keyboard(message.chat.id, user_id, tonumber(value+1), unit)
         )
     elseif action == "decrease_value" then
-          mattata.edit_message_reply_markup(
-              message.chat.id,
-              message.message_id,
-              nil,
-              tempban.get_keyboard(message.chat.id, user_id, tonumber(unit)-1, 'minutes')
-          )
+          if tonumber(value) >= 2
+              mattata.edit_message_reply_markup(
+                  message.chat.id,
+                  message.message_id,
+                  nil,
+                  tempban.get_keyboard(message.chat.id, user_id, tonumber(value-1), unit)
+              )
+          end
     elseif action == "decrease2_value" then
+      if tonumber(value) >= 11
           mattata.edit_message_reply_markup(
               message.chat.id,
               message.message_id,
               nil,
-              tempban.get_keyboard(message.chat.id, user_id, tonumber(unit)-10, 'minutes')
+              tempban.get_keyboard(message.chat.id, user_id, tonumber(value-10), unit)
           )
+      end
     end
 end
 
