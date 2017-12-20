@@ -164,7 +164,7 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
             tempban.get_keyboard(message.chat.id, user_id, tonumber(value+1), unit)
         )
     elseif action == "decrease_value" then
-          if tonumber(value) >= 2
+          if tonumber(value) >= 2 then
               mattata.edit_message_reply_markup(
                   message.chat.id,
                   message.message_id,
@@ -173,7 +173,7 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
               )
           end
     elseif action == "decrease2_value" then
-      if tonumber(value) >= 11
+      if tonumber(value) >= 11 then
           mattata.edit_message_reply_markup(
               message.chat.id,
               message.message_id,
