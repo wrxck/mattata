@@ -154,31 +154,31 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
             message.chat.id,
             message.message_id,
             nil,
-            tempban.get_keyboard(message.chat.id, user_id, tonumber(value+10), unit)
+            tempban.get_keyboard(message.chat.id, user_id, value+10, unit)
         )
     elseif action == "increase_value" then
         mattata.edit_message_reply_markup(
             message.chat.id,
             message.message_id,
             nil,
-            tempban.get_keyboard(message.chat.id, user_id, tonumber(value+1), unit)
+            tempban.get_keyboard(message.chat.id, user_id, value+1, unit)
         )
     elseif action == "decrease_value" then
-          if tonumber(value) >= 2 then
+          if value >= 2 then
               mattata.edit_message_reply_markup(
                   message.chat.id,
                   message.message_id,
                   nil,
-                  tempban.get_keyboard(message.chat.id, user_id, tonumber(value-1), unit)
+                  tempban.get_keyboard(message.chat.id, user_id, value-1, unit)
               )
           end
     elseif action == "decrease2_value" then
-      if tonumber(value) >= 11 then
+      if value >= 11 then
           mattata.edit_message_reply_markup(
               message.chat.id,
               message.message_id,
               nil,
-              tempban.get_keyboard(message.chat.id, user_id, tonumber(value-10), unit)
+              tempban.get_keyboard(message.chat.id, user_id, value-10, unit)
           )
       end
     end
