@@ -71,6 +71,7 @@ end
 
 function tempban:on_callback_query(callback_query, message, configuration, language)
     local units = {'seconds', 'minutes', 'hours', 'days', 'weeks', 'months', 'years'}
+    print(callback_query.data)
     if not callback_query.data:match('^%-?%d+:%d+:%d+:%a*:.-$')
     then
         return mattata.answer_callback_query(callback_query.id)
@@ -182,7 +183,6 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
           )
       end
     end
-    print(value.." - "..unit)
 end
 
 function tempban:on_message(message, configuration, language)
