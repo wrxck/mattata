@@ -109,20 +109,21 @@ function tempban:on_callback_query(callback_query, message, configuration, langu
         )
     end
     if action == "accept" then
+        local duration = 0
         if unit == "seconds" then
-            local duration = tonumber(value)*1
+            duration = tonumber(value)*1
         elseif unit == "minutes" then
-            local duration = tonumber(value)*60
+            duration = tonumber(value)*60
         elseif unit == "hours" then
-            local duration = tonumber(value)*3600
+            duration = tonumber(value)*3600
         elseif unit == "days" then
-            local duration = tonumber(value)*86400
+            duration = tonumber(value)*86400
         elseif unit == "weeks" then
-            local duration = tonumber(value)*604800
+            duration = tonumber(value)*604800
         elseif unit == "months" then
-            local duration = tonumber(value)*2628000
+            duration = tonumber(value)*2628000
         elseif unit == "years" then
-            local duration = tonumber(value)*31540000
+            duration = tonumber(value)*31540000
         end
         local success = mattata.ban_chat_member(
             chat_id,
