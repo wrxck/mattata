@@ -176,7 +176,7 @@ function plugins.get_keyboard(chat, page, columns, per_page)
         {
             {
                 ['text'] = 'Back',
-                ['callback_data'] = 'help:settings'
+                ['callback_data'] = 'help:settings:'..chat
             }
         }
     )
