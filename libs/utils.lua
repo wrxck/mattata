@@ -282,6 +282,17 @@ end
 
 function utils.is_group(message)
     if not message or not message.chat or not message.chat.type or message.chat.type == 'private' then
+        if tonumber(message) then
+            local success = mattata.get_user(input)
+            if not success then
+                success = mattata.get_chat(input)
+            else
+                success = mattata.get_chat(success.result.id)
+            end
+            if success.result.type and success.result.type and success.result.type == "supergroup" then
+                return true
+            end
+        end
         return false
     end
     return true

@@ -33,7 +33,7 @@ function help.get_initial_keyboard()
             '/'
         ):callback_data_button(
             'Settings',
-            'help:settings'
+            'help:settings:'..message.chat.id
         ):callback_data_button(
             'Channels',
             'help:channels'
@@ -285,8 +285,8 @@ function help:on_callback_query(callback_query, message, configuration, language
             message.message_id,
             nil,
             (
-                message.chat.type == 'supergroup'
-                and mattata.is_group_admin(
+                mattata.is_group(chat_id) and
+                mattata.is_group_admin(
                     chat_id,
                     callback_query.from.id
                 )
