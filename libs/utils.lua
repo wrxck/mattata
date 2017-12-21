@@ -285,9 +285,9 @@ function utils.is_group(message)
         if tonumber(message) then
             local success = utils.get_user(input)
             if not success then
-                success = utils.get_chat(input)
+                success = api.get_chat(input)
             else
-                success = utils.get_chat(success.result.id)
+                success = api.get_chat(success.result.id)
             end
             if success.result.type and success.result.type and success.result.type == "supergroup" then
                 return true
