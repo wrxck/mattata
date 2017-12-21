@@ -76,6 +76,7 @@ function help:on_inline_query(inline_query, configuration, language)
 end
 
 function help:on_callback_query(callback_query, message, configuration, language)
+    print(callback_query.data)
     if callback_query.data == 'cmds' then
         local arguments_list = mattata.get_help()
         local plugin_count = #arguments_list
@@ -274,7 +275,7 @@ function help:on_callback_query(callback_query, message, configuration, language
                 )
             )
         )
-    elseif callback_query.data:match('^help:settings:(%-%d+)$') then
+    elseif callback_query.data:match('^help:settings:%-%d+$') then
         if message.chat.type == 'supergroup' and not mattata.is_group_admin(message.chat.id, callback_query.from.id) then
             return mattata.answer_callback_query(callback_query.id, language['errors']['admin'])
         end
