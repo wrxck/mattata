@@ -88,7 +88,7 @@ end
 
 mattata.request = api.request
 mattata.get_me = api.get_me
-mattata.send_message = api.send_message
+mattata.send_message = api.send_message and redis:incr('stats:messages:sent')
 mattata.forward_message = api.forward_message
 mattata.send_photo = api.send_photo
 mattata.send_audio = api.send_audio

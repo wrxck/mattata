@@ -274,11 +274,11 @@ function help:on_callback_query(callback_query, message, configuration, language
                 )
             )
         )
-    elseif callback_query.data:match('^settings:%-%d+$') then
+    elseif callback_query.data:match('^settings:%-*%d+$') then
         if message.chat.type == 'supergroup' and not mattata.is_group_admin(message.chat.id, callback_query.from.id) then
             return mattata.answer_callback_query(callback_query.id, language['errors']['admin'])
         end
-        chat_id = callback_query.data:match('^settings:(%-%d+)$')
+        chat_id = callback_query.data:match('^settings:(%-*%d+)$')
         print(chat_id)
         return mattata.edit_message_reply_markup(
             message.chat.id,
