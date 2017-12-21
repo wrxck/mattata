@@ -283,13 +283,13 @@ end
 function utils.is_group(message)
     if not message or not message.chat or not message.chat.type or message.chat.type == 'private' then
         if tonumber(message) then
-            local success = utils.get_user(input)
+            local success = utils.get_user(message)
             if not success then
-                success = api.get_chat(input)
+                success = api.get_chat(message)
             else
                 success = api.get_chat(success.result.id)
             end
-            if success.result.type and success.result.type and success.result.type == "supergroup" then
+            if success and success.result and success.result.type and success.result.type == "supergroup" then
                 return true
             end
         end
