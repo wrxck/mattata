@@ -15,7 +15,7 @@ function help:init()
     help.help = '/help [plugin] - A help-orientated menu is sent if no arguments are given. If arguments are given, usage information for the given plugin is sent instead. Alias: /start.'
 end
 
-function help.get_initial_keyboard()
+function help.get_initial_keyboard(message)
     return mattata.inline_keyboard():row(
         mattata.row():callback_data_button(
             'Links',
@@ -294,9 +294,9 @@ function help:on_callback_query(callback_query, message, configuration, language
             and mattata.inline_keyboard()
             :row(
                 mattata.row():callback_data_button(
-                    language['help']['21'], 'administration:' .. message.chat.id .. ':page:1'
+                    language['help']['21'], 'administration:' .. chat_id .. ':page:1'
                 ):callback_data_button(
-                    language['help']['22'], 'plugins:' .. message.chat.id .. ':page:1'
+                    language['help']['22'], 'plugins:' .. chat_id .. ':page:1'
                 )
             )
             :row(
@@ -329,7 +329,7 @@ function help:on_callback_query(callback_query, message, configuration, language
             ),
             'html',
             true,
-            help.get_initial_keyboard(message.chat.type == 'supergroup' and message.chat.id or false)
+            help.get_initial_keyboard(message)
         )
     end
 end
@@ -350,7 +350,7 @@ function help:on_message(message, configuration, language)
         true,
         false,
         nil,
-        help.get_initial_keyboard(message.chat.type == 'supergroup' and message.chat.id or false)
+        help.get_initial_keyboard(message)
     )
 end
 
