@@ -62,16 +62,11 @@ function administration.get_initial_keyboard(chat_id, page)
         )
         :row(
             mattata.row()
-            :callback_data_button('Notify Admins on Actions?', 'administration:nil')
-            :callback_data_button(
-                mattata.get_setting(chat_id, 'notify admins actions') and utf8.char(9989) or utf8.char(10060),
-                'administration:' .. chat_id .. ':notify_admins_actions:1'
-            )
+            :callback_data_button('Next', 'administration:' .. chat_id .. ':page:2')
         )
         :row(
             mattata.row()
-            :callback_data_button('Back', 'help:settings')
-            :callback_data_button('Next', 'administration:' .. chat_id .. ':page:2')
+            :callback_data_button('Exit', 'help:settings')
         )
     elseif tonumber(page) == 2 then
         return mattata.inline_keyboard()
@@ -117,7 +112,6 @@ function administration.get_initial_keyboard(chat_id, page)
                 'administration:' .. chat_id .. ':rtl:2'
             )
         )
-        :row(mattata.row():callback_data_button('Trusted Users Permissions', 'administration:' .. chat_id .. ':trusted_permissions'))
         :row(
             mattata.row()
             :callback_data_button('Anti-Spam Action', 'administration:nil')
@@ -147,6 +141,10 @@ function administration.get_initial_keyboard(chat_id, page)
             :callback_data_button('Back', 'administration:' .. chat_id .. ':page:1')
             :callback_data_button('Next', 'administration:' .. chat_id .. ':page:3')
         )
+        :row(
+            mattata.row()
+            :callback_data_button('Exit', 'help:settings')
+        )
     elseif tonumber(page) >= 3
     then
         return mattata.inline_keyboard()
@@ -165,7 +163,21 @@ function administration.get_initial_keyboard(chat_id, page)
                 mattata.get_setting(chat_id, 'delete reply on action') and utf8.char(9989) or utf8.char(10060),
                 'administration:' .. chat_id .. ':delete_reply_on_action:3'
             )
-        ):row(mattata.row():callback_data_button('Back', 'administration:' .. chat_id .. ':page:2'))
+        )
+        :row(mattata.row():callback_data_button('Trusted Users Permissions', 'administration:' .. chat_id .. ':trusted_permissions'))
+        :row(
+            mattata.row()
+            :callback_data_button('Notify Admins on Actions?', 'administration:nil')
+            :callback_data_button(
+                mattata.get_setting(chat_id, 'notify admins actions') and utf8.char(9989) or utf8.char(10060),
+                'administration:' .. chat_id .. ':notify_admins_actions:3'
+            )
+        )
+        :row(mattata.row():callback_data_button('Back', 'administration:' .. chat_id .. ':page:2'))
+        :row(
+            mattata.row()
+            :callback_data_button('Exit', 'help:settings')
+        )
     end
     return false
 end
@@ -327,7 +339,7 @@ function administration.get_trusted_permissions(chat_id)
         {['text'] = mattata.get_setting(chat_id, 'trusted permissions muteall') and utf8.char(9989) or utf8.char(10060), ['callback_data'] = 'administration:' .. chat_id .. ':trusted_toggle:muteall'}
     })
     table.insert(keyboard.inline_keyboard, {
-        {['text'] = 'Back', ['callback_data'] = 'administration:' .. chat_id .. ':page:2'}
+        {['text'] = 'Back', ['callback_data'] = 'administration:' .. chat_id .. ':page:3'}
     })
     return keyboard
 end
