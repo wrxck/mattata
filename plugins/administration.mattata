@@ -19,8 +19,7 @@ function administration:init()
     :command('links')
     :command('whitelistlink')
     :command('whitelistlinks')
-    :command('config')
-    :command('admin').table
+    :command('config').table
 end
 
 function administration.get_initial_keyboard(chat_id, page)
@@ -171,6 +170,14 @@ function administration.get_initial_keyboard(chat_id, page)
             :callback_data_button(
                 mattata.get_setting(chat_id, 'notify admins actions') and utf8.char(9989) or utf8.char(10060),
                 'administration:' .. chat_id .. ':notify_admins_actions:3'
+            )
+        )
+        :row(
+            mattata.row()
+            :callback_data_button('Apply Global Blacklist?', 'administration:nil')
+            :callback_data_button(
+                mattata.get_setting(chat_id, 'apply global blacklist') and utf8.char(9989) or utf8.char(10060),
+                'administration:' .. chat_id .. ':apply_global_blacklist:3'
             )
         )
         :row(mattata.row():callback_data_button('Back', 'administration:' .. chat_id .. ':page:2'))
@@ -697,6 +704,14 @@ function administration:on_callback_query(callback_query, message, configuration
             'notify admins actions'
         )
         keyboard = administration.get_initial_keyboard(chat_id, page)
+  elseif callback_query.data:match('^%-%d+:apply_global_blacklist:%d*$')
+  then
+      local chat_id, page = callback_query.data:match('^(%-%d+):apply_global_blacklist:(%d*)$')
+      mattata.toggle_setting(
+          chat_id,
+          'apply global blacklist'
+      )
+      keyboard = administration.get_initial_keyboard(chat_id, page)
     elseif callback_query.data:match('^%-%d+:word_filter:%d*$')
     then
         local chat_id, page = callback_query.data:match('^(%-%d+):word_filter:(%d*)$')

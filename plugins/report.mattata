@@ -7,8 +7,8 @@ local report = {}
 local mattata = require('mattata')
 
 function report:init()
-    report.commands = mattata.commands(self.info.username):command('report'):command('ops').table
-    report.help = '/report - Reports the replied-to message to all administrators of the group, via private message. Alias: /ops.'
+    report.commands = mattata.commands(self.info.username):command('report'):command('admin'):command('ops').table
+    report.help = '/report - Reports the replied-to message to all administrators of the group, via private message. Alias: /ops, /admin.'
 end
 
 function report:on_message(message, configuration, language)
