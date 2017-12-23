@@ -88,7 +88,7 @@ end
 
 mattata.request = api.request
 mattata.get_me = api.get_me
-mattata.send_message = api.send_message
+mattata.send_message = utils.send_message
 mattata.forward_message = api.forward_message
 mattata.send_photo = api.send_photo
 mattata.send_audio = api.send_audio
@@ -536,7 +536,8 @@ function mattata:process_plugin_extras()
     -- Process @admin in report
     if not mattata.is_plugin_disabled('report', message) and message.text:match('^@admin') and message.chat.type ~= 'private' then
         local language = dofile('languages/' .. mattata.get_user_language(message.from.id) .. '.lua')
-        if not message.reply then
+        local input = mattata.input(message.text)
+        if not message.reply or not input then
             mattata.send_message(message.chat.id, language['report']['1'])
         elseif message.reply.from.id == message.from.id then
             mattata.send_message(message.chat.id, language['report']['2'])
@@ -549,13 +550,18 @@ function mattata:process_plugin_extras()
                 local old_language = language
                 language = require('languages.' .. mattata.get_user_language(admins.result[n].user.id))
                 local output = string.format(language['report']['3'], mattata.escape_html(message.from.first_name), mattata.escape_html(message.chat.title))
-                if message.chat.username then -- If it's a public supergroup, then we'll link to the report message to
+                if message.chat.username and message.reply then -- If it's a public supergroup, then we'll link to the report message to
                 -- make things easier for the administrator the report was sent to.
                     output = output .. '\n<a href="https://t.me/' .. message.chat.username .. '/' .. message.reply.message_id .. '">' .. language['report']['4'] .. '</a>'
                 end
+                if input then
+                    output = output .. '\n\n<i>' .. input .. '</i>'
+                end
                 local success = mattata.send_message(admins.result[n].user.id, output, 'html')
                 if success then
-                    mattata.forward_message(admins.result[n].user.id, message.chat.id, false, message.reply.message_id)
+                    if message.reply then
+                        mattata.forward_message(admins.result[n].user.id, message.chat.id, false, message.reply.message_id)
+                    end
                     notified = notified + 1
                 end
                 language = old_language
