@@ -555,7 +555,7 @@ function mattata:process_plugin_extras()
                     output = output .. '\n<a href="https://t.me/' .. message.chat.username .. '/' .. message.reply.message_id .. '">' .. language['report']['4'] .. '</a>'
                 end
                 if input then
-                    output = output .. '\n\n`' .. input .. '`'
+                    output = output .. '\n\n<i>' .. input .. '</i>'
                 end
                 local success = mattata.send_message(admins.result[n].user.id, output, 'html')
                 if success then
