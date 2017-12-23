@@ -535,7 +535,7 @@ function mattata:process_plugin_extras()
 
     -- Process @admin in report
     if not mattata.is_plugin_disabled('report', message) and message.text:match('^@admin') and message.chat.type ~= 'private' then
-        local language = dofile('languages/' .. mattata.get_user_language(inline_query.from.id) .. '.lua')
+        local language = dofile('languages/' .. mattata.get_user_language(message.from.id) .. '.lua')
         if not message.reply then
             mattata.send_message(message.chat.id, language['report']['1'])
         elseif message.reply.from.id == message.from.id then
