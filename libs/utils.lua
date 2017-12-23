@@ -216,7 +216,7 @@ end
 
 function utils.send_message(message, text, parse_mode, disable_web_page_preview, disable_notification, reply_to_message_id, reply_markup)
     redis:incr('stats:messages:sent')
-    return api.send_message(message, text, parse_mode, disable_web_page_preview, disable_notification, reply_to_message_id, reply_markup)
+    return mattata.api.send_message(message, text, parse_mode, disable_web_page_preview, disable_notification, reply_to_message_id, reply_markup)
 end
 
 function utils.send_reply(message, text, parse_mode, disable_web_page_preview, reply_markup, token)
