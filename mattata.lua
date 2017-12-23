@@ -512,6 +512,7 @@ function mattata:process_plugin_extras()
         end
     end
 
+    -- Process the BugReports
     if mattata.is_global_admin(message.from.id) and message.chat.id == configuration.bug_reports_chat and message.reply and message.reply.forward_from and not message.text:match('^[/!#]') then
         mattata.send_message(
             message.reply.forward_from.id,
@@ -522,11 +523,46 @@ function mattata:process_plugin_extras()
             ),
             'html'
         )
-    elseif not mattata.is_plugin_disabled('ai', message) and message.chat.type ~= 'channel' and not redis:sismember('ainotice', tostring(message.chat.id)) then
+    end
+
+    -- Process the AI notice
+    if not mattata.is_plugin_disabled('ai', message) and message.chat.type ~= 'channel' and not redis:sismember('ainotice', tostring(message.chat.id)) then
         local success = mattata.send_message(message.chat.id, '*IMPORTANT* My AI functionality has moved to a dedicated bot to allow me to do everything else even faster! This is one of many huge changes coming over the next couple of months! The new AI is @BarrePoliceBot. It does NOT need administrative permissions to work!', 'markdown')
         if success then
             redis:sadd('ainotice', tostring(message.chat.id))
         end
+    end
+
+    -- Process @admin in report
+    if not mattata.is_plugin_disabled('report', message) and message.text:match('^@admin') and message.chat.type ~= 'private' then
+        local language = dofile('languages/' .. mattata.get_user_language(inline_query.from.id) .. '.lua')
+        if not message.reply then
+            mattata.send_message(message.chat.id, language['report']['1'])
+        elseif message.reply.from.id == message.from.id then
+            mattata.send_message(message.chat.id, language['report']['2'])
+        end
+        local admin_list = {}
+        local admins = mattata.get_chat_administrators(message.chat.id)
+        local notified = 0
+        for n in pairs(admins.result) do
+            if admins.result[n].user.id ~= self.info.id then
+                local old_language = language
+                language = require('languages.' .. mattata.get_user_language(admins.result[n].user.id))
+                local output = string.format(language['report']['3'], mattata.escape_html(message.from.first_name), mattata.escape_html(message.chat.title))
+                if message.chat.username then -- If it's a public supergroup, then we'll link to the report message to
+                -- make things easier for the administrator the report was sent to.
+                    output = output .. '\n<a href="https://t.me/' .. message.chat.username .. '/' .. message.reply.message_id .. '">' .. language['report']['4'] .. '</a>'
+                end
+                local success = mattata.send_message(admins.result[n].user.id, output, 'html')
+                if success then
+                    mattata.forward_message(admins.result[n].user.id, message.chat.id, false, message.reply.message_id)
+                    notified = notified + 1
+                end
+                language = old_language
+            end
+        end
+        local output = string.format(language['report']['5'], notified)
+        mattata.send_reply(message, output)
     end
 
     -- If a user executes a command and it's not recognised, provide a response
