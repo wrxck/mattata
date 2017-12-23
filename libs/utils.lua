@@ -214,6 +214,11 @@ function utils.get_inline_list(query, offset)
     return inline_help
 end
 
+function utils.send_message(message, text, parse_mode, disable_web_page_preview, disable_notification, reply_to_message_id, reply_markup)
+    redis:incr('stats:messages:sent')
+    return mattata.api.send_message(message, text, parse_mode, disable_web_page_preview, disable_notification, reply_to_message_id, reply_markup)
+end
+
 function utils.send_reply(message, text, parse_mode, disable_web_page_preview, reply_markup, token)
     redis:incr('stats:messages:sent')
     reply_markup = reply_markup or {
