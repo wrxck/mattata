@@ -48,7 +48,7 @@ return {
     ['ban'] = {
         ['1'] = 'Hangi kullanıcı banlamamı istersiniz? Bu kullanıcıyı @kulanıcıadı şeklinde veya kullanıcı IDsi ile belirtebilirsin.',
         ['2'] = 'Bu kullanıcıyı, bu sohbette bir moderatör veya yönetici oldukları için banlayamam.',
-        ['3'] = 'Bu sohbetten ayrıldığı için bu kullanıcıyı banyalamam.',
+        ['3'] = 'Bu sohbetten ayrıldığı için bu kullanıcıyı banlayamam.',
         ['4'] = 'Bu sohbetten zaten banlandıkları için bu kullanıcıyı banlayamam.',
         ['5'] = 'Bu kullanıcıyı banlamam için admin izinlerine sahip olmam gerekiyor. Lütfen bu sorunu düzeltip tekrar deneyin.'
     },
@@ -476,7 +476,7 @@ Sistem:
     ['report'] = {
         ['1'] = 'Lütfen grubun yöneticilerine bildirmek istediğiniz iletiyi yanıtlayın.',
         ['2'] = 'Kendi mesajlarınızı bildiremezsiniz, sadece komik olmaya mı çalışıyorsunuz?',
-        ['3'] = '<b>%s içinde yardıma ihtiyacı var %s!</b>',
+        ['3'] = '<b>%s nun %s! içinde yardıma ihtiyacı var! </b>',
         ['4'] = 'Bildirilen mesajı görüntülemek için burayı tıklayın.',
         ['5'] = 'Bu mesajı  %s admin(ler) e başarıyla rapor ettim.!'
     },
