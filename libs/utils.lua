@@ -322,6 +322,41 @@ function utils.get_received_inlines_count()
     return tonumber(redis:get('stats:inlines:received')) or 0
 end
 
+function utils.case_insensitive_pattern(pattern)
+  local p = pattern:gsub("(%%?)(.)", function(percent, letter)
+    if percent ~= "" or not letter:match("%a") then
+      return percent .. letter
+    else
+      return string.format("[%s%s]", letter:lower(), letter:upper())
+    end
+  end)
+  return p
+end
+
+function utils.is_pole_done(chat_id)
+    local date = os.date("%x")
+    if not redis:hexists('pole:' .. date .. ':' .. chat_id, 'user') then
+        return false
+    end
+    return true
+end
+
+function utils.is_subpole_done(chat_id)
+    local date = os.date("%x")
+    if not redis:hexists('subpole:' .. date .. ':' .. chat_id, 'user') then
+        return false
+    end
+    return true
+end
+
+function utils.is_fail_done(chat_id)
+    local date = os.date("%x")
+    if not redis:hexists('fail:' .. date .. ':' .. chat_id, 'user') then
+        return false
+    end
+    return true
+end
+
 function utils.reset_message_statistics(chat_id)
     if not chat_id or tonumber(chat_id) == nil then
         return false

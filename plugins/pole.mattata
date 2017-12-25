@@ -1,0 +1,21 @@
+--[[
+    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local pole = {}
+local mattata = require('mattata')
+local redis = dofile('libs/redis.lua')
+
+function pole:init()
+    pole.commands = mattata.commands(self.info.username):command('pole'):command('polestats').table
+    pole.help = '/pole - Get the stats for the pole.'
+end
+
+function pole:on_message(message, configuration, language)
+    local poles = redis:keys("pole:*:"..message.chat.id)
+    local subpoles = redis:keys("subpole:*:"..message.chat.id)
+    local fails = redis:keys("fail:*:"..message.chat.id)
+end
+
+return pole

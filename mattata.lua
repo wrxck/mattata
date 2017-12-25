@@ -223,6 +223,10 @@ mattata.get_received_messages_count = utils.get_received_messages_count
 mattata.get_sent_messages_count = utils.get_sent_messages_count
 mattata.get_received_callbacks_count = utils.get_received_callbacks_count
 mattata.get_received_inlines_count = utils.get_received_inlines_count
+mattata.case_insensitive_pattern = utils.case_insensitive_pattern
+mattata.is_pole_done = utils.is_pole_done
+mattata.is_subpole_done = utils.is_subpole_done
+mattata.is_fail_done = utils.is_fail_done
 
 function mattata:run(configuration, token)
 -- mattata's main long-polling function which repeatedly checks the Telegram bot API for updates.
@@ -569,6 +573,24 @@ function mattata:process_plugin_extras()
         end
         local output = string.format(language['report']['5'], notified)
         mattata.send_reply(message, output)
+    end
+
+    -- Process the Pole plugin
+    if not mattata.is_plugin_disabled('pole', message) and message.chat.type ~= 'private' and (message.text:match('^'..mattata.case_insensitive_pattern('pole')) or message.text:match('^'..mattata.case_insensitive_pattern('subpole')) or ('^'..mattata.case_insensitive_pattern('fail'))) then
+        local date = os.date("%x")
+        if message.text:match('^'..mattata.case_insensitive_pattern('pole')) and not mattata.is_pole_done(message.chat.id) then
+            redis:hset('pole::' .. date .. ':' .. message.chat.id, 'user', message.from.id)
+            redis:hset('pole:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
+            mattata.send_reply(message, message.from.first_name.." has done the POLE!")
+        elseif message.text:match('^'..mattata.case_insensitive_pattern('subpole')) and not mattata.is_subpole_done(message.chat.id) then
+            redis:hset('subpole:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
+            redis:hset('subpole:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
+            mattata.send_reply(message, message.from.first_name.." has done the SUBPOLE")
+        elseif message.text:match('^'..mattata.case_insensitive_pattern('fail')) and not mattata.is_fail_done(message.chat.id) then
+            redis:hset('fail:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
+            redis:hset('fail:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
+            mattata.send_reply(message, message.from.first_name.." has done a FAIL, sad")
+        end
     end
 
     -- If a user executes a command and it's not recognised, provide a response
