@@ -889,7 +889,7 @@ function utils.is_user_blacklisted(message)
     local group = redis:get('group_blacklist:' .. message.chat.id .. ':' .. message.from.id) -- Check
     -- if the user is blacklisted from using the bot in the current group, or globally for that matter.
     if global or group then
-        if global and message.chat.type ~= 'private' and mattata.get_setting(message.chat.id, 'apply global blacklist')and not redis:sismember('global_blacklist_unban:' .. message.chat.id, message.from.id) then
+        if global and message.chat.type ~= 'private' and mattata.get_setting(message.chat.id, 'apply global blacklist') and not redis:sismember('global_blacklist_unban:' .. message.chat.id, message.from.id) then
         -- If the user is globally blacklisted, and they haven't been banned before for this reason, add them to a set to exclude them from future checks.
             local success = api.ban_chat_member(message.chat.id, message.from.id) -- Attempt to ban the blacklisted user.
             local output = message.from.first_name .. ' [' .. message.from.id .. '] is globally blacklisted.'
