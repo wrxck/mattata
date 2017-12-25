@@ -578,15 +578,15 @@ function mattata:process_plugin_extras()
     -- Process the Pole plugin
     if not mattata.is_plugin_disabled('pole', message) and message.chat.type ~= 'private' and (message.text:match('^'..mattata.case_insensitive_pattern('pole')) or message.text:match('^'..mattata.case_insensitive_pattern('subpole')) or ('^'..mattata.case_insensitive_pattern('fail'))) then
         local date = os.date("%x")
-        if message.text:match('^'..mattata.case_insensitive_pattern('pole')) and not mattata.is_pole_done(message.chat.id) then
-            redis:hset('pole::' .. date .. ':' .. message.chat.id, 'user', message.from.id)
+        if message.text:match('^'..mattata.case_insensitive_pattern('pole')) and not mattata.is_pole_done(message) then
+            redis:hset('pole:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
             redis:hset('pole:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
             mattata.send_reply(message, message.from.first_name.." has done the POLE!")
-        elseif message.text:match('^'..mattata.case_insensitive_pattern('subpole')) and not mattata.is_subpole_done(message.chat.id) then
+        elseif message.text:match('^'..mattata.case_insensitive_pattern('subpole')) and not mattata.is_subpole_done(message) then
             redis:hset('subpole:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
             redis:hset('subpole:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
             mattata.send_reply(message, message.from.first_name.." has done the SUBPOLE")
-        elseif message.text:match('^'..mattata.case_insensitive_pattern('fail')) and not mattata.is_fail_done(message.chat.id) then
+        elseif message.text:match('^'..mattata.case_insensitive_pattern('fail')) and not mattata.is_fail_done(message) then
             redis:hset('fail:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
             redis:hset('fail:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
             mattata.send_reply(message, message.from.first_name.." has done a FAIL, sad")
