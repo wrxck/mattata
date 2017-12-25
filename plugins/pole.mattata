@@ -126,7 +126,7 @@ function pole:on_message(message, configuration, language)
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
             output = output.."\n\n<b>GROUP RANK</b>\n"
             local stats = redis:hgetall('group_pole_stats:' .. message.chat.id)
-            table.sort(stats, function(a, b) return a[2] > b[2] end)
+            table.sort(stats)
             local counter = 1
             for k, v in pairs(stats) do
                 if counter >= 11 then
@@ -135,9 +135,9 @@ function pole:on_message(message, configuration, language)
                 user = mattata.get_user(k)
                 user = user.result
                 if user.username then
-                    output = output.. emojis_global[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Fails (' .. v ..'p)</i>\n'
+                    output = output.. emojis_global[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Points</i>\n'
                 else
-                    output = output.. emojis_global[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Fails (' .. v ..'p)</i>\n'
+                    output = output.. emojis_global[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Points</i>\n'
                 end
                 counter = counter+1
             end
