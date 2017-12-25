@@ -59,7 +59,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('pole_stats:' .. message.chat.id)) do
                 poles[user] = value
             end
-            table.sort(poles, function(a, b) return a[2] > b[2] end)
+            table.sort(poles, function(a, b) return a[1] < b[1] end)
             local counter = 1
             for k, v in pairs(poles) do
                 if counter >= 11 then
@@ -68,9 +68,9 @@ function pole:on_message(message, configuration, language)
                 user = mattata.get_user(k)
                 user = user.result
                 if user.username then
-                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Poles (' .. (v*5) ..'p)</i>\n'
+                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Poles (' .. math.floor(v*5) ..'p)</i>\n'
                 else
-                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Poles (' .. (v*5) ..'p)</i>\n'
+                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Poles (' .. math.floor(v*5) ..'p)</i>\n'
                 end
                 counter = counter+1
             end
@@ -81,7 +81,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('subpole_stats:' .. message.chat.id)) do
                 subpoles[user] = value
             end
-            table.sort(subpoles, function(a, b) return a[2] > b[2] end)
+            table.sort(subpoles, function(a, b) return a[1] < b[1] end)
             local counter = 1
             for k, v in pairs(subpoles) do
                 if counter >= 11 then
@@ -90,9 +90,9 @@ function pole:on_message(message, configuration, language)
                 user = mattata.get_user(k)
                 user = user.result
                 if user.username then
-                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Subpoles (' .. (v*3) ..'p)</i>\n'
+                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Subpoles (' .. math.floor(v*3) ..'p)</i>\n'
                 else
-                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Subpoles (' .. (v*3) ..'p)</i>\n'
+                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Subpoles (' .. math.floor(v*3) ..'p)</i>\n'
                 end
                 counter = counter+1
             end
@@ -103,7 +103,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('fail_stats:' .. message.chat.id)) do
                 fails[user] = value
             end
-            table.sort(fails, function(a, b) return a[2] > b[2] end)
+            table.sort(fails, function(a, b) return a[1] < b[1] end)
             local counter = 1
             for k, v in pairs(fails) do
                 if counter >= 11 then
@@ -126,7 +126,10 @@ function pole:on_message(message, configuration, language)
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
             output = output.."\n\n<b>GROUP RANK</b>\n"
             local stats = redis:hgetall('group_pole_stats:' .. message.chat.id)
-            table.sort(stats)
+            function compare(a,b)
+                return a[1] < b[1]
+            end
+            table.sort(stats, function(a, b) return a[1] < b[1] end)
             local counter = 1
             for k, v in pairs(stats) do
                 if counter >= 11 then
