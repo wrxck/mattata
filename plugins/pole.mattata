@@ -125,9 +125,10 @@ function pole:on_message(message, configuration, language)
 
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
             output = output.."\n\n<b>GROUP RANK</b>\n"
-            table.sort(redis:hgetall('group_pole_stats:' .. message.chat.id), function(a, b) return a[2] > b[2] end)
+            local stats = redis:hgetall('group_pole_stats:' .. message.chat.id)
+            table.sort(stats, function(a, b) return a[2] > b[2] end)
             local counter = 1
-            for k, v in pairs(fails) do
+            for k, v in pairs(stats) do
                 if counter >= 11 then
                     break
                 end
