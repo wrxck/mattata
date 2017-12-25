@@ -13,6 +13,14 @@ function utils:init(configuration, token)
     return utils
 end
 
+function utils.split(s, delimiter)
+    result = {};
+    for match in (s..delimiter):gmatch("(.-)"..delimiter) do
+        table.insert(result, match)
+    end
+    return result
+end
+
 function utils.is_trusted_user(chat_id, user_id)
     if redis:sismember('administration:' .. chat_id .. ':trusted', user_id) then
         return true
