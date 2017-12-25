@@ -333,26 +333,25 @@ function utils.case_insensitive_pattern(pattern)
   return p
 end
 
-function utils.is_pole_done(message)
+function utils.is_pole_done(chat_id, user_id)
     local date = os.date("%x")
-    print(message)
-    if not redis:hexists('pole:' .. date .. ':' .. message.chat.id, 'user') then
+    if not redis:hexists('pole:' .. date .. ':' .. chat_id, 'user') then
         return false
     end
     return true
 end
 
-function utils.is_subpole_done(message)
+function utils.is_subpole_done(chat_id, user_id)
     local date = os.date("%x")
-    if not redis:hexists('subpole:' .. date .. ':' .. (message.chat.id), 'user') and not redis:hget('pole:' .. date .. ':' .. (message.chat.id), message.from.id) then
+    if not redis:hexists('subpole:' .. date .. ':' .. chat_id, 'user') and not redis:hget('pole:' .. date .. ':' .. chat_id, user_id) then
         return false
     end
     return true
 end
 
-function utils.is_fail_done(message)
+function utils.is_fail_done(chat_id, user_id)
     local date = os.date("%x")
-    if not redis:hexists('fail:' .. date .. ':' .. (message.chat.id), 'user') and (not redis:hget('pole:' .. date .. ':' .. (message.chat.id), message.from.id) or not redis:hget('subpole:' .. date .. ':' .. (message.chat.id), message.from.id)) then
+    if not redis:hexists('fail:' .. date .. ':' .. chat_id, 'user') and (not redis:hget('pole:' .. date .. ':' .. chat_id, user_id) or not redis:hget('subpole:' .. date .. ':' .. chat_id, user_id)) then
         return false
     end
     return true
