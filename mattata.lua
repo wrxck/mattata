@@ -582,14 +582,17 @@ function mattata:process_plugin_extras()
         if message.text:match('^'..mattata.case_insensitive_pattern('pole')) and not mattata.is_pole_done(message.chat.id, message.from.id) then
             redis:hset('pole:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
             redis:hset('pole:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
+            redis:hset('pole_stats:' .. message.chat.id, message.from.id, (redis:hget('pole_stats:' .. message.chat.id, message.from.id) or 0)+5)
             mattata.send_reply(message, message.from.first_name.." has done the POLE!")
         elseif message.text:match('^'..mattata.case_insensitive_pattern('subpole')) and not mattata.is_subpole_done(message.chat.id, message.from.id) then
             redis:hset('subpole:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
             redis:hset('subpole:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
+            redis:hset('subpole_stats:' .. message.chat.id, message.from.id, (redis:hget('subpole_stats:' .. message.chat.id, message.from.id) or 0)+3)
             mattata.send_reply(message, message.from.first_name.." has done the SUBPOLE")
         elseif message.text:match('^'..mattata.case_insensitive_pattern('fail')) and not mattata.is_fail_done(message.chat.id, message.from.id) then
             redis:hset('fail:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
             redis:hset('fail:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
+            redis:hset('fail_stats:' .. message.chat.id, message.from.id, (redis:hget('fail_stats:' .. message.chat.id, message.from.id) or 0)+5)
             mattata.send_reply(message, message.from.first_name.." has done a FAIL, sad")
         end
     end
