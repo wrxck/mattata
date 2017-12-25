@@ -351,7 +351,7 @@ end
 
 function utils.is_subpole_done(chat_id, user_id)
     local date = os.date("%x")
-    if not redis:hexists('subpole:' .. date .. ':' .. chat_id, 'user') and redis:hget('pole:' .. date .. ':' .. chat_id, 'user') ~= user_id then
+    if not redis:hexists('subpole:' .. date .. ':' .. chat_id, 'user') and tonumber(redis:hget('pole:' .. date .. ':' .. chat_id, 'user')) ~= tonumber(user_id) then
         return false
     end
     return true
@@ -359,7 +359,7 @@ end
 
 function utils.is_fail_done(chat_id, user_id)
     local date = os.date("%x")
-    if not redis:hexists('fail:' .. date .. ':' .. chat_id, 'user') and (redis:hget('pole:' .. date .. ':' .. chat_id, 'user') ~= user_id or redis:hget('subpole:' .. date .. ':' .. chat_id, 'user') ~= user_id) then
+    if not redis:hexists('fail:' .. date .. ':' .. chat_id, 'user') and (tonumber(redis:hget('pole:' .. date .. ':' .. chat_id, 'user')) ~= tonumber(user_id) or tonumber(redis:hget('subpole:' .. date .. ':' .. chat_id, 'user')) ~= tonumber(user_id)) then
         return false
     end
     return true
