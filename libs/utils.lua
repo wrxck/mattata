@@ -341,7 +341,7 @@ function utils.is_pole_done(message)
     return true
 end
 
-function utils.is_subpole_done(chat_id)
+function utils.is_subpole_done(message)
     local date = os.date("%x")
     if not redis:hexists('subpole:' .. date .. ':' .. (message.chat.id), 'user') and not redis:hget('pole:' .. date .. ':' .. (message.chat.id), message.from.id) then
         return false
@@ -349,7 +349,7 @@ function utils.is_subpole_done(chat_id)
     return true
 end
 
-function utils.is_fail_done(chat_id)
+function utils.is_fail_done(message)
     local date = os.date("%x")
     if not redis:hexists('fail:' .. date .. ':' .. (message.chat.id), 'user') and (not redis:hget('pole:' .. date .. ':' .. (message.chat.id), message.from.id) or not redis:hget('subpole:' .. date .. ':' .. (message.chat.id), message.from.id)) then
         return false
