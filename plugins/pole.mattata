@@ -21,7 +21,7 @@ function pole:on_message(message, configuration, language)
     if #poles > 0 then
         local user = mattata.get_user(redis:hget(poles[#poles], 'user'))
         user = user.result
-        output = output.. "<b>Latest Pole done by<b> "
+        output = output.. "<b>Latest Pole done by</b> "
         if user.username then
             output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. mattata.split(poles[#poles], ':')[2] .. " " .. redis:hget(poles[#poles], 'time') .. "</i>\n"
         else
@@ -31,7 +31,7 @@ function pole:on_message(message, configuration, language)
     if #subpoles > 0 then
         local user = mattata.get_user(redis:hget(subpoles[#subpoles], 'user'))
         user = user.result
-        output = output.. "<b>Latest Subole done by<b> "
+        output = output.. "<b>Latest Subole done by</b> "
         if user.username then
             output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. mattata.split(subpoles[#subpoles], ':')[2] .. " " .. redis:hget(subpoles[#subpoles], 'time') .. "</i>\n"
         else
@@ -41,7 +41,7 @@ function pole:on_message(message, configuration, language)
     if #fails > 0 then
         local user = mattata.get_user(redis:hget(fails[#fails], 'user'))
         user = user.result
-        output = output.. "<b>Latest Fail done by<b> "
+        output = output.. "<b>Latest Fail done by</b> "
         if user.username then
             output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. mattata.split(fails[#fails], ':')[2] .. " " .. redis:hget(fails[#fails], 'time') .. "</i>\n"
         else
