@@ -8,7 +8,7 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 
 function pole:init()
-    pole.commands = mattata.commands(self.info.username):command('pole'):command('polestats'):command('gpole':command('gpolestats')).table
+    pole.commands = mattata.commands(self.info.username):command('pole'):command('polestats'):command('gpole'):command('gpolestats').table
     pole.help = '/pole - Get the stats for the pole.'
 end
 
