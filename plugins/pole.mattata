@@ -16,6 +16,37 @@ function pole:on_message(message, configuration, language)
     local poles = redis:keys("pole:*:"..message.chat.id)
     local subpoles = redis:keys("subpole:*:"..message.chat.id)
     local fails = redis:keys("fail:*:"..message.chat.id)
+    local output = ""
+
+    if #poles > 0 then
+        local user = mattata.get_user(redis:hget(poles[#poles-1], 'user'))
+        output = output.. "<b>Latest Pole done by<b> "
+        if user.username then
+            output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' ..  poles[#poles-1]:match('^pole:(%a*):%-%d+$') .. " " .. redis:hget(poles[#poles-1], 'time') .. "\n"
+        else
+            output = output .. user.first_name .. ' <b>at</b> <i>' ..  poles[#poles-1]:match('^pole:(%a*):%-%d+$') .. " " .. redis:hget(poles[#poles-1], 'time') .. "\n"
+        end
+    end
+    if #subpoles > 0 then
+        local user = mattata.get_user(redis:hget(subpoles[#subpoles-1], 'user'))
+        output = output.. "<b>Latest Subole done by<b> "
+        if user.username then
+            output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' ..  subpoles[#subpoles-1]:match('^subpole:(%a*):%-%d+$') .. " " .. redis:hget(subpoles[#subpoles-1], 'time') .. "\n"
+        else
+            output = output .. user.first_name .. ' <b>at</b> <i>' ..  subpoles[#subpoles-1]:match('^subpole:(%a*):%-%d+$') .. " " .. redis:hget(subpoles[#subpoles-1], 'time') .. "\n"
+        end
+    end
+    if #fails > 0 then
+        local user = mattata.get_user(redis:hget(fails[#fails-1], 'user'))
+        output = output.. "<b>Latest Fail done by<b> "
+        if user.username then
+            output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' ..  fails[#fails-1]:match('^subpole:(%a*):%-%d+$') .. " " .. redis:hget(fails[#fails-1], 'time') .. "\n"
+        else
+            output = output .. user.first_name .. ' <b>at</b> <i>' ..  fails[#fails-1]:match('^fail:(%a*):%-%d+$') .. " " .. redis:hget(fails[#fails-1], 'time') .. "\n"
+        end
+    end
+
+    return mattata.send_reply(message, output, 'html')
 end
 
 return pole
