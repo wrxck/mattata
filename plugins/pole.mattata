@@ -59,13 +59,11 @@ function pole:on_message(message, configuration, language)
                 poles[user] = value
             end
             table.sort(poles)
-            local counter = 0
+            local counter = 1
             for k, v in pairs(poles) do
                 user = mattata.get_user(k)
                 user = user.result
                 if user.username then
-                    print(emojis[counter])
-                    print(v)
                     output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. '</i>\n'
                 else
                     output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. '</i>\n'
