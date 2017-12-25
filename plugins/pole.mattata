@@ -120,7 +120,7 @@ function pole:on_message(message, configuration, language)
             end
         end
 
-        local emojis = {"🥇", "🥈", "🥉", "👤", "👤", "👤", "👤", "👤", "👤", "👤"}
+        local emojis_global = {"🥇", "🥈", "🥉", "👤", "👤", "👤", "👤", "👤", "👤", "👤"}
         output = output.."\n"
 
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
