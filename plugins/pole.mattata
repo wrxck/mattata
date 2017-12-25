@@ -149,7 +149,7 @@ function pole:on_message(message, configuration, language)
         return mattata.send_reply(message, output, 'html')
 
 
-    elseif message.text:match('^[/!#]polereset') then
+    elseif message.text:match('^[/!#]polereset') and is_group_admin(message.chat.id, message.user.id) then
         for k, v in pairs(redis:keys('pole:*:'..message.chat.id)) do
             redis:del(v)
         end
@@ -162,6 +162,7 @@ function pole:on_message(message, configuration, language)
         redis:del('pole_stats:'..message.chat.id)
         redis:del('subpole_stats:'..message.chat.id)
         redis:del('fail_stats:'..message.chat.id)
+        redis:del('group_pole_stats:'..message.chat.id)
 
         return mattata.send_reply(message, "Successfully resetted Pole stats!")
     end
