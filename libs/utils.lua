@@ -335,7 +335,8 @@ end
 
 function utils.is_pole_done(message)
     local date = os.date("%x")
-    if not redis:hexists('pole:' .. date .. ':' .. (message.chat.id), 'user') then
+    print(message)
+    if not redis:hexists('pole:' .. date .. ':' .. message.chat.id, 'user') then
         return false
     end
     return true
