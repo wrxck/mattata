@@ -51,6 +51,7 @@ function pole:on_message(message, configuration, language)
         end
 
         local emojis = {"1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"}
+        output = output.."\n"
 
         if #poles > 0 then
             output = output.."\n<b>POLE RANK</b>\n"
@@ -61,12 +62,15 @@ function pole:on_message(message, configuration, language)
             table.sort(poles, function(a, b) return a[2] > b[2] end)
             local counter = 1
             for k, v in pairs(poles) do
+                if counter >= 11 then
+                    break
+                end
                 user = mattata.get_user(k)
                 user = user.result
                 if user.username then
-                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. '</i>\n'
+                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Poles (' .. (v*5) ..'p)</i>\n'
                 else
-                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. '</i>\n'
+                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Poles (' .. (v*5) ..'p)</i>\n'
                 end
                 counter = counter+1
             end
@@ -80,12 +84,15 @@ function pole:on_message(message, configuration, language)
             table.sort(subpoles, function(a, b) return a[2] > b[2] end)
             local counter = 1
             for k, v in pairs(subpoles) do
+                if counter >= 11 then
+                    break
+                end
                 user = mattata.get_user(k)
                 user = user.result
                 if user.username then
-                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. '</i>\n'
+                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Subpoles (' .. (v*3) ..'p)</i>\n'
                 else
-                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. '</i>\n'
+                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Subpoles (' .. (v*3) ..'p)</i>\n'
                 end
                 counter = counter+1
             end
@@ -99,23 +106,48 @@ function pole:on_message(message, configuration, language)
             table.sort(fails, function(a, b) return a[2] > b[2] end)
             local counter = 1
             for k, v in pairs(fails) do
+                if counter >= 11 then
+                    break
+                end
                 user = mattata.get_user(k)
                 user = user.result
                 if user.username then
-                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. '</i>\n'
+                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Fails (' .. v ..'p)</i>\n'
                 else
-                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. '</i>\n'
+                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Fails (' .. v ..'p)</i>\n'
                 end
                 counter = counter+1
             end
         end
 
-        if output == "" then
-            output = "I couldn't retreive pole information for this group"
+        local emojis = {"🥇", "🥈", "🥉", "👤", "👤", "👤", "👤", "👤", "👤", "👤"}
+        output = output.."\n"
+
+        if #redis:hgetall('group_pole_stats:' .. message.chat.id) > 0 then
+            output = output.."\n\n<b>GROUP RANK</b>\n"
+            table.sort(redis:hgetall('group_pole_stats:' .. message.chat.id), function(a, b) return a[2] > b[2] end)
+            local counter = 1
+            for k, v in pairs(fails) do
+                if counter >= 11 then
+                    break
+                end
+                user = mattata.get_user(k)
+                user = user.result
+                if user.username then
+                    output = output.. emojis_global[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Fails (' .. v ..'p)</i>\n'
+                else
+                    output = output.. emojis_global[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Fails (' .. v ..'p)</i>\n'
+                end
+                counter = counter+1
+            end
+        end
+
+        if output:gsub("%\n", "") == "" then
+            output = "I couldn't retreive any POLE information for this group"
         end
         return mattata.send_reply(message, output, 'html')
 
-        
+
     elseif message.text:match('^[/!#]polereset') then
         for k, v in pairs(redis:keys('pole:*:'..message.chat.id)) do
             redis:del(v)
