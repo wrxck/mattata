@@ -58,7 +58,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('pole_stats:' .. message.chat.id)) do
                 poles[user] = value
             end
-            table.sort(poles)
+            table.sort(poles, function(a, b) return a[2] > b[2] end)
             local counter = 1
             for k, v in pairs(poles) do
                 user = mattata.get_user(k)
@@ -77,7 +77,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('subpole_stats:' .. message.chat.id)) do
                 subpoles[user] = value
             end
-            table.sort(subpoles)
+            table.sort(subpoles, function(a, b) return a[2] > b[2] end)
             local counter = 1
             for k, v in pairs(subpoles) do
                 user = mattata.get_user(k)
@@ -96,7 +96,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('fail_stats:' .. message.chat.id)) do
                 fails[user] = value
             end
-            table.sort(fails)
+            table.sort(fails, function(a, b) return a[2] > b[2] end)
             local counter = 1
             for k, v in pairs(fails) do
                 user = mattata.get_user(k)

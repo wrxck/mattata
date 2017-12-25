@@ -592,7 +592,7 @@ function mattata:process_plugin_extras()
         elseif message.text:match('^'..mattata.case_insensitive_pattern('fail')) and not mattata.is_fail_done(message.chat.id, message.from.id) then
             redis:hset('fail:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
             redis:hset('fail:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
-            redis:hset('fail_stats:' .. message.chat.id, message.from.id, (redis:hget('fail_stats:' .. message.chat.id, message.from.id) or 0)+5)
+            redis:hset('fail_stats:' .. message.chat.id, message.from.id, (redis:hget('fail_stats:' .. message.chat.id, message.from.id) or 0)+1)
             mattata.send_reply(message, message.from.first_name.." has done a FAIL, sad")
         end
     end
