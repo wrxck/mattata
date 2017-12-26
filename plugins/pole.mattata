@@ -265,7 +265,7 @@ function pole:on_message(message, configuration, language)
         end
 
         if output:gsub("%\n", "") == "" then
-            output = "I couldn't retreive any POLE information for this group"
+            output = "I couldn't retreive any global POLE information"
         end
         return mattata.send_reply(message, output, 'html')
     end
