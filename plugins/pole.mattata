@@ -126,17 +126,7 @@ function pole:on_message(message, configuration, language)
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
             output = output.."\n\n<b>GROUP RANK</b>\n"
             local stats = redis:hgetall('group_pole_stats:' .. message.chat.id)
-            function getKeysSortedByValue(tbl, sortFunction)
-                local keys = {}
-                for key in pairs(tbl) do
-                    table.insert(keys, key)
-                end
-                table.sort(keys, function(a, b)
-                    return sortFunction(tbl[a], tbl[b])
-                end)
-              return keys
-            end
-            stats = getKeysSortedByValue(stats, function(a, b) return a > b end)
+            table.sort(stats, function(a, b) return a > b end)
             local counter = 1
             for k, v in pairs(stats) do
                 if counter >= 11 then
