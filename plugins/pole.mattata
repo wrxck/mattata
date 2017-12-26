@@ -59,7 +59,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('pole_stats:' .. message.chat.id)) do
                 poles[user] = value
             end
-            table.sort(poles, function(a, b) return a[1] < b[1] end)
+            table.sort(poles, function(a, b) return a > b end)
             local counter = 1
             for k, v in pairs(poles) do
                 if counter >= 11 then
@@ -81,7 +81,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('subpole_stats:' .. message.chat.id)) do
                 subpoles[user] = value
             end
-            table.sort(subpoles, function(a, b) return a[1] < b[1] end)
+            table.sort(subpoles, function(a, b) return a > b end)
             local counter = 1
             for k, v in pairs(subpoles) do
                 if counter >= 11 then
@@ -103,7 +103,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('fail_stats:' .. message.chat.id)) do
                 fails[user] = value
             end
-            table.sort(fails, function(a, b) return a[1] < b[1] end)
+            table.sort(fails, function(a, b) return a > b end)
             local counter = 1
             for k, v in pairs(fails) do
                 if counter >= 11 then
@@ -165,6 +165,109 @@ function pole:on_message(message, configuration, language)
         redis:del('group_pole_stats:'..message.chat.id)
 
         return mattata.send_reply(message, "Successfully resetted Pole stats!")
+
+
+    elseif message.text:match('^')
+        local poles = redis:keys("global_pole")
+        local subpoles = redis:keys("global_subpole")
+        local fails = redis:keys(("global_fail")
+        local output = ""
+        local emojis = {"1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"}
+
+        if #poles > 0 then
+            output = output.."\n<b>GLOBAL POLE RANK</b>\n"
+            local poles = {}
+            for user, value in pairs(redis:hgetall('global_pole')) do
+                poles[user] = value
+            end
+            table.sort(poles, function(a, b) return a > b end)
+            local counter = 1
+            for k, v in pairs(poles) do
+                if counter >= 11 then
+                    break
+                end
+                user = mattata.get_user(k)
+                user = user.result
+                if user.username then
+                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Poles (' .. math.floor(v*5) ..'p)</i>\n'
+                else
+                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Poles (' .. math.floor(v*5) ..'p)</i>\n'
+                end
+                counter = counter+1
+            end
+        end
+        if #subpoles > 0 then
+            output = output.."\n<b>GLOBAL SUBPOLE RANK</b>\n"
+            local subpoles = {}
+            for user, value in pairs(redis:hgetall('global_subpole')) do
+                subpoles[user] = value
+            end
+            table.sort(subpoles, function(a, b) return a > b end)
+            local counter = 1
+            for k, v in pairs(subpoles) do
+                if counter >= 11 then
+                    break
+                end
+                user = mattata.get_user(k)
+                user = user.result
+                if user.username then
+                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Subpoles (' .. math.floor(v*3) ..'p)</i>\n'
+                else
+                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Subpoles (' .. math.floor(v*3) ..'p)</i>\n'
+                end
+                counter = counter+1
+            end
+        end
+        if #fails > 0 then
+            output = output.."\n<b>GLOBAL FAILS RANK</b>\n"
+            local fails = {}
+            for user, value in pairs(redis:hgetall('global_fail')) do
+                fails[user] = value
+            end
+            table.sort(fails, function(a, b) return a > b end)
+            local counter = 1
+            for k, v in pairs(fails) do
+                if counter >= 11 then
+                    break
+                end
+                user = mattata.get_user(k)
+                user = user.result
+                if user.username then
+                    output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Fails (' .. v ..'p)</i>\n'
+                else
+                    output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Fails (' .. v ..'p)</i>\n'
+                end
+                counter = counter+1
+            end
+        end
+
+        local emojis_global = {"🥇", "🥈", "🥉", "👤", "👤", "👤", "👤", "👤", "👤", "👤"}
+        output = output.."\n"
+
+        if #poles > 0 or #subpoles > 0 or #fails > 0 then
+            output = output.."\n\n<b>GLOBAL GENERAL RANK</b>\n"
+            local stats = redis:hgetall('global_pole_stats')
+            table.sort(stats, function(a, b) return a > b end)
+            local counter = 1
+            for k, v in pairs(stats) do
+                if counter >= 11 then
+                    break
+                end
+                user = mattata.get_user(k)
+                user = user.result
+                if user.username then
+                    output = output.. emojis_global[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Points</i>\n'
+                else
+                    output = output.. emojis_global[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Points</i>\n'
+                end
+                counter = counter+1
+            end
+        end
+
+        if output:gsub("%\n", "") == "" then
+            output = "I couldn't retreive any POLE information for this group"
+        end
+        return mattata.send_reply(message, output, 'html')
     end
 end
 
