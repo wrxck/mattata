@@ -170,7 +170,7 @@ function pole:on_message(message, configuration, language)
     elseif message.text:match('^[/!#]gpole') or message.text:match('^[/!#]gpolestats') then
         local poles = redis:keys("global_pole")
         local subpoles = redis:keys("global_subpole")
-        local fails = redis:keys(("global_fail")
+        local fails = redis:keys("global_fail")
         local output = ""
         local emojis = {"1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"}
 
