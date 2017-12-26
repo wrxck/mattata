@@ -136,7 +136,7 @@ function pole:on_message(message, configuration, language)
                 end)
               return keys
             end
-            stats = getKeysSortedByValue(stats, function(a, b) return a < b end)
+            stats = getKeysSortedByValue(stats, function(a, b) return a > b end)
             local counter = 1
             for k, v in pairs(stats) do
                 if counter >= 11 then
