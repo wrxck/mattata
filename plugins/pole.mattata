@@ -166,7 +166,7 @@ function pole:on_message(message, configuration, language)
         return mattata.send_reply(message, output, 'html')
 
 
-    elseif message.text:match('^[/!#]polereset') and is_group_admin(message.chat.id, message.from.id) and message.chat.type ~= "private" then
+    elseif message.text:match('^[/!#]polereset') and mattata.is_group_admin(message.chat.id, message.from.id) and message.chat.type ~= "private" then
         for k, v in pairs(redis:keys('pole:*:'..message.chat.id)) do
             redis:del(v)
         end
