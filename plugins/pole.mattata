@@ -83,9 +83,9 @@ function pole:on_message(message, configuration, language)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
                     else
-                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
                     end
                 end
             end
@@ -111,9 +111,9 @@ function pole:on_message(message, configuration, language)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
                     else
-                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
                     end
                 end
             end
@@ -139,9 +139,9 @@ function pole:on_message(message, configuration, language)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Fails (' .. output_values[k] ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Fails (' .. output_values[k] ..'p)</i>\n'
                     else
-                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Fails (' .. output_values[k] ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Fails (' .. output_values[k] ..'p)</i>\n'
                     end
                 end
             end
@@ -168,9 +168,9 @@ function pole:on_message(message, configuration, language)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis_global[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Points</i>\n'
+                        output = output.. emojis_global[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Points</i>\n'
                     else
-                        output = output.. emojis_global[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Points</i>\n'
+                        output = output.. emojis_global[k] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Points</i>\n'
                     end
                 end
             end
@@ -231,9 +231,9 @@ function pole:on_message(message, configuration, language)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
                     else
-                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
                     end
                 end
             end
@@ -259,9 +259,9 @@ function pole:on_message(message, configuration, language)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
                     else
-                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
                     end
                 end
             end
@@ -287,9 +287,9 @@ function pole:on_message(message, configuration, language)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Fails (' .. output_values[k] ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Fails (' .. output_values[k] ..'p)</i>\n'
                     else
-                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Fails (' .. output_values[k] ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Fails (' .. output_values[k] ..'p)</i>\n'
                     end
                 end
             end
@@ -316,9 +316,9 @@ function pole:on_message(message, configuration, language)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis_global[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Points</i>\n'
+                        output = output.. emojis_global[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Points</i>\n'
                     else
-                        output = output.. emojis_global[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Points</i>\n'
+                        output = output.. emojis_global[k] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Points</i>\n'
                     end
                 end
             end
