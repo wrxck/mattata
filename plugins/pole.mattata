@@ -356,7 +356,7 @@ function pole:on_message(message, configuration, language)
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
             output = output.."\n\n<b>GLOBAL GENERAL RANK</b>\n"
             local stats = redis:hgetall('global_pole_stats')
-            local sortedKeys = pole.getKeysSortedByValue(poles, function(a, b) return a < b end)
+            local sortedKeys = pole.getKeysSortedByValue(stats, function(a, b) return a < b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
