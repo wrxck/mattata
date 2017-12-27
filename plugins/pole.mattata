@@ -178,22 +178,18 @@ function pole:on_message(message, configuration, language)
                 output_values[_] = tonumber(stats[key])
                 output_ids[_] = key
             end
-            local users = {}
-            for k, v in pairs(output_ids) do
-                users[v] = output_values[k]
-            end
             local counter = 1
-            for k, v in pairs(users) do
+            for k, v in pairs(output_ids) do
                 if counter >= 11 then
                     break
                 end
-                user = mattata.get_user(k)
+                user = mattata.get_user(v)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis_global[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Points</i>\n'
+                        output = output.. emojis_global[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Points</i>\n'
                     else
-                        output = output.. emojis_global[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Points</i>\n'
+                        output = output.. emojis_global[counter] .. " " .. user.first_name .. ' => <i>' .. output_ids[k] .. ' Points</i>\n'
                     end
                     counter = counter+1
                 end
