@@ -1,4 +1,4 @@
--- This is a language file for mattata
+-- This is a language file for BarrePolice
 -- Language: pl-pl
 -- Author: GingerPlusPlus
 
@@ -6,7 +6,7 @@
 -- THESE ARE PLACEHOLDERS!
 
 -- DO NOT CHANGE ANY MARKDOWN/HTML FORMATTING!
--- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/mattataDev)
+-- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/BarrePolice)
 
 return {
     ['errors'] = {
@@ -643,7 +643,7 @@ System:
         ['5'] = 'Pobrano plik na serwer, ścieżka: <code>%s</code>.'
     },
     ['version'] = {
-        ['1'] = '@%s AKA %s `[%s]` działa pod kontrolą mattata %s, stworzona przez [Matthew Hesketh](https://t.me/wrxck). Kod źródłowy jest dostępny na [GitHubie](https://github.com/wrxck/mattata).'
+        ['1'] = '@%s AKA %s `[%s]` działa pod kontrolą BarrePolice %s, stworzona przez [Diego Barreiro](https://t.me/barreeeiroo). Kod źródłowy jest dostępny na [GitHubie](https://github.com/barreeeiroo/BarrePolice).'
     },
     ['voteban'] = {
         ['1'] = 'Dla kogo mam otworzyć głosowanie nad banem? Podaj @username lub ID.',

@@ -1,4 +1,4 @@
--- This is a language file for mattata
+-- This is a language file for BarrePolice
 -- Language: de-de
 -- Author: LKD70, CodeNameT1M
 
@@ -6,7 +6,7 @@
 -- THESE ARE PLACEHOLDERS!
 
 -- DO NOT CHANGE ANY MARKDOWN/HTML FORMATTING!
--- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/mattataDev)
+-- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/BarrePolice)
 
 return {
     ['errors'] = {
@@ -409,7 +409,7 @@ System:
         ['18'] = 'Beim erneuten Autorisieren deines Spotify Accounts ist ein Fehler aufgetreten!',
         ['19'] = 'Dein Spotify Account wurde erneut erfolgreich Autorisiert! Deine orginal Anfrage wird bearbeitet...',
         ['20'] = 'Erneutes Autorisieren deines Spotify Accounts, bitte warten...',
-        ['21'] = 'Zum verbinden deines Spotify Accounts musst du mattata autorisieren. Klick [hier](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) and press the green "OKAY" button to link mattata to your Spotify account. After you\'ve done that, send the link you were redirected to (it should begin with "%s", followed by a unique code) in reply to this message.',
+        ['21'] = 'Zum verbinden deines Spotify Accounts musst du BarrePolice autorisieren. Klick [hier](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) and press the green "OKAY" button to link BarrePolice to your Spotify account. After you\'ve done that, send the link you were redirected to (it should begin with "%s", followed by a unique code) in reply to this message.',
         ['22'] = 'Wiedergabeliste',
         ['23'] = 'Benutze Inline Mode',
         ['24'] = 'Lyrics',
@@ -612,7 +612,7 @@ System:
         ['5'] = 'Die Datei wurde erfolgreich hochgelanden zum Server - sie kan gefunden werden mit <code>%s</code>!'
     },
     ['version'] = {
-        ['1'] = '@%s alias %s `[%s]` läuft mit mattata %s, kreiert von [Matthew Hesketh](https://t.me/wrxck). Der Quellcode ist auf [GitHub](https://github.com/wrxck/mattata) zu bekommen.'
+        ['1'] = '@%s alias %s `[%s]` läuft mit BarrePolice %s, kreiert von [Diego Barreiro](https://t.me/barreeeiroo). Der Quellcode ist auf [GitHub](https://github.com/barreeeiroo/BarrePolice) zu bekommen.'
     },
     ['voteban'] = {
         ['1'] = 'Für welchen Benutzer möchtest einen vote-ban(Wahl zur Sperre) eröffnen? Gebe den Benutzer mit dem @Benutzername oder der Identifikationsnummer an.',
