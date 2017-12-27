@@ -70,7 +70,7 @@ function gblacklist:on_message(message, configuration, language)
     end
 
     local banned_users = 0
-    for input in input:gmatch("%w+") do
+    for input in input:gmatch("%S+") do
         local continue = true
         if tonumber(input) == nil
         and not input:match('^@')
