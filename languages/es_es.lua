@@ -1,4 +1,4 @@
--- This is a language file for mattata
+-- This is a language file for BarrePolice
 -- Language: es-es
 -- Author: Diego Barreiro (@barreeeiroo)
 
@@ -6,7 +6,7 @@
 -- THESE ARE PLACEHOLDERS!
 
 -- DO NOT CHANGE ANY MARKDOWN/HTML FORMATTING!
--- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/mattataDev)
+-- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/BarrePolice)
 
 return {
     ['errors'] = {
@@ -571,7 +571,7 @@ Sistema:
         ['5'] = 'Successfully downloaded the file to the server - it can be found at <code>%s</code>!'
     },
     ['version'] = {
-        ['1'] = '@%s AKA %s `[%s]` is running mattata %s, created by [Matthew Hesketh](https://t.me/wrxck). The source code is available on [GitHub](https://github.com/wrxck/mattata).'
+        ['1'] = '@%s AKA %s `[%s]` is running BarrePolice %s, created by [Duegi Barreiro](https://t.me/barreeeiroo). The source code is available on [GitHub](https://github.com/barreeeiroo/BarrePolice).'
     },
     ['voteban'] = {
         ['1'] = 'Which user would you like to open up a vote-ban for? You can specify this user by their @username or numerical ID.',

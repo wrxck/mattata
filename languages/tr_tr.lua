@@ -1,4 +1,4 @@
--- This is a language file for mattata
+-- This is a language file for BarrePolice
 -- Language: tr-tr
 -- Author: By_Azade
 
@@ -6,7 +6,7 @@
 -- THESE ARE PLACEHOLDERS!
 
 -- DO NOT CHANGE ANY MARKDOWN/HTML FORMATTING!
--- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/mattataDev)
+-- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/BarrePolice)
 
 return {
     ['errors'] = {
@@ -48,7 +48,7 @@ return {
     ['ban'] = {
         ['1'] = 'Hangi kullanıcı banlamamı istersiniz? Bu kullanıcıyı @kulanıcıadı şeklinde veya kullanıcı IDsi ile belirtebilirsin.',
         ['2'] = 'Bu kullanıcıyı, bu sohbette bir moderatör veya yönetici oldukları için banlayamam.',
-        ['3'] = 'Bu sohbetten ayrıldığı için bu kullanıcıyı banyalamam.',
+        ['3'] = 'Bu sohbetten ayrıldığı için bu kullanıcıyı banlayamam.',
         ['4'] = 'Bu sohbetten zaten banlandıkları için bu kullanıcıyı banlayamam.',
         ['5'] = 'Bu kullanıcıyı banlamam için admin izinlerine sahip olmam gerekiyor. Lütfen bu sorunu düzeltip tekrar deneyin.'
     },
@@ -397,7 +397,7 @@ Sistem:
         ['18'] = 'Spotify hesabınızı yeniden yetkilendirirken bir hata oluştu.!',
         ['19'] = 'Spotify hesabınız başarılı bir şekilde yeniden yetkilendirildi! İsteğinizi işleme koyabilirsiniz....',
         ['20'] = 'Spotify hesabınızı yeniden yetkilendirilecek, lütfen bekleyin...',
-        ['21'] = 'Spotify hesabınızı bağlamak için mattatayı yetkilendirmeniz gerekir. Tıklayın [buraya](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) Mattatayı Spotify hesabınıza bağlamak için yeşil "Tamam" düğmesine basın. Bunu yaptıktan sonra, yönlendirilen bağlantıyı şu adrese gönderin: ("%s" ile başlamalı ve onu benzersiz bir kod takip etmelidir).',
+        ['21'] = 'Spotify hesabınızı bağlamak için BarrePoliceyı yetkilendirmeniz gerekir. Tıklayın [buraya](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) Mattatayı Spotify hesabınıza bağlamak için yeşil "Tamam" düğmesine basın. Bunu yaptıktan sonra, yönlendirilen bağlantıyı şu adrese gönderin: ("%s" ile başlamalı ve onu benzersiz bir kod takip etmelidir).',
         ['22'] = 'Çalma listeleri',
         ['23'] = 'Satıriçi Modu Kullan',
         ['24'] = 'Şarkı sözleri',
@@ -476,7 +476,7 @@ Sistem:
     ['report'] = {
         ['1'] = 'Lütfen grubun yöneticilerine bildirmek istediğiniz iletiyi yanıtlayın.',
         ['2'] = 'Kendi mesajlarınızı bildiremezsiniz, sadece komik olmaya mı çalışıyorsunuz?',
-        ['3'] = '<b>%s içinde yardıma ihtiyacı var %s!</b>',
+        ['3'] = '<b>%s nun %s! içinde yardıma ihtiyacı var! </b>',
         ['4'] = 'Bildirilen mesajı görüntülemek için burayı tıklayın.',
         ['5'] = 'Bu mesajı  %s admin(ler) e başarıyla rapor ettim.!'
     },

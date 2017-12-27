@@ -7,7 +7,7 @@
 
       v1.2.0
 
-      Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+      Copyright 2017 Matthew Hesketh <wrxck0@gmail.com> & Diego Barreiro <diego@makeroid.io>
       See LICENSE for details
 
 ]]
