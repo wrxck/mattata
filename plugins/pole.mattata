@@ -17,39 +17,45 @@ function pole:on_message(message, configuration, language)
         local poles = redis:keys("pole:*:"..message.chat.id)
         local subpoles = redis:keys("subpole:*:"..message.chat.id)
         local fails = redis:keys("fail:*:"..message.chat.id)
-        local latest_pole = redis:hget("latest_pole:" .. message.chat.id, "date") or 0
-        local latest_subpole = redis:hget("latest_subpole:" .. message.chat.id, "date") or 0
-        local latest_fail = redis:hget("latest_fail:" .. message.chat.id, "date") or 0
+        local latest_pole = redis:hget("latest_pole:" .. message.chat.id, "date") or false
+        local latest_subpole = redis:hget("latest_subpole:" .. message.chat.id, "date") or false
+        local latest_fail = redis:hget("latest_fail:" .. message.chat.id, "date") or false
         local output = ""
 
         if latest_pole then
             local user = mattata.get_user(redis:hget('pole:'..latest_pole..":"..message.chat.id, 'user'))
-            user = user.result
-            output = output.. "<b>Latest Pole done by</b> "
-            if user.username then
-                output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. latest_pole .. " " .. redis:hget('pole:'..latest_pole..":"..message.chat.id, 'time') .. "</i>\n"
-            else
-                output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_pole .. " " .. redis:hget('pole:'..latest_pole..":"..message.chat.id, 'time') .. "</i>\n"
+            if user then
+                user = user.result
+                output = output.. "<b>Latest Pole done by</b> "
+                if user.username then
+                    output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. latest_pole .. " " .. redis:hget('pole:'..latest_pole..":"..message.chat.id, 'time') .. "</i>\n"
+                else
+                    output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_pole .. " " .. redis:hget('pole:'..latest_pole..":"..message.chat.id, 'time') .. "</i>\n"
+                end
             end
         end
         if latest_subpole then
             local user = mattata.get_user(redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'user'))
-            user = user.result
-            output = output.. "<b>Latest Subole done by</b> "
-            if user.username then
-                output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. latest_subpole .. " " .. redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'time') .. "</i>\n"
-            else
-                output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_subpole .. " " .. redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'time') .. "</i>\n"
+            if user then
+                user = user.result
+                output = output.. "<b>Latest Subole done by</b> "
+                if user.username then
+                    output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. latest_subpole .. " " .. redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'time') .. "</i>\n"
+                else
+                    output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_subpole .. " " .. redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'time') .. "</i>\n"
+                end
             end
         end
         if latest_fail then
             local user = mattata.get_user(redis:hget('fail:'..latest_fail..":"..message.chat.id, 'user'))
-            user = user.result
-            output = output.. "<b>Latest Fail done by</b> "
-            if user.username then
-                output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. latest_fail .. " " .. redis:hget('fail:'..latest_fail..":"..message.chat.id, 'time') .. "</i>\n"
-            else
-                output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_fail .. " " .. redis:hget('fail:'..latest_fail..":"..message.chat.id, 'time') .. "</i>\n"
+            if user then
+                user = user.result
+                output = output.. "<b>Latest Fail done by</b> "
+                if user.username then
+                    output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. latest_fail .. " " .. redis:hget('fail:'..latest_fail..":"..message.chat.id, 'time') .. "</i>\n"
+                else
+                    output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_fail .. " " .. redis:hget('fail:'..latest_fail..":"..message.chat.id, 'time') .. "</i>\n"
+                end
             end
         end
 
