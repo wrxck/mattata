@@ -13,11 +13,10 @@ local json = require('dkjson')
 
 function hearthstone:init(configuration)
     hearthstone.commands = mattata.commands(self.info.username):command('hearthstone'):command('hs').table
-    hearthstone.help = '/hearthstone [YYYY-MM-DD] - Returns Hearthstone card info. Alias: /hs'
+    hearthstone.help = '/hearthstone <card> - Returns Hearthstone card info. Alias: /hs'
 end
 
 local function format_card(card)
-
     local ctype = card.type
     if card.race then
         ctype = card.race
@@ -74,7 +73,7 @@ end
 
 function hearthstone:on_message(message, configuration, language)
     if not redis:hget('hearthstone', 'downloaded') or os.time() > redis:hget('hearthstone', 'expiration') then
-        print('[31mDownloading Hearthstone database...[0m')
+        print(string.char(27)..'[31mDownloading Hearthstone database...'..string.char(27)..'[0m')
         local jstr, res = https.request('https://api.hearthstonejson.com/v1/latest/enUS/cards.json')
         redis:hset('hearthstone', 'database', json.decode(jstr))
         redis:hset('hearthstone', 'expiration', os.time() + 600000)
