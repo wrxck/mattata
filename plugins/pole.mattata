@@ -8,7 +8,7 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 
 function pole:init()
-    pole.commands = mattata.commands(self.info.username):command('pole'):command('polestats'):command('polereset'):command('gpole'):command('gpolestats'):command('greset').table
+    pole.commands = mattata.commands(self.info.username):command('pole'):command('polestats'):command('polereset'):command('gpole'):command('gpolestats'):command('gpolereset').table
     pole.help = '/pole - Get the stats for the pole.'
 end
 
@@ -338,7 +338,7 @@ function pole:on_message(message, configuration, language)
         return mattata.send_reply(message, output, 'html')
 
 
-    elseif message.text:match('^[/!#]greset') and mattata.is_global_admin(message.from.id) then
+    elseif message.text:match('^[/!#]gpolereset') and mattata.is_global_admin(message.from.id) then
         local input = mattata.input(message)
         if message.reply then
             input = message.reply.from.id
@@ -350,7 +350,7 @@ function pole:on_message(message, configuration, language)
         redis:hdel('global_subpole', input)
         redis:hdel('global_fail', input)
         redis:hdel('global_pole_stats', input)
-        return mattata.send_reply(message, 'Successfully reset pole stats!')
+        return mattata.send_reply(message, 'Successfully resetted pole stats!')
     end
 end
 
