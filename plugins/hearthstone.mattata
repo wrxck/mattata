@@ -6,6 +6,7 @@
 
 local hearthstone = {}
 local mattata = require('mattata')
+local redis = dofile('libs/redis.lua')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
