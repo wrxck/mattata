@@ -228,6 +228,7 @@ mattata.is_pole_done = utils.is_pole_done
 mattata.is_subpole_done = utils.is_subpole_done
 mattata.is_fail_done = utils.is_fail_done
 mattata.split = utils.split
+mattata.getKeysSortedByValue = utils.getKeysSortedByValue
 
 function mattata:run(configuration, token)
 -- mattata's main long-polling function which repeatedly checks the Telegram bot API for updates.

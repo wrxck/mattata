@@ -12,19 +12,6 @@ function pole:init()
     pole.help = '/pole - Get the stats for the pole.'
 end
 
-function pole.getKeysSortedByValue(tbl, sortFunction)
-  local keys = {}
-  for key in pairs(tbl) do
-    table.insert(keys, key)
-  end
-
-  table.sort(keys, function(a, b)
-    return sortFunction(tbl[a], tbl[b])
-  end)
-
-  return keys
-end
-
 function pole:on_message(message, configuration, language)
     if (message.text:match('^[/!#]pole') or message.text:match('^[/!#]polestats')) and not message.text:match('^[/!#]polereset') and message.chat.type ~= "private" then
         local poles = redis:keys("pole:*:"..message.chat.id)
@@ -81,7 +68,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('pole_stats:' .. message.chat.id)) do
                 poles[user] = tonumber(value)
             end
-            local sortedKeys = pole.getKeysSortedByValue(poles, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(poles, function(a, b) return a < b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
@@ -115,7 +102,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('subpole_stats:' .. message.chat.id)) do
                 subpoles[user] = tonumber(value)
             end
-            local sortedKeys = pole.getKeysSortedByValue(subpoles, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(subpoles, function(a, b) return a < b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
@@ -149,7 +136,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('fail_stats:' .. message.chat.id)) do
                 fails[user] = tonumber(value)
             end
-            local sortedKeys = pole.getKeysSortedByValue(fails, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(fails, function(a, b) return a < b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
@@ -184,7 +171,7 @@ function pole:on_message(message, configuration, language)
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
             output = output.."\n\n<b>GROUP RANK</b>\n"
             local stats = redis:hgetall('group_pole_stats:' .. message.chat.id)
-            local sortedKeys = pole.getKeysSortedByValue(stats, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(stats, function(a, b) return a < b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
@@ -253,7 +240,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('global_pole')) do
                 poles[user] = tonumber(value)
             end
-            local sortedKeys = pole.getKeysSortedByValue(poles, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(poles, function(a, b) return a < b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
@@ -287,7 +274,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('global_subpole')) do
                 subpoles[user] = tonumber(value)
             end
-            local sortedKeys = pole.getKeysSortedByValue(subpoles, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(subpoles, function(a, b) return a < b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
@@ -321,7 +308,7 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('global_fail')) do
                 fails[user] = tonumber(value)
             end
-            local sortedKeys = pole.getKeysSortedByValue(fails, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(fails, function(a, b) return a < b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
@@ -356,7 +343,7 @@ function pole:on_message(message, configuration, language)
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
             output = output.."\n\n<b>GLOBAL GENERAL RANK</b>\n"
             local stats = redis:hgetall('global_pole_stats')
-            local sortedKeys = pole.getKeysSortedByValue(stats, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(stats, function(a, b) return a < b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do

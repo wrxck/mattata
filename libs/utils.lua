@@ -21,6 +21,19 @@ function utils.split(s, delimiter)
     return result
 end
 
+function utils.getKeysSortedByValue(tbl, sortFunction)
+  local keys = {}
+  for key in pairs(tbl) do
+    table.insert(keys, key)
+  end
+
+  table.sort(keys, function(a, b)
+    return sortFunction(tbl[a], tbl[b])
+  end)
+
+  return keys
+end
+
 function utils.is_trusted_user(chat_id, user_id)
     if redis:sismember('administration:' .. chat_id .. ':trusted', user_id) then
         return true
