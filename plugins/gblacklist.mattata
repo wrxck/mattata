@@ -81,7 +81,7 @@ function gblacklist:on_message(message, configuration, language)
         or mattata.get_chat(input)
         if not resolved
         then
-            continue == false
+            continue = false
             mattata.send_reply(
                 message,
                 string.format(
