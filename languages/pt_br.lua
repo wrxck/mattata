@@ -278,7 +278,6 @@ Redis:
 %s Contagem de Utilizadores: %s
 %s Contagem de Grupos: %s
 %s Received Messages Count: %s
-%s Sent Messages Count: %s
 %s Received CallbackQueries Count: %s
 %s Received InlineQueries Count: %s
 

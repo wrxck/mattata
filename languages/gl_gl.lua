@@ -275,7 +275,6 @@ Redis:
 %s User Count: %s
 %s Group Count: %s
 %s Mensaxes Recibidos: %s
-%s Mensaxes Enviados: %s
 %s Mensakes Callback Recibidos: %s
 %s Mensakes Inline Recibidos: %s
 

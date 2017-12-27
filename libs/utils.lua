@@ -236,7 +236,6 @@ function utils.get_inline_list(query, offset)
 end
 
 function utils.send_reply(message, text, parse_mode, disable_web_page_preview, reply_markup, token)
-    redis:incr('stats:messages:sent')
     reply_markup = reply_markup or {
         ['remove_keyboard'] = true
     }
@@ -329,10 +328,6 @@ end
 
 function utils.get_received_messages_count()
     return tonumber(redis:get('stats:messages:received')) or 0
-end
-
-function utils.get_sent_messages_count()
-    return tonumber(redis:get('stats:messages:sent')) or 0
 end
 
 function utils.get_received_callbacks_count()

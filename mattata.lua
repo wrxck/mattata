@@ -220,7 +220,6 @@ mattata.is_user_blacklisted = utils.is_user_blacklisted
 mattata.input = utils.input
 mattata.get_message_statistics = utils.get_message_statistics
 mattata.get_received_messages_count = utils.get_received_messages_count
-mattata.get_sent_messages_count = utils.get_sent_messages_count
 mattata.get_received_callbacks_count = utils.get_received_callbacks_count
 mattata.get_received_inlines_count = utils.get_received_inlines_count
 mattata.case_insensitive_pattern = utils.case_insensitive_pattern

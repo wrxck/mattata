@@ -278,7 +278,6 @@ Redis:
 %s Usar Cownt: %s
 %s Gruip Cownt: %s
 %s Received Messages Count: %s
-%s Sent Messages Count: %s
 %s Received CallbackQueries Count: %s
 %s Received InlineQueries Count: %s
 

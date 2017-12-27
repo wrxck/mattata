@@ -305,7 +305,6 @@ Redis:
 %s liczba użytkowników: %s
 %s liczba grup: %s
 %s Received Messages Count: %s
-%s Sent Messages Count: %s
 %s Received CallbackQueries Count: %s
 %s Received InlineQueries Count: %s
 
