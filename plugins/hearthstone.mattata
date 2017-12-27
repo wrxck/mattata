@@ -74,7 +74,7 @@ end
 function hearthstone:on_message(message, configuration, language)
     if not redis:hget('hearthstone', 'downloaded') or os.time() > redis:hget('hearthstone', 'expiration') then
         print(string.char(27)..'[31mDownloading Hearthstone database...'..string.char(27)..'[0m')
-        local jstr, res = https.request('https://api.hearthstonejson.com/v1/latest/enUS/cards.json')
+        local jstr, res = https.request('https://api.hearthstonejson.com/v1/22611/enUS/cards.json')
         redis:hset('hearthstone', 'database', json.decode(jstr))
         redis:hset('hearthstone', 'expiration', os.time() + 600000)
         redis:hset('hearthstone', 'downloaded', true)
