@@ -82,15 +82,15 @@ function pole:on_message(message, configuration, language)
                 poles[user] = tonumber(value)
             end
             local sortedKeys = pole.getKeysSortedByValue(poles, function(a, b) return a > b end)
-            local output = {}
+            local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
-                output[_] = subpoles[key]
+                output_values[_] = subpoles[key]
                 output_ids[_] = key
             end
             local users = {}
             for k, v in pairs(output_ids) do
-                users[v] = output[k]
+                users[v] = output_values[k]
             end
             local counter = 1
             for k, v in pairs(users) do
@@ -116,15 +116,15 @@ function pole:on_message(message, configuration, language)
                 subpoles[user] = value
             end
             local sortedKeys = pole.getKeysSortedByValue(subpoles, function(a, b) return a > b end)
-            local output = {}
+            local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
-                output[_] = subpoles[key]
+                output_values[_] = subpoles[key]
                 output_ids[_] = key
             end
             local users = {}
             for k, v in pairs(output_ids) do
-                users[v] = output[k]
+                users[v] = output_values[k]
             end
             local counter = 1
             for k, v in pairs(users) do
@@ -150,15 +150,15 @@ function pole:on_message(message, configuration, language)
                 fails[user] = value
             end
             local sortedKeys = pole.getKeysSortedByValue(fails, function(a, b) return a > b end)
-            local output = {}
+            local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
-                output[_] = fails[key]
+                output_values[_] = fails[key]
                 output_ids[_] = key
             end
             local users = {}
             for k, v in pairs(output_ids) do
-                users[v] = output[k]
+                users[v] = output_values[k]
             end
             local counter = 1
             for k, v in pairs(users) do
@@ -185,15 +185,15 @@ function pole:on_message(message, configuration, language)
             output = output.."\n\n<b>GROUP RANK</b>\n"
             local stats = redis:hgetall('group_pole_stats:' .. message.chat.id)
             local sortedKeys = pole.getKeysSortedByValue(stats, function(a, b) return a > b end)
-            local output = {}
+            local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
-                output[_] = stats[key]
+                output_values[_] = stats[key]
                 output_ids[_] = key
             end
             local users = {}
             for k, v in pairs(output_ids) do
-                users[v] = output[k]
+                users[v] = output_values[k]
             end
             local counter = 1
             for k, v in pairs(users) do
