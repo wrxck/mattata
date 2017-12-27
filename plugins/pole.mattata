@@ -22,7 +22,7 @@ function pole:on_message(message, configuration, language)
         local latest_fail = redis:hget("latest_fail:" .. message.chat.id, "date") or 0
         local output = ""
 
-        if #latest_pole > 0 then
+        if latest_pole then
             local user = mattata.get_user(redis:hget('pole:'..latest_pole..":"..message.chat.id, 'user'))
             user = user.result
             output = output.. "<b>Latest Pole done by</b> "
@@ -32,7 +32,7 @@ function pole:on_message(message, configuration, language)
                 output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_pole .. " " .. redis:hget('pole:'..latest_pole..":"..message.chat.id, 'time') .. "</i>\n"
             end
         end
-        if #latest_subpole > 0 then
+        if latest_subpole then
             local user = mattata.get_user(redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'user'))
             user = user.result
             output = output.. "<b>Latest Subole done by</b> "
@@ -42,7 +42,7 @@ function pole:on_message(message, configuration, language)
                 output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_subpole .. " " .. redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'time') .. "</i>\n"
             end
         end
-        if #latest_fail > 0 then
+        if latest_fail then
             local user = mattata.get_user(redis:hget('fail:'..latest_fail..":"..message.chat.id, 'user'))
             user = user.result
             output = output.. "<b>Latest Fail done by</b> "
