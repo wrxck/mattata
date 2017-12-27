@@ -8,7 +8,12 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 
 function pole:init()
-    pole.commands = mattata.commands(self.info.username):command('pole'):command('polestats'):command('polereset'):command('gpole'):command('gpolestats'):command('gpolereset'):command('gpoleban').table
+    pole.commands = mattata.commands(self.info.username)
+    :command('pole'):command('polestats')
+    :command('polereset')
+    :command('gpole'):command('gpolestats')
+    :command('gpolereset')
+    :command('gpoleban'):command('gpoleunban').table
     pole.help = '/pole - Get the stats for the pole.'
 end
 
@@ -365,6 +370,16 @@ function pole:on_message(message, configuration, language)
             true
         )
         return mattata.send_reply(message, 'Successfully banned! Remember that stats are still saved. Run /gpolereset ID to remove them')
+    elseif message.text:match('^[/!#]gpoleunban') and mattata.is_global_admin(message.from.id) then
+        local input = mattata.input(message)
+        if message.reply then
+            input = message.reply.from.id
+        end
+        if not input then
+            return mattata.send_reply(message, 'Please specify an user to unban from the global pole stats')
+        end
+        redis:hdel('pole_blacklist:' .. input)
+        return mattata.send_reply(message, 'Successfully unbanned!')
     end
 end
 
