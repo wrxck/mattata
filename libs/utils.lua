@@ -13,6 +13,27 @@ function utils:init(configuration, token)
     return utils
 end
 
+function utils.split(s, delimiter)
+    result = {};
+    for match in (s..delimiter):gmatch("(.-)"..delimiter) do
+        table.insert(result, match)
+    end
+    return result
+end
+
+function utils.getKeysSortedByValue(tbl, sortFunction)
+  local keys = {}
+  for key in pairs(tbl) do
+    table.insert(keys, key)
+  end
+
+  table.sort(keys, function(a, b)
+    return sortFunction(tbl[a], tbl[b])
+  end)
+
+  return keys
+end
+
 function utils.is_trusted_user(chat_id, user_id)
     if redis:sismember('administration:' .. chat_id .. ':trusted', user_id) then
         return true
@@ -320,6 +341,41 @@ end
 
 function utils.get_received_inlines_count()
     return tonumber(redis:get('stats:inlines:received')) or 0
+end
+
+function utils.case_insensitive_pattern(pattern)
+  local p = pattern:gsub("(%%?)(.)", function(percent, letter)
+    if percent ~= "" or not letter:match("%a") then
+      return percent .. letter
+    else
+      return string.format("[%s%s]", letter:lower(), letter:upper())
+    end
+  end)
+  return p
+end
+
+function utils.is_pole_done(chat_id, user_id)
+    local date = os.date("%x")
+    if not redis:hexists('pole:' .. date .. ':' .. chat_id, 'user') then
+        return false
+    end
+    return true
+end
+
+function utils.is_subpole_done(chat_id, user_id)
+    local date = os.date("%x")
+    if not redis:hexists('subpole:' .. date .. ':' .. chat_id, 'user') and tonumber(redis:hget('pole:' .. date .. ':' .. chat_id, 'user')) ~= tonumber(user_id) then
+        return false
+    end
+    return true
+end
+
+function utils.is_fail_done(chat_id, user_id)
+    local date = os.date("%x")
+    if not redis:hexists('fail:' .. date .. ':' .. chat_id, 'user') and tonumber(redis:hget('pole:' .. date .. ':' .. chat_id, 'user')) ~= tonumber(user_id) and tonumber(redis:hget('subpole:' .. date .. ':' .. chat_id, 'user')) ~= tonumber(user_id) then
+        return false
+    end
+    return true
 end
 
 function utils.reset_message_statistics(chat_id)
@@ -854,7 +910,7 @@ function utils.is_user_blacklisted(message)
     local group = redis:get('group_blacklist:' .. message.chat.id .. ':' .. message.from.id) -- Check
     -- if the user is blacklisted from using the bot in the current group, or globally for that matter.
     if global or group then
-        if global and message.chat.type ~= 'private' and mattata.get_setting(message.chat.id, 'apply global blacklist')and not redis:sismember('global_blacklist_unban:' .. message.chat.id, message.from.id) then
+        if global and message.chat.type ~= 'private' and not redis:sismember('global_blacklist_unban:' .. message.chat.id, message.from.id) and redis:hget('chat:' .. message.chat.id .. ':settings', 'apply global blacklist') then
         -- If the user is globally blacklisted, and they haven't been banned before for this reason, add them to a set to exclude them from future checks.
             local success = api.ban_chat_member(message.chat.id, message.from.id) -- Attempt to ban the blacklisted user.
             local output = message.from.first_name .. ' [' .. message.from.id .. '] is globally blacklisted.'
