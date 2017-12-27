@@ -226,6 +226,7 @@ mattata.case_insensitive_pattern = utils.case_insensitive_pattern
 mattata.is_pole_done = utils.is_pole_done
 mattata.is_subpole_done = utils.is_subpole_done
 mattata.is_fail_done = utils.is_fail_done
+mattata.is_pole_blacklisted = utils.is_pole_blacklisted
 mattata.split = utils.split
 mattata.getKeysSortedByValue = utils.getKeysSortedByValue
 
@@ -585,8 +586,10 @@ function mattata:process_plugin_extras()
             redis:hset('latest_pole:' .. message.chat.id, 'date', os.date("%x"))
             redis:hset('pole_stats:' .. message.chat.id, message.from.id, math.floor(tonumber(redis:hget('pole_stats:' .. message.chat.id, message.from.id) or 0)+1))
             redis:hset('group_pole_stats:' .. message.chat.id, message.from.id, math.floor(tonumber(redis:hget('group_pole_stats:' .. message.chat.id, message.from.id) or 0)+5))
-            redis:hset('global_pole', message.from.id, math.floor(tonumber(redis:hget('global_pole', message.from.id) or 0)+1))
-            redis:hset('global_pole_stats', message.from.id, math.floor(tonumber(redis:hget('global_pole_stats', message.from.id) or 0)+5))
+            if not mattata.is_pole_blacklisted(message.from.id) then
+                redis:hset('global_pole', message.from.id, math.floor(tonumber(redis:hget('global_pole', message.from.id) or 0)+1))
+                redis:hset('global_pole_stats', message.from.id, math.floor(tonumber(redis:hget('global_pole_stats', message.from.id) or 0)+5))
+            end
             mattata.send_reply(message, message.from.first_name.." has done the POLE!")
         elseif (message.text:match('^'..mattata.case_insensitive_pattern('subpole')) or message.text:match('^'..mattata.case_insensitive_pattern('plata')) or message.text:match('^'..mattata.case_insensitive_pattern('sub'))) and not mattata.is_subpole_done(message.chat.id, message.from.id) then
             redis:hset('subpole:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
@@ -594,8 +597,10 @@ function mattata:process_plugin_extras()
             redis:hset('latest_subpole:' .. message.chat.id, 'date', os.date("%x"))
             redis:hset('subpole_stats:' .. message.chat.id, message.from.id, math.floor(tonumber(redis:hget('subpole_stats:' .. message.chat.id, message.from.id) or 0)+1))
             redis:hset('group_pole_stats:' .. message.chat.id, message.from.id, math.floor(tonumber(redis:hget('group_pole_stats:' .. message.chat.id, message.from.id) or 0)+3))
-            redis:hset('global_subpole', message.from.id, math.floor(tonumber(redis:hget('global_subpole', message.from.id) or 0)+1))
-            redis:hset('global_pole_stats', message.from.id, math.floor(tonumber(redis:hget('global_pole_stats', message.from.id) or 0)+3))
+            if not mattata.is_pole_blacklisted(message.from.id) then
+                redis:hset('global_subpole', message.from.id, math.floor(tonumber(redis:hget('global_subpole', message.from.id) or 0)+1))
+                redis:hset('global_pole_stats', message.from.id, math.floor(tonumber(redis:hget('global_pole_stats', message.from.id) or 0)+3))
+            end
             mattata.send_reply(message, message.from.first_name.." has done the SUBPOLE")
         elseif (message.text:match('^'..mattata.case_insensitive_pattern('fail')) or message.text:match('^'..mattata.case_insensitive_pattern('bronce'))) and not mattata.is_fail_done(message.chat.id, message.from.id) then
             redis:hset('fail:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
@@ -603,8 +608,10 @@ function mattata:process_plugin_extras()
             redis:hset('latest_fail:' .. message.chat.id, 'date', os.date("%x"))
             redis:hset('fail_stats:' .. message.chat.id, message.from.id, math.floor(tonumber(redis:hget('fail_stats:' .. message.chat.id, message.from.id) or 0)+1))
             redis:hset('group_pole_stats:' .. message.chat.id, message.from.id, math.floor(tonumber(redis:hget('group_pole_stats:' .. message.chat.id, message.from.id) or 0)+1))
-            redis:hset('global_fail', message.from.id, math.floor(tonumber(redis:hget('global_fail', message.from.id) or 0)+1))
-            redis:hset('global_pole_stats', message.from.id, math.floor(tonumber(redis:hget('global_pole_stats', message.from.id) or 0)+1))
+            if not mattata.is_pole_blacklisted(message.from.id) then
+                redis:hset('global_fail', message.from.id, math.floor(tonumber(redis:hget('global_fail', message.from.id) or 0)+1))
+                redis:hset('global_pole_stats', message.from.id, math.floor(tonumber(redis:hget('global_pole_stats', message.from.id) or 0)+1))
+            end
             mattata.send_reply(message, message.from.first_name.." has done a FAIL, sad")
         end
     end

@@ -918,6 +918,13 @@ function utils.is_user_blacklisted(message)
     return false
 end
 
+function utils.is_pole_blacklisted(user_id)
+    if redis:get('pole_blacklist:' .. user.id) then
+        return true
+    end
+    return false
+end
+
 function utils.get_message_statistics(self)
     local message = self.message
     local language = self.language

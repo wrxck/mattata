@@ -351,6 +351,20 @@ function pole:on_message(message, configuration, language)
         redis:hdel('global_fail', input)
         redis:hdel('global_pole_stats', input)
         return mattata.send_reply(message, 'Successfully resetted pole stats!')
+
+    elseif message.text:match('^[/!#]gpoleban') and mattata.is_global_admin(message.from.id) then
+        local input = mattata.input(message)
+        if message.reply then
+            input = message.reply.from.id
+        end
+        if not input then
+            return mattata.send_reply(message, 'Please specify an user to ban from the global pole stats')
+        end
+        redis:set(
+            'pole_blacklist:' .. input,
+            true
+        )
+        return mattata.send_reply(message, 'Successfully banned! Remember that stats are still saved. Run /gpolereset ID to remove them')
     end
 end
 
