@@ -919,7 +919,7 @@ function utils.is_user_blacklisted(message)
 end
 
 function utils.is_pole_blacklisted(user_id)
-    if redis:get('pole_blacklist:' .. user.id) then
+    if redis:get('pole_blacklist:' .. user_id) then
         return true
     end
     return false
