@@ -68,31 +68,25 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('pole_stats:' .. message.chat.id)) do
                 poles[user] = tonumber(value)
             end
-            local sortedKeys = mattata.getKeysSortedByValue(poles, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(poles, function(a, b) return a > b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
                 output_values[_] = tonumber(poles[key])
                 output_ids[_] = key
             end
-            local users = {}
             for k, v in pairs(output_ids) do
-                users[v] = output_values[k]
-            end
-            local counter = 1
-            for k, v in pairs(users) do
-                if counter >= 11 then
+                if k >= 11 then
                     break
                 end
-                user = mattata.get_user(k)
+                user = mattata.get_user(v)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Poles (' .. math.floor(v*5) ..'p)</i>\n'
+                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
                     else
-                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Poles (' .. math.floor(v*5) ..'p)</i>\n'
+                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
                     end
-                    counter = counter+1
                 end
             end
         end
@@ -102,31 +96,25 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('subpole_stats:' .. message.chat.id)) do
                 subpoles[user] = tonumber(value)
             end
-            local sortedKeys = mattata.getKeysSortedByValue(subpoles, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(subpoles, function(a, b) return a > b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
                 output_values[_] = tonumber(subpoles[key])
                 output_ids[_] = key
             end
-            local users = {}
             for k, v in pairs(output_ids) do
-                users[v] = output_values[k]
-            end
-            local counter = 1
-            for k, v in pairs(users) do
-                if counter >= 11 then
+                if k >= 11 then
                     break
                 end
-                user = mattata.get_user(k)
+                user = mattata.get_user(v)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Subpoles (' .. math.floor(v*3) ..'p)</i>\n'
+                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
                     else
-                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Subpoles (' .. math.floor(v*3) ..'p)</i>\n'
+                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
                     end
-                    counter = counter+1
                 end
             end
         end
@@ -136,31 +124,25 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('fail_stats:' .. message.chat.id)) do
                 fails[user] = tonumber(value)
             end
-            local sortedKeys = mattata.getKeysSortedByValue(fails, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(fails, function(a, b) return a > b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
                 output_values[_] = tonumber(fails[key])
                 output_ids[_] = key
             end
-            local users = {}
             for k, v in pairs(output_ids) do
-                users[v] = output_values[k]
-            end
-            local counter = 1
-            for k, v in pairs(users) do
-                if counter >= 11 then
+                if k >= 11 then
                     break
                 end
-                user = mattata.get_user(k)
+                user = mattata.get_user(v)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Fails (' .. v ..'p)</i>\n'
+                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Fails (' .. output_values[k] ..'p)</i>\n'
                     else
-                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Fails (' .. v ..'p)</i>\n'
+                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Fails (' .. output_values[k] ..'p)</i>\n'
                     end
-                    counter = counter+1
                 end
             end
         end
@@ -171,16 +153,15 @@ function pole:on_message(message, configuration, language)
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
             output = output.."\n\n<b>GROUP RANK</b>\n"
             local stats = redis:hgetall('group_pole_stats:' .. message.chat.id)
-            local sortedKeys = mattata.getKeysSortedByValue(stats, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(stats, function(a, b) return a > b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
                 output_values[_] = tonumber(stats[key])
                 output_ids[_] = key
             end
-            local counter = 1
             for k, v in pairs(output_ids) do
-                if counter >= 11 then
+                if k >= 11 then
                     break
                 end
                 user = mattata.get_user(v)
@@ -189,9 +170,8 @@ function pole:on_message(message, configuration, language)
                     if user.username then
                         output = output.. emojis_global[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Points</i>\n'
                     else
-                        output = output.. emojis_global[counter] .. " " .. user.first_name .. ' => <i>' .. output_ids[k] .. ' Points</i>\n'
+                        output = output.. emojis_global[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Points</i>\n'
                     end
-                    counter = counter+1
                 end
             end
         end
@@ -236,31 +216,25 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('global_pole')) do
                 poles[user] = tonumber(value)
             end
-            local sortedKeys = mattata.getKeysSortedByValue(poles, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(poles, function(a, b) return a > b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
                 output_values[_] = tonumber(poles[key])
                 output_ids[_] = key
             end
-            local users = {}
             for k, v in pairs(output_ids) do
-                users[v] = output_values[k]
-            end
-            local counter = 1
-            for k, v in pairs(users) do
-                if counter >= 11 then
+                if k >= 11 then
                     break
                 end
-                user = mattata.get_user(k)
+                user = mattata.get_user(v)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Poles (' .. math.floor(v*5) ..'p)</i>\n'
+                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
                     else
-                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Poles (' .. math.floor(v*5) ..'p)</i>\n'
+                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
                     end
-                    counter = counter+1
                 end
             end
         end
@@ -270,31 +244,25 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('global_subpole')) do
                 subpoles[user] = tonumber(value)
             end
-            local sortedKeys = mattata.getKeysSortedByValue(subpoles, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(subpoles, function(a, b) return a > b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
                 output_values[_] = tonumber(subpoles[key])
                 output_ids[_] = key
             end
-            local users = {}
-            for k, v in pairs(output_ids) do
-                users[v] = output_values[k]
-            end
-            local counter = 1
-            for k, v in pairs(users) do
-                if counter >= 11 then
+            for k, v in pairs(output_values) do
+                if k >= 11 then
                     break
                 end
                 user = mattata.get_user(k)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Subpoles (' .. math.floor(v*3) ..'p)</i>\n'
+                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
                     else
-                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Subpoles (' .. math.floor(v*3) ..'p)</i>\n'
+                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
                     end
-                    counter = counter+1
                 end
             end
         end
@@ -304,31 +272,25 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('global_fail')) do
                 fails[user] = tonumber(value)
             end
-            local sortedKeys = mattata.getKeysSortedByValue(fails, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(fails, function(a, b) return a > b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
                 output_values[_] = tonumber(fails[key])
                 output_ids[_] = key
             end
-            local users = {}
             for k, v in pairs(output_ids) do
-                users[v] = output_values[k]
-            end
-            local counter = 1
-            for k, v in pairs(users) do
-                if counter >= 11 then
+                if k >= 11 then
                     break
                 end
-                user = mattata.get_user(k)
+                user = mattata.get_user(v)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Fails (' .. v ..'p)</i>\n'
+                        output = output.. emojis[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Fails (' .. output_values[k] ..'p)</i>\n'
                     else
-                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Fails (' .. v ..'p)</i>\n'
+                        output = output.. emojis[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Fails (' .. output_values[k] ..'p)</i>\n'
                     end
-                    counter = counter+1
                 end
             end
         end
@@ -339,31 +301,25 @@ function pole:on_message(message, configuration, language)
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
             output = output.."\n\n<b>GLOBAL GENERAL RANK</b>\n"
             local stats = redis:hgetall('global_pole_stats')
-            local sortedKeys = mattata.getKeysSortedByValue(stats, function(a, b) return a < b end)
+            local sortedKeys = mattata.getKeysSortedByValue(stats, function(a, b) return a > b end)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
                 output_values[_] = tonumber(stats[key])
                 output_ids[_] = key
             end
-            local users = {}
-            for k, v in pairs(output_ids) do
-                users[v] = output_values[k]
-            end
-            local counter = 1
             for k, v in pairs(users) do
-                if counter >= 11 then
+                if k >= 11 then
                     break
                 end
-                user = mattata.get_user(k)
+                user = mattata.get_user(v)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis_global[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Points</i>\n'
+                        output = output.. emojis_global[counter] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Points</i>\n'
                     else
-                        output = output.. emojis_global[counter] .. " " .. user.first_name .. ' => <i>' .. v .. ' Points</i>\n'
+                        output = output.. emojis_global[counter] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Points</i>\n'
                     end
-                    counter = counter+1
                 end
             end
         end
