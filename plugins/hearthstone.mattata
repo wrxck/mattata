@@ -77,7 +77,7 @@ function hearthstone:on_message(message, configuration, language)
         local jstr, res = https.request('https://api.hearthstonejson.com/v1/22611/enUS/cards.json')
         redis:hset('hearthstone', 'database', json.decode(jstr))
         redis:hset('hearthstone', 'expiration', os.time() + 600000)
-        redis:hset('hearthstone', 'downloaded', true)
+        redis:hset('hearthstone', 'downloaded', os.time())
     end
     local input = mattata.input(message)
     if not input then
