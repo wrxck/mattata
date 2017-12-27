@@ -207,7 +207,7 @@ function pole:on_message(message, configuration, language)
         return mattata.send_reply(message, "Successfully resetted Pole stats!")
 
 
-    elseif message.text:match('^[/!#]gpole') or message.text:match('^[/!#]gpolestats') then
+    elseif (message.text:match('^[/!#]gpole') or message.text:match('^[/!#]gpolestats')) and not (message.text:match('^[/!#]gpolereset') or message.text:match('^[/!#]gpoleban')) then
         local poles = redis:keys("global_pole")
         local subpoles = redis:keys("global_subpole")
         local fails = redis:keys("global_fail")
