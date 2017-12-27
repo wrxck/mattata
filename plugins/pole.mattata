@@ -79,7 +79,7 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>POLE RANK</b>\n"
             local poles = {}
             for user, value in pairs(redis:hgetall('pole_stats:' .. message.chat.id)) do
-                poles[user] = math.floor(tonumber(value))
+                poles[user] = tonumber(value)
             end
             local sortedKeys = pole.getKeysSortedByValue(poles, function(a, b) return a < b end)
             local output_values = {}
@@ -113,7 +113,7 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>SUBPOLE RANK</b>\n"
             local subpoles = {}
             for user, value in pairs(redis:hgetall('subpole_stats:' .. message.chat.id)) do
-                subpoles[user] = math.floor(tonumber(value))
+                subpoles[user] = tonumber(value)
             end
             local sortedKeys = pole.getKeysSortedByValue(subpoles, function(a, b) return a < b end)
             local output_values = {}
@@ -147,7 +147,7 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>FAILS RANK</b>\n"
             local fails = {}
             for user, value in pairs(redis:hgetall('fail_stats:' .. message.chat.id)) do
-                fails[user] = math.floor(tonumber(value))
+                fails[user] = tonumber(value)
             end
             local sortedKeys = pole.getKeysSortedByValue(fails, function(a, b) return a < b end)
             local output_values = {}
@@ -251,7 +251,7 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>GLOBAL POLE RANK</b>\n"
             local poles = {}
             for user, value in pairs(redis:hgetall('global_pole')) do
-                poles[user] = math.floor(tonumber(value))
+                poles[user] = tonumber(value)
             end
             local sortedKeys = pole.getKeysSortedByValue(poles, function(a, b) return a < b end)
             local output_values = {}
@@ -285,7 +285,7 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>GLOBAL SUBPOLE RANK</b>\n"
             local subpoles = {}
             for user, value in pairs(redis:hgetall('global_subpole')) do
-                subpoles[user] = math.floor(tonumber(value))
+                subpoles[user] = tonumber(value)
             end
             local sortedKeys = pole.getKeysSortedByValue(subpoles, function(a, b) return a < b end)
             local output_values = {}
@@ -319,7 +319,7 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>GLOBAL FAILS RANK</b>\n"
             local fails = {}
             for user, value in pairs(redis:hgetall('global_fail')) do
-                fails[user] = math.floor(tonumber(value))
+                fails[user] = tonumber(value)
             end
             local sortedKeys = pole.getKeysSortedByValue(fails, function(a, b) return a < b end)
             local output_values = {}
