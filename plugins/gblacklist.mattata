@@ -8,7 +8,7 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 
 function gblacklist:init()
-    gblacklist.commands = mattata.commands(self.info.username):command('gblacklist').table
+    gblacklist.commands = mattata.commands(self.info.username):command('gblacklist'):command('gban').table
 end
 
 function gblacklist:on_message(message, configuration, language)
@@ -31,29 +31,38 @@ function gblacklist:on_message(message, configuration, language)
     if input == "list" then
         local keys = redis:keys('global_blacklist:*') or false
         if keys then
-            local output = "💀 <b>Global Banned Users</b> ("..#keys..")\n"
+            local output = "💀 <b>Global Banned Users</b> ("..#keys.." IDs)\n"
+            local users_found = 0
             for k, id in pairs(keys) do
                 local user_output
                 local user = mattata.get_user(id:match('^global_blacklist:(%d+)')) or mattata.get_chat(id:match('^global_blacklist:(%d+)'))
                 if user then
+                    users_found = users_found + 1
                     user = user.result
                     local branch = ' ├ '
                     if user.username then
                         user_output = string.format(
-                            '<a href="https://t.me/%s">%s</a>',
+                            '<a href="https://t.me/%s">%s</a> [%s]',
                             user.username,
-                            user.first_name
+                            user.first_name,
+                            id
                         )
                     else
-                        user_output = user.first_name
+                        user_output = user.first_name .. " [".. id .."]"
                     end
                     if k == #keys then
                         branch = ' └ '
                     end
                     output = output .. branch .. user_output .. '\n'
+                else
+                    local branch = ' ├ '
+                    if k == #keys then
+                        branch = ' └ '
+                    end
+                    output = output .. branch .. "ID " .. id .. '\n'
                 end
             end
-            return mattata.send_reply(message, output, 'html')
+            return mattata.send_reply(message, output.."\n"..users_found.." Existing Accounts Found", 'html')
         else
             return mattata.send_reply(message, "I couldn't the list for globally banned users")
         end
