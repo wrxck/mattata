@@ -333,7 +333,7 @@ function pole:on_message(message, configuration, language)
                 users[v] = output_values[k]
             end
             local counter = 1
-            for k, v in pairs(fails) do
+            for k, v in pairs(users) do
                 if counter >= 11 then
                     break
                 end
@@ -356,9 +356,19 @@ function pole:on_message(message, configuration, language)
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
             output = output.."\n\n<b>GLOBAL GENERAL RANK</b>\n"
             local stats = redis:hgetall('global_pole_stats')
-            table.sort(stats, function(a, b) return a < b end)
+            local sortedKeys = pole.getKeysSortedByValue(poles, function(a, b) return a < b end)
+            local output_values = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output_values[_] = poles[key]
+                output_ids[_] = key
+            end
+            local users = {}
+            for k, v in pairs(output_ids) do
+                users[v] = output_values[k]
+            end
             local counter = 1
-            for k, v in pairs(stats) do
+            for k, v in pairs(users) do
                 if counter >= 11 then
                     break
                 end
