@@ -13,7 +13,7 @@ function pole:init()
 end
 
 function pole:on_message(message, configuration, language)
-    if message.text:match('^[/!#]pole') or message.text:match('^[/!#]polestats') and message.chat.type ~= "private" then
+    if (message.text:match('^[/!#]pole') or message.text:match('^[/!#]polestats')) and not message.text:match('^[/!#]polereset') and message.chat.type ~= "private" then
         local poles = redis:keys("pole:*:"..message.chat.id)
         local subpoles = redis:keys("subpole:*:"..message.chat.id)
         local fails = redis:keys("fail:*:"..message.chat.id)
