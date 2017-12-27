@@ -55,6 +55,7 @@ function gblacklist:on_message(message, configuration, language)
                 end
                 user_count = user_count + 1
             end
+            return matta.send_reply(message, output, 'html')
         else
             return mattata.send_reply(message, "I couldn't the list for globally banned users")
         end
