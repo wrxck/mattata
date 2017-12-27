@@ -177,8 +177,11 @@ function pole:on_message(message, configuration, language)
             redis:del(v)
         end
         redis:del('pole_stats:'..message.chat.id)
+        redis:del('latest_pole:'..message.chat.id)
         redis:del('subpole_stats:'..message.chat.id)
+        redis:del('latest_subpole:'..message.chat.id)
         redis:del('fail_stats:'..message.chat.id)
+        redis:del('latest_fail:'..message.chat.id)
         redis:del('group_pole_stats:'..message.chat.id)
 
         return mattata.send_reply(message, "Successfully resetted Pole stats!")
