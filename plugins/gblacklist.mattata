@@ -43,13 +43,13 @@ function gblacklist:on_message(message, configuration, language)
                     local branch = ' ├ '
                     if user.username then
                         user_output = string.format(
-                            '<a href="https://t.me/%s">%s</a> [<pre>%s</pre>]',
+                            '<a href="https://t.me/%s">%s</a> [<code>%s</code>]',
                             user.username,
                             user.first_name,
                             id
                         )
                     else
-                        user_output = user.first_name .. " [<pre>".. id .."</pre>]"
+                        user_output = user.first_name .. " [<code>".. id .."</code>]"
                     end
                     if k == #keys then
                         branch = ' └ '
@@ -60,7 +60,7 @@ function gblacklist:on_message(message, configuration, language)
                     if k == #keys then
                         branch = ' └ '
                     end
-                    output = output .. branch .. "<i>Deleted Account</i> [<pre>" .. id .. '</pre>]\n'
+                    output = output .. branch .. "<i>Deleted Account</i> [<code>" .. id .. '</code>]\n'
                 end
             end
             return mattata.send_reply(message, output.."\n<i>"..users_found.."</i> <b>Existing Accounts Found</b>", 'html')
@@ -111,13 +111,13 @@ function gblacklist:on_message(message, configuration, language)
     and configuration.log_channel ~= '' then
         mattata.send_message(
             configuration.log_channel,
-            '#action #gblacklist #admin_'..message.from.id..' #user_'..resolved.result.id..'\n\n<pre>' .. mattata.escape_html(output) .. '</pre>',
+            '#action #gblacklist #admin_'..message.from.id..' #user_'..resolved.result.id..'\n\n<code>' .. mattata.escape_html(output) .. '</code>',
             'html'
         )
     end
     return mattata.send_message(
         message.chat.id,
-        '<pre>' .. mattata.escape_html(output) .. '</pre>',
+        '<code>' .. mattata.escape_html(output) .. '</code>',
         'html'
     )
 end
