@@ -4,7 +4,7 @@
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
-local apod = {}
+local hearthstone = {}
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
@@ -93,7 +93,7 @@ function hearthstone:on_message(message, configuration, language)
 
     output = mattata.trim(output)
     if output:len() == 0 then
-        return mattata.send_reply(msg, language['errors']['results'])
+        return mattata.send_reply(message, language['errors']['results'])
     end
 
     return mattata.send_message(message.chat.id, output, true, message.message_id, true)
