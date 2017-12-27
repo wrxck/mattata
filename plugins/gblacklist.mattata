@@ -42,13 +42,13 @@ function gblacklist:on_message(message, configuration, language)
                     local branch = ' ├ '
                     if user.username then
                         user_output = string.format(
-                            '<a href="https://t.me/%s">%s</a> [%s]',
+                            '<a href="https://t.me/%s">%s</a> [<pre>%s</pre>]',
                             user.username,
                             user.first_name,
-                            id
+                            id:match('^global_blacklist:(%d+)')
                         )
                     else
-                        user_output = user.first_name .. " [".. id .."]"
+                        user_output = user.first_name .. " [<pre>".. id:match('^global_blacklist:(%d+)') .."</pre>]"
                     end
                     if k == #keys then
                         branch = ' └ '
@@ -59,7 +59,7 @@ function gblacklist:on_message(message, configuration, language)
                     if k == #keys then
                         branch = ' └ '
                     end
-                    output = output .. branch .. "ID " .. id .. '\n'
+                    output = output .. branch .. "<i>Deleted Account</i> [<pre>" .. id:match('^global_blacklist:(%d+)') .. '</pre>]\n'
                 end
             end
             return mattata.send_reply(message, output.."\n"..users_found.." Existing Accounts Found", 'html')
