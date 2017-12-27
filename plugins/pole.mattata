@@ -13,40 +13,43 @@ function pole:init()
 end
 
 function pole:on_message(message, configuration, language)
-    if message.text:match('^[/!#]pole') or message.text:match('^[/!#]polestats') then
+    if message.text:match('^[/!#]pole') or message.text:match('^[/!#]polestats') and message.chat.type ~= "private" then
         local poles = redis:keys("pole:*:"..message.chat.id)
         local subpoles = redis:keys("subpole:*:"..message.chat.id)
         local fails = redis:keys("fail:*:"..message.chat.id)
+        local latest_pole = redis:hget("latest_pole:" .. message.chat.id, "date") or 0
+        local latest_subpole = redis:hget("latest_subpole:" .. message.chat.id, "date") or 0
+        local latest_fail = redis:hget("latest_fail:" .. message.chat.id, "date") or 0
         local output = ""
 
-        if #poles > 0 then
-            local user = mattata.get_user(redis:hget(poles[#poles], 'user'))
+        if #latest_pole > 0 then
+            local user = mattata.get_user(redis:hget('pole:'..latest_pole..":"..message.chat.id, 'user'))
             user = user.result
             output = output.. "<b>Latest Pole done by</b> "
             if user.username then
-                output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. mattata.split(poles[#poles], ':')[2] .. " " .. redis:hget(poles[#poles], 'time') .. "</i>\n"
+                output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. latest_pole .. " " .. redis:hget('pole:'..latest_pole..":"..message.chat.id, 'time') .. "</i>\n"
             else
-                output = output .. user.first_name .. ' <b>at</b> <i>' .. mattata.split(poles[#poles], ':')[2] .. " " .. redis:hget(poles[#poles], 'time') .. "</i>\n"
+                output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_pole .. " " .. redis:hget('pole:'..latest_pole..":"..message.chat.id, 'time') .. "</i>\n"
             end
         end
-        if #subpoles > 0 then
-            local user = mattata.get_user(redis:hget(subpoles[#subpoles], 'user'))
+        if #latest_subpole > 0 then
+            local user = mattata.get_user(redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'user'))
             user = user.result
             output = output.. "<b>Latest Subole done by</b> "
             if user.username then
-                output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. mattata.split(subpoles[#subpoles], ':')[2] .. " " .. redis:hget(subpoles[#subpoles], 'time') .. "</i>\n"
+                output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. latest_subpole .. " " .. redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'time') .. "</i>\n"
             else
-                output = output .. user.first_name .. ' <b>at</b> <i>' .. mattata.split(subpoles[#subpoles], ':')[2] .. " " .. redis:hget(subpoles[#subpoles], 'time') .. "</i>\n"
+                output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_subpole .. " " .. redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'time') .. "</i>\n"
             end
         end
-        if #fails > 0 then
-            local user = mattata.get_user(redis:hget(fails[#fails], 'user'))
+        if #latest_fail > 0 then
+            local user = mattata.get_user(redis:hget('fail:'..latest_fail..":"..message.chat.id, 'user'))
             user = user.result
             output = output.. "<b>Latest Fail done by</b> "
             if user.username then
-                output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. mattata.split(fails[#fails], ':')[2] .. " " .. redis:hget(fails[#fails], 'time') .. "</i>\n"
+                output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. latest_fail .. " " .. redis:hget('fail:'..latest_fail..":"..message.chat.id, 'time') .. "</i>\n"
             else
-                output = output .. user.first_name .. ' <b>at</b> <i>' .. mattata.split(fails[#fails], ':')[2] .. " " .. redis:hget(fails[#fails], 'time') .. "</i>\n"
+                output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_fail .. " " .. redis:hget('fail:'..latest_fail..":"..message.chat.id, 'time') .. "</i>\n"
             end
         end
 
@@ -157,7 +160,7 @@ function pole:on_message(message, configuration, language)
         return mattata.send_reply(message, output, 'html')
 
 
-    elseif message.text:match('^[/!#]polereset') and is_group_admin(message.chat.id, message.user.id) then
+    elseif message.text:match('^[/!#]polereset') and is_group_admin(message.chat.id, message.user.id) and message.chat.type ~= "private" then
         for k, v in pairs(redis:keys('pole:*:'..message.chat.id)) do
             redis:del(v)
         end
