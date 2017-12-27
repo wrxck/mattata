@@ -111,7 +111,7 @@ function pole:on_message(message, configuration, language)
                 if user then
                     user = user.result
                     if user.username then
-                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. v .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. output_values[k] .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
                     else
                         output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. output_values[k] .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
                     end
@@ -308,7 +308,7 @@ function pole:on_message(message, configuration, language)
                 output_values[_] = tonumber(stats[key])
                 output_ids[_] = key
             end
-            for k, v in pairs(users) do
+            for k, v in pairs(output_ids) do
                 if k >= 11 then
                     break
                 end
