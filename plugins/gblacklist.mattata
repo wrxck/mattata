@@ -35,7 +35,8 @@ function gblacklist:on_message(message, configuration, language)
             local users_found = 0
             for k, id in pairs(keys) do
                 local user_output
-                local user = mattata.get_user(id:match('^global_blacklist:(%d+)')) or mattata.get_chat(id:match('^global_blacklist:(%d+)'))
+                local id = id:match('^global_blacklist:(%d+)')
+                local user = mattata.get_user(id) or mattata.get_chat(id)
                 if user then
                     users_found = users_found + 1
                     user = user.result
@@ -45,10 +46,10 @@ function gblacklist:on_message(message, configuration, language)
                             '<a href="https://t.me/%s">%s</a> [<pre>%s</pre>]',
                             user.username,
                             user.first_name,
-                            id:match('^global_blacklist:(%d+)')
+                            id
                         )
                     else
-                        user_output = user.first_name .. " [<pre>".. id:match('^global_blacklist:(%d+)') .."</pre>]"
+                        user_output = user.first_name .. " [<pre>".. id .."</pre>]"
                     end
                     if k == #keys then
                         branch = ' └ '
@@ -59,10 +60,10 @@ function gblacklist:on_message(message, configuration, language)
                     if k == #keys then
                         branch = ' └ '
                     end
-                    output = output .. branch .. "<i>Deleted Account</i> [<pre>" .. id:match('^global_blacklist:(%d+)') .. '</pre>]\n'
+                    output = output .. branch .. "<i>Deleted Account</i> [<pre>" .. id .. '</pre>]\n'
                 end
             end
-            return mattata.send_reply(message, output.."\n"..users_found.." Existing Accounts Found", 'html')
+            return mattata.send_reply(message, output.."\n<i>"..users_found.."</i> <b>Existing Accounts Found</b>", 'html')
         else
             return mattata.send_reply(message, "I couldn't the list for globally banned users")
         end
