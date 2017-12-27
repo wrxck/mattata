@@ -15,7 +15,7 @@ end
 function ai:on_message(message, configuration, language)
     local received_messages = redis:get('ai:received_messages')
     local replied_messages = redis:get('ai:sent_replies')
-    local output = '<b><a href="https://t.me/BarrePoliceBot">BarrePolice AI</a> Statistics</b>\n\n• <i>Messages Received</i>: <code>'..received_messages..'</code>\n•<i>Replies Sent</i>: <code>'..replied_messages..'</code>'
+    local output = '<a href="https://t.me/BarrePoliceBot">BarrePolice AI</a> Statistics\n\n• <i>Messages Received</i>: <code>'..received_messages..'</code>\n•<i>Replies Sent</i>: <code>'..replied_messages..'</code>'
     return mattata.send_reply(message, output, 'html')
 end
 
