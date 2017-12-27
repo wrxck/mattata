@@ -79,7 +79,7 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>POLE RANK</b>\n"
             local poles = {}
             for user, value in pairs(redis:hgetall('pole_stats:' .. message.chat.id)) do
-                poles[user] = tonumber(value)
+                poles[user] = math.floor(tonumber(value))
             end
             local sortedKeys = pole.getKeysSortedByValue(poles, function(a, b) return a < b end)
             local output_values = {}
@@ -113,7 +113,7 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>SUBPOLE RANK</b>\n"
             local subpoles = {}
             for user, value in pairs(redis:hgetall('subpole_stats:' .. message.chat.id)) do
-                subpoles[user] = tonumber(value)
+                subpoles[user] = math.floor(tonumber(value))
             end
             local sortedKeys = pole.getKeysSortedByValue(subpoles, function(a, b) return a < b end)
             local output_values = {}
@@ -147,7 +147,7 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>FAILS RANK</b>\n"
             local fails = {}
             for user, value in pairs(redis:hgetall('fail_stats:' .. message.chat.id)) do
-                fails[user] = tonumber(value)
+                fails[user] = math.floor(tonumber(value))
             end
             local sortedKeys = pole.getKeysSortedByValue(fails, function(a, b) return a < b end)
             local output_values = {}
@@ -178,7 +178,7 @@ function pole:on_message(message, configuration, language)
             end
         end
 
-        local emojis_global = {"🥇", "🥈", "🥉", "👤", "👤", "👤", "👤", "👤", "👤", "👤"}
+        local emojis_global = {"🥇", "🥈", "🥉", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"}
         output = output.."\n"
 
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
@@ -251,11 +251,21 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>GLOBAL POLE RANK</b>\n"
             local poles = {}
             for user, value in pairs(redis:hgetall('global_pole')) do
-                poles[user] = value
+                poles[user] = math.floor(tonumber(value))
             end
-            table.sort(poles, function(a, b) return a < b end)
+            local sortedKeys = pole.getKeysSortedByValue(poles, function(a, b) return a < b end)
+            local output_values = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output_values[_] = poles[key]
+                output_ids[_] = key
+            end
+            local users = {}
+            for k, v in pairs(output_ids) do
+                users[v] = output_values[k]
+            end
             local counter = 1
-            for k, v in pairs(poles) do
+            for k, v in pairs(users) do
                 if counter >= 11 then
                     break
                 end
@@ -275,11 +285,21 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>GLOBAL SUBPOLE RANK</b>\n"
             local subpoles = {}
             for user, value in pairs(redis:hgetall('global_subpole')) do
-                subpoles[user] = value
+                subpoles[user] = math.floor(tonumber(value))
             end
-            table.sort(subpoles, function(a, b) return a < b end)
+            local sortedKeys = pole.getKeysSortedByValue(subpoles, function(a, b) return a < b end)
+            local output_values = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output_values[_] = subpoles[key]
+                output_ids[_] = key
+            end
+            local users = {}
+            for k, v in pairs(output_ids) do
+                users[v] = output_values[k]
+            end
             local counter = 1
-            for k, v in pairs(subpoles) do
+            for k, v in pairs(users) do
                 if counter >= 11 then
                     break
                 end
@@ -299,9 +319,19 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>GLOBAL FAILS RANK</b>\n"
             local fails = {}
             for user, value in pairs(redis:hgetall('global_fail')) do
-                fails[user] = value
+                fails[user] = math.floor(tonumber(value))
             end
-            table.sort(fails, function(a, b) return a < b end)
+            local sortedKeys = pole.getKeysSortedByValue(fails, function(a, b) return a < b end)
+            local output_values = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output_values[_] = fails[key]
+                output_ids[_] = key
+            end
+            local users = {}
+            for k, v in pairs(output_ids) do
+                users[v] = output_values[k]
+            end
             local counter = 1
             for k, v in pairs(fails) do
                 if counter >= 11 then
@@ -320,7 +350,7 @@ function pole:on_message(message, configuration, language)
             end
         end
 
-        local emojis_global = {"🥇", "🥈", "🥉", "👤", "👤", "👤", "👤", "👤", "👤", "👤"}
+        local emojis_global = {"🥇", "🥈", "🥉", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"}
         output = output.."\n"
 
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
