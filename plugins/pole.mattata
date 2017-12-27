@@ -72,7 +72,7 @@ function pole:on_message(message, configuration, language)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
-                output_values[_] = poles[key]
+                output_values[_] = tonumber(poles[key])
                 output_ids[_] = key
             end
             local users = {}
@@ -106,7 +106,7 @@ function pole:on_message(message, configuration, language)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
-                output_values[_] = subpoles[key]
+                output_values[_] = tonumber(subpoles[key])
                 output_ids[_] = key
             end
             local users = {}
@@ -140,7 +140,7 @@ function pole:on_message(message, configuration, language)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
-                output_values[_] = fails[key]
+                output_values[_] = tonumber(fails[key])
                 output_ids[_] = key
             end
             local users = {}
@@ -175,7 +175,7 @@ function pole:on_message(message, configuration, language)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
-                output_values[_] = stats[key]
+                output_values[_] = tonumber(stats[key])
                 output_ids[_] = key
             end
             local users = {}
@@ -244,7 +244,7 @@ function pole:on_message(message, configuration, language)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
-                output_values[_] = poles[key]
+                output_values[_] = tonumber(poles[key])
                 output_ids[_] = key
             end
             local users = {}
@@ -278,7 +278,7 @@ function pole:on_message(message, configuration, language)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
-                output_values[_] = subpoles[key]
+                output_values[_] = tonumber(subpoles[key])
                 output_ids[_] = key
             end
             local users = {}
@@ -312,7 +312,7 @@ function pole:on_message(message, configuration, language)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
-                output_values[_] = fails[key]
+                output_values[_] = tonumber(fails[key])
                 output_ids[_] = key
             end
             local users = {}
@@ -347,7 +347,7 @@ function pole:on_message(message, configuration, language)
             local output_values = {}
             local output_ids = {}
             for _, key in ipairs(sortedKeys) do
-                output_values[_] = stats[key]
+                output_values[_] = tonumber(stats[key])
                 output_ids[_] = key
             end
             local users = {}
