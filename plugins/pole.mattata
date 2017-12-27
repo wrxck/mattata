@@ -12,6 +12,19 @@ function pole:init()
     pole.help = '/pole - Get the stats for the pole.'
 end
 
+function pole.getKeysSortedByValue(tbl, sortFunction)
+  local keys = {}
+  for key in pairs(tbl) do
+    table.insert(keys, key)
+  end
+
+  table.sort(keys, function(a, b)
+    return sortFunction(tbl[a], tbl[b])
+  end)
+
+  return keys
+end
+
 function pole:on_message(message, configuration, language)
     if (message.text:match('^[/!#]pole') or message.text:match('^[/!#]polestats')) and not message.text:match('^[/!#]polereset') and message.chat.type ~= "private" then
         local poles = redis:keys("pole:*:"..message.chat.id)
@@ -66,11 +79,21 @@ function pole:on_message(message, configuration, language)
             output = output.."\n<b>POLE RANK</b>\n"
             local poles = {}
             for user, value in pairs(redis:hgetall('pole_stats:' .. message.chat.id)) do
-                poles[user] = value
+                poles[user] = tonumber(value)
             end
-            table.sort(poles, function(a, b) return a > b end)
+            local sortedKeys = pole.getKeysSortedByValue(poles, function(a, b) return a > b end)
+            local output = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output[_] = subpoles[key]
+                output_ids[_] = key
+            end
+            local users = {}
+            for k, v in pairs(output_ids) do
+                users[v] = output[k]
+            end
             local counter = 1
-            for k, v in pairs(poles) do
+            for k, v in pairs(users) do
                 if counter >= 11 then
                     break
                 end
@@ -92,9 +115,19 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('subpole_stats:' .. message.chat.id)) do
                 subpoles[user] = value
             end
-            table.sort(subpoles, function(a, b) return a > b end)
+            local sortedKeys = pole.getKeysSortedByValue(subpoles, function(a, b) return a > b end)
+            local output = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output[_] = subpoles[key]
+                output_ids[_] = key
+            end
+            local users = {}
+            for k, v in pairs(output_ids) do
+                users[v] = output[k]
+            end
             local counter = 1
-            for k, v in pairs(subpoles) do
+            for k, v in pairs(users) do
                 if counter >= 11 then
                     break
                 end
@@ -116,9 +149,19 @@ function pole:on_message(message, configuration, language)
             for user, value in pairs(redis:hgetall('fail_stats:' .. message.chat.id)) do
                 fails[user] = value
             end
-            table.sort(fails, function(a, b) return a > b end)
+            local sortedKeys = pole.getKeysSortedByValue(fails, function(a, b) return a > b end)
+            local output = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output[_] = fails[key]
+                output_ids[_] = key
+            end
+            local users = {}
+            for k, v in pairs(output_ids) do
+                users[v] = output[k]
+            end
             local counter = 1
-            for k, v in pairs(fails) do
+            for k, v in pairs(users) do
                 if counter >= 11 then
                     break
                 end
@@ -141,9 +184,19 @@ function pole:on_message(message, configuration, language)
         if #poles > 0 or #subpoles > 0 or #fails > 0 then
             output = output.."\n\n<b>GROUP RANK</b>\n"
             local stats = redis:hgetall('group_pole_stats:' .. message.chat.id)
-            table.sort(stats, function(a, b) return a > b end)
+            local sortedKeys = pole.getKeysSortedByValue(stats, function(a, b) return a > b end)
+            local output = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output[_] = stats[key]
+                output_ids[_] = key
+            end
+            local users = {}
+            for k, v in pairs(output_ids) do
+                users[v] = output[k]
+            end
             local counter = 1
-            for k, v in pairs(stats) do
+            for k, v in pairs(users) do
                 if counter >= 11 then
                     break
                 end
