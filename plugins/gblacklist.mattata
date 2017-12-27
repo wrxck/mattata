@@ -99,7 +99,7 @@ function gblacklist:on_message(message, configuration, language)
         if resolved.result.id == self.info.id
         or mattata.is_global_admin(resolved.result.id)
         then
-            return 'I can\'t ban a global admin!'
+            return mattata.send_reply(message, 'I can\'t ban a global admin!')
         end
         local user = resolved.result.id
         local hash = 'global_blacklist:' .. user
