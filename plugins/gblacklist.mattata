@@ -89,7 +89,7 @@ function gblacklist:on_message(message, configuration, language)
                     input
                 )
             )
-        elseif resolved.result.type ~= 'private' and continue
+        elseif continue and resolved.result.type ~= 'private'
         then
             continue = false
             mattata.send_reply(
@@ -100,8 +100,8 @@ function gblacklist:on_message(message, configuration, language)
                 )
             )
         end
-        if (resolved.result.id == self.info.id
-        or mattata.is_global_admin(resolved.result.id)) and continue
+        if continue and (resolved.result.id == self.info.id
+        or mattata.is_global_admin(resolved.result.id))
         then
             continue = false
             mattata.send_reply(message, 'I can\'t ban a global admin!')
