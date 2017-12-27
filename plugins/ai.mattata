@@ -19,4 +19,4 @@ function ai:on_message(message, configuration, language)
     return mattata.send_reply(message, output, true)
 end
 
-return afk
+return ai
