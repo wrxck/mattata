@@ -72,8 +72,8 @@ function clashroyale:on_message(message, configuration, language)
         return mattata.send_reply(message, clashroyale.help)
     end
 
-    if input == "player" then
-        output = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""))
+    if input:match('^player') then
+        output = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
         return message.send_reply(message, output)
     else
         return mattata.send_reply(message, clashroyale.help)
