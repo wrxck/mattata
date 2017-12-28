@@ -100,7 +100,7 @@ function youtube:on_callback_query(callback_query, message, configuration, langu
         local next_result = 'youtube:results:' .. tonumber(result) + 1
         local keyboard = json.encode(
             {
-                inline_keyboard = {
+                ['inline_keyboard'] = {
                     {
                         {
                             ['text'] = "Watch It!",
