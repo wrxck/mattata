@@ -817,7 +817,9 @@ function administration:on_callback_query(callback_query, message, configuration
             chat_id,
             'force group language'
         )
-        keyboard = administration.get_initial_keyboard(chat_id, page)
+        if page then
+            keyboard = administration.get_initial_keyboard(chat_id, page)
+        end
     elseif callback_query.data:match('^%-%d+:log:%a*$')
     then
         local chat_id, input = callback_query.data:match('^(%-%d+):log:(%a*)$')
