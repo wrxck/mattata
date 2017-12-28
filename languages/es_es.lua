@@ -468,69 +468,69 @@ Sistema:
         ['1'] = 'Nombre: %s\nID: %s\nTipo: %s\nDescripción: %s'
     },
     ['promote'] = {
-        ['1'] = 'I cannot promote this user because they are a moderator or an administrator of this chat.',
-        ['2'] = 'I cannot promote this user because they have already left this chat.',
-        ['3'] = 'I cannot promote this user because they have already been kicked from this chat.'
+        ['1'] = 'No puedo ascender a este usuario porque ya es un moderador o administrador en este chat.',
+        ['2'] = 'No puedo ascender a este usuario porque ha abandonado el chat.',
+        ['3'] = 'No puedo ascender a este usuario porque ha sido expulsado del chat.'
     },
     ['quote'] = {
-        ['1'] = 'This user has opted out of data-storing functionality.',
-        ['2'] = 'There are no saved quotes for %s%s! You can save one by using /save in reply to a message they send.'
+        ['1'] = 'Este usuario se ha salido de la recogida de datos.',
+        ['2'] = 'No hay citas guardadas para %s%s! Puedes guardar una respondiendo con /save a un mnesaje.'
     },
     ['report'] = {
-        ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
-        ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
-        ['3'] = '<b>%s needs help in %s!</b>',
-        ['4'] = 'Click here to view the reported message.',
-        ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
+        ['1'] = 'Por favor responde al mensaje que quieres reportar a los administradores.',
+        ['2'] = 'No puedes reportarte a ti mismo, acaso te crees un graciosillo?',
+        ['3'] = '<b>%s necesita ayuda en %s!</b>',
+        ['4'] = 'Clica aquí para ver el mensaje reportado.',
+        ['5'] = 'He reportado el mensaje a %s admin(s)!'
     },
     ['save'] = {
-        ['1'] = 'This user has opted out of data-storing functionality.',
-        ['2'] = 'That message has been saved in my database, and added to the list of possible responses for when /quote is used in reply to %s%s!'
+        ['1'] = 'Este usuario se ha salido de la recogida de datos.',
+        ['2'] = 'Este mensaje ha sido guardado en mi base de datos, y añadido a la lista de posibles respuestas de /quote en respuesta a %s%s!'
     },
     ['sed'] = {
-        ['1'] = '%s\n\n<i>%s didn\'t mean to say this!</i>',
-        ['2'] = '%s\n\n<i>%s has admitted defeat.</i>',
-        ['3'] = '%s\n\n<i>%s isn\'t sure if they were mistaken...</i>',
-        ['4'] = 'Screw you, <i>when am I ever wrong?</i>',
-        ['5'] = '"<code>%s</code>" isn\'t a valid Lua pattern.',
-        ['6'] = '<b>Hi, %s, did you mean:</b>\n<i>%s</i>',
-        ['7'] = 'Yes',
+        ['1'] = '%s\n\n<i>%s no quería decir esto!</i>',
+        ['2'] = '%s\n\n<i>%s ha admitido la derrota.</i>',
+        ['3'] = '%s\n\n<i>%s no sabe si se ha equivocado...</i>',
+        ['4'] = 'Perdón, <i>cuando me he equivocado?</i>',
+        ['5'] = '"<code>%s</code>" no es un patrón Lua vákido.',
+        ['6'] = '<b>Hola, %s, has querido decir: <b>\n<i>%s</i>',
+        ['7'] = 'Si',
         ['8'] = 'No',
-        ['9'] = 'Not sure'
+        ['9'] = 'No estoy seguro'
     },
     ['setgrouplang'] = {
-        ['1'] = 'This group\'s language has been set to %s!',
-        ['2'] = 'This group\'s language is currently %s.\nPlease note that some strings may not be translated as of yet. If you\'d like to change your language, select one using the keyboard below:',
-        ['3'] = 'The option to force users to use the same language in this group is currently disabled. This setting should be toggled from /administration but, to make things easier for you, I\'ve included a button below.',
-        ['4'] = 'Enable',
-        ['5'] = 'Disable'
+        ['1'] = 'El idioma del grupo se ha cambiado a %s!',
+        ['2'] = 'El idioma del grupo es %s.\nPor favor, ten en cuenta que algunas frases pueden no estar traducidas todavía. Si quieres cambiar el idioma, escógelo en este teclado:',
+        ['3'] = 'La opción de usar un idioma común en el grupo está desactivada. Este ajuste puede ser cambiado desde /administration pero, para ponerte las cosas más fáciles, he incluido un botón aquí debajo.',
+        ['4'] = 'Activar',
+        ['5'] = 'Desactivar'
     },
     ['setlang'] = {
-        ['1'] = 'Your language has been set to %s!',
-        ['2'] = 'Your language is currently %s.\nPlease note that some strings may not be translated as of yet. If you\'d like to change your language, select one using the keyboard below:'
+        ['1'] = 'Tu idioma se ha cambiado a %s!',
+        ['2'] = 'Tu idioma es %s.\nPor favor, ten en cuenta que algunas frases pueden no estar traducidas todavía. Si quieres cambiar el idioma, escógelo en este teclado:',
     },
     ['setlink'] = {
-        ['1'] = 'That\'s not a valid URL.',
-        ['2'] = 'Link set successfully!'
+        ['1'] = 'Esa no es una URL válida.',
+        ['2'] = 'Link guardado correctamente!'
     },
     ['setrules'] = {
-        ['1'] = 'Invalid Markdown formatting.',
-        ['2'] = 'Successfully set the new rules!'
+        ['1'] = 'Markdown inválido.',
+        ['2'] = 'Nuevas reglas guardadas!'
     },
     ['setwelcome'] = {
-        ['1'] = 'What would you like the welcome message to be? The text you specify will be Markdown-formatted and sent every time a user joins the chat (the welcome message can be disabled in the administration menu, accessible via /administration). You can use placeholders to automatically customise the welcome message for each user. Use $user_id to insert the user\'s numerical ID, $chat_id to insert the chat\'s numerical ID, $name to insert the user\'s name, $title to insert the chat\'s title and $username to insert the user\'s username (if the user doesn\'t have an @username, their name will be used instead, so it is best to avoid using this in conjunction with $name).',
-        ['2'] = 'There was an error formatting your message, please check your Markdown syntax and try again.',
-        ['3'] = 'The welcome message for %s has successfully been updated!'
+        ['1'] = 'Cual quieres que sea el mensaje de bienvenida? El texto que me envíes puede contener formateo Markdown (este mensaje puede ser desactivado en los ajustes de administration, con /administration). Puedes usar campos predefinidos para poner un mensaje personalizado. Usa $user\_id para insertar el ID númerico del usuario, $chat\_id para el ID númerico de chat, $name para insertar el nombre del usuario, $title para insertar el título de chat y $username para insertar el alias del usuario (si el usuario no tiene un alias como @username, se mostrará su nombre, así que es mejor usar $name en vez de este)',
+        ['2'] = 'Hubo un error con el formateo Markdown. Compruébalo y prueba de nuevo.',
+        ['3'] = 'El mensaje de bienvenida para %s se ha actualizado!'
     },
     ['share'] = {
-        ['1'] = 'Share'
+        ['1'] = 'Compartir'
     },
     ['shorten'] = {
-        ['1'] = 'Please select a URL shortener using the buttons below:'
+        ['1'] = 'Selecciona que servicio quieres usar para acortar la URL:'
     },
     ['shsh'] = {
-        ['1'] = 'I couldn\'t fetch any SHSH blobs for that ECID, please ensure it\'s valid and you have saved them using https://tsssaver.1conan.com.',
-        ['2'] = 'SHSH blobs for that device are available for the following versions of iOS:\n',
+        ['1'] = 'No he podido conseguir ningún archivo SHSH para ese ECID, comprueba que son válidos y que los has guardado con https://tsssaver.1conan.com.',
+        ['2'] = 'Archivos SHSH para ese dispositivo están disponibles para estas versiones de iOS iOS:\n',
         ['3'] = 'Download .zip'
     },
     ['statistics'] = {
@@ -540,72 +540,72 @@ Sistema:
         ['4'] = 'No he podido resetear las estadísticas para este chat. Puede que ya se hayan reseteado'
     },
     ['steam'] = {
-        ['1'] = 'Your Steam username has been set to "%s".',
-        ['2'] = '"%s" isn\'t a valid Steam username.',
-        ['3'] = '%s has been a user on Steam since %s, on %s. They last logged off at %s, on %s. Click <a href="%s">here</a> to view their Steam profile.',
-        ['4'] = '%s, AKA "%s",'
+        ['1'] = 'Tu usuario de Steam se ha puesto a "%s".',
+        ['2'] = '"%s" no es un usuario válido de Steam.',
+        ['3'] = '%s es un usuario de Steam desde %s, día %s. Ha cerrado sesión por última vez a las %s, día %s. Clica <a href="%s">aquí</a> para ver su perfil de Steam.',
+        ['4'] = '%s, alias "%s",'
     },
     ['trust'] = {
-        ['1'] = 'I cannot trust this user because they are a moderator or an administrator of this chat.',
-        ['2'] = 'I cannot trust this user because they have already left this chat.',
-        ['3'] = 'I cannot trust this user because they have already been kicked from this chat.'
+        ['1'] = 'No puedo confiar en este usuario porque ya es moderador o administrador.',
+        ['2'] = 'No puedo confiar en este usuario porque ha abandonado el chat.',
+        ['3'] = 'No puedo confiar en este usuario porque ha sido expulsado del chat.'
     },
     ['unmute'] = {
-        ['1'] = 'Which user would you like me to unmute? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot unmute this user because they are not currently muted in this chat.',
-        ['3'] = 'I cannot unmute this user because they are a moderator or an administrator in this chat.',
-        ['4'] = 'I cannot unmute this user because they have already left (or been kicked from) this chat.'
+        ['1'] = 'Que usuario quieres des-silenciar? Puedes especificar el @username o ID numérico.',
+        ['2'] = 'No puedo des-silenciar a este usuario porque no estaba silenciado.',
+        ['3'] = 'No puedo des-silenciar a este usuario porque es administrador o moderador del chat.',
+        ['4'] = 'No puedo des-silenciar a este usuario porque ha abandonado (o ha sido expulsado) del chat.'
     },
     ['untrust'] = {
-        ['1'] = 'Which user would you like me to untrust? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot untrust this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot untrust this user because they have already left this chat.',
-        ['4'] = 'I cannot untrust this user because they have already been kicked from this chat.'
+        ['1'] = 'Que usuario quieres que desconfíe? Puedes especificar el @username o ID numérico.',
+        ['2'] = 'No puedo desconfiar en este usuario porque ya es moderador o administrador.',
+        ['3'] = 'No puedo desconfiar en este usuario porque ha abandonado el chat.',
+        ['4'] = 'No puedo desconfiar en este usuario porque ha sido expulsado del chat.'
     },
     ['upload'] = {
-        ['1'] = 'Please reply to the file you\'d like to download to the server. It must be <= 20 MB.',
-        ['2'] = 'That file is too large. It must be <= 20 MB.',
-        ['3'] = 'I couldn\'t get this file, it\'s probably too old.',
-        ['4'] = 'There was an error whilst retrieving this file.',
-        ['5'] = 'Successfully downloaded the file to the server - it can be found at <code>%s</code>!'
+        ['1'] = 'Responde al archivo que quieres subir al servidor. Ha de ser menor o igual que 20 MB.',
+        ['2'] = 'Ese archio es demasiado grande. Ha de ser menor o igual que 20 MB.',
+        ['3'] = 'No he podido conseguir ese archivo, posiblemente sea demasiado viejo.',
+        ['4'] = 'Hubo un error consiguiendo el archio.',
+        ['5'] = 'Archivo descargado al servidor - puede ser encontrado en <code>%s</code>!'
     },
     ['version'] = {
-        ['1'] = '@%s AKA %s `[%s]` is running BarrePolice %s, created by [Duegi Barreiro](https://t.me/barreeeiroo). The source code is available on [GitHub](https://github.com/barreeeiroo/BarrePolice).'
+        ['1'] = '@%s alias %s `[%s]` esta funcionandon bajo BarrePolice %s, creado [Diego Barreiro](https://t.me/barreeeiroo). El código fuente está disponible en [GitHub](https://github.com/barreeeiroo/BarrePolice).'
     },
     ['voteban'] = {
-        ['1'] = 'Which user would you like to open up a vote-ban for? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot setup a vote-ban for this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot setup a vote-ban for this user because they have already left (or been kicked from) this chat.',
-        ['4'] = 'Should %s [%s] be banned from %s? %s upvotes are required for an immediate ban, and %s downvotes are required for this vote to be closed.',
-        ['5'] = 'Yes [%s]',
+        ['1'] = 'Contra que usuario quieres empezar un vote-ban? Puedes especificar el @username o ID numérico.',
+        ['2'] = 'No puedo empezar un vote-ban contra un moderador o administrador!.',
+        ['3'] = 'No puedo empezar un vote-ban contra este usuario porque ya ha abandonado el chat.',
+        ['4'] = 'Debería %s [%s] ser baneado de %s? %s votos positivos requeridos para banearle y %s votos negativos para detener la votación.',
+        ['5'] = 'Si [%s]',
         ['6'] = 'No [%s]',
-        ['7'] = 'The people have spoken. I have banned %s [%s] from %s because %s people voted for me to do so.',
-        ['8'] = 'The required upvote amount was reached, however, I was unable to ban %s - perhaps they\'ve left the group or been promoted since we opened the vote to ban them? It\'s either that, or I no longer have the administrative privileges required in order to perform this action!',
-        ['9'] = 'The people have spoken. I haven\'t banned %s [%s] from %s because the required %s people downvoted the decision to ban them.',
-        ['10'] = 'You upvoted the decision to ban %s [%s]!',
-        ['11'] = 'Your current vote has been retracted, use the buttons again to re-submit your vote.',
-        ['12'] = 'You downvoted the decision to ban %s [%s]!',
-        ['13'] = 'A vote-ban has already been opened for this user!'
+        ['7'] = 'La gente ha hablado. He baneado a %s [%s] de %s porque %s personas han votado banearle.',
+        ['8'] = 'El número de votos requreidos para banear ha sido alcanzado, pero no he podido banear a %s - puede que se haya ido del grupo o le hayan ascendido a administrador desde que se empezó la votación? O puede que yo ya no sea administrador del chat!',
+        ['9'] = 'La gente ha hablado. No he baneado a %s [%s] de %s porque %s personas han votado no hacerlo.',
+        ['10'] = 'Has votado banear %s [%s]!',
+        ['11'] = 'Tu voto se ha eliminado, usa los botones para poner tu votar otra vez.',
+        ['12'] = 'Has revocado banear a %s [%s]!',
+        ['13'] = 'Ya hay un proceso de vote-ban abierto contra este usuario!'
     },
     ['weather'] = {
-        ['1'] = 'You don\'t have a location set. Use /setloc <location> to set one.',
-        ['2'] = 'It\'s currently %s (feels like %s) in %s. %s'
+        ['1'] = 'No has fijado ninguna ubicación. Usa /setloc <lugar> para poner una.',
+        ['2'] = 'Hay %s (sensación térmica de %s) en %s. %s'
     },
     ['welcome'] = {
-        ['1'] = 'Group Rules'
+        ['1'] = 'Reglas del grupo'
     },
     ['whitelist'] = {
-        ['1'] = 'Which user would you like me to whitelist? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot whitelist this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot whitelist this user because they have already left this chat.',
-        ['4'] = 'I cannot whitelist this user because they have already been banned from this chat.'
+        ['1'] = 'Que usuario quieres que ponga en la lista blanca? Especifica un alias o ID.',
+        ['2'] = 'No puedo poner a este usuario en la lista blanca porque es es administrador o moderador.',
+        ['3'] = 'No puedo poner a este usuario en la lista blanca porque ha abandonado el chat.',
+        ['4'] = 'No puedo poner a este usuario en la lista blanca porque ya está en la lista negra.'
     },
     ['wikipedia'] = {
-        ['1'] = 'Read more.'
+        ['1'] = 'Leer más.'
     },
     ['youtube'] = {
-        ['1'] = 'Previous',
-        ['2'] = 'Next',
-        ['3'] = 'You are on page %s of %s!'
+        ['1'] = 'Anterior',
+        ['2'] = 'Siguiente',
+        ['3'] = 'Estás en la página %s de %s!'
     }
 }
