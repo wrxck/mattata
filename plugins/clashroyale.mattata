@@ -26,7 +26,7 @@ function clashroyale.request(key, input, content)
     end
 end
 
-function clashroyale.parse_player(message, data)
+function clashroyale.parse_player(data)
     local output = ""
     output = "<b>Player</b>\n"
     output = output.. mattata.escape_html(data.name) .. " [#" .. data.tag .. "]\n"
@@ -47,15 +47,80 @@ function clashroyale.parse_player(message, data)
     output = output.. "Wins: <code>" .. math.floor(tonumber(data.games.wins)) .. "</code> (<i>" .. math.floor(tonumber(data.games.winsPercent)*100) .. "%</i>) | Draws: <code>" .. math.floor(tonumber(data.games.draws)) .. "</code> (<i>" .. math.floor(tonumber(data.games.drawsPercent)*100) .. "%</i>) | Losses: <code>" .. math.floor(tonumber(data.games.losses)) .. "</code> (<i>" .. math.floor(tonumber(data.games.lossesPercent)*100) .. "%</i>)\n"
 
     local keyboard = mattata.inline_keyboard()
-    :row(mattata.row():callback_data_button('View Clan Information', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':clan'))
-    :row(mattata.row():callback_data_button('View User Statistics', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':stats'))
-    :row(mattata.row():callback_data_button('View Chest Cycle', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':chests'))
-    :row(mattata.row():callback_data_button('View League Stats', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':league'))
-    :row(mattata.row():callback_data_button('View Current Deck', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':deck'):url_button('Open in CR', data.deckLink))
-    :row(mattata.row():callback_data_button('View Cards Level', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':cards'))
-    :row(mattata.row():callback_data_button('View Battle History', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':battles'))
+    :row(mattata.row():callback_data_button('View Clan Information', 'clashroyale:player:' .. data.tag .. ':clan'))
+    :row(mattata.row():callback_data_button('View User Statistics', 'clashroyale:player:' .. data.tag .. ':stats'))
+    :row(mattata.row():callback_data_button('View Chest Cycle', 'clashroyale:player:' .. data.tag .. ':chests'))
+    :row(mattata.row():callback_data_button('View League Stats', 'clashroyale:player:' .. data.tag .. ':league'))
+    :row(mattata.row():callback_data_button('View Current Deck', 'clashroyale:player:' .. data.tag .. ':deck'):url_button('Copy Deck', data.deckLink))
+    :row(mattata.row():callback_data_button('View Cards Level', 'clashroyale:player:' .. data.tag .. ':cards'))
+    :row(mattata.row():callback_data_button('View Battle History', 'clashroyale:player:' .. data.tag .. ':battles'))
 
     return output, keyboard
+end
+
+function clashroyale.parse_player_chests(data)
+    local output = ""
+    output = "<b>Player</b>\n"
+    output = output.. mattata.escape_html(data.name) .. " [#" .. data.tag .. "]\n"
+    if rank then
+        output = output.. math.floor(tonumber(data.trophies)) .. "🏆 - Top " .. data.rank .. "\n"
+    else
+        output = output.. math.floor(tonumber(data.trophies)) .. "🏆" .. "\n"
+    end
+    output = output.. "Arena <i>" .. data.arena.name .. "</i> <code>" .. data.arena.arena .. "</code>\n\n\n"
+    output = output.. "<b>Upcoming Chests</b>\n"
+    output = output.. "1. <i>" .. (data.chestCycle.upcoming[1]):gsub("^%l", string.upper) .. " Chest</i>\n"
+    output = output.. "2. <i>" .. (data.chestCycle.upcoming[2]):gsub("^%l", string.upper) .. " Chest</i>\n"
+    output = output.. "3. <i>" .. (data.chestCycle.upcoming[3]):gsub("^%l", string.upper) .. " Chest</i>\n"
+    output = output.. "4. <i>" .. (data.chestCycle.upcoming[4]):gsub("^%l", string.upper) .. " Chest</i>\n"
+    output = output.. "5. <i>" .. (data.chestCycle.upcoming[5]):gsub("^%l", string.upper) .. " Chest</i>\n"
+    output = output.. "6. <i>" .. (data.chestCycle.upcoming[6]):gsub("^%l", string.upper) .. " Chest</i>\n"
+    output = output.. "7. <i>" .. (data.chestCycle.upcoming[7]):gsub("^%l", string.upper) .. " Chest</i>\n"
+    output = output.. "8. <i>" .. (data.chestCycle.upcoming[8]):gsub("^%l", string.upper) .. " Chest</i>\n\n"
+    output = output.. "<code>" .. data.chestCycle.superMagical .. "</code> Chests missing for a <i>SuperMagical Chest</i>\n"
+    output = output.. "<code>" .. data.chestCycle.magical .. "</code> Chests missing for a <i>Magical Chest</i>\n"
+    output = output.. "<code>" .. data.chestCycle.lenendary .. "</code> Chests missing for a <i>Legendary Chest</i>\n"
+    output = output.. "<code>" .. data.chestCycle.epic .. "</code> Chests missing for a <i>Epic Chest</i>\n"
+    output = output.. "<code>" .. data.chestCycle.giant .. "</code> Chests missing for a <i>Giant Chest</i>\n"
+
+    local keyboard = mattata.inline_keyboard()
+    :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
+
+    return output, keyboard
+end
+
+function clashroyale:on_callback_query(callback_query, message, configuration)
+    if callback_query.data == 'nil'
+    then
+        return mattata.answer_callback_query(callback_query.id)
+    end
+    if callback_query.data:match('^player:%a*:back$')
+    then
+        local player = callback_query.data:match('^player:(%a*):back$')
+        local text, keyboard = clashroyale.parse_player(clashroyale.request(configuration.keys.clashroyale, "player", player))
+        return mattata.edit_message_text(
+            message.chat.id,
+            message.message_id,
+            text,
+            'html',
+            false,
+            keyboard
+        )
+    elseif callback_query.data:match('^player:%a*:chests$')
+    then
+        local player = callback_query.data:match('^player:(%a*):back$')
+        local text, keyboard = clashroyale.parse_player_chests(clashroyale.request(configuration.keys.clashroyale, "player", player))
+        return mattata.edit_message_text(
+            message.chat.id,
+            message.message_id,
+            text,
+            'html',
+            false,
+            keyboard
+        )
+    else
+        return false
+    end
 end
 
 function clashroyale:on_message(message, configuration, language)
@@ -67,7 +132,7 @@ function clashroyale:on_message(message, configuration, language)
     if input:match('^player') then
         local json_data = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
         if json_data.tag then
-            local text, keyboard = clashroyale.parse_player(message, json_data)
+            local text, keyboard = clashroyale.parse_player(json_data)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
         else
             return mattata.send_reply(message, language['errors']['results'])
