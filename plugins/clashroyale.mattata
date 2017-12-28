@@ -26,9 +26,8 @@ function clashroyale.request(key, input, content)
     end
 end
 
-function clashroyale.parse_player(json_data)
+function clashroyale.parse_player(data)
     local output = ""
-    local data = json.decode(json_data)
     output = data.name .. " [#" .. data.tag .. "]\n"
     if rank then
         output = output .. data.trphies .. "🏆 - Top " .. data.rank
