@@ -518,7 +518,7 @@ Sistema:
         ['2'] = 'Nuevas reglas guardadas!'
     },
     ['setwelcome'] = {
-        ['1'] = 'Cual quieres que sea el mensaje de bienvenida? El texto que me envíes puede contener formateo Markdown (este mensaje puede ser desactivado en los ajustes de administration, con /administration). Puedes usar campos predefinidos para poner un mensaje personalizado. Usa $user\_id para insertar el ID númerico del usuario, $chat\_id para el ID númerico de chat, $name para insertar el nombre del usuario, $title para insertar el título de chat y $username para insertar el alias del usuario (si el usuario no tiene un alias como @username, se mostrará su nombre, así que es mejor usar $name en vez de este)',
+        ['1'] = 'Cual quieres que sea el mensaje de bienvenida? El texto que me envíes puede contener formateo Markdown (este mensaje puede ser desactivado en los ajustes de administration, con /administration). Puedes usar campos predefinidos para poner un mensaje personalizado. Usa $user_id para insertar el ID númerico del usuario, $chat_id para el ID númerico de chat, $name para insertar el nombre del usuario, $title para insertar el título de chat y $username para insertar el alias del usuario (si el usuario no tiene un alias como @username, se mostrará su nombre, así que es mejor usar $name en vez de este)',
         ['2'] = 'Hubo un error con el formateo Markdown. Compruébalo y prueba de nuevo.',
         ['3'] = 'El mensaje de bienvenida para %s se ha actualizado!'
     },
