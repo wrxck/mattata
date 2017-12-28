@@ -35,7 +35,7 @@ function clashroyale.cookie()
     return cookie
 end
 
-function clashroyale.request(input, content)
+function clashroyale.request(key, input, content)
     local cookie = clashroyale.cookie()
     if not cookie then
         return false
@@ -58,7 +58,7 @@ function clashroyale.request(input, content)
                     ['Cookie'] = table.concat(cookie, ';'),
                     ['DNT'] = '1',
                     ['Connection'] = 'keep-alive',
-                    ['auth'] = configuration.keys.clashroyale
+                    ['auth'] = key
                 }
             }
         )
@@ -73,7 +73,7 @@ function clashroyale:on_message(message, configuration, language)
     end
 
     if input == "player" then
-        output = clashroyale.request("player", input:gsub("%s+", ""):gsub("player", ""))
+        output = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""))
         return message.send_reply(message, output)
     else
         return mattata.send_reply(message, clashroyale.help)
