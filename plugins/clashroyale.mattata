@@ -42,8 +42,6 @@ function clashroyale.parse_player(message, data)
         :callback_data_button('Sth', '')
         :callback_data_button('Sth 2', '')
     )
-    print(output)
-    print(keyboard)
     return output, keyboard
 end
 
@@ -56,7 +54,7 @@ function clashroyale:on_message(message, configuration, language)
     if input:match('^player') then
         local json_data = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
         local text, keyboard = clashroyale.parse_player(message, json_data)
-        return message.send_message(message, text, true, false, false, message.message_id, keyboard)
+        return mattata.send_message(message, text, true, false, false, message.message_id, keyboard)
     else
         return mattata.send_reply(message, clashroyale.help)
     end
