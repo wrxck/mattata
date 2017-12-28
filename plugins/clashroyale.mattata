@@ -71,6 +71,7 @@ function clashroyale:on_message(message, configuration, language)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
         else
             return mattata.send_reply(message, language['errors']['results'])
+        end
     else
         return mattata.send_reply(message, clashroyale.help)
     end
