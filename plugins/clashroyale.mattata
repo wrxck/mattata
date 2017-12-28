@@ -36,7 +36,7 @@ function clashroyale.parse_player(message, data)
     end
 
     local keyboard = mattata.inline_keyboard()
-    :row(mattata.row():callback_data_button('View Clan', 'clashroyale:' .. message.chat.id .. ':' .. message.id .. ':player:' .. data.tag .. ':' .. 'clan'))
+    :row(mattata.row():callback_data_button('View Clan', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':' .. 'clan'))
     :row(
         mattata.row()
         :callback_data_button('Sth', '')
