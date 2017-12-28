@@ -79,7 +79,7 @@ function weather:on_message(message, configuration, language)
     elseif redis:hget('chat:' .. message.from.id .. ':settings', 'language') then
         locale = redis:hget('chat:' .. message.from.id .. ':settings', 'language'):gsub("(.*)_.*$","%1")
     else
-        local = "en"
+        locale = "en"
     end
     local jstr, res = https.request('https://api.darksky.net/forecast/' .. configuration.keys.weather .. '/' .. latitude .. ',' .. longitude .. '?units=auto&lang='..locale
     if res ~= 200
