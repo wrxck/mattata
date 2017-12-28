@@ -65,7 +65,32 @@ function gblacklist:on_message(message, configuration, language)
             end
             return mattata.send_reply(message, output.."\n<i>"..users_found.."</i> <b>Existing Accounts Found</b>", 'html')
         else
-            return mattata.send_reply(message, "I couldn't the list for globally banned users")
+            return mattata.send_reply(message, "I couldn't fetch the list for globally banned users")
+        end
+    elseif input == "clean" then
+        local keys = redis:keys('global_blacklist:*') or false
+        if keys then
+            local users_deleted = 0
+            for k, entry in pairs(keys) do
+                local id = entry:match('^global_blacklist:(%d+)')
+                local user = mattata.get_user(id) or mattata.get_chat(id)
+                if not user then
+                    users_deleted = users_deleted + 1
+                    redis:del(entry)
+                    if configuration.log_admin_actions
+                    and configuration.log_channel ~= '' then
+                        local output = message.from.first_name .. ' [' .. message.from.id .. '] has deleted from the global blacklist ' .. id .. ' as it\'s a deleted account'
+                        mattata.send_message(
+                            configuration.log_channel,
+                            '#action #ungblacklist #admin_'..message.from.id..' #user_'..id..'\n\n<code>' .. mattata.escape_html("") .. '</code>',
+                            'html'
+                        )
+                    end
+                end
+            end
+            return mattata.send_reply(message, 'Successfully deleted <b>'..users_deleted..'</b> from the global blacklist as <i>deleted accounts</i>' 'html')
+        else
+            return mattata.send_reply(message, "I couldn't fetch the list for globally banned users")
         end
     end
 
