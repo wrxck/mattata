@@ -591,7 +591,7 @@ function mattata:process_plugin_extras()
                 redis:hset('global_pole_stats', message.from.id, math.floor(tonumber(redis:hget('global_pole_stats', message.from.id) or 0)+5))
             end
             mattata.send_reply(message, message.from.first_name.." has done the POLE!")
-        elseif (message.text:match('^'..mattata.case_insensitive_pattern('subpole')) or message.text:match('^'..mattata.case_insensitive_pattern('plata')) or message.text:match('^'..mattata.case_insensitive_pattern('sub'))) and not mattata.is_subpole_done(message.chat.id, message.from.id) then
+        elseif (message.text:match('^'..mattata.case_insensitive_pattern('subpole')) or message.text:match('^'..mattata.case_insensitive_pattern('plata')) or message.text:match('^'..mattata.case_insensitive_pattern('sub'))) and not mattata.is_subpole_done(message.chat.id, message.from.id) and mattata.is_pole_done(message.chat.id, message.from.id) then
             redis:hset('subpole:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
             redis:hset('subpole:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
             redis:hset('latest_subpole:' .. message.chat.id, 'date', os.date("%x"))
@@ -602,7 +602,7 @@ function mattata:process_plugin_extras()
                 redis:hset('global_pole_stats', message.from.id, math.floor(tonumber(redis:hget('global_pole_stats', message.from.id) or 0)+3))
             end
             mattata.send_reply(message, message.from.first_name.." has done the SUBPOLE")
-        elseif (message.text:match('^'..mattata.case_insensitive_pattern('fail')) or message.text:match('^'..mattata.case_insensitive_pattern('bronce'))) and not mattata.is_fail_done(message.chat.id, message.from.id) then
+        elseif (message.text:match('^'..mattata.case_insensitive_pattern('fail')) or message.text:match('^'..mattata.case_insensitive_pattern('bronce'))) and not mattata.is_fail_done(message.chat.id, message.from.id) and mattata.is_subpole_done(message.chat.id, message.from.id) and mattata.is_pole_done(message.chat.id, message.from.id) then
             redis:hset('fail:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
             redis:hset('fail:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
             redis:hset('latest_fail:' .. message.chat.id, 'date', os.date("%x"))
