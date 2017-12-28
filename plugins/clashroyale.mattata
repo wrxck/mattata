@@ -90,6 +90,7 @@ function clashroyale.parse_player_chests(data)
 end
 
 function clashroyale:on_callback_query(callback_query, message, configuration)
+    print(callback_query.data)
     if callback_query.data == 'nil'
     then
         return mattata.answer_callback_query(callback_query.id)
