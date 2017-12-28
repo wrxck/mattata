@@ -28,6 +28,24 @@ function youtube.get_result_count(input)
     return #jdat.items
 end
 
+function youtube.get_url(input, n)
+    n = n or 1
+    local jstr, res = https.request('https://www.googleapis.com/youtube/v3/search?key=' .. configuration.keys.youtube .. '&type=video&part=snippet&q=' .. url.escape(input))
+    if res ~= 200 then
+        return false
+    end
+    local jdat = json.decode(jstr)
+    if jdat.pageInfo.total_results == 0 then
+        return false
+    end
+    local jstr_info, res_info = https.request('https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&key=' .. configuration.keys.youtube .. '&id=' .. jdat.items[n].id.videoId .. '&fields=items(id,snippet(publishedAt,channelTitle,localized(title,description)),statistics(viewCount,likeCount,dislikeCount,commentCount),contentDetails(duration,regionRestriction(blocked)))')
+    if res_info ~= 200 then
+        return false
+    end
+    local jdat_info = json.decode(jstr_info)
+    return 'https://www.youtube.com/watch?v="' .. jdat.items[n].id.videoId .. '"'
+end
+
 function youtube.get_result(input, n)
     n = n or 1
     local jstr, res = https.request('https://www.googleapis.com/youtube/v3/search?key=' .. configuration.keys.youtube .. '&type=video&part=snippet&q=' .. url.escape(input))
@@ -43,7 +61,7 @@ function youtube.get_result(input, n)
         return false
     end
     local jdat_info = json.decode(jstr_info)
-    local output = '<a href="https://www.youtube.com/watch?v=' .. jdat.items[n].id.videoId .. '">' .. mattata.escape_html(jdat.items[n].snippet.title) .. '</a>\n'
+    local output = '<a href="https://www.youtube.com/watch?v="' .. jdat.items[n].id.videoId .. '">' .. mattata.escape_html(jdat.items[n].snippet.title) .. '</a>\n'
     if jdat_info.items[1].snippet.channelTitle then
         output = output .. '👤 ' .. mattata.escape_html(jdat_info.items[1].snippet.channelTitle) .. '\n'
     end
@@ -85,6 +103,12 @@ function youtube:on_callback_query(callback_query, message, configuration, langu
                 inline_keyboard = {
                     {
                         {
+                            ['text'] = "Watch It!",
+                            ['url'] = youtube.get_url(input, tonumber(result))
+                        }
+                    },
+                    {
+                        {
                             ['text'] = mattata.symbols.back .. ' ' .. language['youtube']['1'],
                             ['callback_data'] = previous_result
                         },
@@ -100,7 +124,7 @@ function youtube:on_callback_query(callback_query, message, configuration, langu
                 }
             }
         )
-        return mattata.edit_message_text(message.chat.id, message.message_id, output, 'html', true, keyboard)
+        return mattata.edit_message_text(message.chat.id, message.message_id, output, 'html', false, keyboard)
     elseif callback_query.data:match('^pages:.-:.-$') then
         local current_page, total_pages = callback_query.data:match('^pages:(.-):(.-)$')
         return mattata.answer_callback_query(
@@ -128,6 +152,12 @@ function youtube:on_message(message, configuration, language)
             ['inline_keyboard'] = {
                 {
                     {
+                        {
+                            ['text'] = "Watch It!",
+                            ['url'] = youtube.get_url(input)
+                        }
+                    },
+                    {
                         ['text'] = mattata.symbols.back .. ' ' .. language['youtube']['1'],
                         ['callback_data'] = 'youtube:results:0'
                     },
@@ -147,7 +177,7 @@ function youtube:on_message(message, configuration, language)
         message.chat.id,
         output,
         'html',
-        true,
+        false,
         false,
         message.message_id,
         keyboard
