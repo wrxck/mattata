@@ -8,7 +8,6 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 local https = require('ssl.https')
 local url = require('socket.url')
-local url = require('socket.url')
 local json = require('dkjson')
 
 function clashroyale:init(configuration)
@@ -49,7 +48,7 @@ function clashroyale.request(key, input, content)
                 ['url'] = 'https://api.cr-api.com/player/'..content,
                 ['method'] = 'GET',
                 ['headers'] = {
-                    ['Host'] = 'api.cr-api.com',
+                    ['HOST'] = 'api.cr-api.com',
                     ['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:51.0) Gecko/20100101 Firefox/51.0',
                     ['Accept'] = '*/*',
                     ['Accept-Language'] = 'en-US,en;q=0.5',
