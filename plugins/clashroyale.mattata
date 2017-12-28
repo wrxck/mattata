@@ -22,7 +22,7 @@ end
 
 function clashroyale.cookie()
     local cookie = {}
-    local _, res, headers = http.request{
+    local _, res, headers = https.request{
         ['url'] = 'https://api.cr-api.com/',
         ['method'] = 'GET'
     }
