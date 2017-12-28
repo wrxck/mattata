@@ -26,7 +26,7 @@ function clashroyale.request(key, input, content)
     end
 end
 
-function clashroyale.parse_player(data)
+function clashroyale.parse_player(message, data)
     local output = ""
     output = data.name .. " [#" .. data.tag .. "]\n"
     if rank then
@@ -54,7 +54,7 @@ function clashroyale:on_message(message, configuration, language)
 
     if input:match('^player') then
         local json_data = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
-        local text, keyboard = clashroyale.parse_player(json_data)
+        local text, keyboard = clashroyale.parse_player(message, json_data)
         return message.send_reply(message, text, nil, true, false, nil, keyboard)
     else
         return mattata.send_reply(message, clashroyale.help)
