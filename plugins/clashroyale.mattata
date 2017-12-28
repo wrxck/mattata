@@ -42,7 +42,8 @@ function clashroyale.parse_player(message, data)
         :callback_data_button('Sth', '')
         :callback_data_button('Sth 2', '')
     )
-
+    print(output)
+    print(keyboard)
     return output, keyboard
 end
 
