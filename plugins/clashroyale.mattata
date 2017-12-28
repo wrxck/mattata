@@ -1,0 +1,83 @@
+--[[
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local clashroyale = {}
+local mattata = require('mattata')
+local redis = dofile('libs/redis.lua')
+local https = require('ssl.https')
+local url = require('socket.url')
+local url = require('socket.url')
+local json = require('dkjson')
+
+function clashroyale:init(configuration)
+    assert(
+        configuration.keys.clashroyale,
+        'clashroyale.lua requires an API key, and you haven\'t got one configured!'
+    )
+    clashroyale.commands = mattata.commands(self.info.username):command('clashroyale'):command('cr').table
+    clashroyale.help = '/clashroyale player <#ID> - Send information about that user.\n\nAlis: /cr'
+end
+
+function clashroyale.cookie()
+    local cookie = {}
+    local _, res, headers = http.request{
+        ['url'] = 'https://api.cr-api.com/',
+        ['method'] = 'GET'
+    }
+    if res ~= 200 and res ~= 401 then
+        return false
+    end
+    local set = headers['set-cookie']
+    local k, v = set:match('([^%s;=]+)=?([^%s;]*)')
+    cookie[k] = v
+    return cookie
+end
+
+function clashroyale.request(input, content)
+    local cookie = clashroyale.cookie()
+    if not cookie then
+        return false
+    end
+    for k, v in pairs(cookie) do
+        cookie[#cookie + 1] = k .. '=' .. v
+    end
+    if input == "player" then
+        local output, code, headers = https.request(
+            {
+                ['url'] = 'https://api.cr-api.com/player/'..content,
+                ['method'] = 'GET',
+                ['headers'] = {
+                    ['Host'] = 'api.cr-api.com',
+                    ['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:51.0) Gecko/20100101 Firefox/51.0',
+                    ['Accept'] = '*/*',
+                    ['Accept-Language'] = 'en-US,en;q=0.5',
+                    ['Accept-Encoding'] = 'gzip, deflate',
+                    ['Referrer'] = 'https://api.cr-api.com/',
+                    ['Cookie'] = table.concat(cookie, ';'),
+                    ['DNT'] = '1',
+                    ['Connection'] = 'keep-alive',
+                    ['auth'] = configuration.keys.clashroyale
+                }
+            }
+        )
+        return output
+    end
+end
+
+function clasroyale:on_message(message, configuration, language)
+    local input = mattata.input(message.text)
+    if not input then
+        return mattata.send_reply(message, clashroyale.help)
+    end
+
+    if input == "player" then
+        output = clashroyale.request("player", input:gsub("%s+", ""):gsub("player", ""))
+        return message.send_reply(message, output)
+    else
+        return mattata.send_reply(message, clashroyale.help)
+    end
+end
+
+return clashroyale
