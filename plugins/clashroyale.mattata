@@ -6,8 +6,7 @@
 local clashroyale = {}
 local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
-local https = require('ssl.https')
-local url = require('socket.url')
+local requests = require('requests')
 local json = require('dkjson')
 
 function clashroyale:init(configuration)
@@ -19,50 +18,33 @@ function clashroyale:init(configuration)
     clashroyale.help = '/clashroyale player <#ID> - Send information about that user.\n\nAlis: /cr'
 end
 
-function clashroyale.cookie()
-    local cookie = {}
-    local _, res, headers = https.request{
-        ['url'] = 'https://api.cr-api.com/',
-        ['method'] = 'GET'
-    }
-    if res ~= 200 and res ~= 401 then
-        return false
+function clashroyale.request(key, input, content)
+    if input == "player" then
+        headers = {auth = key}
+        response = requests.get{url = 'https://api.cr-api.com/player/'..content, headers = headers}
+        return response.json()
     end
-    local set = headers['set-cookie']
-    local k, v = set:match('([^%s;=]+)=?([^%s;]*)')
-    cookie[k] = v
-    return cookie
 end
 
-function clashroyale.request(key, input, content)
-    local cookie = clashroyale.cookie()
-    if not cookie then
-        return false
+function clashroyale.parse_player(json_data)
+    local output = ""
+    local data = json.decode(json_data)
+    output = data.name .. " [#" .. data.tag .. "]\n"
+    if rank then
+        output = output .. data.trphies .. "🏆 - Top " .. data.rank
+    else
+        output = output .. data.trphies .. "🏆"
     end
-    for k, v in pairs(cookie) do
-        cookie[#cookie + 1] = k .. '=' .. v
-    end
-    if input == "player" then
-        local output, code, headers = https.request(
-            {
-                ['url'] = 'https://api.cr-api.com/player/'..content,
-                ['method'] = 'GET',
-                ['headers'] = {
-                    ['HOST'] = 'api.cr-api.com',
-                    ['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:51.0) Gecko/20100101 Firefox/51.0',
-                    ['Accept'] = '*/*',
-                    ['Accept-Language'] = 'en-US,en;q=0.5',
-                    ['Accept-Encoding'] = 'gzip, deflate',
-                    ['Referrer'] = 'https://api.cr-api.com/',
-                    ['Cookie'] = table.concat(cookie, ';'),
-                    ['DNT'] = '1',
-                    ['Connection'] = 'keep-alive',
-                    ['auth'] = key
-                }
-            }
-        )
-        return output
-    end
+
+    local keyboard = mattata.inline_keyboard()
+    :row(mattata.row():callback_data_button('View Clan', 'clashroyale:' .. message.chat.id .. ':' .. message.id .. ':player:' .. data.tag .. ':' .. 'clan'))
+    :row(
+        mattata.row()
+        :callback_data_button('Sth', '')
+        :callback_data_button('Sth 2', '')
+    )
+
+    return output, keyboard
 end
 
 function clashroyale:on_message(message, configuration, language)
@@ -72,8 +54,9 @@ function clashroyale:on_message(message, configuration, language)
     end
 
     if input:match('^player') then
-        output = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
-        return message.send_reply(message, output)
+        local json_data = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
+        local text, keyboard = clashroyale.parse_player(json_data)
+        return message.send_reply(message, text, nil, true, false, nil, keyboard)
     else
         return mattata.send_reply(message, clashroyale.help)
     end
