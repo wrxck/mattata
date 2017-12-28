@@ -5,6 +5,7 @@
 
 local weather = {}
 local mattata = require('mattata')
+local redis = dofile('libs/redis.lua')
 local https = require('ssl.https')
 local http = require('socket.http')
 local url = require('socket.url')
