@@ -39,11 +39,11 @@ function clashroyale.parse_player(message, data)
     output = output.. "<b>Clan</b>\n"
     output = output.. mattata.escape_html(data.clan.name) .. " [#" .. data.clan.tag .. "]\n"
     output = output.. "Role: <i>" .. data.clan.role .. "</i>\n"
-    output = output.. "Donations: <code>" .. data.clan.donations .. "</code>\n"
-    output = output.. "Donations Received: <code>" .. data.clan.donationsReceived .. "</code>\n\n"
+    output = output.. "Donations: <code>" .. math.floor(tonumber(data.clan.donations)) .. "</code>\n"
+    output = output.. "Donations Received: <code>" .. math.floor(tonumber(data.clan.donationsReceived)) .. "</code>\n\n"
     output = output.. "<b>Games</b>\n"
-    output = output.. "Total Games Played: <code>" .. data.games.total .. "</code>\n"
-    output = output.. "Tournament Games Played: <code>" .. data.games.tournamentGames .. "</code>\n"
+    output = output.. "Total Games Played: <code>" .. math.floor(tonumber(data.games.total)) .. "</code>\n"
+    output = output.. "Tournament Games Played: <code>" .. math.floor(tonumber(data.games.tournamentGames)) .. "</code>\n"
     output = output.. "Wins: <code>" .. math.floor(tonumber(data.games.wins)) .. "</code> (<i>" .. math.floor(tonumber(data.games.winsPercent)*100) .. "%</i>) | Draws: <code>" .. math.floor(tonumber(data.games.draws)) .. "</code> (<i>" .. math.floor(tonumber(data.games.drawsPercent)*100) .. "%</i>) | Losses: <code>" .. math.floor(tonumber(data.games.losses)) .. "</code> (<i>" .. math.floor(tonumber(data.games.lossesPercent)*100) .. "%</i>)\n"
 
     local keyboard = mattata.inline_keyboard()
