@@ -39,8 +39,8 @@ function clashroyale.parse_player(message, data)
     :row(mattata.row():callback_data_button('View Clan', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':' .. 'clan'))
     :row(
         mattata.row()
-        :callback_data_button('Sth', '')
-        :callback_data_button('Sth 2', '')
+        :callback_data_button('Sth', 'clashroyale:nil')
+        :callback_data_button('Sth 2', 'clashroyale:nil')
     )
     return output, keyboard
 end
