@@ -82,7 +82,7 @@ function gblacklist:on_message(message, configuration, language)
                         local output = message.from.first_name .. ' [' .. message.from.id .. '] has deleted from the global blacklist ' .. id .. ' as it\'s a deleted account'
                         mattata.send_message(
                             configuration.log_channel,
-                            '#action #ungblacklist #admin_'..message.from.id..' #user_'..id..'\n\n<code>' .. mattata.escape_html("") .. '</code>',
+                            '#action #ungblacklist #admin_'..message.from.id..' #user_'..id..'\n\n<code>' .. mattata.escape_html(output) .. '</code>',
                             'html'
                         )
                     end
