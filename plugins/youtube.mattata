@@ -43,7 +43,7 @@ function youtube.get_result(input, n)
         return false
     end
     local jdat_info = json.decode(jstr_info)
-    local output = '<a href="https://www.youtube.com/watch?v="' .. jdat.items[n].id.videoId .. '">' .. mattata.escape_html(jdat.items[n].snippet.title) .. '</a>\n'
+    local output = '<a href="https://www.youtube.com/watch?v=' .. jdat.items[n].id.videoId .. '">' .. mattata.escape_html(jdat.items[n].snippet.title) .. '</a>\n'
     if jdat_info.items[1].snippet.channelTitle then
         output = output .. '👤 ' .. mattata.escape_html(jdat_info.items[1].snippet.channelTitle) .. '\n'
     end
