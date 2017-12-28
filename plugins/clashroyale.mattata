@@ -66,7 +66,7 @@ function clashroyale.request(input, content)
     end
 end
 
-function clasroyale:on_message(message, configuration, language)
+function clashroyale:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if not input then
         return mattata.send_reply(message, clashroyale.help)
