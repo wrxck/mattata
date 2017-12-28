@@ -88,7 +88,7 @@ function gblacklist:on_message(message, configuration, language)
                     end
                 end
             end
-            return mattata.send_reply(message, 'Successfully deleted <b>'..users_deleted..'</b> from the global blacklist as <i>deleted accounts</i>', 'html')
+            return mattata.send_reply(message, 'Successfully deleted <b>'..users_deleted..'</b> accounts from the global blacklist as <i>deleted accounts</i>', 'html')
         else
             return mattata.send_reply(message, "I couldn't fetch the list for globally banned users")
         end
