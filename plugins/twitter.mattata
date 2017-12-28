@@ -49,7 +49,7 @@ function twitter.authorise(message, configuration, language)
             ['oauth_callback'] = 'oob',
             ['state'] = tracking_code
         })
-        local output = 'To authorise mattata to use your Twitter account, please [navigate to this page](' .. new_url .. '), authorise mattata, and reply to this message with the code you are presented with on your screen.'
+        local output = 'To authorise BarrePolice to use your Twitter account, please [navigate to this page](' .. new_url .. '), authorise mattata, and reply to this message with the code you are presented with on your screen.'
         local success = mattata.send_force_reply(message, output, 'markdown')
         if success then
             redis:set('action:' .. message.chat.id .. ':' .. success.result.message_id, '/authtwitter')
