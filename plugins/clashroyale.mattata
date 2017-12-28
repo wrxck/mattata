@@ -51,7 +51,7 @@ function clashroyale.parse_player(message, data)
     :row(mattata.row():callback_data_button('View User Statistics', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':stats'))
     :row(mattata.row():callback_data_button('View Chest Cycle', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':chests'))
     :row(mattata.row():callback_data_button('View League Stats', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':league'))
-    :row(mattata.row():callback_data_button('View Current Deck', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':deck'):url_button('Open in CR', data.deckLink)
+    :row(mattata.row():callback_data_button('View Current Deck', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':deck'):url_button('Open in CR', data.deckLink))
     :row(mattata.row():callback_data_button('View Cards Level', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':cards'))
     :row(mattata.row():callback_data_button('View Battle History', 'clashroyale:' .. message.chat.id .. ':' .. message.message_id .. ':player:' .. data.tag .. ':battles'))
 
