@@ -41,12 +41,16 @@ function clashroyale.parse_player(data)
     output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n"
     output = output.. "<b>Use the following buttons to navigate through user's profile</b>"
 
+    local cards_pages = math.floor(tonumber(#data.cards) / 10)
+    if math.floor(tonumber(#data.cards) / 10) ~= tonumber(#data.cards) / 10 then
+        cards_pages = cards_pages + 1
+    end
     local keyboard = mattata.inline_keyboard()
     :row(mattata.row():callback_data_button('Clan Information', 'clashroyale:player:' .. data.tag .. ':clan'))
     :row((data.leagueStatistics and mattata.row():callback_data_button('User Stats', 'clashroyale:player:' .. data.tag .. ':stats'):callback_data_button('Season Stats', 'clashroyale:player:' .. data.tag .. ':season') or mattata.row():callback_data_button('User Stats', 'clashroyale:player:' .. data.tag .. ':stats')))
     :row(mattata.row():callback_data_button('Current Deck', 'clashroyale:player:' .. data.tag .. ':deck'))
     :row(mattata.row():callback_data_button('Chest Cycle', 'clashroyale:player:' .. data.tag .. ':chests'))
-    :row(mattata.row():callback_data_button('Cards Level', 'clashroyale:player:' .. data.tag .. ':cards'))
+    :row(mattata.row():callback_data_button('Cards Level', 'clashroyale:player:' .. data.tag .. ':cards:1:'..cards_pages))
     :row(mattata.row():callback_data_button('Battle History', 'clashroyale:player:' .. data.tag .. ':battles'))
 
     return output, keyboard
@@ -181,13 +185,55 @@ function clashroyale.parse_player_deck(data)
     output = output.. "<b>Current Deck</b>\n"
     local elixir_cost = 0
     for k, v in pairs(data.currentDeck) do
-        output = output.. k .. " - " .. v.name .. " (Lvl <code>" .. v.level .. "</code>)" .. (k == #data.currentDeck and "\n\n" or "\n")
+        output = output.. k .. " - " .. v.name .. " (Lvl <code>" .. math.floor(tonumber(v.level)) .. "</code>)" .. (k == #data.currentDeck and "\n\n" or "\n")
         elixir_cost = elixir_cost + v.elixir
     end
     output = output.. "<i>Elixir Media</i>: " .. mattata.round(elixir_cost/8, 1)
 
     local keyboard = mattata.inline_keyboard()
     :row(mattata.row():url_button('Copy Deck', data.deckLink))
+    :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
+
+    return output, keyboard
+end
+
+function clashroyale.parse_player_cards(data, page)
+    local output = ""
+    output = "<b>Player</b>\n"
+    output = output.. mattata.escape_html(data.name) .. " [#" .. data.tag .. "]\n"
+    if rank then
+        output = output.. math.floor(tonumber(data.trophies)) .. " 🏆 - Top " .. data.rank .. "\n"
+    else
+        output = output.. math.floor(tonumber(data.trophies)) .. " 🏆" .. "\n"
+    end
+    output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n\n"
+    output = output.. "<b>Player Cards</b>\n"
+
+    local number_of_cards = #data.cards
+    local page_begins_at = tonumber(page) * 10 - 9
+    local page_ends_at = tonumber(page_begins_at) + 9
+    if tonumber(page_ends_at) > tonumber(number_of_cards) then
+        page_ends_at = tonumber(number_of_cards)
+    end
+    for i = tonumber(page_begins_at), tonumber(page_ends_at) do
+        output = output.. data.cards[i].name .. "\n"
+    end
+    local page_count = math.floor(tonumber(#data.cards) / 10)
+    if math.floor(tonumber(#data.cards) / 10) ~= tonumber(#data.cards) / 10 then
+        page_count = page_count + 1
+    end
+
+    local keyboard = mattata.inline_keyboard()
+    :row(mattata.row():callback_data_button(
+            mattata.symbols.back .. ' ' .. language['help']['4'],
+            'clashroyale:player:' .. data.tag .. ':cards:' .. (page-1)
+        ):callback_data_button(
+            '1/' .. page_count,
+            'clashroyale:nil'
+        ):callback_data_button(
+            language['help']['5'] .. ' ' .. mattata.symbols.next,
+            'clashroyale:player:' .. data.tag .. ':cards:' .. (page+1)
+        ))
     :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
 
     return output, keyboard
@@ -264,6 +310,23 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
     then
         local player = callback_query.data:match('^player:(%w*):deck$')
         local text, keyboard = clashroyale.parse_player_deck(clashroyale.request(configuration.keys.clashroyale, "player", player))
+        return mattata.edit_message_text(
+            message.chat.id,
+            message.message_id,
+            text,
+            'html',
+            false,
+            keyboard
+        )
+    elseif callback_query.data:match('^player:%w*:cards:%d+$')
+    then
+        local player, page, pages = callback_query.data:match('^player:(%w*):cards:(%d+):(%d+)$')
+        if tonumber(new_page) > tonumber(pages) then
+            new_page = 1
+        elseif tonumber(new_page) < 1 then
+            new_page = tonumber(pages)
+        end
+        local text, keyboard = clashroyale.parse_player_deck(clashroyale.request(configuration.keys.clashroyale, "player", player), new_page)
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
