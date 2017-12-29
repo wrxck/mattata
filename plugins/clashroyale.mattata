@@ -7,6 +7,7 @@ local clashroyale = {}
 local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 local requests = require('requests')
+local url = require('socket.url')
 local json = require('dkjson')
 
 function clashroyale:init(configuration)
@@ -29,14 +30,6 @@ function clashroyale.ordinal(number)
     else
         return 'th'
     end
-end
-
-function clashroyale.escape(s)
-    s = string.gsub(s, "([&=+%c])", function (c)
-        return string.format("%%%02X", string.byte(c))
-        end)
-    s = string.gsub(s, " ", "+")
-    return s
 end
 
 
@@ -497,11 +490,11 @@ function clashroyale:on_message(message, configuration, language)
             local min_members = input_data:match('min=(%d+)') or ""
             local max_members = input_data:match('max=(%d+)') or ""
             input_data = input_data:gsub(' trophies=' .. trophies, ""):gsub(' max=' .. max_members, ""):gsub(' min=' .. min_members, "")
-            local content = clashroyale.escape(input_data) .. (trophies ~= "" and "&score="..trophies or "") .. (min_members ~= "" and "&minMembers="..min_members or "") .. (max_members ~= "" and "&maxMembers="..max_members or "")
+            local content = url.escape(input_data) .. (trophies ~= "" and "&score="..trophies or "") .. (min_members ~= "" and "&minMembers="..min_members or "") .. (max_members ~= "" and "&maxMembers="..max_members or "")
             print(content)
             json_data = clashroyale.request(configuration.keys.clashroyale, "clan_search", content)
             if #json_data > 0 then
-                local text, keyboard = clashroyale.parse_clan_search(json_data, clashroyale.escape(input_data), 1)
+                local text, keyboard = clashroyale.parse_clan_search(json_data, url.escape(input_data), 1)
                 return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
             else
                 return mattata.send_reply(message, language['errors']['results'])
