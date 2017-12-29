@@ -77,11 +77,11 @@ function clashroyale.parse_player_chests(data)
     output = output.. "6. <i>" .. (data.chestCycle.upcoming[6]):gsub("^%l", string.upper) .. " Chest</i>\n"
     output = output.. "7. <i>" .. (data.chestCycle.upcoming[7]):gsub("^%l", string.upper) .. " Chest</i>\n"
     output = output.. "8. <i>" .. (data.chestCycle.upcoming[8]):gsub("^%l", string.upper) .. " Chest</i>\n\n"
-    output = output.. "<code>" .. data.chestCycle.superMagical .. "</code> Chests missing for a <i>SuperMagical Chest</i>\n"
-    output = output.. "<code>" .. data.chestCycle.magical .. "</code> Chests missing for a <i>Magical Chest</i>\n"
-    output = output.. "<code>" .. data.chestCycle.legendary .. "</code> Chests missing for a <i>Legendary Chest</i>\n"
-    output = output.. "<code>" .. data.chestCycle.epic .. "</code> Chests missing for a <i>Epic Chest</i>\n"
-    output = output.. "<code>" .. data.chestCycle.giant .. "</code> Chests missing for a <i>Giant Chest</i>\n"
+    output = output.. "<code>" .. math.floor(tonumber(data.chestCycle.superMagical)) .. "</code> Chests missing for a <i>SuperMagical Chest</i>\n"
+    output = output.. "<code>" .. math.floor(tonumber(data.chestCycle.magical)) .. "</code> Chests missing for a <i>Magical Chest</i>\n"
+    output = output.. "<code>" .. math.floor(tonumber(data.chestCycle.legendary)) .. "</code> Chests missing for a <i>Legendary Chest</i>\n"
+    output = output.. "<code>" .. math.floor(tonumber(data.chestCycle.epic)) .. "</code> Chests missing for a <i>Epic Chest</i>\n"
+    output = output.. "<code>" .. math.floor(tonumber(data.chestCycle.giant)) .. "</code> Chests missing for a <i>Giant Chest</i>\n"
 
     local keyboard = mattata.inline_keyboard()
     :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
