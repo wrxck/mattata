@@ -279,7 +279,7 @@ function clashroyale.parse_player_battles(data, battle)
     :row(mattata.row():callback_data_button('21', 'clashroyale:player:' .. data.tag .. ':battles:21'):callback_data_button('22', 'clashroyale:player:' .. data.tag .. ':battles:22'):callback_data_button('23', 'clashroyale:player:' .. data.tag .. ':battles:23'):callback_data_button('24', 'clashroyale:player:' .. data.tag .. ':battles:24'):callback_data_button('25', 'clashroyale:player:' .. data.tag .. ':battles:25'))
     :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
 
-    return output, keyboard
+    return mattata.escape_html(output), keyboard
 end
 
 
