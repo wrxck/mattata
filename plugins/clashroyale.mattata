@@ -324,15 +324,6 @@ function clashroyale.parse_player_battles(data, battle, page)
               {['text'] = mattata.escape_html(data.battles[battle].opponent[2].name) .. ' Battle Deck', ['url_button'] = data.battles[battle].opponent[2].deckLink} })
         end
     end
-    for k, v in pairs(data.battles[battle].team) do
-    end
-    for k, v in pairs(data.battles[battle].opponent) do
-        output = output.. "<i>" .. mattata.escape_html(v.name) .. "</i>: "
-        for z, y in pairs(y.deck) do
-            output = output.. "<code>" .. y.name .. "</code>, "
-        end
-        output = output:sub(1, -3).. "\n"
-    end
     for k = (((page-1)*5)+1), (page*5) do
         battle_name = ""
         for x, y in pairs(data.battles[k].team) do battle_name = battle_name.. mattata.escape_html(y.name) .. " & " end
