@@ -494,7 +494,7 @@ function clashroyale:on_message(message, configuration, language)
             print(content)
             json_data = clashroyale.request(configuration.keys.clashroyale, "clan_search", content)
             if #json_data > 0 then
-                local text, keyboard = clashroyale.parse_clan_search(json_data, url.escape(input_data), 1)
+                local text, keyboard = clashroyale.parse_clan_search(json_data, content, 1)
                 return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
             else
                 return mattata.send_reply(message, language['errors']['results'])
