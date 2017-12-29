@@ -362,13 +362,13 @@ end
 function clashroyale.parse_clan_search(data, search_query, page)
     local output = ""
     if #data > 0 then
-        output = "<b>Here is what I found for your clans search query:</b>"
+        output = "<b>Here is what I found:</b>"
     else
         output = "<b>I couldn't find any result for your search</b>"
     end
 
+    local keyboard = { ['inline_keyboard']={} }
     if #data > 0 then
-        local keyboard = { ['inline_keyboard']={} }
         for k = (((page-1)*10)+1), (page*10) do
             table.insert(keyboard.inline_keyboard,
             { {['text'] = mattata.escape_html(data[k].name) .. " (" .. math.floor(tonumber(data[k].score)) .. " 🏆)", ['callback_data'] = 'clashroyale:clan:' ..data[k].tag} })
