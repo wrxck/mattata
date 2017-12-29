@@ -15,7 +15,7 @@ function clashroyale:init(configuration)
         'clashroyale.lua requires an API key, and you haven\'t got one configured!'
     )
     clashroyale.commands = mattata.commands(self.info.username):command('clashroyale'):command('cr').table
-    clashroyale.help = '/clashroyale player <#ID> - Send information about that user.\n\nAlis: /cr'
+    clashroyale.help = '/clashroyale save <#PLAYER_ID> - Save your player ID for future usage\n/clashroyale player [#PLAYER_ID] - Send information about that player.\n\nAlias: /cr'
 end
 
 
@@ -38,7 +38,7 @@ function clashroyale.parse_player(data)
     else
         output = output.. math.floor(tonumber(data.trophies)) .. "🏆" .. "\n"
     end
-    output = output.. "Arena <i>" .. data.arena.name .. "</i> <code>" .. data.arena.arena .. "</code>\n\n"
+    output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n"
     output = output.. "<b>Use the following buttons to navigate through user's profile</b>"
 
     local keyboard = mattata.inline_keyboard()
@@ -61,7 +61,7 @@ function clashroyale.parse_player_chests(data)
     else
         output = output.. math.floor(tonumber(data.trophies)) .. "🏆" .. "\n"
     end
-    output = output.. "Arena <i>" .. data.arena.name .. "</i> <code>" .. data.arena.arena .. "</code>\n\n\n"
+    output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n\n"
     output = output.. "<b>Upcoming Chests</b>\n"
     output = output.. "1. <i>" .. (data.chestCycle.upcoming[1]):gsub("^%l", string.upper) .. " Chest</i>\n"
     output = output.. "2. <i>" .. (data.chestCycle.upcoming[2]):gsub("^%l", string.upper) .. " Chest</i>\n"
