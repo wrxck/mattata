@@ -263,9 +263,9 @@ function clashroyale.parse_player_battles(data, battle)
         output = output.. "<b>Latest " .. battle .. " Battle</b> at <i>" .. os.date('%Y-%m-%d %H:%M:%S', math.floor(tonumber(data.battles[battle].utcTime))) .. " UTC</i>\n"
         output = output.. mattata.escape_html(data.name) .. (data.battles[battle].winner and " <b>won</b>" or " <b>lost</b>") .. " this battle\n"
         if challengeType then
-            output = "Battle Type: <i>" .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. " " .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. "<i>\n"
+            output = output.. "Battle Type: <i>" .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. " " .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. "<i>\n"
         else
-            output = "Battle Type: <i>" .. data.battles[battle].mode.name .. " " .. (data.battles[battle].type):gsub("^%l", string.upper) .. "<i>\n"
+            output = output.. "Battle Type: <i>" .. data.battles[battle].mode.name .. " " .. (data.battles[battle].type):gsub("^%l", string.upper) .. "<i>\n"
         end
         output = output.. "Card Levels: <i>" .. data.battles[battle].mode.cardLevels .. "</i>\n"
         output = output.. "Overtime: <i>" .. data.battles[battle].mode.overtimeSeconds .. " Seconds</i>"
