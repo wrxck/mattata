@@ -44,7 +44,7 @@ function clashroyale.parse_player(data)
     local keyboard = mattata.inline_keyboard()
     :row(mattata.row():callback_data_button('Clan Information', 'clashroyale:player:' .. data.tag .. ':clan'))
     :row((data.leagueStatistics and mattata.row():callback_data_button('User Stats', 'clashroyale:player:' .. data.tag .. ':stats'):callback_data_button('Season Stats', 'clashroyale:player:' .. data.tag .. ':season') or mattata.row():callback_data_button('User Stats', 'clashroyale:player:' .. data.tag .. ':stats')))
-    :row(mattata.row():callback_data_button('Current Deck', 'clashroyale:player:' .. data.tag .. ':deck'):url_button('Copy Deck', data.deckLink))
+    :row(mattata.row():callback_data_button('Current Deck', 'clashroyale:player:' .. data.tag .. ':deck'))
     :row(mattata.row():callback_data_button('Chest Cycle', 'clashroyale:player:' .. data.tag .. ':chests'))
     :row(mattata.row():callback_data_button('Cards Level', 'clashroyale:player:' .. data.tag .. ':cards'))
     :row(mattata.row():callback_data_button('Battle History', 'clashroyale:player:' .. data.tag .. ':battles'))
@@ -168,6 +168,31 @@ function clashroyale.parse_player_season(data)
     return output, keyboard
 end
 
+function clashroyale.parse_player_deck(data)
+    local output = ""
+    output = "<b>Player</b>\n"
+    output = output.. mattata.escape_html(data.name) .. " [#" .. data.tag .. "]\n"
+    if rank then
+        output = output.. math.floor(tonumber(data.trophies)) .. " 🏆 - Top " .. data.rank .. "\n"
+    else
+        output = output.. math.floor(tonumber(data.trophies)) .. " 🏆" .. "\n"
+    end
+    output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n\n"
+    output = output.. "<b>Current Deck</b>\n"
+    local elixir
+    for k, v in pairs(data.leagueStatistics.currentDeck) do
+        output = output.. k .. " - " .. v.name .. " (Lvl <code>" .. v.level .. "</code>)" .. (k == #data.leagueStatistics.currentDeck and "\n\n" or "\n")
+        elixir = elixir + v.elixir
+    end
+    output = output.. "<i>Elixir Media</i>: " .. mattata.round(elixir/8, 1)
+
+    local keyboard = mattata.inline_keyboard()
+    :row(mattata.row():url_button('Copy Deck', data.deckLink))
+    :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
+
+    return output, keyboard
+end
+
 
 
 function clashroyale:on_callback_query(callback_query, message, configuration)
@@ -227,6 +252,18 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
     then
         local player = callback_query.data:match('^player:(%w*):season$')
         local text, keyboard = clashroyale.parse_player_season(clashroyale.request(configuration.keys.clashroyale, "player", player))
+        return mattata.edit_message_text(
+            message.chat.id,
+            message.message_id,
+            text,
+            'html',
+            false,
+            keyboard
+        )
+    elseif callback_query.data:match('^player:%w*:deck$')
+    then
+        local player = callback_query.data:match('^player:(%w*):deck$')
+        local text, keyboard = clashroyale.parse_player_deck(clashroyale.request(configuration.keys.clashroyale, "player", player))
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
