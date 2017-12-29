@@ -167,7 +167,7 @@ function clashroyale:on_message(message, configuration, language)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
         else
             if redis:hget('clashroyale:' .. message.from.id, 'player') then
-                local json_data = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
+                local json_data = clashroyale.request(configuration.keys.clashroyale, "player", redis:hget('clashroyale:' .. message.from.id, 'player'))
                 local text, keyboard = clashroyale.parse_player(json_data)
                 return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
             else
