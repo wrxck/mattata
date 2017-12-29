@@ -323,7 +323,7 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
         local player, page, pages = callback_query.data:match('^player:(%w*):cards:(%d+):(%d+)$')
         if tonumber(page) > tonumber(pages) then
             page = 1
-        elseif tonumber(new_page) < 1 then
+        elseif tonumber(page) < 1 then
             page = tonumber(pages)
         end
         local text, keyboard = clashroyale.parse_player_deck(clashroyale.request(configuration.keys.clashroyale, "player", player), page)
