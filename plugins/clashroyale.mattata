@@ -256,6 +256,7 @@ function clashroyale.parse_player_battles(data, battle)
     output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n\n"
     output = output.. "<b>Player Battles</b>\n\n"
 
+    battle = math.floor(tonumber(battle))
     if battle == 0 then
         output = output.. "<i>Use the following keyboard to see latest battles:</i>"
     elseif battle > 0 and battle < 26 then
