@@ -245,6 +245,7 @@ function clashroyale.parse_player_cards(data, page)
 end
 
 function clashroyale.parse_player_battles(data, battle, page)
+    print(page)
     local output = ""
     output = "<b>Player</b>\n"
     output = output.. mattata.escape_html(data.name) .. " [#" .. data.tag .. "]\n"
@@ -281,7 +282,6 @@ function clashroyale.parse_player_battles(data, battle, page)
 
     local keyboard = { ['inline_keyboard']={} }
     if page == 1 then
-        print("DETECTED")
         local counter = 1
         for k = 1, 5 do
             battle_name = ""
