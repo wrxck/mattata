@@ -175,7 +175,7 @@ function clashroyale:on_message(message, configuration, language)
             end
         end
     elseif input:match('^save') then
-        local tag = input:gsub("%s+", ""):gsub("player", ""):gsub("#", "")
+        local tag = input:gsub("%s+", ""):gsub("save", ""):gsub("#", "")
         local json_data = clashroyale.request(configuration.keys.clashroyale, "player", tag)
         if json_data.tag then
             redis:hset('clashroyale:' .. message.from.id, 'player', json_data.tag)
