@@ -930,6 +930,9 @@ function mattata.sort_message(message)
         message.chat = mattata.process_chat(message.chat)
         message.left_chat_member = mattata.process_user(message.left_chat_member)
         redis:srem('chat:' .. message.chat.id .. ':users', message.left_chat_member.id)
+        if mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'delete leftgroup messages') then
+            mattata.delete_message(message.chat.id, message.message_id)
+        end
         if mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(message.chat.id, 'log leftgroup') then
             local log_chat = mattata.get_log_chat(message.chat.id)
             mattata.send_message(log_chat, string.format('#leftmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] left %s [%s]</pre>', mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
@@ -1468,6 +1471,9 @@ function mattata:process_message()
                 keyboard = mattata.inline_keyboard():row(mattata.row():url_button(utf8.char(128218) .. ' ' .. language['welcome']['1'], 'https://t.me/' .. self.info.username .. '?start=' .. message.chat.id .. '_rules'))
             end
             return mattata.send_message(message, welcome_message, 'markdown', true, false, nil, keyboard)
+        end
+        if mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'delete joingroup messages') then
+            mattata.delete_message(message.chat.id, message.message_id)
         end
         if mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(message.chat.id, 'log joingroup') then
             local log_chat = mattata.get_log_chat(message.chat.id)

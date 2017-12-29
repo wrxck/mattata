@@ -172,6 +172,24 @@ function administration.get_initial_keyboard(chat_id, page)
                 'administration:' .. chat_id .. ':notify_admins_actions:3'
             )
         )
+        :row(mattata.row():callback_data_button('Trusted Users Permissions', 'administration:' .. chat_id .. ':trusted_permissions'))
+        :row(
+            mattata.row()
+            :callback_data_button('Delete JoinGroup Messages?', 'administration:nil')
+            :callback_data_button(
+                mattata.get_setting(chat_id, 'delete joingroup messages') and utf8.char(9989) or utf8.char(10060),
+                'administration:' .. chat_id .. ':delete_joingroup_messages:3'
+            )
+        )
+        :row(mattata.row():callback_data_button('Trusted Users Permissions', 'administration:' .. chat_id .. ':trusted_permissions'))
+        :row(
+            mattata.row()
+            :callback_data_button('Delete LeftGroup Messages?', 'administration:nil')
+            :callback_data_button(
+                mattata.get_setting(chat_id, 'delete leftgroup messages') and utf8.char(9989) or utf8.char(10060),
+                'administration:' .. chat_id .. ':delete_leftgroup_messages:3'
+            )
+        )
         :row(
             mattata.row()
             :callback_data_button('Apply Global Blacklist?', 'administration:nil')
@@ -704,14 +722,30 @@ function administration:on_callback_query(callback_query, message, configuration
             'notify admins actions'
         )
         keyboard = administration.get_initial_keyboard(chat_id, page)
-  elseif callback_query.data:match('^%-%d+:apply_global_blacklist:%d*$')
-  then
-      local chat_id, page = callback_query.data:match('^(%-%d+):apply_global_blacklist:(%d*)$')
-      mattata.toggle_setting(
-          chat_id,
-          'apply global blacklist'
-      )
-      keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:delete_joingroup_messages:%d*$')
+    then
+        local chat_id, page = callback_query.data:match('^(%-%d+):delete_joingroup_messages:(%d*)$')
+        mattata.toggle_setting(
+            chat_id,
+            'delete joingroup messages'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:delete_leftgroup_messages:%d*$')
+    then
+        local chat_id, page = callback_query.data:match('^(%-%d+):delete_leftgroup_messages:(%d*)$')
+        mattata.toggle_setting(
+            chat_id,
+            'delete leftgroup messages'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id, page)
+    elseif callback_query.data:match('^%-%d+:apply_global_blacklist:%d*$')
+    then
+        local chat_id, page = callback_query.data:match('^(%-%d+):apply_global_blacklist:(%d*)$')
+        mattata.toggle_setting(
+            chat_id,
+            'apply global blacklist'
+        )
+        keyboard = administration.get_initial_keyboard(chat_id, page)
     elseif callback_query.data:match('^%-%d+:word_filter:%d*$')
     then
         local chat_id, page = callback_query.data:match('^(%-%d+):word_filter:(%d*)$')
