@@ -188,6 +188,7 @@ mattata.get_user_count = utils.get_user_count
 mattata.get_group_count = utils.get_group_count
 mattata.get_user_language = utils.get_user_language
 mattata.get_log_chat = utils.get_log_chat
+mattata.get_missing_languages = utils.get_missing_languages
 mattata.get_user_message_statistics = utils.get_user_message_statistics
 mattata.reset_message_statistics = utils.reset_message_statistics
 mattata.is_group = utils.is_group

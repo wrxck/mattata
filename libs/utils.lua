@@ -174,6 +174,19 @@ function utils.get_log_chat(chat_id)
     return redis:hget('chat:' .. chat_id .. ':settings', 'log chat') or configuration.log_channel or false
 end
 
+function utils.get_missing_languages(delimiter)
+    local missing_languages = redis:smembers('mattata:missing_languages')
+    if not missing_languages then
+        return false
+    end
+    local output = {}
+    for k, v in pairs(missing_languages) do
+        table.insert(output, v)
+    end
+    local delimiter = delimiter or ', '
+    return table.concat(output, delimiter)
+end
+
 function utils.get_list(name)
     name = tostring(name)
     local length = redis:llen(name)
