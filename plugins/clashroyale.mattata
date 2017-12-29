@@ -326,7 +326,7 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
         elseif tonumber(page) < 1 then
             page = tonumber(pages)
         end
-        local text, keyboard = clashroyale.parse_player_deck(clashroyale.request(configuration.keys.clashroyale, "player", player), page)
+        local text, keyboard = clashroyale.parse_player_cards(clashroyale.request(configuration.keys.clashroyale, "player", player), page)
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
