@@ -378,7 +378,7 @@ function clashroyale.parse_clan_search(data, search_query, page)
                 { {['text'] = 'Next', ['callback_data'] = 'clashroyale:clan_search:' .. search_query .. ':2'} })
         elseif tonumber(page) == 5 then
             table.insert(keyboard.inline_keyboard,
-                { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. search_query .. ':4'} })
+                { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:clan_search:' .. search_query .. ':4'} })
         else
             table.insert(keyboard.inline_keyboard,
                 { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:clan_search:' .. search_query .. ':' .. math.floor(page-1)},
