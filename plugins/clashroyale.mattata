@@ -345,8 +345,10 @@ function clashroyale.parse_player_battles(data, battle, page)
     if pages > math.floor(pages) then
         pages = pages + 1
     end
+    print(pages)
+    print(#data)
     if pages > 1 then
-        if tonumber(page) == 1then
+        if tonumber(page) == 1 then
             table.insert(keyboard.inline_keyboard,
                 { {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':2'} })
         elseif tonumber(page) == pages then
