@@ -282,12 +282,12 @@ function clashroyale.parse_player_battles(data, battle)
     local keyboard = {['inline_keyboard']={}}
     for k, v in pairs(data.battles) do
         local battle_name = ""
-        for k, v in pairs(data.battles[v].team) do
-            battle_name = battle_name.. "<i>" .. mattata.escape_html(v.name) .. "</i> & "
+        for k, v2 in pairs(v.team) do
+            battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & "
         end
         battle_name = battle_name:sub(1, -4).. " <b>VS.</b> "
-        for k, v in pairs(data.battles[v].opponent) do
-            battle_name = battle_name.. "<i>" .. mattata.escape_html(v.name) .. "</i> & "
+        for k, v2 in pairs(v.opponent) do
+            battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & "
         end
         battle_name = battle_name:sub(1, -4)
         mattata.insert_keyboard_row(keyboard, k .. ". " .. battle_name, 'clashroyale:player:' .. data.tag .. ':battles:' .. k)
