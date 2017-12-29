@@ -34,9 +34,9 @@ function clashroyale.parse_player(data)
     output = "<b>Player</b>\n"
     output = output.. mattata.escape_html(data.name) .. " [#" .. data.tag .. "]\n"
     if rank then
-        output = output.. math.floor(tonumber(data.trophies)) .. "🏆 - Top " .. data.rank .. "\n"
+        output = output.. math.floor(tonumber(data.trophies)) .. " 🏆 - Top " .. data.rank .. "\n"
     else
-        output = output.. math.floor(tonumber(data.trophies)) .. "🏆" .. "\n"
+        output = output.. math.floor(tonumber(data.trophies)) .. " 🏆" .. "\n"
     end
     output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n"
     output = output.. "<b>Use the following buttons to navigate through user's profile</b>"
@@ -61,9 +61,9 @@ function clashroyale.parse_player_chests(data)
     output = "<b>Player</b>\n"
     output = output.. mattata.escape_html(data.name) .. " [#" .. data.tag .. "]\n"
     if rank then
-        output = output.. math.floor(tonumber(data.trophies)) .. "🏆 - Top " .. data.rank .. "\n"
+        output = output.. math.floor(tonumber(data.trophies)) .. " 🏆 - Top " .. data.rank .. "\n"
     else
-        output = output.. math.floor(tonumber(data.trophies)) .. "🏆" .. "\n"
+        output = output.. math.floor(tonumber(data.trophies)) .. " 🏆" .. "\n"
     end
     output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n\n"
     output = output.. "<b>Upcoming Chests</b>\n"
@@ -284,6 +284,7 @@ function clashroyale.parse_player_battles(data, battle, page)
         keyboard = { ['inline_keyboard']={} }
         local counter = 1
         for k = 1, 5 do
+            print(k)
             battle_name = ""
             for k, v2 in pairs(data.battles[k].team) do battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & " end
             battle_name = battle_name:sub(1, -4).. " <b>VS.</b> "
