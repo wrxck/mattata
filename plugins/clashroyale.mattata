@@ -49,6 +49,7 @@ function clashroyale.request(key, input, content)
         response = requests.get{url = 'https://api.cr-api.com/clan/'..content, headers = headers}
         return response.json()
     elseif input == "clan_search" then
+        print('https://api.cr-api.com/clan/search?name='..content)
         response = requests.get{url = 'https://api.cr-api.com/clan/search?name='..content, headers = headers}
         return response.json()
     end
@@ -497,7 +498,7 @@ function clashroyale:on_message(message, configuration, language)
             local min_members = input_data:match('min=(%d+)') or ""
             local max_members = input_data:match('max=(%d+)') or ""
             input_data = input_data:gsub(' trophies=' .. trophies, ""):gsub(' max=' .. max_members, ""):gsub(' min=' .. min_members, "")
-            json_data = clashroyale.request(configuration.keys.clashroyale, "clan_search", clashroyale.escape(input_data) .. (trophies and "?score="..trophies or "") .. (min_members and "?minMembers="..min_members or "") .. (max_members and "?maxMembers="..max_members or ""))
+            json_data = clashroyale.request(configuration.keys.clashroyale, "clan_search", clashroyale.escape(input_data) .. (trophies and "&score="..trophies or "") .. (min_members and "&minMembers="..min_members or "") .. (max_members and "&maxMembers="..max_members or ""))
             if #json_data > 0 then
                 local text, keyboard = clashroyale.parse_clan_search(json_data, input_data, 1)
                 return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
