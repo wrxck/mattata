@@ -79,7 +79,7 @@ function clashroyale.parse_player_chests(data)
     output = output.. "8. <i>" .. (data.chestCycle.upcoming[8]):gsub("^%l", string.upper) .. " Chest</i>\n\n"
     output = output.. "<code>" .. data.chestCycle.superMagical .. "</code> Chests missing for a <i>SuperMagical Chest</i>\n"
     output = output.. "<code>" .. data.chestCycle.magical .. "</code> Chests missing for a <i>Magical Chest</i>\n"
-    output = output.. "<code>" .. data.chestCycle.lenendary .. "</code> Chests missing for a <i>Legendary Chest</i>\n"
+    output = output.. "<code>" .. data.chestCycle.legendary .. "</code> Chests missing for a <i>Legendary Chest</i>\n"
     output = output.. "<code>" .. data.chestCycle.epic .. "</code> Chests missing for a <i>Epic Chest</i>\n"
     output = output.. "<code>" .. data.chestCycle.giant .. "</code> Chests missing for a <i>Giant Chest</i>\n"
 
