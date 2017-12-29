@@ -199,6 +199,17 @@ end
 
 function clashroyale.parse_player_cards(data, page)
     local output = ""
+    local number_of_cards = #data.cards
+    local page_begins_at = tonumber(page) * 10 - 9
+    local page_ends_at = tonumber(page_begins_at) + 9
+    if tonumber(page_ends_at) > tonumber(number_of_cards) then
+        page_ends_at = tonumber(number_of_cards)
+    end
+    local page_count = math.floor(tonumber(#data.cards) / 10)
+    if math.floor(tonumber(#data.cards) / 10) ~= tonumber(#data.cards) / 10 then
+        page_count = page_count + 1
+    end
+
     output = "<b>Player</b>\n"
     output = output.. mattata.escape_html(data.name) .. " [#" .. data.tag .. "]\n"
     if rank then
@@ -208,19 +219,14 @@ function clashroyale.parse_player_cards(data, page)
     end
     output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n\n"
     output = output.. "<b>Player Cards</b>\n"
-
-    local number_of_cards = #data.cards
-    local page_begins_at = tonumber(page) * 10 - 9
-    local page_ends_at = tonumber(page_begins_at) + 9
-    if tonumber(page_ends_at) > tonumber(number_of_cards) then
-        page_ends_at = tonumber(number_of_cards)
-    end
     for i = tonumber(page_begins_at), tonumber(page_ends_at) do
-        output = output.. data.cards[i].name .. "\n"
-    end
-    local page_count = math.floor(tonumber(#data.cards) / 10)
-    if math.floor(tonumber(#data.cards) / 10) ~= tonumber(#data.cards) / 10 then
-        page_count = page_count + 1
+        output = output.. mattata.escape_html(data.cards[i].name) .. " | <i>Level</i> <code>" .. data.cards[i].level .. "/" .. data.cards[i].maxLevel .. "</code>\n"
+        output = output.. data.cards[i].count .. " Cards\n"
+        if requiredForUpgrade ~= "Maxed" then
+            output = output.. data.cards[i].requiredForUpgrade .. " Required for Level <code>" .. math.floor(data.cards[i].level+1) .. "</code> <i>(missing</i> <code>" .. (data.cards[i].leftToUpgrade or 0) .. "</code> <i>to upgrade)</i>\n"
+        end
+        output = output.. "Troop Type: <i>" .. data.cards[i].type .. "</i>\n"
+        output = output.. "Elixir Cost: <i>" .. data.cards[i].elixir .. "</i>\n\n"
     end
 
     local keyboard = mattata.inline_keyboard()
