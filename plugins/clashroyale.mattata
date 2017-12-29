@@ -263,12 +263,12 @@ function clashroyale.parse_player_battles(data, battle)
         output = output.. "<b>Latest " .. battle .. " Battle</b> at <i>" .. os.date('%Y-%m-%d %H:%M:%S', math.floor(tonumber(data.battles[battle].utcTime))) .. " UTC</i>\n"
         output = output.. mattata.escape_html(data.name) .. (data.battles[battle].winner and " <b>won</b>" or " <b>lost</b>") .. " this battle\n"
         if challengeType then
-            output = output.. "Battle Type: <i>" .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. " " .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. "<i>\n"
+            output = output.. "Battle Type: <i>" .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. " " .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. "</i>\n"
         else
-            output = output.. "Battle Type: <i>" .. data.battles[battle].mode.name .. " " .. (data.battles[battle].type):gsub("^%l", string.upper) .. "<i>\n"
+            output = output.. "Battle Type: <i>" .. data.battles[battle].mode.name .. " " .. (data.battles[battle].type):gsub("^%l", string.upper) .. "</i>\n"
         end
         output = output.. "Card Levels: <i>" .. data.battles[battle].mode.cardLevels .. "</i>\n"
-        output = output.. "Overtime: <i>" .. data.battles[battle].mode.overtimeSeconds .. " Seconds</i>"
+        output = output.. "Overtime: <i>" .. math.floor(tonumber(data.battles[battle].mode.overtimeSeconds)) .. " Seconds</i>"
     end
 
     local keyboard = mattata.inline_keyboard()
@@ -279,7 +279,7 @@ function clashroyale.parse_player_battles(data, battle)
     :row(mattata.row():callback_data_button('21', 'clashroyale:player:' .. data.tag .. ':battles:21'):callback_data_button('22', 'clashroyale:player:' .. data.tag .. ':battles:22'):callback_data_button('23', 'clashroyale:player:' .. data.tag .. ':battles:23'):callback_data_button('24', 'clashroyale:player:' .. data.tag .. ':battles:24'):callback_data_button('25', 'clashroyale:player:' .. data.tag .. ':battles:25'))
     :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
 
-    return mattata.escape_html(output), keyboard
+    return output, keyboard
 end
 
 
