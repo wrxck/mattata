@@ -18,6 +18,19 @@ function clashroyale:init(configuration)
     clashroyale.help = '/clashroyale save <#PLAYER_ID> - Save your player ID for future usage\n/clashroyale player [#PLAYER_ID] - Send information about that player.\n\nAlias: /cr'
 end
 
+function clashroyale.ordinal(number)
+    last_digit = number % 10
+    if last_digit == 1 and number ~= 11
+        then return 'st'
+    elseif last_digit == 2 and number ~= 12
+        then return 'nd'
+    elseif last_digit == 3 and number ~= 13
+        then return 'rd'
+    else
+        return 'th'
+    end
+end
+
 
 function clashroyale.request(key, input, content)
     if input == "player" then
@@ -260,23 +273,23 @@ function clashroyale.parse_player_battles(data, battle, page)
         output = output.. "<b>Player Battles</b>\n\n"
         output = output.. "<i>Use the following keyboard to see latest battles:</i>"
     elseif battle > 0 and battle < 26 then
-        output = output.. "<b>Latest " .. battle .. " Battle</b> at <i>" .. os.date('%Y-%m-%d %H:%M:%S', math.floor(tonumber(data.battles[battle].utcTime))) .. " UTC</i>\n"
+        output = output.. "<b>Latest " .. battle .. clashroyale.ordinal(battle) .. " Battle</b> at <i>" .. os.date('%Y-%m-%d %H:%M:%S', math.floor(tonumber(data.battles[battle].utcTime))) .. " UTC</i>\n"
+        output = output.. "Card Levels: <i>" .. data.battles[battle].mode.cardLevels .. "</i>\n"
+        output = output.. "Overtime: <i>" .. math.floor(tonumber(data.battles[battle].mode.overtimeSeconds)) .. " Seconds</i>\n\n"
+        for k, v in pairs(data.battles[battle].team) do
+            output = output.. "<i>" .. mattata.escape_html(v.name) .. "</i> & "
+        end
+        output = output:sub(1, -4).. " <b>VS.</b> "
+        for k, v in pairs(data.battles[battle].opponent) do
+            output = output.. "<i>" .. mattata.escape_html(v.name) .. "</i> & "
+        end
+        output = output:sub(1, -4).. "\n\n"
         output = output.. mattata.escape_html(data.name) .. (data.battles[battle].winner and " <b>won</b>" or " <b>lost</b>") .. " this battle\n"
         if challengeType then
             output = output.. "Battle Type: <i>" .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. " " .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. "</i>\n"
         else
             output = output.. "Battle Type: <i>" .. data.battles[battle].mode.name .. " " .. (data.battles[battle].type):gsub("^%l", string.upper) .. "</i>\n"
         end
-        output = output.. "Card Levels: <i>" .. data.battles[battle].mode.cardLevels .. "</i>\n"
-        output = output.. "Overtime: <i>" .. math.floor(tonumber(data.battles[battle].mode.overtimeSeconds)) .. " Seconds</i>\n\n"
-        for k, v in pairs(data.battles[battle].team) do
-            output = output.. "<i>" .. mattata.escape_html(v.name) .. "</i> & "
-        end
-        output = output:sub(1, -4).. " VS. "
-        for k, v in pairs(data.battles[battle].opponent) do
-            output = output.. "<i>" .. mattata.escape_html(v.name) .. "</i> & "
-        end
-        output = output:sub(1, -4).. "\n\n"
     end
 
     local keyboard = { ['inline_keyboard']={} }
@@ -297,7 +310,7 @@ function clashroyale.parse_player_battles(data, battle, page)
             { {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':2'} })
     elseif tonumber(page) == 5 then
         table.insert(keyboard.inline_keyboard,
-            { {['text'] = 'Preious', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':4'} })
+            { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':4'} })
     else
         table.insert(keyboard.inline_keyboard,
             { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':' .. math.floor(page-1)},
