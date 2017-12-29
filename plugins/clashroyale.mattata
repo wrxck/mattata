@@ -281,8 +281,9 @@ function clashroyale.parse_player_battles(data, battle, page)
         for k, v in pairs(data.battles[battle].opponent) do
             output = output.. "<i>" .. mattata.escape_html(v.name) .. "</i> & "
         end
-        output = output:sub(1, -4).. "\n"
-        output = output.. mattata.escape_html(data.name) .. (data.battles[battle].winner and " <b>won</b>" or " <b>lost</b>") .. " this battle\n\n"
+        output = output:sub(1, -4).. "\n\n"
+        output = output.. mattata.escape_html(data.name) .. (data.battles[battle].winner and " <b>won</b>" or " <b>lost</b>") .. " this battle\n"
+        output = output.. "Allies Crowns: <code>" .. math.floor(tonumber(data.battles[battle].teamCrowns)) .. "</code> | Enemies Crowns: <code>" .. math.floor(tonumber(data.battles[battle].opponentCrowns)) .. "</code>\n\n"
         if challengeType then
             output = output.. "Battle Type: <i>" .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. " " .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. "</i>\n"
         else
