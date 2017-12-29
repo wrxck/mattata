@@ -64,6 +64,7 @@ end
 
 function youtube:on_callback_query(callback_query, message, configuration, language)
     if not message.reply then
+        print("FOUND")
         return mattata.answer_callback_query(callback_query.id, language['errors']['generic'])
     elseif callback_query.data:match('^results:%d*$') then
         local result = callback_query.data:match('^results:(%d*)$')
@@ -100,7 +101,7 @@ function youtube:on_callback_query(callback_query, message, configuration, langu
                 }
             }
         )
-        return mattata.edit_message_text(message.chat.id, message.message_id, output, 'html', true, keyboard)
+        return mattata.edit_message_text(message.chat.id, message.message_id, output, 'html', false, keyboard)
     elseif callback_query.data:match('^pages:.-:.-$') then
         local current_page, total_pages = callback_query.data:match('^pages:(.-):(.-)$')
         return mattata.answer_callback_query(
@@ -147,7 +148,7 @@ function youtube:on_message(message, configuration, language)
         message.chat.id,
         output,
         'html',
-        true,
+        false,
         false,
         message.message_id,
         keyboard
