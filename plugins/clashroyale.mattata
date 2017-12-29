@@ -294,7 +294,7 @@ function clashroyale.parse_player_battles(data, battle)
     end
     mattata.insert_keyboard_row(keyboard, 'Back', 'clashroyale:player:' .. data.tag .. ':back')
 
-    return output, keyboard
+    return output, json.encode(keyboard)
 end
 
 
