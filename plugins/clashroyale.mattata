@@ -309,12 +309,12 @@ function clashroyale.parse_player_battles(data, battle, page)
 
     local keyboard = { ['inline_keyboard']={} }
     local counter = math.floor(((page-1)*5)+1)
-    if tonumber(#data.battles[battle].team) == 1 then
+    if #(data.battles[battle].team) == 1 then
         table.insert(keyboard.inline_keyboard,
         { {['text'] = mattata.escape_html(data.battles[battle].team[1].name) .. ' Battle Deck', ['url_button'] = data.battles[battle].team[1].deckLink} })
         table.insert(keyboard.inline_keyboard,
         { {['text'] = mattata.escape_html(data.battles[battle].opponent[1].name) .. ' Battle Deck', ['url_button'] = data.battles[battle].opponent[1].deckLink} })
-    elseif tonumber(#data.battles[battle].team) == 2 then
+    elseif #(data.battles[battle].team) == 2 then
         table.insert(keyboard.inline_keyboard,
         { {['text'] = mattata.escape_html(data.battles[battle].team[1].name) .. ' Battle Deck', ['url_button'] = data.battles[battle].team[1].deckLink},
           {['text'] = mattata.escape_html(data.battles[battle].team[2].name) .. ' Battle Deck', ['url_button'] = data.battles[battle].team[2].deckLink} })
