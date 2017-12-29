@@ -46,12 +46,12 @@ function clashroyale.parse_player(data)
         cards_pages = cards_pages + 1
     end
     local keyboard = mattata.inline_keyboard()
-    :row(mattata.row():callback_data_button('Clan Information', 'clashroyale:player:' .. data.tag .. ':clan'))
-    :row((data.leagueStatistics and mattata.row():callback_data_button('User Stats', 'clashroyale:player:' .. data.tag .. ':stats'):callback_data_button('Season Stats', 'clashroyale:player:' .. data.tag .. ':season') or mattata.row():callback_data_button('User Stats', 'clashroyale:player:' .. data.tag .. ':stats')))
-    :row(mattata.row():callback_data_button('Current Deck', 'clashroyale:player:' .. data.tag .. ':deck'))
-    :row(mattata.row():callback_data_button('Chest Cycle', 'clashroyale:player:' .. data.tag .. ':chests'))
-    :row(mattata.row():callback_data_button('Cards Level', 'clashroyale:player:' .. data.tag .. ':cards:1:'..cards_pages))
-    :row(mattata.row():callback_data_button('Battle History', 'clashroyale:player:' .. data.tag .. ':battles'))
+    :row(mattata.row():callback_data_button('Player\'s Clan', 'clashroyale:player:' .. data.tag .. ':clan'))
+    :row((data.leagueStatistics and mattata.row():callback_data_button('User Stats', 'clashroyale:player:' .. data.tag .. ':stats'):callback_data_button('Season Stats', 'clashroyale:player:' .. data.tag .. ':season') or mattata.row():callback_data_button('Player Statistics', 'clashroyale:player:' .. data.tag .. ':stats')))
+    :row(mattata.row():callback_data_button('View Current Deck', 'clashroyale:player:' .. data.tag .. ':deck'))
+    :row(mattata.row():callback_data_button('Upcoming Chest Cycle', 'clashroyale:player:' .. data.tag .. ':chests'))
+    :row(mattata.row():callback_data_button('Player\'s Cards Level', 'clashroyale:player:' .. data.tag .. ':cards:1:'..cards_pages))
+    :row(mattata.row():callback_data_button('Latest Battles History', 'clashroyale:player:' .. data.tag .. ':battles:0'))
 
     return output, keyboard
 end
