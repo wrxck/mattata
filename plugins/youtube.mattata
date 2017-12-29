@@ -100,7 +100,7 @@ function youtube:on_callback_query(callback_query, message, configuration, langu
                 }
             }
         )
-        return mattata.edit_message_text(message.chat.id, message.message_id, output, 'html', false, keyboard)
+        return mattata.edit_message_text(message.chat.id, message.message_id, output, 'html', true, keyboard)
     elseif callback_query.data:match('^pages:.-:.-$') then
         local current_page, total_pages = callback_query.data:match('^pages:(.-):(.-)$')
         return mattata.answer_callback_query(
@@ -147,7 +147,7 @@ function youtube:on_message(message, configuration, language)
         message.chat.id,
         output,
         'html',
-        false,
+        true,
         false,
         message.message_id,
         keyboard
