@@ -36,10 +36,7 @@ function clashroyale.parse_player(data)
         output = output.. math.floor(tonumber(data.trophies)) .. "🏆" .. "\n"
     end
     output = output.. "Arena <i>" .. data.arena.name .. "</i> <code>" .. data.arena.arena .. "</code>\n\n"
-    output = output.. "<b>Games</b>\n"
-    output = output.. "Total Games Played: <code>" .. math.floor(tonumber(data.games.total)) .. "</code>\n"
-    output = output.. "Tournament Games Played: <code>" .. math.floor(tonumber(data.games.tournamentGames)) .. "</code>\n"
-    output = output.. "Wins: <code>" .. math.floor(tonumber(data.games.wins)) .. "</code> (<i>" .. math.floor(tonumber(data.games.winsPercent)*100) .. "%</i>) | Draws: <code>" .. math.floor(tonumber(data.games.draws)) .. "</code> (<i>" .. math.floor(tonumber(data.games.drawsPercent)*100) .. "%</i>) | Losses: <code>" .. math.floor(tonumber(data.games.losses)) .. "</code> (<i>" .. math.floor(tonumber(data.games.lossesPercent)*100) .. "%</i>)\n"
+    output = output.. "<b>Use the following buttons to navigate through user's profile</b>"
 
     local keyboard = mattata.inline_keyboard()
     :row(mattata.row():callback_data_button('Clan Information', 'clashroyale:player:' .. data.tag .. ':clan'))
@@ -75,7 +72,7 @@ function clashroyale.parse_player_chests(data)
     output = output.. "<code>" .. math.floor(tonumber(data.chestCycle.magical)) .. "</code> Chests missing for a <i>Magical Chest</i>\n"
     output = output.. "<code>" .. math.floor(tonumber(data.chestCycle.legendary)) .. "</code> Chests missing for a <i>Legendary Chest</i>\n"
     output = output.. "<code>" .. math.floor(tonumber(data.chestCycle.epic)) .. "</code> Chests missing for an <i>Epic Chest</i>\n"
-    output = output.. "<code>" .. math.floor(tonumber(data.chestCycle.giant)) .. "</code> Chests missing for a <i>Giant Chest</i>\n"
+    output = output.. "<code>" .. math.floor(tonumber(data.chestCycle.giant)) .. "</code> Chests missing for a <i>Giant Chest</i>"
 
     local keyboard = mattata.inline_keyboard()
     :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
@@ -101,6 +98,37 @@ function clashroyale.parse_player_clan(data)
     output = output.. "Donations Received: <code>" .. math.floor(tonumber(data.clan.donationsReceived)) .. "</code>\n\n"
     output = output.. "To get <b>detailed Clan Information</b>, copy this command and <i>send it to me</i>:\n"
     output = output.. "<code>/cr clan " .. data.clan.tag .. "</code>"
+
+    local keyboard = mattata.inline_keyboard()
+    :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
+
+    return output, keyboard
+end
+
+function clashroyale.parse_player_stats(data)
+    local output = ""
+    output = "<b>Player</b>\n"
+    output = output.. mattata.escape_html(data.name) .. " [#" .. data.tag .. "]\n"
+    if rank then
+        output = output.. math.floor(tonumber(data.trophies)) .. " 🏆 - Top " .. data.rank .. "\n"
+    else
+        output = output.. math.floor(tonumber(data.trophies)) .. " 🏆" .. "\n"
+    end
+    output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n\n"
+    output = output.. "<b>Global Stats</b>\n"
+    output = output.. "Level: <code>" .. math.floor(tonumber(data.stats.level)) .. "</code>\n"
+    output = output.. "Three Crowns Wins: <code>" .. math.floor(tonumber(data.stats.threeCrownWins)) .. "</code>\n"
+    output = output.. "Max Trophies: <code>" .. math.floor(tonumber(data.stats.maxTrophies)) .. "</code>\n"
+    output = output.. "Cards won in Tournaments: <code>" .. math.floor(tonumber(data.stats.tournamentCardsWon)) .. "</code>\n"
+    output = output.. "Cards won in Challenges: <code>" .. math.floor(tonumber(data.stats.challengeCardsWon)) .. "</code>\n"
+    output = output.. "Max Wins in Challenges: <code>" .. math.floor(tonumber(data.stats.challengeMaxWins)) .. "</code>\n"
+    output = output.. "Cards Found: <code>" .. math.floor(tonumber(data.stats.cardsFound)) .. "</code>\n"
+    output = output.. "Favorite Card<a href=\"" .. data.stats.favoriteCard.icon .. "\">:</a> <code>" .. mattata.escape_html(data.stats.favoriteCard.name) .. "</code>\n"
+    output = output.. "Total Donations: <code>" .. math.floor(tonumber(data.stats.totalDonations)) .. "</code>\n\n"
+    output = output.. "<b>Games Stats</b>\n"
+    output = output.. "Total Games Played: <code>" .. math.floor(tonumber(data.games.total)) .. "</code>\n"
+    output = output.. "Tournament Games Played: <code>" .. math.floor(tonumber(data.games.tournamentGames)) .. "</code>\n"
+    output = output.. "Wins: <code>" .. math.floor(tonumber(data.games.wins)) .. "</code> (<i>" .. math.floor(tonumber(data.games.winsPercent)*100) .. "%</i>) | Draws: <code>" .. math.floor(tonumber(data.games.draws)) .. "</code> (<i>" .. math.floor(tonumber(data.games.drawsPercent)*100) .. "%</i>) | Losses: <code>" .. math.floor(tonumber(data.games.losses)) .. "</code> (<i>" .. math.floor(tonumber(data.games.lossesPercent)*100) .. "%</i>)"
 
     local keyboard = mattata.inline_keyboard()
     :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
@@ -141,6 +169,18 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
     then
         local player = callback_query.data:match('^player:(%w*):clan$')
         local text, keyboard = clashroyale.parse_player_clan(clashroyale.request(configuration.keys.clashroyale, "player", player))
+        return mattata.edit_message_text(
+            message.chat.id,
+            message.message_id,
+            text,
+            'html',
+            false,
+            keyboard
+        )
+    elseif callback_query.data:match('^player:%w*:stats$')
+    then
+        local player = callback_query.data:match('^player:(%w*):stats$')
+        local text, keyboard = clashroyale.parse_player_stats(clashroyale.request(configuration.keys.clashroyale, "player", player))
         return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
