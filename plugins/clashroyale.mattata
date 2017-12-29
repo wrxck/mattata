@@ -341,16 +341,22 @@ function clashroyale.parse_player_battles(data, battle, page)
         { {['text'] = counter .. '. ' .. battle_name, ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' .. counter .. ':' ..page} })
         counter = counter+1
     end
-    if tonumber(page) == 1 then
-        table.insert(keyboard.inline_keyboard,
-            { {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':2'} })
-    elseif tonumber(page) == 5 then
-        table.insert(keyboard.inline_keyboard,
-            { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':4'} })
-    else
-        table.insert(keyboard.inline_keyboard,
-            { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':' .. math.floor(page-1)},
-              {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':' .. math.floor(page+1)} })
+    local pages = tonumber(#data)/10
+    if pages > math.floor(pages) then
+        pages = pages + 1
+    end
+    if pages > 1 then
+        if tonumber(page) == 1then
+            table.insert(keyboard.inline_keyboard,
+                { {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':2'} })
+        elseif tonumber(page) == pages then
+            table.insert(keyboard.inline_keyboard,
+                { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':4'} })
+        else
+            table.insert(keyboard.inline_keyboard,
+                { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':' .. math.floor(page-1)},
+                  {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':' .. math.floor(page+1)} })
+        end
     end
     table.insert(keyboard.inline_keyboard,
     { {['text'] = 'Back', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':back'} })
