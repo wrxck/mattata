@@ -434,9 +434,9 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
     then
         local player, battle, page = callback_query.data:match('^player:(%w*):battles:(%d+):(%d+)$')
         text, keyboard = clashroyale.parse_player_battles(clashroyale.request(configuration.keys.clashroyale, "player", player), battle, page)
-    elseif callback_query.data:match('^clan_search:%w*:%d+$')
+    elseif callback_query.data:match('^clan_search:.*:%d+$')
     then
-        local search_query, page = callback_query.data:match('^clan_search:(%w*):(%d+)$')
+        local search_query, page = callback_query.data:match('^clan_search:(.*):(%d+)$')
         text, keyboard = clashroyale.parse_player_battles(clashroyale.request(configuration.keys.clashroyale, "clan_search", search_query), search_query, page)
     else
         return false
