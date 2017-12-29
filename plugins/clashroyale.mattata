@@ -318,7 +318,7 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
             false,
             keyboard
         )
-    elseif callback_query.data:match('^player:%w*:cards:%d+$')
+    elseif callback_query.data:match('^player:%w*:cards:%d+:%d+$')
     then
         local player, page, pages = callback_query.data:match('^player:(%w*):cards:(%d+):(%d+)$')
         if tonumber(new_page) > tonumber(pages) then
