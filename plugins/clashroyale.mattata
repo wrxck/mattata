@@ -487,16 +487,16 @@ function clashroyale:on_message(message, configuration, language)
             end
         end
     elseif input:match('^clan') then
-        local input_data = input:gsub("%s+", ""):gsub("clan", ""):gsub("#", "")
-        local json_data = clashroyale.request(configuration.keys.clashroyale, "clan", input_data)
+        local json_data = clashroyale.request(configuration.keys.clashroyale, "clan", input:gsub("%s+", ""):gsub("clan", ""):gsub("#", ""))
         if json_data.tag then
             local text, keyboard = clashroyale.parse_clan(json_data)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
         else
+            local input_data = inputgsub("clan", ""):gsub("#", "")
             local trophies = input_data:match('trophies=(%d+)') or ""
             local min_members = input_data:match('min=(%d+)') or ""
             local max_members = input_data:match('max=(%d+)') or ""
-            input_data = input_data:gsub('trophies=' .. trophies, ""):gsub('max=' .. max_members, ""):gsub('min=' .. min_members, "")
+            input_data = input_data:gsub(' trophies=' .. trophies, ""):gsub(' max=' .. max_members, ""):gsub(' min=' .. min_members, "")
             local content = clashroyale.escape(input_data) .. (trophies ~= "" and "&score="..trophies or "") .. (min_members ~= "" and "&minMembers="..min_members or "") .. (max_members ~= "" and "&maxMembers="..max_members or "")
             print(content)
             json_data = clashroyale.request(configuration.keys.clashroyale, "clan_search", content)
