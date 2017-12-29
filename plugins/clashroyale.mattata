@@ -251,78 +251,31 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
     then
         return mattata.answer_callback_query(callback_query.id)
     end
+    local text, keyboard
     if callback_query.data:match('^player:%w*:back$')
     then
         local player = callback_query.data:match('^player:(%w*):back$')
-        local text, keyboard = clashroyale.parse_player(clashroyale.request(configuration.keys.clashroyale, "player", player))
-        return mattata.edit_message_text(
-            message.chat.id,
-            message.message_id,
-            text,
-            'html',
-            false,
-            keyboard
-        )
+        text, keyboard = clashroyale.parse_player(clashroyale.request(configuration.keys.clashroyale, "player", player))
     elseif callback_query.data:match('^player:%w*:chests$')
     then
         local player = callback_query.data:match('^player:(%w*):chests$')
-        local text, keyboard = clashroyale.parse_player_chests(clashroyale.request(configuration.keys.clashroyale, "player", player))
-        return mattata.edit_message_text(
-            message.chat.id,
-            message.message_id,
-            text,
-            'html',
-            false,
-            keyboard
-        )
+        text, keyboard = clashroyale.parse_player_chests(clashroyale.request(configuration.keys.clashroyale, "player", player))
     elseif callback_query.data:match('^player:%w*:clan$')
     then
         local player = callback_query.data:match('^player:(%w*):clan$')
-        local text, keyboard = clashroyale.parse_player_clan(clashroyale.request(configuration.keys.clashroyale, "player", player))
-        return mattata.edit_message_text(
-            message.chat.id,
-            message.message_id,
-            text,
-            'html',
-            false,
-            keyboard
-        )
+        text, keyboard = clashroyale.parse_player_clan(clashroyale.request(configuration.keys.clashroyale, "player", player))
     elseif callback_query.data:match('^player:%w*:stats$')
     then
         local player = callback_query.data:match('^player:(%w*):stats$')
-        local text, keyboard = clashroyale.parse_player_stats(clashroyale.request(configuration.keys.clashroyale, "player", player))
-        return mattata.edit_message_text(
-            message.chat.id,
-            message.message_id,
-            text,
-            'html',
-            false,
-            keyboard
-        )
+        text, keyboard = clashroyale.parse_player_stats(clashroyale.request(configuration.keys.clashroyale, "player", player))
     elseif callback_query.data:match('^player:%w*:season$')
     then
         local player = callback_query.data:match('^player:(%w*):season$')
-        local text, keyboard = clashroyale.parse_player_season(clashroyale.request(configuration.keys.clashroyale, "player", player))
-        return mattata.edit_message_text(
-            message.chat.id,
-            message.message_id,
-            text,
-            'html',
-            false,
-            keyboard
-        )
+        text, keyboard = clashroyale.parse_player_season(clashroyale.request(configuration.keys.clashroyale, "player", player))
     elseif callback_query.data:match('^player:%w*:deck$')
     then
         local player = callback_query.data:match('^player:(%w*):deck$')
-        local text, keyboard = clashroyale.parse_player_deck(clashroyale.request(configuration.keys.clashroyale, "player", player))
-        return mattata.edit_message_text(
-            message.chat.id,
-            message.message_id,
-            text,
-            'html',
-            false,
-            keyboard
-        )
+        text, keyboard = clashroyale.parse_player_deck(clashroyale.request(configuration.keys.clashroyale, "player", player))
     elseif callback_query.data:match('^player:%w*:cards:%d+:%d+$')
     then
         local player, page, pages = callback_query.data:match('^player:(%w*):cards:(%d+):(%d+)$')
@@ -331,18 +284,22 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
         elseif tonumber(page) < 1 then
             page = tonumber(pages)
         end
-        local text, keyboard = clashroyale.parse_player_cards(clashroyale.request(configuration.keys.clashroyale, "player", player), page)
-        return mattata.edit_message_text(
-            message.chat.id,
-            message.message_id,
-            text,
-            'html',
-            false,
-            keyboard
-        )
+        text, keyboard = clashroyale.parse_player_cards(clashroyale.request(configuration.keys.clashroyale, "player", player), page)
+    elseif callback_query.data:match('^player:%w*:battles:%d+$')
+    then
+        local player, battle = callback_query.data:match('^player:(%w*):battles:(%d+)$')
+        text, keyboard = clashroyale.parse_player_battles(clashroyale.request(configuration.keys.clashroyale, "player", player), battle)
     else
         return false
     end
+    return mattata.edit_message_text(
+        message.chat.id,
+        message.message_id,
+        text,
+        'html',
+        false,
+        keyboard
+    )
 end
 
 
