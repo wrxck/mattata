@@ -88,26 +88,22 @@ function clashroyale.parse_player_clan(data)
     output = "<b>Player</b>\n"
     output = output.. mattata.escape_html(data.name) .. " [#" .. data.tag .. "]\n"
     if rank then
-        output = output.. math.floor(tonumber(data.trophies)) .. "🏆 - Top " .. data.rank .. "\n"
+        output = output.. math.floor(tonumber(data.trophies)) .. " 🏆 - Top " .. data.rank .. "\n"
     else
-        output = output.. math.floor(tonumber(data.trophies)) .. "🏆" .. "\n"
+        output = output.. math.floor(tonumber(data.trophies)) .. " 🏆" .. "\n"
     end
-    output = output.. "Arena <i>" .. data.arena.name .. "</i> <code>" .. data.arena.arena .. "</code>\n\n\n"
+    output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n\n"
     output = output.. "<b>Clan</b>\n"
     output = output.. "<a href=\"" .. data.clan.badge.image .. "\">" .. mattata.escape_html(data.clan.name) .. "</a> [#" .. data.clan.tag .. "]\n"
-    output = output.. "Role: <i>" .. data.clan.role .. "</i>\n\n"
+    output = output.. "Role: <i>" .. (data.clan.role):gsub("^%l", string.upper) .. "</i>\n\n"
     output = output.. "<b>Donations</b>\n"
     output = output.. "Donations Given: <code>" .. math.floor(tonumber(data.clan.donations)) .. "</code>\n"
     output = output.. "Donations Received: <code>" .. math.floor(tonumber(data.clan.donationsReceived)) .. "</code>\n\n"
     output = output.. "To get <b>detailed Clan Information</b>, copy this command and <i>send it to me</i>:\n"
-    output = output.. "/cr clan " .. data.clan.tag
+    output = output.. "<code>/cr clan " .. data.clan.tag .. "</code>"
 
     local keyboard = mattata.inline_keyboard()
-    :row(mattata.row():callback_data_button('Clan Information', 'clashroyale:player:' .. data.tag .. ':clan'):callback_data_button('League Stats', 'clashroyale:player:' .. data.tag .. ':league'))
-    :row(mattata.row():callback_data_button('User Stats', 'clashroyale:player:' .. data.tag .. ':stats'):callback_data_button('Battle History', 'clashroyale:player:' .. data.tag .. ':battles'))
-    :row(mattata.row():callback_data_button('Chest Cycle', 'clashroyale:player:' .. data.tag .. ':chests'))
-    :row(mattata.row():callback_data_button('Current Deck', 'clashroyale:player:' .. data.tag .. ':deck'):url_button('Copy Deck', data.deckLink))
-    :row(mattata.row():callback_data_button('Cards Level', 'clashroyale:player:' .. data.tag .. ':cards'))
+    :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
 
     return output, keyboard
 end
@@ -169,6 +165,21 @@ function clashroyale:on_message(message, configuration, language)
         if json_data.tag then
             local text, keyboard = clashroyale.parse_player(json_data)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+        else
+            if redis:hget('clashroyale:' .. message.from.id, 'player') then
+                local json_data = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
+                local text, keyboard = clashroyale.parse_player(json_data)
+                return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+            else
+                return mattata.send_reply(message, language['errors']['results'])
+            end
+        end
+    elseif input:match('^save') then
+        local tag = input:gsub("%s+", ""):gsub("player", ""):gsub("#", "")
+        local json_data = clashroyale.request(configuration.keys.clashroyale, "player", tag)
+        if json_data.tag then
+            redis:hset('clashroyale:' .. message.from.id, 'player', json_data.tag)
+            return mattata.send_message(message, "Your player info has been saved as <i>" .. json_data.name .. "</i>", 'html', false, false, message.message_id)
         else
             return mattata.send_reply(message, language['errors']['results'])
         end
