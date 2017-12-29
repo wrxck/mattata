@@ -109,7 +109,7 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
         )
     elseif callback_query.data:match('^player:%w*:chests$')
     then
-        local player = callback_query.data:match('^player:(%w*):back$')
+        local player = callback_query.data:match('^player:(%w*):chests$')
         local text, keyboard = clashroyale.parse_player_chests(clashroyale.request(configuration.keys.clashroyale, "player", player))
         return mattata.edit_message_text(
             message.chat.id,
