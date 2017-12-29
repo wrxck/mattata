@@ -226,13 +226,13 @@ function clashroyale.parse_player_cards(data, page)
     local keyboard = mattata.inline_keyboard()
     :row(mattata.row():callback_data_button(
             'Previous',
-            'clashroyale:player:' .. data.tag .. ':cards:' .. (page-1)
+            'clashroyale:player:' .. data.tag .. ':cards:' .. (page-1) .. ':' .. page_count
         ):callback_data_button(
             '1/' .. page_count,
             'clashroyale:nil'
         ):callback_data_button(
             'Next',
-            'clashroyale:player:' .. data.tag .. ':cards:' .. (page+1)
+            'clashroyale:player:' .. data.tag .. ':cards:' .. (page+1) .. ':' .. page_count
         ))
     :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
 
