@@ -51,7 +51,7 @@ function clashroyale.parse_player(data)
     :row(mattata.row():callback_data_button('View Current Deck', 'clashroyale:player:' .. data.tag .. ':deck'))
     :row(mattata.row():callback_data_button('Upcoming Chest Cycle', 'clashroyale:player:' .. data.tag .. ':chests'))
     :row(mattata.row():callback_data_button('Player\'s Cards Level', 'clashroyale:player:' .. data.tag .. ':cards:1:'..cards_pages))
-    :row(mattata.row():callback_data_button('Latest Battles History', 'clashroyale:player:' .. data.tag .. ':battles:0'))
+    :row(mattata.row():callback_data_button('Latest Battles History', 'clashroyale:player:' .. data.tag .. ':battles:0:1'))
 
     return output, keyboard
 end
@@ -244,7 +244,7 @@ function clashroyale.parse_player_cards(data, page)
     return output, keyboard
 end
 
-function clashroyale.parse_player_battles(data, battle)
+function clashroyale.parse_player_battles(data, battle, page)
     local output = ""
     output = "<b>Player</b>\n"
     output = output.. mattata.escape_html(data.name) .. " [#" .. data.tag .. "]\n"
@@ -279,22 +279,103 @@ function clashroyale.parse_player_battles(data, battle)
         output = output:sub(1, -4).. "\n\n"
     end
 
-    local keyboard = {['inline_keyboard']={}}
-    for k, v in pairs(data.battles) do
-        local battle_name = ""
-        for k, v2 in pairs(v.team) do
-            battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & "
-        end
-        battle_name = battle_name:sub(1, -4).. " <b>VS.</b> "
-        for k, v2 in pairs(v.opponent) do
-            battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & "
-        end
-        battle_name = battle_name:sub(1, -4)
-        mattata.insert_keyboard_row(keyboard, k .. ". " .. battle_name, 'clashroyale:player:' .. data.tag .. ':battles:' .. k)
-    end
-    mattata.insert_keyboard_row(keyboard, 'Back', 'clashroyale:player:' .. data.tag .. ':back')
+    local keyboard
+    if page == 1 then
+        keyboard = { ['inline_keyboard']={} }
+        local counter = 1
+        for k, 5 in pairs(data.battles) do
+            battle_name = ""
+            for k, v2 in pairs(data.battles[k].team) do battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & " end
+            battle_name = battle_name:sub(1, -4).. " <b>VS.</b> "
+            for k, v2 in pairs(data.battles[k].opponent) do battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & " end
+            battle_name = battle_name:sub(1, -4)
 
-    return output, json.encode(keyboard)
+            table.insert(keyboard.inline_keyboard,
+            { {['text'] = '1. ' .. battle_name, ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' .. counter .. ':' ..page} })
+            counter = counter+1
+        end
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':2'} })
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = 'Back', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':back'} })
+    elseif page == 2 then
+        keyboard = { ['inline_keyboard']={} }
+        local counter = 1
+        for k = 6, 10 in pairs(data.battles) do
+            battle_name = ""
+            for k, v2 in pairs(data.battles[k].team) do battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & " end
+            battle_name = battle_name:sub(1, -4).. " <b>VS.</b> "
+            for k, v2 in pairs(data.battles[k].opponent) do battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & " end
+            battle_name = battle_name:sub(1, -4)
+
+            table.insert(keyboard.inline_keyboard,
+            { {['text'] = '1. ' .. battle_name, ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' .. counter .. ':' ..page} })
+            counter = counter+1
+        end
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':1'},
+          {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':3'} })
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = 'Back', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':back'} })
+    elseif page == 3 then
+        keyboard = { ['inline_keyboard']={} }
+        local counter = 1
+        for k = 11, 15 in pairs(data.battles) do
+            battle_name = ""
+            for k, v2 in pairs(data.battles[k].team) do battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & " end
+            battle_name = battle_name:sub(1, -4).. " <b>VS.</b> "
+            for k, v2 in pairs(data.battles[k].opponent) do battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & " end
+            battle_name = battle_name:sub(1, -4)
+
+            table.insert(keyboard.inline_keyboard,
+            { {['text'] = '1. ' .. battle_name, ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' .. counter .. ':' ..page} })
+            counter = counter+1
+        end
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':2'},
+          {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':4'} })
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = 'Back', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':back'} })
+    elseif page == 4 then
+        keyboard = { ['inline_keyboard']={} }
+        local counter = 1
+        for k = 16, 20 in pairs(data.battles) do
+            battle_name = ""
+            for k, v2 in pairs(data.battles[k].team) do battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & " end
+            battle_name = battle_name:sub(1, -4).. " <b>VS.</b> "
+            for k, v2 in pairs(data.battles[k].opponent) do battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & " end
+            battle_name = battle_name:sub(1, -4)
+
+            table.insert(keyboard.inline_keyboard,
+            { {['text'] = '1. ' .. battle_name, ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' .. counter .. ':' ..page} })
+            counter = counter+1
+        end
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':3'},
+          {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':5'} })
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = 'Back', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':back'} })
+    elseif page == 5 then
+        keyboard = { ['inline_keyboard']={} }
+        local counter = 1
+        for k = 21, 25 in pairs(data.battles) do
+            battle_name = ""
+            for k, v2 in pairs(data.battles[k].team) do battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & " end
+            battle_name = battle_name:sub(1, -4).. " <b>VS.</b> "
+            for k, v2 in pairs(data.battles[k].opponent) do battle_name = battle_name.. "<i>" .. mattata.escape_html(v2.name) .. "</i> & " end
+            battle_name = battle_name:sub(1, -4)
+
+            table.insert(keyboard.inline_keyboard,
+            { {['text'] = '1. ' .. battle_name, ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' .. counter .. ':' ..page} })
+            counter = counter+1
+        end
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':4'} })
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = 'Back', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':back'} })
+    end
+
+    return output, keyboard
 end
 
 
@@ -338,10 +419,10 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
             page = tonumber(pages)
         end
         text, keyboard = clashroyale.parse_player_cards(clashroyale.request(configuration.keys.clashroyale, "player", player), page)
-    elseif callback_query.data:match('^player:%w*:battles:%d+$')
+    elseif callback_query.data:match('^player:%w*:battles:%d+:%d+$')
     then
-        local player, battle = callback_query.data:match('^player:(%w*):battles:(%d+)$')
-        text, keyboard = clashroyale.parse_player_battles(clashroyale.request(configuration.keys.clashroyale, "player", player), battle)
+        local player, battle, page = callback_query.data:match('^player:(%w*):battles:(%d+):(%d+)$')
+        text, keyboard = clashroyale.parse_player_battles(clashroyale.request(configuration.keys.clashroyale, "player", player), battle, page)
     else
         return false
     end
