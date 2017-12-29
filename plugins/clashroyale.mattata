@@ -228,7 +228,7 @@ function clashroyale.parse_player_cards(data, page)
             'Previous',
             'clashroyale:player:' .. data.tag .. ':cards:' .. math.floor(page-1) .. ':' .. page_count
         ):callback_data_button(
-            '1/' .. page_count,
+            page .. '/' .. page_count,
             'clashroyale:nil'
         ):callback_data_button(
             'Next',
