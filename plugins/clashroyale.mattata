@@ -290,10 +290,47 @@ function clashroyale.parse_player_battles(data, battle, page)
         end
         output = output.. "Card Levels: <i>" .. data.battles[battle].mode.cardLevels .. "</i>\n"
         output = output.. "Overtime: <i>" .. math.floor(tonumber(data.battles[battle].mode.overtimeSeconds)) .. " Seconds</i>\n\n"
+        output = output.. "<b>Decks</b>\n"
+        for k, v in pairs(data.battles[battle].team) do
+            output = output.. "<i>" .. mattata.escape_html(v.name) .. "</i>: "
+            for z, y in pairs(y.deck) do
+                output = output.. "<code>" .. y.name .. "</code>, "
+            end
+            output = output:sub(1, -3).. "\n"
+        end
+        for k, v in pairs(data.battles[battle].opponent) do
+            output = output.. "<i>" .. mattata.escape_html(v.name) .. "</i>: "
+            for z, y in pairs(y.deck) do
+                output = output.. "<code>" .. y.name .. "</code>, "
+            end
+            output = output:sub(1, -3).. "\n"
+        end
     end
 
     local keyboard = { ['inline_keyboard']={} }
     local counter = math.floor(((page-1)*5)+1)
+    if tonumber(#data.battles[battle].team) == 1 then
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = mattata.escape_html(data.battles[battle].team[1].name) .. ' Battle Deck', ['url_button'] = data.battles[battle].team[1].deckLink} })
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = mattata.escape_html(data.battles[battle].opponent[1].name) .. ' Battle Deck', ['url_button'] = data.battles[battle].opponent[1].deckLink} })
+    elseif tonumber(#data.battles[battle].team) == 2 then
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = mattata.escape_html(data.battles[battle].team[1].name) .. ' Battle Deck', ['url_button'] = data.battles[battle].team[1].deckLink},
+          {['text'] = mattata.escape_html(data.battles[battle].team[2].name) .. ' Battle Deck', ['url_button'] = data.battles[battle].team[2].deckLink} })
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = mattata.escape_html(data.battles[battle].opponent[1].name) .. ' Battle Deck', ['url_button'] = data.battles[battle].opponent[1].deckLink},
+          {['text'] = mattata.escape_html(data.battles[battle].opponent[2].name) .. ' Battle Deck', ['url_button'] = data.battles[battle].opponent[2].deckLink} })
+    end
+    for k, v in pairs(data.battles[battle].team) do
+    end
+    for k, v in pairs(data.battles[battle].opponent) do
+        output = output.. "<i>" .. mattata.escape_html(v.name) .. "</i>: "
+        for z, y in pairs(y.deck) do
+            output = output.. "<code>" .. y.name .. "</code>, "
+        end
+        output = output:sub(1, -3).. "\n"
+    end
     for k = (((page-1)*5)+1), (page*5) do
         battle_name = ""
         for x, y in pairs(data.battles[k].team) do battle_name = battle_name.. mattata.escape_html(y.name) .. " & " end
