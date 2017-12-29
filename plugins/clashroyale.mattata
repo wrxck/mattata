@@ -279,9 +279,8 @@ function clashroyale.parse_player_battles(data, battle, page)
         output = output:sub(1, -4).. "\n\n"
     end
 
-    local keyboard
+    local keyboard = { ['inline_keyboard']={} }
     if page == 1 then
-        keyboard = { ['inline_keyboard']={} }
         local counter = 1
         for k = 1, 5 do
             print(k)
@@ -300,7 +299,6 @@ function clashroyale.parse_player_battles(data, battle, page)
         table.insert(keyboard.inline_keyboard,
         { {['text'] = 'Back', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':back'} })
     elseif page == 2 then
-        keyboard = { ['inline_keyboard']={} }
         local counter = 1
         for k = 6, 10 do
             battle_name = ""
@@ -319,7 +317,6 @@ function clashroyale.parse_player_battles(data, battle, page)
         table.insert(keyboard.inline_keyboard,
         { {['text'] = 'Back', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':back'} })
     elseif page == 3 then
-        keyboard = { ['inline_keyboard']={} }
         local counter = 1
         for k = 11, 15 do
             battle_name = ""
@@ -338,7 +335,6 @@ function clashroyale.parse_player_battles(data, battle, page)
         table.insert(keyboard.inline_keyboard,
         { {['text'] = 'Back', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':back'} })
     elseif page == 4 then
-        keyboard = { ['inline_keyboard']={} }
         local counter = 1
         for k = 16, 20 do
             battle_name = ""
@@ -357,7 +353,6 @@ function clashroyale.parse_player_battles(data, battle, page)
         table.insert(keyboard.inline_keyboard,
         { {['text'] = 'Back', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':back'} })
     elseif page == 5 then
-        keyboard = { ['inline_keyboard']={} }
         local counter = 1
         for k = 21, 25 do
             battle_name = ""
