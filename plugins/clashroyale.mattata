@@ -341,24 +341,16 @@ function clashroyale.parse_player_battles(data, battle, page)
         { {['text'] = counter .. '. ' .. battle_name, ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' .. counter .. ':' ..page} })
         counter = counter+1
     end
-    local pages = tonumber(#data)/10
-    if pages > math.floor(pages) then
-        pages = pages + 1
-    end
-    print(pages)
-    print(#data)
-    if pages > 1 then
-        if tonumber(page) == 1 then
-            table.insert(keyboard.inline_keyboard,
-                { {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':2'} })
-        elseif tonumber(page) == pages then
-            table.insert(keyboard.inline_keyboard,
-                { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':4'} })
-        else
-            table.insert(keyboard.inline_keyboard,
-                { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':' .. math.floor(page-1)},
-                  {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':' .. math.floor(page+1)} })
-        end
+    if tonumber(page) == 1 then
+        table.insert(keyboard.inline_keyboard,
+            { {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':2'} })
+    elseif tonumber(page) == 5 then
+        table.insert(keyboard.inline_keyboard,
+            { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':4'} })
+    else
+        table.insert(keyboard.inline_keyboard,
+            { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':' .. math.floor(page-1)},
+              {['text'] = 'Next', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':battles:' ..  battle .. ':' .. math.floor(page+1)} })
     end
     table.insert(keyboard.inline_keyboard,
     { {['text'] = 'Back', ['callback_data'] = 'clashroyale:player:' .. data.tag .. ':back'} })
@@ -377,20 +369,26 @@ function clashroyale.parse_clan_search(data, search_query, page)
 
     local keyboard = { ['inline_keyboard']={} }
     if #data > 0 then
+        local pages = tonumber(#data)/10
+        if pages > math.floor(pages) then
+            pages = pages + 1
+        end
         for k = (((page-1)*10)+1), (page*10) do
             table.insert(keyboard.inline_keyboard,
             { {['text'] = mattata.escape_html(data[k].name) .. " (" .. math.floor(tonumber(data[k].score)) .. " 🏆)", ['callback_data'] = 'clashroyale:clan:' ..data[k].tag} })
         end
-        if tonumber(page) == 1 then
-            table.insert(keyboard.inline_keyboard,
-                { {['text'] = 'Next', ['callback_data'] = 'clashroyale:clan_search:' .. search_query .. ':2'} })
-        elseif tonumber(page) == 5 then
-            table.insert(keyboard.inline_keyboard,
-                { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:clan_search:' .. search_query .. ':4'} })
-        else
-            table.insert(keyboard.inline_keyboard,
-                { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:clan_search:' .. search_query .. ':' .. math.floor(page-1)},
-                  {['text'] = 'Next', ['callback_data'] = 'clashroyale:clan_search:' .. search_query .. ':' .. math.floor(page+1)} })
+        if pages > 1 then
+            if tonumber(page) == 1 then
+                table.insert(keyboard.inline_keyboard,
+                    { {['text'] = 'Next', ['callback_data'] = 'clashroyale:clan_search:' .. search_query .. ':2'} })
+            elseif tonumber(page) == pages then
+                table.insert(keyboard.inline_keyboard,
+                    { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:clan_search:' .. search_query .. ':4'} })
+            else
+                table.insert(keyboard.inline_keyboard,
+                    { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:clan_search:' .. search_query .. ':' .. math.floor(page-1)},
+                      {['text'] = 'Next', ['callback_data'] = 'clashroyale:clan_search:' .. search_query .. ':' .. math.floor(page+1)} })
+            end
         end
     end
 
