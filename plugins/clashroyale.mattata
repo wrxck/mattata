@@ -493,10 +493,12 @@ function clashroyale:on_message(message, configuration, language)
             local text, keyboard = clashroyale.parse_clan(json_data)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
         else
-            local trophies = input_data:match('trophies=(%d+)') or false
+            local trophies = input_data:match('trophies=(%d+)') or nil
             local min_members = input_data:match('min=(%d+)') or nil
             local max_members = input_data:match('max=(%d+)') or nil
+            print(trophies .. " - " .. min_members .. " - " .. max_members)
             input_data = input_data:gsub(' trophies=' .. (input_data:match('trophies=(%d+)') or ''), ""):gsub(' max=' .. (input_data:match('max=(%d+)') or ''), ""):gsub(' min=' .. (input_data:match('min=(%d+)') or ''), "")
+            print(input_data)
             json_data = clashroyale.request(configuration.keys.clashroyale, "clan_search", clashroyale.escape(input_data) .. (trophies and "?score="..trophies or "") .. (min_members and "?minMembers="..min_members or "") .. (max_members and "?maxMembers="..max_members or ""))
             if #json_data > 0 then
                 local text, keyboard = clashroyale.parse_clan_search(json_data, input_data, 1)
