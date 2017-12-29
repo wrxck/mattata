@@ -184,7 +184,7 @@ function clashroyale.parse_player_deck(data)
         output = output.. k .. " - " .. v.name .. " (Lvl <code>" .. v.level .. "</code>)" .. (k == #data.currentDeck and "\n\n" or "\n")
         elixir_cost = elixir_cost + v.elixir
     end
-    output = output.. "<i>Elixir Media</i>: " .. mattata.round(elixir/8, 1)
+    output = output.. "<i>Elixir Media</i>: " .. mattata.round(elixir_cost/8, 1)
 
     local keyboard = mattata.inline_keyboard()
     :row(mattata.row():url_button('Copy Deck', data.deckLink))
