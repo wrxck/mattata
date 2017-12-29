@@ -254,13 +254,21 @@ function clashroyale.parse_player_battles(data, battle)
         output = output.. math.floor(tonumber(data.trophies)) .. " 🏆" .. "\n"
     end
     output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n\n"
-    output = output.. "<b>Player Battles</b>\n\n"
 
     battle = math.floor(tonumber(battle))
     if battle == 0 then
+        output = output.. "<b>Player Battles</b>\n\n"
         output = output.. "<i>Use the following keyboard to see latest battles:</i>"
     elseif battle > 0 and battle < 26 then
-        output = output.. "Some Info will be displayed here"
+        output = output.. "<b>Latest " .. battle .. " Battle</b> at <i>" .. os.date('%Y-%m-%d %H:%M:%S', math.floor(tonumber(data.battles[battle].utcTime))) .. " UTC</i>\n"
+        output = output.. mattata.escape_html(data.name) .. (data.battles[battle].winner and " <b>won</b>" or " <b>lost</b>") .. " this battle\n"
+        if challengeType then
+            output = "Battle Type: <i>" .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. " " .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. "<i>\n"
+        else
+            output = "Battle Type: <i>" .. data.battles[battle].mode.name .. " " .. (data.battles[battle].type):gsub("^%l", string.upper) .. "<i>\n"
+        end
+        output = output.. "Card Levels: <i>" .. data.battles[battle].mode.cardLevels .. "</i>\n"
+        output = output.. "Overtime: <i>" .. data.battles[battle].mode.overtimeSeconds .. " Seconds</i>"
     end
 
     local keyboard = mattata.inline_keyboard()
