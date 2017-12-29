@@ -283,13 +283,13 @@ function clashroyale.parse_player_battles(data, battle, page)
         end
         output = output:sub(1, -4).. "\n"
         output = output.. mattata.escape_html(data.name) .. (data.battles[battle].winner and " <b>won</b>" or " <b>lost</b>") .. " this battle\n\n"
-        output = output.. "Card Levels: <i>" .. data.battles[battle].mode.cardLevels .. "</i>\n"
-        output = output.. "Overtime: <i>" .. math.floor(tonumber(data.battles[battle].mode.overtimeSeconds)) .. " Seconds</i>\n\n"
         if challengeType then
             output = output.. "Battle Type: <i>" .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. " " .. (data.battles[battle].challengeType):gsub("^%l", string.upper) .. "</i>\n"
         else
             output = output.. "Battle Type: <i>" .. data.battles[battle].mode.name .. " " .. (data.battles[battle].type):gsub("^%l", string.upper) .. "</i>\n"
         end
+        output = output.. "Card Levels: <i>" .. data.battles[battle].mode.cardLevels .. "</i>\n"
+        output = output.. "Overtime: <i>" .. math.floor(tonumber(data.battles[battle].mode.overtimeSeconds)) .. " Seconds</i>\n\n"
     end
 
     local keyboard = { ['inline_keyboard']={} }
