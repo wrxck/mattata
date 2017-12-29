@@ -218,15 +218,14 @@ function clashroyale.parse_player_cards(data, page)
         output = output.. math.floor(tonumber(data.trophies)) .. " 🏆" .. "\n"
     end
     output = output.. "Arena: <i>" .. data.arena.name .. "</i>, <code>" .. data.arena.arena .. "</code>\n\n\n"
-    output = output.. "<b>Player Cards</b>\n"
+    output = output.. "<b>Player Cards</b>\8n\n"
     for i = tonumber(page_begins_at), tonumber(page_ends_at) do
-        output = output.. mattata.escape_html(data.cards[i].name) .. " | <i>Level</i> <code>" .. data.cards[i].level .. "/" .. data.cards[i].maxLevel .. "</code>\n"
-        output = output.. data.cards[i].count .. " Cards\n"
+        output = output.. "<b>" .. mattata.escape_html(data.cards[i].name) .. "</b> | Level <code>" .. math.floor(tonumber(data.cards[i].level)) .. "/" .. math.floor(tonumber(data.cards[i].maxLevel)) .. "</code>\n"
+        output = output.. "<code>" .. math.floor(tonumber(data.cards[i].count)) .. "</code> Cards\n"
         if requiredForUpgrade ~= "Maxed" then
-            output = output.. data.cards[i].requiredForUpgrade .. " Required for Level <code>" .. math.floor(data.cards[i].level+1) .. "</code> <i>(missing</i> <code>" .. (data.cards[i].leftToUpgrade or 0) .. "</code> <i>to upgrade)</i>\n"
+            output = output.. "<code>" .. math.floor(tonumber(data.cards[i].requiredForUpgrade)) .. "</code> Cards required for level <code>" .. math.floor(data.cards[i].level+1) .. "</code> <i>(missing</i> <code>" .. math.floor(tonumber(data.cards[i].leftToUpgrade)) .. "</code> <i>to upgrade)</i>\n"
         end
-        output = output.. "Troop Type: <i>" .. data.cards[i].type .. "</i>\n"
-        output = output.. "Elixir Cost: <i>" .. data.cards[i].elixir .. "</i>\n\n"
+        output = output.. "\n"
     end
 
     local keyboard = mattata.inline_keyboard()
