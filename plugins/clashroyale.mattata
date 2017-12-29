@@ -246,6 +246,7 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
     then
         return mattata.answer_callback_query(callback_query.id)
     end
+    print(callback_query.data)
     if callback_query.data:match('^player:%w*:back$')
     then
         local player = callback_query.data:match('^player:(%w*):back$')
@@ -320,7 +321,6 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
         )
     elseif callback_query.data:match('^player:%w*:cards:%d+:%d+$')
     then
-        print(callback_query.data)
         local player, page, pages = callback_query.data:match('^player:(%w*):cards:(%d+):(%d+)$')
         if tonumber(page) > tonumber(pages) then
             page = 1
