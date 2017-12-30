@@ -516,6 +516,7 @@ function clashroyale:on_message(message, configuration, language)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
         else
             local input_data = input:sub(6, -1):gsub("#", "")
+            print(input_data)
             if not input_data then
                 json_data = clashroyale.request(configuration.keys.clashroyale, "clan", (clashroyale.request(configuration.keys.clashroyale, "player", redis:hget('clashroyale:' .. message.from.id, 'player'))).clan.tag)
                 local text, keyboard = clashroyale.parse_clan(json_data)
