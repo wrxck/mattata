@@ -550,7 +550,7 @@ function clashroyale:on_message(message, configuration, language)
             return mattata.send_reply(message, language['errors']['results'])
         end
     elseif input:match('^version') then
-        return mattata.send_reply(message, "Clash Royale API `" .. clashroyale.request(configuration.keys.clashroyale, "version") .. "`\n\n_For further support, contact [@Barreeeiroo](https://t.me/Barreeeiroo)_", true)
+        return mattata.send_reply(message, "Clash Royale API `" .. clashroyale.request(configuration.keys.clashroyale, "version") .. "`\n\n_For further support, contact_ [@Barreeeiroo](https://t.me/Barreeeiroo)", 'markdown')
     else
         return mattata.send_reply(message, clashroyale.help)
     end
