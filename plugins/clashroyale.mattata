@@ -37,13 +37,13 @@ function clashroyale.request(key, input, content)
     local headers = {auth = key}
     if input == "player" then
         response = requests.get{url = 'https://api.cr-api.com/player/'..content, headers = headers}
-        return response.json()
+        return response.json() or false
     elseif input == "clan" then
         response = requests.get{url = 'https://api.cr-api.com/clan/'..content, headers = headers}
-        return response.json()
+        return response.json() or false
     elseif input == "clan_search" then
         response = requests.get{url = 'https://api.cr-api.com/clan/search?name='..content, headers = headers}
-        return response.json()
+        return response.json() or false
     end
 end
 
