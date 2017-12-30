@@ -373,6 +373,8 @@ function clashroyale.parse_clan_search(data, search_query, page)
         local pages = tonumber(#data)/10
         if pages > math.floor(pages) then
             pages = pages + 1
+        else
+            math.floor(pages)
         end
         print(page .. "/" .. pages)
         if tonumber(page) ~= pages then
