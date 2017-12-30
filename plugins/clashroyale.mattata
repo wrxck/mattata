@@ -433,12 +433,12 @@ function clashroyale.parse_clan(data, page)
         if tonumber(page) ~= pages then
             for k = (((page-1)*5)+1), (page*5) do
                 table.insert(keyboard.inline_keyboard,
-                { {['text'] = mattata.escape_html(data.members[k].name) .. " (" .. math.floor(tonumber(data.members[k].trophies)) .. " 🏆) | #" .. data.members[k].tag, ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ":player:" .. data.members[k].tag} })
+                { {['text'] = mattata.escape_html(data.members[k].name) .. " (" .. math.floor(tonumber(data.members[k].trophies)) .. " 🏆) | #" .. data.members[k].tag, ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ":player:" .. k} })
             end
         else
             for k = (((page-1)*5)+1), math.floor(#data.members) do
                 table.insert(keyboard.inline_keyboard,
-                { {['text'] = mattata.escape_html(data.members[k].name) .. " (" .. math.floor(tonumber(data.members[k].trophies)) .. " 🏆) | #" .. data.members[k].tag, ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ":player:" .. data.members[k].tag} })
+                { {['text'] = mattata.escape_html(data.members[k].name) .. " (" .. math.floor(tonumber(data.members[k].trophies)) .. " 🏆) | #" .. data.members[k].tag, ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ":player:" .. k} })
             end
         end
         if pages > 1 then
