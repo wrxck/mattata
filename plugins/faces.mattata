@@ -39,16 +39,19 @@ function faces:on_message(message, configuration)
             faces.help
         )
     end
+    local found = false
     for k, v in pairs(configuration.faces)
     do
-        if message.text:match('[/!#]' .. k)
-        then
-            print("SEND")
-            return mattata.send_message(
-                message.chat.id,
-                v,
-                'html'
-            )
+        if not found then
+            if message.text:match('[/!#]' .. k)
+            then
+                found = true
+                return mattata.send_message(
+                    message.chat.id,
+                    v,
+                    'html'
+                )
+            end
         end
     end
 end
