@@ -44,6 +44,9 @@ function clashroyale.request(key, input, content)
     elseif input == "clan_search" then
         response = requests.get{url = 'https://api.cr-api.com/clan/search?name='..content, headers = headers}
         return response.json()
+    elseif input == "clan_search" then
+        response = requests.get{url = 'https://api.cr-api.com/version', headers = headers}
+        return response.json()
     end
 end
 
@@ -546,6 +549,8 @@ function clashroyale:on_message(message, configuration, language)
         else
             return mattata.send_reply(message, language['errors']['results'])
         end
+    elseif input:match('^version') then
+        return mattata.send_reply(message, "Clash Royale API `v" .. clashroyale.request(configuration.keys.clashroyale, "version") .. "`\n\n_For further support, contact [@Barreeeiroo](https://t.me/Barreeeiroo)_", true)
     else
         return mattata.send_reply(message, clashroyale.help)
     end
