@@ -374,9 +374,16 @@ function clashroyale.parse_clan_search(data, search_query, page)
         if pages > math.floor(pages) then
             pages = pages + 1
         end
-        for k = (((page-1)*10)+1), (page*10) do
-            table.insert(keyboard.inline_keyboard,
-            { {['text'] = mattata.escape_html(data[k].name) .. " (" .. math.floor(tonumber(data[k].score)) .. " 🏆) | #" .. data[k].tag, ['callback_data'] = 'clashroyale:clan:' ..data[k].tag} })
+        if tonumber(page) ~= pages then
+            for k = (((page-1)*10)+1), (page*10) do
+                table.insert(keyboard.inline_keyboard,
+                { {['text'] = mattata.escape_html(data[k].name) .. " (" .. math.floor(tonumber(data[k].score)) .. " 🏆) | #" .. data[k].tag, ['callback_data'] = 'clashroyale:clan:' ..data[k].tag} })
+            end
+        else
+            for k = (((page-1)*10)+1), math.floor(tonumber(string.sub(#data, -1))) do
+                table.insert(keyboard.inline_keyboard,
+                { {['text'] = mattata.escape_html(data[k].name) .. " (" .. math.floor(tonumber(data[k].score)) .. " 🏆) | #" .. data[k].tag, ['callback_data'] = 'clashroyale:clan:' ..data[k].tag} })
+            end
         end
         if pages > 1 then
             if tonumber(page) == 1 then
