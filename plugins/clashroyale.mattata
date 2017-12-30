@@ -407,6 +407,21 @@ function clashroyale.parse_clan_search(data, search_query, page)
 end
 
 
+function clashroyale.parse_clan(data)
+    local output = ""
+    output = "<b>Clan</b>\n"
+    output = output.. "<a href=\"" .. data.badge.image .. "\">" .. mattata.escape_html(data.name) .. "</a> [#" .. data.tag .. "]\n"
+    output = output.. "<code>" .. math.floor(tonumber(data.score)) .. "</code> 🏆 | <code>" .. data.memberCount .. "</code> 👤\n"
+    output = output.. "<i>" .. mattata.escape_html(data.description) .. "</i>\n\n"
+    output = output.. "Location: <i>" .. data.location.name .. "</i>\n"
+    output = output.. "Required Score: <code>" .. math.floor(tonumber(data.requiredScore)) .. "</code> 🏆 - <i>" .. (data.type):gsub("^%l", string.upper) .. "</i>\n"
+
+    local keyboard = false
+
+    return output, keyboard
+end
+
+
 
 function clashroyale:on_callback_query(callback_query, message, configuration)
     if callback_query.data == 'nil'
@@ -455,6 +470,10 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
     then
         local search_query, page = callback_query.data:match('^clan_search:(.*):(%d+)$')
         text, keyboard = clashroyale.parse_clan_search(clashroyale.request(configuration.keys.clashroyale, "clan_search", search_query), search_query, page)
+    elseif callback_query.data:match('^clan:%w*:back$') or callback_query.data:match('^clan:%w*$')
+    then
+        local player = (callback_query.data:match('^clan:(%w*):back$') or callback_query.data:match('^clan:(%w*)$'))
+        text, keyboard = clashroyale.parse_clan(clashroyale.request(configuration.keys.clashroyale, "clan", player))
     else
         return false
     end
