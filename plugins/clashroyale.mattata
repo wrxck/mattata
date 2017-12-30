@@ -541,8 +541,7 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
         text, keyboard = clashroyale.parse_clan(clashroyale.request(configuration.keys.clashroyale, "clan", clan), page)
     elseif callback_query.data:match('^clan:%w*:player:%d+$')
     then
-        local clan, player = callback_query.data:match('^clan:(%w*):info:(%d+)$')
-        print(clan .. " - " .. player)
+        local clan, player = callback_query.data:match('^clan:(%w*):player:(%d+)$')
         text, keyboard = clashroyale.parse_clan_player(clashroyale.request(configuration.keys.clashroyale, "clan", clan), player)
     else
         return false
