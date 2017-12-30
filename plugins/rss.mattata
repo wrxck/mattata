@@ -321,7 +321,6 @@ function rss:cron()
             )
         )
         base_url = protocol .. '://' .. base_url
-        print(base_url)
         local parsed, res = rss.get_parsed_feed(base_url, protocol)
         if res ~= nil then
             return
@@ -379,7 +378,6 @@ function rss:cron()
                     'html'
                 )
                 if not success then
-                    print('Deleting ' .. recipient .. ' from the database under subscriptions to ' .. base_url)
                     redis:srem(
                         v,
                         recipient

@@ -50,8 +50,6 @@ function reddit:on_message(message, configuration, language)
     end
     https.timeout = 1
     local jstr, res, a, b = https.request(request_url)
-    print(json.encode(a,{indent=true}))
-    print(b)
     if res == 404 then
         return mattata.send_reply(message, language['errors']['results'])
     elseif res ~= 200 then

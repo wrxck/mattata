@@ -279,7 +279,6 @@ function help:on_callback_query(callback_query, message, configuration, language
             return mattata.answer_callback_query(callback_query.id, language['errors']['admin'])
         end
         chat_id = callback_query.data:match('^settings:(%-*%d+)$')
-        print(chat_id)
         return mattata.edit_message_reply_markup(
             message.chat.id,
             message.message_id,
