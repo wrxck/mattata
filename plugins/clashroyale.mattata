@@ -130,6 +130,7 @@ function clashroyale.parse_player_clan(data)
         output = output.. mattata.escape_html(data.name) .. " doesn't below to any Clan"
     end
     local keyboard = mattata.inline_keyboard()
+    :row(mattata.row():callback_data_button('View Clan Info', 'clashroyale:clan:' .. data.clan.tag))
     :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
 
     return output, keyboard
@@ -515,18 +516,23 @@ function clashroyale:on_message(message, configuration, language)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
         else
             local input_data = input:gsub("clan ", ""):gsub("#", "")
-            local trophies = input_data:match('trophies=(%d+)') or ""
-            local min_members = input_data:match('min=(%d+)') or ""
-            local max_members = input_data:match('max=(%d+)') or ""
-            input_data = input_data:gsub(' trophies=' .. trophies, ""):gsub(' max=' .. max_members, ""):gsub(' min=' .. min_members, "")
-            local content = url.escape(input_data) .. (trophies ~= "" and "&score="..trophies or "") .. (min_members ~= "" and "&minMembers="..min_members or "") .. (max_members ~= "" and "&maxMembers="..max_members or "")
-            print(content)
-            json_data = clashroyale.request(configuration.keys.clashroyale, "clan_search", content)
-            if #json_data > 0 then
-                local text, keyboard = clashroyale.parse_clan_search(json_data, content, 1)
+            if not input_data then
+                json_data = clashroyale.request(configuration.keys.clashroyale, "clan", (clashroyale.request(configuration.keys.clashroyale, "player", redis:hget('clashroyale:' .. message.from.id, 'player'))).clan.tag)
+                local text, keyboard = clashroyale.parse_clan(json_data)
                 return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
             else
-                return mattata.send_reply(message, language['errors']['results'])
+                local trophies = input_data:match('trophies=(%d+)') or ""
+                local min_members = input_data:match('min=(%d+)') or ""
+                local max_members = input_data:match('max=(%d+)') or ""
+                input_data = input_data:gsub(' trophies=' .. trophies, ""):gsub(' max=' .. max_members, ""):gsub(' min=' .. min_members, "")
+                local content = url.escape(input_data) .. (trophies ~= "" and "&score="..trophies or "") .. (min_members ~= "" and "&minMembers="..min_members or "") .. (max_members ~= "" and "&maxMembers="..max_members or "")
+                json_data = clashroyale.request(configuration.keys.clashroyale, "clan_search", content)
+                if #json_data > 0 then
+                    local text, keyboard = clashroyale.parse_clan_search(json_data, content, 1)
+                    return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+                else
+                    return mattata.send_reply(message, language['errors']['results'])
+                end
             end
         end
     elseif input:match('^save') then
