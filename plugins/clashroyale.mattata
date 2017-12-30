@@ -492,6 +492,7 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
         return mattata.answer_callback_query(callback_query.id)
     end
     local text, keyboard
+    print(callback_query.data)
     if callback_query.data:match('^player:%w*:back$') or callback_query.data:match('^player:%w*$')
     then
         local player = (callback_query.data:match('^player:(%w*):back$') or callback_query.data:match('^player:(%w*)$'))
