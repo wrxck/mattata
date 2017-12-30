@@ -411,10 +411,10 @@ function clashroyale.parse_clan(data)
     local output = ""
     output = "<b>Clan</b>\n"
     output = output.. "<a href=\"" .. data.badge.image .. "\">" .. mattata.escape_html(data.name) .. "</a> [#" .. data.tag .. "]\n"
-    output = output.. "<code>" .. math.floor(tonumber(data.score)) .. "</code> 🏆 | <code>" .. data.memberCount .. "</code> 👤\n"
+    output = output.. "<code>" .. math.floor(tonumber(data.score)) .. "</code> 🏆 <b>|</b> <code>" .. math.floor(tonumber(data.memberCount)) .. "</code> 👤\n"
     output = output.. "<i>" .. mattata.escape_html(data.description) .. "</i>\n\n"
     output = output.. "Location: <i>" .. data.location.name .. "</i>\n"
-    output = output.. "Required Score: <code>" .. math.floor(tonumber(data.requiredScore)) .. "</code> 🏆 - <i>" .. (data.type):gsub("^%l", string.upper) .. "</i>\n"
+    output = output.. "Required Score: <code>" .. math.floor(tonumber(data.requiredScore)) .. "</code> 🏆 <b>-</b> <i>" .. (data.type):gsub("^%l", string.upper) .. "</i>\n"
 
     local keyboard = mattata.inline_keyboard()
     :row(mattata.row():callback_data_button('Player\'s Clan', 'clashroyale:clan:' .. data.tag))
