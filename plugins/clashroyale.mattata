@@ -541,7 +541,7 @@ function clashroyale:on_message(message, configuration, language)
         if json_data and json_data.tag and json_data.clan then
             redis:hset('clashroyale:' .. message.from.id, 'player', json_data.tag)
             return mattata.send_message(message, "Your player info has been saved as <i>" .. mattata.escape_html(json_data.name) .. "</i>", 'html', false, false, message.message_id)
-        elseif json_data and not json_data.clan then
+        elseif json_data and json_data.tag and not json_data.clan then
             return mattata.send_message(message, "You gave me the ID of a clan!", 'html', false, false, message.message_id)
         else
             return mattata.send_reply(message, language['errors']['results'])
