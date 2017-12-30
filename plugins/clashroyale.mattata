@@ -427,6 +427,8 @@ function clashroyale.parse_clan(data, page)
         else
             pages = math.floor(pages)
         end
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = "Clan Members:", ['callback_data'] = 'clashroyale:nil'} })
         if tonumber(page) ~= pages then
             for k = (((page-1)*5)+1), (page*5) do
                 table.insert(keyboard.inline_keyboard,
@@ -441,13 +443,16 @@ function clashroyale.parse_clan(data, page)
         if pages > 1 then
             if tonumber(page) == 1 then
                 table.insert(keyboard.inline_keyboard,
-                    { {['text'] = 'Next', ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ':info:2'} })
+                    { {['text'] = page .. '/' .. pages, ['callback_data'] = 'clashroyale:nil'},
+                      {['text'] = 'Next', ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ':info:2'} })
             elseif tonumber(page) == pages then
                 table.insert(keyboard.inline_keyboard,
-                    { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ':info:' .. math.floor(page-1)} })
+                    { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ':info:' .. math.floor(page-1)},
+                      {['text'] = page .. '/' .. pages, ['callback_data'] = 'clashroyale:nil'} })
             else
                 table.insert(keyboard.inline_keyboard,
                     { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ':info:' .. math.floor(page-1)},
+                      {['text'] = page .. '/' .. pages, ['callback_data'] = 'clashroyale:nil'},
                       {['text'] = 'Next', ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ':info:' .. math.floor(page+1)} })
             end
         end
