@@ -69,7 +69,7 @@ function clashroyale.parse_player(data)
         cards_pages = cards_pages + 1
     end
     local keyboard = mattata.inline_keyboard()
-    :row(data.clan and mattata.row():callback_data_button('Player\'s Clan', 'clashroyale:player:' .. data.tag .. ':clan'))
+    :row(data.clan and mattata.row():callback_data_button('Clan Information', 'clashroyale:player:' .. data.tag .. ':clan'))
     :row((data.leagueStatistics and mattata.row():callback_data_button('User Stats', 'clashroyale:player:' .. data.tag .. ':stats'):callback_data_button('Season Stats', 'clashroyale:player:' .. data.tag .. ':season') or mattata.row():callback_data_button('Player Statistics', 'clashroyale:player:' .. data.tag .. ':stats')))
     :row(mattata.row():callback_data_button('View Current Deck', 'clashroyale:player:' .. data.tag .. ':deck'))
     :row(mattata.row():callback_data_button('Upcoming Chest Cycle', 'clashroyale:player:' .. data.tag .. ':chests'))
@@ -410,7 +410,7 @@ function clashroyale.parse_clan_search(data, search_query, page)
 end
 
 
-function clashroyale.parse_clan(data)
+function clashroyale.parse_clan(data, page)
     local output = ""
     output = "<b>Clan</b>\n"
     output = output.. "<a href=\"" .. data.badge.image .. "\">" .. mattata.escape_html(data.name) .. "</a> [#" .. data.tag .. "]\n"
@@ -419,8 +419,39 @@ function clashroyale.parse_clan(data)
     output = output.. "Location: <i>" .. data.location.name .. "</i>\n"
     output = output.. "Required Score: <code>" .. math.floor(tonumber(data.requiredScore)) .. "</code> 🏆 <b>-</b> <i>" .. (data.type):gsub("^%l", string.upper) .. "</i>\n"
 
-    local keyboard = mattata.inline_keyboard()
-    :row(mattata.row():callback_data_button('Player\'s Clan', 'clashroyale:clan:' .. data.tag))
+    local keyboard = { ['inline_keyboard']={} }
+    if #data.members > 0 then
+        local pages = tonumber(#data.members)/5
+        if pages > math.floor(pages) then
+            pages = math.floor(pages + 1)
+        else
+            pages = math.floor(pages)
+        end
+        if tonumber(page) ~= pages then
+            for k = (((page-1)*5)+1), (page*5) do
+                table.insert(keyboard.inline_keyboard,
+                { {['text'] = mattata.escape_html(data.members[k].name) .. " (" .. math.floor(tonumber(data.members[k].trophies)) .. " 🏆) | #" .. data.members[k].tag, ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ":player:" .. data.members[k].name} })
+            end
+        else
+            for k = (((page-1)*5)+1), math.floor(#data.members) do
+                table.insert(keyboard.inline_keyboard,
+                { {['text'] = mattata.escape_html(data.members[k].name) .. " (" .. math.floor(tonumber(data.members[k].trophies)) .. " 🏆) | #" .. data.members[k].tag, ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ":player:" .. data.members[k].name} })
+            end
+        end
+        if pages > 1 then
+            if tonumber(page) == 1 then
+                table.insert(keyboard.inline_keyboard,
+                    { {['text'] = 'Next', ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ':info:2'} })
+            elseif tonumber(page) == pages then
+                table.insert(keyboard.inline_keyboard,
+                    { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ':info:' .. math.floor(page-1)} })
+            else
+                table.insert(keyboard.inline_keyboard,
+                    { {['text'] = 'Previous', ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ':info:' .. math.floor(page-1)},
+                      {['text'] = 'Next', ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ':info:' .. math.floor(page+1)} })
+            end
+        end
+    end
 
     return output, keyboard
 end
@@ -474,10 +505,11 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
     then
         local search_query, page = callback_query.data:match('^clan_search:(.*):(%d+)$')
         text, keyboard = clashroyale.parse_clan_search(clashroyale.request(configuration.keys.clashroyale, "clan_search", search_query), search_query, page)
-    elseif callback_query.data:match('^clan:%w*:back$') or callback_query.data:match('^clan:%w*$')
+    elseif callback_query.data:match('^clan:%w*:back$') or callback_query.data:match('^clan:%w*$') or callback_query.data:match('^clan:%w*:info:%d+$')
     then
-        local player = (callback_query.data:match('^clan:(%w*):back$') or callback_query.data:match('^clan:(%w*)$'))
-        text, keyboard = clashroyale.parse_clan(clashroyale.request(configuration.keys.clashroyale, "clan", player))
+        local clan = callback_query.data:match('^clan:(%w*):back$') or callback_query.data:match('^clan:(%w*)$') or callback_query.data:match('^clan:(%w*):info:%d+$')
+        local page = callback_query.data:match('^clan:%w*:info:(%d+)$') or 1
+        text, keyboard = clashroyale.parse_clan(clashroyale.request(configuration.keys.clashroyale, "clan", clan), page)
     else
         return false
     end
@@ -515,13 +547,13 @@ function clashroyale:on_message(message, configuration, language)
     elseif input:match('^clan') then
         local json_data = clashroyale.request(configuration.keys.clashroyale, "clan", input:gsub("%s+", ""):gsub("clan", ""):gsub("#", ""))
         if json_data and json_data.tag then
-            local text, keyboard = clashroyale.parse_clan(json_data)
+            local text, keyboard = clashroyale.parse_clan(json_data, 1)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
         else
             local input_data = input:sub(6, -1):gsub("#", "")
             if input_data:gsub("%s+", "") == "" then
                 json_data = clashroyale.request(configuration.keys.clashroyale, "clan", (clashroyale.request(configuration.keys.clashroyale, "player", redis:hget('clashroyale:' .. message.from.id, 'player'))).clan.tag)
-                local text, keyboard = clashroyale.parse_clan(json_data)
+                local text, keyboard = clashroyale.parse_clan(json_data, 1)
                 return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
             else
                 local trophies = input_data:match('trophies=(%d+)') or ""
