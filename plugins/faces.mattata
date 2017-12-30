@@ -48,6 +48,7 @@ function faces:on_message(message, configuration)
                 v,
                 'html'
             )
+            break
         end
     end
 end
