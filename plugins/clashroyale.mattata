@@ -497,7 +497,7 @@ function clashroyale:on_message(message, configuration, language)
 
     if input:match('^player') then
         local json_data = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
-        if json_data.tag then
+        if json_data and json_data.tag then
             local text, keyboard = clashroyale.parse_player(json_data)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
         else
@@ -511,7 +511,7 @@ function clashroyale:on_message(message, configuration, language)
         end
     elseif input:match('^clan') then
         local json_data = clashroyale.request(configuration.keys.clashroyale, "clan", input:gsub("%s+", ""):gsub("clan", ""):gsub("#", ""))
-        if json_data.tag then
+        if json_data and json_data.tag then
             local text, keyboard = clashroyale.parse_clan(json_data)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
         else
@@ -538,10 +538,10 @@ function clashroyale:on_message(message, configuration, language)
     elseif input:match('^save') then
         local tag = input:gsub("%s+", ""):gsub("save", ""):gsub("#", "")
         local json_data = clashroyale.request(configuration.keys.clashroyale, "player", tag)
-        if json_data.tag and json_data.clan then
+        if json_data and json_data.tag and json_data.clan then
             redis:hset('clashroyale:' .. message.from.id, 'player', json_data.tag)
             return mattata.send_message(message, "Your player info has been saved as <i>" .. mattata.escape_html(json_data.name) .. "</i>", 'html', false, false, message.message_id)
-        elseif not json_data.clan then
+        elseif json_data and not json_data.clan then
             return mattata.send_message(message, "You gave me the ID of a clan!", 'html', false, false, message.message_id)
         else
             return mattata.send_reply(message, language['errors']['results'])
