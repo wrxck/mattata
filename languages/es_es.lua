@@ -26,7 +26,7 @@ return {
     },
     ['antispam'] = {
         ['1'] = 'Desactivar',
-        ['2'] = 'Actiar',
+        ['2'] = 'Activar',
         ['3'] = 'Desactivar límite',
         ['4'] = 'Activar límites en %s',
         ['5'] = 'Todos los ajustes de administración',

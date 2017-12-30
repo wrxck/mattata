@@ -55,7 +55,7 @@ function antispam.get_keyboard(chat_id, language)
         {
             {
                 ['text'] = caption,
-                ['callback_data'] = 'antispam:' .. chat_id .. ':' .. caption:lower()
+                ['callback_data'] = 'antispam:' .. chat_id .. ':' .. (status and "disable" or "enable")
             }
         }
     )
@@ -151,10 +151,8 @@ function antispam:on_callback_query(callback_query, message, configuration, lang
         local chat_id, spam_type = callback_query.data:match('^(%-%d+):delete:(.-)$')
         mattata.toggle_setting(chat_id, 'antispam delete ' .. spam_type)
     elseif callback_query.data:match('^%-%d+:disable$') then
-        print("DETECTED")
         redis:hdel('chat:' .. chat_id .. ':settings', 'antispam')
     elseif callback_query.data:match('^%-%d+:enable$') then
-        print("DETECTED")
         redis:hset('chat:' .. chat_id .. ':settings', 'antispam', true)
     end
     local keyboard = antispam.get_keyboard(chat_id, language)
