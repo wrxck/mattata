@@ -132,6 +132,7 @@ function clashroyale.parse_player_clan(data)
     else
         output = output.. mattata.escape_html(data.name) .. " doesn't below to any Clan"
     end
+
     local keyboard = mattata.inline_keyboard()
     :row(mattata.row():callback_data_button('View Clan Info', 'clashroyale:clan:' .. data.clan.tag))
     :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
@@ -428,7 +429,7 @@ function clashroyale.parse_clan(data, page)
             pages = math.floor(pages)
         end
         table.insert(keyboard.inline_keyboard,
-        { {['text'] = "Clan Members:", ['callback_data'] = 'clashroyale:nil'} })
+        { {['text'] = "CLAN MEMBES", ['callback_data'] = 'clashroyale:nil'} })
         if tonumber(page) ~= pages then
             for k = (((page-1)*5)+1), (page*5) do
                 table.insert(keyboard.inline_keyboard,
@@ -457,6 +458,28 @@ function clashroyale.parse_clan(data, page)
             end
         end
     end
+
+    return output, keyboard
+end
+
+function clashroyale.parse_clan_player(data, player)
+    local output = ""
+    output = "<b>Clan</b>\n"
+    output = output.. "<a href=\"" .. data.badge.image .. "\">" .. mattata.escape_html(data.name) .. "</a> [#" .. data.tag .. "]\n"
+    output = output.. "<code>" .. math.floor(tonumber(data.score)) .. "</code> 🏆 <b>|</b> <code>" .. math.floor(tonumber(data.memberCount)) .. "</code> 👤\n"
+    output = output.. "<i>" .. mattata.escape_html(data.description) .. "</i>\n\n"
+    output = output.. "Location: <i>" .. data.location.name .. "</i>\n"
+    output = output.. "Required Score: <code>" .. math.floor(tonumber(data.requiredScore)) .. "</code> 🏆 <b>-</b> <i>" .. (data.type):gsub("^%l", string.upper) .. "</i>\n\n\n"
+    output = output.. "<b>Player</b>\n"
+    output = output.. mattata.escape_html(data.members[player].name) .. ", <i>" .. (data.members[player].role):gsub("^%l", string.upper) .. "</i> [#" .. data.members[player].tag .. "]\n"
+    output = output.. "Arena: <i>" .. data.members[player].arena.name .. "</i>, <code>" .. data.members[player].arena.arena .. "</code>\n\n"
+    output = output.. "Current Clan Rank: <code>" .. math.floor(tonumber(data.members[player].rank)) .. "</code> | Previous Season: <code>" .. math.floor(tonumber(data.members[player].previousRank)) .. "</code>\n"
+    output = output.. "Clan Chest Crowns: <code>" .. math.floor(tonumber(data.members[player].clanChestCrowns)) .. "</code>\n"
+    output = output.. "Donations Given: <code>" .. math.floor(tonumber(data.members[player].donations)) .. "</code> | Donations Received: <code>" .. math.floor(tonumber(data.members[player].donationsReceived)) .. "</code>"
+
+    local keyboard = mattata.inline_keyboard()
+    :row(mattata.row():callback_data_button('View Player Info', 'clashroyale:player:' .. data.members[player].tag))
+    :row(mattata.row():callback_data_button('Back', 'clashroyale:clan:' .. data.tag .. ':back'))
 
     return output, keyboard
 end
@@ -515,6 +538,10 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
         local clan = callback_query.data:match('^clan:(%w*):back$') or callback_query.data:match('^clan:(%w*)$') or callback_query.data:match('^clan:(%w*):info:%d+$')
         local page = callback_query.data:match('^clan:%w*:info:(%d+)$') or 1
         text, keyboard = clashroyale.parse_clan(clashroyale.request(configuration.keys.clashroyale, "clan", clan), page)
+    elseif callback_query.data:match('^clan:%w*:player:%d+$')
+    then
+        local clan, player = callback_query.data:match('^clan:(%w*):info:(%d+)$')
+        text, keyboard = clashroyale.parse_clan_player(clashroyale.request(configuration.keys.clashroyale, "clan", clan), player)
     else
         return false
     end
