@@ -471,6 +471,7 @@ function clashroyale.parse_clan_player(data, player)
     output = output.. "Location: <i>" .. data.location.name .. "</i>\n"
     output = output.. "Required Score: <code>" .. math.floor(tonumber(data.requiredScore)) .. "</code> 🏆 <b>-</b> <i>" .. (data.type):gsub("^%l", string.upper) .. "</i>\n\n\n"
     output = output.. "<b>Player</b>\n"
+    print(data.members[player].role)
     output = output.. mattata.escape_html(data.members[player].name) .. ", <i>" .. (data.members[player].role):gsub("^%l", string.upper) .. "</i> [#" .. data.members[player].tag .. "]\n"
     output = output.. "Arena: <i>" .. data.members[player].arena.name .. "</i>, <code>" .. data.members[player].arena.arena .. "</code>\n\n"
     output = output.. "Current Clan Rank: <code>" .. math.floor(tonumber(data.members[player].rank)) .. "</code> | Previous Season: <code>" .. math.floor(tonumber(data.members[player].previousRank)) .. "</code>\n"
