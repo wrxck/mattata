@@ -92,6 +92,18 @@ return {
         ['9'] = 'Yes, Am sure!',
         ['10'] = 'That message contains invalid Markdoun formatting! Pleese correct yer syntax and pree again.'
     },
+    ['chuck'] = {
+        ['1'] = 'Click to send the result.'
+    },
+    ['clickbait'] = {
+        ['1'] = 'Generate Another'
+    },
+    ['coinflip'] = {
+        ['1'] = 'The coin landed on:',
+        ['2'] = 'You were correct!',
+        ['3'] = 'You weren\'t correct, try again...',
+        ['4'] = 'Invalid arguments were given. You must specify your guess, it should be either \'heads\' or \'tails\'.'
+    },
     ['commandstats'] = {
         ['1'] = 'No commands have been sent in this chat!',
         ['2'] = '<b>Command statistics for:</b> %s\n\n%s\n<b>Total commands sent:</b> %s',
@@ -125,8 +137,23 @@ return {
         ['3'] = 'A cannae demote thes usar becawis thei have alrady left thes tauk.',
         ['4'] = 'A cannae demote thes usar becawis thei have alrady been kicked from thes tauk.'
     },
+    ['dice'] = {
+        ['1'] = 'The minimum range is %s.',
+        ['2'] = 'The maximum range and count are both %s.',
+        ['3'] = 'The maximum range is %s, and the maximum count is %s.',
+        ['4'] = '%s rolls with a range of %s:\n'
+    },
     ['doge'] = {
         ['1'] = 'Pleese enter the text ye want tae Doge-ify. Each sentence should be separated using slashes ore new lines.'
+    },
+    ['duckduckgo'] = {
+        ['1'] = 'I\'m not sure what that is!'
+    },
+    ['eightball'] = {
+        ['1'] = 'Yes.',
+        ['2'] = 'No.',
+        ['3'] = 'It is likely so.',
+        ['4'] = 'Well, uh... I\'d ask again later, if I were you.'
     },
     ['exec'] = {
         ['1'] = 'Pleese select the language ye wud like tae execute yer code in:',
@@ -150,8 +177,15 @@ return {
         ['2'] = 'Pleese enter a serch query (that is, what ye want me tae serch Flickr for, i.e. "Big Ben" will return a photograph of Big Ben in London).',
         ['3'] = 'More Results'
     },
+    ['fortune'] = {
+        ['1'] = 'Click to send your fortune!'
+    },
+    ['frombinary'] = {
+        ['1'] = 'Please enter the binary value you would like to convert to a string.',
+        ['2'] = 'Malformed binary!'
+    },
     ['game'] = {
-        ['1'] = 'Total wyns: %s\nTotal losses: %s\nBalance: %s mattacoins',
+        ['1'] = 'Total wyns: %s\nTotal losses: %s\nBalance: %s BarreCoins',
         ['2'] = 'Join Gemm',
         ['3'] = 'This gemm has alrady ended!',
         ['4'] = 'It\'s not yer turn!',
@@ -175,6 +209,11 @@ return {
     },
     ['gif'] = {
         ['1'] = 'Pleese enter a serch query (that is, what ye want me tae serch GIPHY for, i.e. "cat" will return a GIF of a cat).'
+    },
+    ['godwords'] = {
+        ['1'] = 'Please enter a numerical value, between 1 and 64!',
+        ['2'] = 'That number is too small, please specify one between 1 and 64!',
+        ['3'] = 'That number is too large, please specify one between 1 and 64!'
     },
     ['gwhitelist'] = {
         ['1'] = 'Pleese reply-to the usar ye\'d like tae globally whitelist, ore specify them by usarname/ID.',
@@ -304,6 +343,11 @@ System:
     ['ispwned'] = {
         ['1'] = 'That account was found in the following leaks:'
     },
+    ['isup'] = {
+        ['1'] = 'This website appears to be up, maybe it\'s just you?',
+        ['2'] = 'That doesn\'t appear to be a valid site!',
+        ['3'] = 'It\'s not just you, this website looks down from here.'
+    },
     ['itunes'] = {
         ['1'] = 'Name:',
         ['2'] = 'Artist:',
@@ -332,6 +376,9 @@ System:
         ['7'] = '%s last listened to:\n',
         ['8'] = 'Unknown',
         ['9'] = 'Click tae send the result.'
+    },
+    ['lmgtfy'] = {
+        ['1'] = 'Let me Google that for you!'
     },
     ['location'] = {
         ['1'] = 'Ye daena have a location set. What wud ye like yer new location tae be?'
@@ -445,12 +492,24 @@ System:
         ['1'] = 'Your nickname has now been forgotten!',
         ['2'] = 'Your nickname has been set tae "%s"!'
     },
+    ['ninegag'] = {
+        ['1'] = 'Read More'
+    },
     ['optout'] = {
         ['1'] = 'Ye have opted-in tae having data ye send collected! Use /optout tae opt-out.',
         ['2'] = 'Ye have opted-out of having data ye send collected! Use /optin tae opt-in.'
     },
     ['paste'] = {
         ['1'] = 'Pleese select a service tae upload yer paste to:'
+    },
+    ['pay'] = {
+        ['1'] = 'You currently have %s BarreCoins. Earn more by winning games of Tic-Tac-Toe, using /game - You will win 100 BarreCoins for every game you win, and you will lose 50 for every game you lose.',
+        ['2'] = 'You must use this command in reply to the user you\'d like to send BarreCoins to.',
+        ['3'] = 'Please specify the amount of BarreCoins you\'d like to give %s.',
+        ['4'] = 'The amount specified should be a numerical value, of which can be no less than 0.',
+        ['5'] = 'You can\'t send money to yourself!',
+        ['6'] = 'You don\'t have enough funds to complete that transaction!',
+        ['7'] = '%s BarreCoins have been sent to %s. Your new balance is %s BarreCoins.'
     },
     ['pin'] = {
         ['1'] = 'You haven\'t set a pin before. Use /pin <text> to set one. Markdown formatting is supported.',
@@ -463,6 +522,11 @@ System:
     ['pokedex'] = {
         ['1'] = 'Name: %s\nID: %s\nType: %s\nDescription: %s'
     },
+    ['prime'] = {
+        ['1'] = 'Please enter a number between 1 and 99999.',
+        ['2'] = '%s is a prime number!',
+        ['3'] = '%s is NOT a prime number...'
+    },
     ['promote'] = {
         ['1'] = 'A cannae promote thes usar becawis thei be a moderator ore an administrator of thes tauk.',
         ['2'] = 'A cannae promote thes usar becawis thei have alrady left thes tauk.',
@@ -472,12 +536,22 @@ System:
         ['1'] = 'This usar has opted out of data-storing functionality.',
         ['2'] = 'There be no saved quotes for %s%s! Ye can save one by using /save in reply tae a message thei send.'
     },
+    ['randomsite'] = {
+        ['1'] = 'Generate Another'
+    },
+    ['randomword'] = {
+        ['1'] = 'Generate Another',
+        ['2'] = 'Your random word is <b>%s</b>!'
+    },
     ['report'] = {
         ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
         ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
         ['3'] = '<b>%s needs help in %s!</b>',
         ['4'] = 'Click here to view the reported message.',
         ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
+    },
+    ['rms'] = {
+        ['1'] = 'Holy GNU!'
     },
     ['save'] = {
         ['1'] = 'This usar has opted out of data-storing functionality.',
@@ -540,6 +614,15 @@ System:
         ['2'] = '"%s" isn\'t a valid Steam usarname.',
         ['3'] = '%s has been a usar on Steam since %s, on %s. They last logged off at %s, on %s. Click <a href="%s">here</a> tae view thair Steam profile.',
         ['4'] = '%s, AKA "%s",'
+    },
+    ['synonym'] = {
+        ['1'] = 'You could use the word <b>%s</b>, instead of %s.'
+    },
+    ['thoughts'] = {
+        ['1'] = '%s\n\nPositive: <code>%s%% [%s]</code>\nNegative: <code>%s%% [%s]</code>\nIndifferent: <code>%s%% [%s]</code>\nTotal thoughts: <code>%s</code>'
+    },
+    ['tobinary'] = {
+        ['1'] = 'Please enter the string you would like to convert to binary.'
     },
     ['trust'] = {
         ['1'] = 'I cannot trust this user because they are a moderator or an administrator of this chat.',

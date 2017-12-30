@@ -92,6 +92,18 @@ return {
         ['9'] = 'Si, estoy seguro!',
         ['10'] = 'Ese mensaje contiene markdown inválido! Corrige la sintaxis y prueba de nuevo.'
     },
+    ['chuck'] = {
+        ['1'] = 'Click to send the result.'
+    },
+    ['clickbait'] = {
+        ['1'] = 'Generate Another'
+    },
+    ['coinflip'] = {
+        ['1'] = 'The coin landed on:',
+        ['2'] = 'You were correct!',
+        ['3'] = 'You weren\'t correct, try again...',
+        ['4'] = 'Invalid arguments were given. You must specify your guess, it should be either \'heads\' or \'tails\'.'
+    },
     ['commandstats'] = {
         ['1'] = 'No se han enviado comandos en ese chat!',
         ['2'] = '<b>Estadísticas de comandos para:</b> %s\n\n%s\n<b>Total de comandos enviados:</b> %s',
@@ -122,8 +134,23 @@ return {
         ['3'] = 'No puedo degradar a este usuario porque ha abandonado el chat.',
         ['4'] = 'No puedo degradar a este usuario porque ha sido expulsado.'
     },
+    ['dice'] = {
+        ['1'] = 'The minimum range is %s.',
+        ['2'] = 'The maximum range and count are both %s.',
+        ['3'] = 'The maximum range is %s, and the maximum count is %s.',
+        ['4'] = '%s rolls with a range of %s:\n'
+    },
     ['doge'] = {
         ['1'] = 'Introduce el texto a Doge-ficar. Cada frase debe ir separada en una línea nueva.'
+    },
+    ['duckduckgo'] = {
+        ['1'] = 'I\'m not sure what that is!'
+    },
+    ['eightball'] = {
+        ['1'] = 'Yes.',
+        ['2'] = 'No.',
+        ['3'] = 'It is likely so.',
+        ['4'] = 'Well, uh... I\'d ask again later, if I were you.'
     },
     ['exec'] = {
         ['1'] = 'Selecciona el idioma de programación del código a ejecutar:',
@@ -146,6 +173,13 @@ return {
         ['1'] = 'Has buscado por:',
         ['2'] = 'Introduce tu búsqueda (esto es, que quieres que busque yo en Flickr, por ejemplo "Big Ben" dará una foto del Big Ben de Londres).',
         ['3'] = 'More Results'
+    },
+    ['fortune'] = {
+        ['1'] = 'Click to send your fortune!'
+    },
+    ['frombinary'] = {
+        ['1'] = 'Please enter the binary value you would like to convert to a string.',
+        ['2'] = 'Malformed binary!'
     },
     ['game'] = {
         ['1'] = 'Victorias: %s\nDerrotas: %s\nBalance: %s BarreMonedas',
@@ -172,6 +206,11 @@ return {
     },
     ['gif'] = {
         ['1'] = 'Introduce un término de búsqueda (esto es, quieres que busque en GIPHY, por ejemplo "gato" dará un GIF de un gato).'
+    },
+    ['godwords'] = {
+        ['1'] = 'Please enter a numerical value, between 1 and 64!',
+        ['2'] = 'That number is too small, please specify one between 1 and 64!',
+        ['3'] = 'That number is too large, please specify one between 1 and 64!'
     },
     ['gwhitelist'] = {
         ['1'] = 'Responde al usuario que quieras quitar de la lista negra global, o dime su alias o ID.',
@@ -303,6 +342,11 @@ Sistema:
     ['ispwned'] = {
         ['1'] = 'Esa cuenta se ha encontrado en las siguientes bases de datos:'
     },
+    ['isup'] = {
+        ['1'] = 'This website appears to be up, maybe it\'s just you?',
+        ['2'] = 'That doesn\'t appear to be a valid site!',
+        ['3'] = 'It\'s not just you, this website looks down from here.'
+    },
     ['itunes'] = {
         ['1'] = 'Nombre:',
         ['2'] = 'Artista:',
@@ -331,6 +375,9 @@ Sistema:
         ['7'] = '%s por última vez ha escuchado:\n',
         ['8'] = 'Desconocido',
         ['9'] = 'Clica para enviar el resultado.'
+    },
+    ['lmgtfy'] = {
+        ['1'] = 'Let me Google that for you!'
     },
     ['location'] = {
         ['1'] = 'No tienes ninguna ubicación puesta. Que ubicación quieres usar?'
@@ -449,12 +496,24 @@ Sistema:
         ['1'] = 'He olvidado tu alias!',
         ['2'] = 'Tu alias se ha puesto como "%s"!'
     },
+    ['ninegag'] = {
+        ['1'] = 'Read More'
+    },
     ['optout'] = {
         ['1'] = 'Has vuelto a entrar en el sistema de recogida de datos! Usa /optout para salir.',
         ['2'] = 'Te has salido del sistema de recogida de datos! Usa /optin para entrar.'
     },
     ['paste'] = {
         ['1'] = 'Selecciona un servicio al que quieres subir la nota:'
+    },
+    ['pay'] = {
+        ['1'] = 'You currently have %s BarreMonedas. Earn more by winning games of Tic-Tac-Toe, using /game - You will win 100 BarreMonedas for every game you win, and you will lose 50 for every game you lose.',
+        ['2'] = 'You must use this command in reply to the user you\'d like to send BarreMonedas to.',
+        ['3'] = 'Please specify the amount of BarreMonedas you\'d like to give %s.',
+        ['4'] = 'The amount specified should be a numerical value, of which can be no less than 0.',
+        ['5'] = 'You can\'t send money to yourself!',
+        ['6'] = 'You don\'t have enough funds to complete that transaction!',
+        ['7'] = '%s BarreMonedas have been sent to %s. Your new balance is %s BarreMonedas.'
     },
     ['pin'] = {
         ['1'] = 'No has anclado ningún mensaje. Usa /pin <texto> para poner uno. Formateado markdown está permitido.',
@@ -467,6 +526,11 @@ Sistema:
     ['pokedex'] = {
         ['1'] = 'Nombre: %s\nID: %s\nTipo: %s\nDescripción: %s'
     },
+    ['prime'] = {
+        ['1'] = 'Please enter a number between 1 and 99999.',
+        ['2'] = '%s is a prime number!',
+        ['3'] = '%s is NOT a prime number...'
+    },
     ['promote'] = {
         ['1'] = 'No puedo ascender a este usuario porque ya es un moderador o administrador en este chat.',
         ['2'] = 'No puedo ascender a este usuario porque ha abandonado el chat.',
@@ -476,12 +540,22 @@ Sistema:
         ['1'] = 'Este usuario se ha salido de la recogida de datos.',
         ['2'] = 'No hay citas guardadas para %s%s! Puedes guardar una respondiendo con /save a un mnesaje.'
     },
+    ['randomsite'] = {
+        ['1'] = 'Generate Another'
+    },
+    ['randomword'] = {
+        ['1'] = 'Generate Another',
+        ['2'] = 'Your random word is <b>%s</b>!'
+    },
     ['report'] = {
         ['1'] = 'Por favor responde al mensaje que quieres reportar a los administradores.',
         ['2'] = 'No puedes reportarte a ti mismo, acaso te crees un graciosillo?',
         ['3'] = '<b>%s necesita ayuda en %s!</b>',
         ['4'] = 'Clica aquí para ver el mensaje reportado.',
         ['5'] = 'He reportado el mensaje a %s admin(s)!'
+    },
+    ['rms'] = {
+        ['1'] = 'Holy GNU!'
     },
     ['save'] = {
         ['1'] = 'Este usuario se ha salido de la recogida de datos.',
@@ -544,6 +618,15 @@ Sistema:
         ['2'] = '"%s" no es un usuario válido de Steam.',
         ['3'] = '%s es un usuario de Steam desde %s, día %s. Ha cerrado sesión por última vez a las %s, día %s. Clica <a href="%s">aquí</a> para ver su perfil de Steam.',
         ['4'] = '%s, alias "%s",'
+    },
+    ['synonym'] = {
+        ['1'] = 'You could use the word <b>%s</b>, instead of %s.'
+    },
+    ['thoughts'] = {
+        ['1'] = '%s\n\nPositive: <code>%s%% [%s]</code>\nNegative: <code>%s%% [%s]</code>\nIndifferent: <code>%s%% [%s]</code>\nTotal thoughts: <code>%s</code>'
+    },
+    ['tobinary'] = {
+        ['1'] = 'Please enter the string you would like to convert to binary.'
     },
     ['trust'] = {
         ['1'] = 'No puedo confiar en este usuario porque ya es moderador o administrador.',

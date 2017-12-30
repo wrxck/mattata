@@ -92,6 +92,18 @@ return {
         ['9'] = 'Potwierdź',
         ['10'] = 'Wiadmość zawiera niepoprawny Markdown! Popraw składnię i spróbuj ponownie.'
     },
+    ['chuck'] = {
+        ['1'] = 'Click to send the result.'
+    },
+    ['clickbait'] = {
+        ['1'] = 'Generate Another'
+    },
+    ['coinflip'] = {
+        ['1'] = 'The coin landed on:',
+        ['2'] = 'You were correct!',
+        ['3'] = 'You weren\'t correct, try again...',
+        ['4'] = 'Invalid arguments were given. You must specify your guess, it should be either \'heads\' or \'tails\'.'
+    },
     ['commandstats'] = {
         ['1'] = 'Nie wysłano jeszcze żadnych komend w tej grupie!',
         ['2'] = '<b>Statystyki komend w:</b> %s\n\n%s\n<b>Liczba wszystkich komend:</b> %s',
@@ -173,7 +185,7 @@ return {
         ['2'] = 'Nie jest to poprawna liczba binarna!'
     },
     ['game'] = {
-        ['1'] = 'Zwycięstwa: %s\nPorażki: %s\nSaldo: %s mattamonet',
+        ['1'] = 'Zwycięstwa: %s\nPorażki: %s\nSaldo: %s BarreCoins',
         ['2'] = 'Dołącz',
         ['3'] = 'Gra się już skończyła!',
         ['4'] = 'Nie Twój ruch!',
@@ -496,16 +508,13 @@ System:
         ['1'] = 'Wybierz serwis do którego mam wysłać Twój tekst:'
     },
     ['pay'] = {
-        ['1'] = 'Masz aktualnie %s mattamonet. Zdobądź więcej wygrywając w kółko i krzyżyk, używając /game - wygrasz 100 mattamonet za każdą wygraną, i stracisz 50 za każdą przegraną.',
-        ['2'] = 'Musisz użyć tej komendy w odpowiedzi do użytkownika któremu chcesz przelać mattamonety',
+        ['1'] = 'Masz aktualnie %s BarreCoins. Zdobądź więcej wygrywając w kółko i krzyżyk, używając /game - wygrasz 100 BarreCoins za każdą wygraną, i stracisz 50 za każdą przegraną.',
+        ['2'] = 'Musisz użyć tej komendy w odpowiedzi do użytkownika któremu chcesz przelać BarreCoinsy',
         ['3'] = 'Ile mettamonet chcesz przelać do %s?',
         ['4'] = 'Podana ilość musi być liczbą nieujemną.',
-        ['5'] = 'Nie możesz przelać mattamonet do siebie!',
-        ['6'] = 'Nie masz tylu mattamonet!',
-        ['7'] = '%s mattamonet zostało przelanych do to %s. Masz teraz %s mattamonet.'
-    },
-    ['pokedex'] = {
-        ['1'] = 'Nazwa: %s\nID: %s\nTyp: %s\nOpis: %s'
+        ['5'] = 'Nie możesz przelać BarreCoins do siebie!',
+        ['6'] = 'Nie masz tylu BarreCoins!',
+        ['7'] = '%s BarreCoins zostało przelanych do to %s. Masz teraz %s BarreCoins.'
     },
     ['pin'] = {
         ['1'] = 'Nie utworzono wcześniej żadnej wiadomości do przypięcia. Użyj /pin <tekst> aby utworzyć. Użyj Markdown do formatowania.',
@@ -514,6 +523,9 @@ System:
         ['4'] = 'Wystąpił błąd podczas aktualizowania wiadomości do przypięcia. Wprowadzony tekst mógł zawierać nieprawidłowy Markdown, bądź wiadomość do przypięcia została usunięta. Spróbuję wysłać nową wiadomość do przypięcia, znajdziesz ją poniżej - jeśli potrzebujesz ją zmodyfikować, po upewnieniu się że istnieje, użyj /pin <tekst>.',
         ['5'] = 'Tekst zawiera nieprawidłowy Markdown.',
         ['6'] = 'Kliknij tutaj aby zobaczyć zaktualizowaną przypiętą wiadomość.'
+    },
+    ['pokedex'] = {
+        ['1'] = 'Nazwa: %s\nID: %s\nTyp: %s\nOpis: %s'
     },
     ['prime'] = {
         ['1'] = 'Podaj liczbę między 1 a 99999.',

@@ -1,0 +1,38 @@
+--[[
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local godwords = {}
+local mattata = require('mattata')
+
+function godwords:init()
+    godwords.commands = mattata.commands(self.info.username):command('godwords').table
+    godwords.help = '/godwords <1-64> - Returns a string of "god words", allowing you to "hear god speak". Credit to Terrence Andrew Davis for the concept and script.'
+end
+
+function godwords:on_message(message, configuration, language)
+    local input = mattata.input(message.text)
+    local output
+    if not input
+    then
+        output = godwords.help
+    elseif tonumber(input) == nil
+    then
+        output = language['godwords']['1']
+    elseif tonumber(input) < 1
+    then
+        output = language['godwords']['2']
+    elseif tonumber(input) > 64
+    then
+        output = language['godwords']['3']
+    else
+        output = io.popen('echo "$(shuf -n ' .. tonumber(input) .. ' ./godwords.txt --random-source=/dev/urandom | tr \'\n\' \' \')"'):read('*all')
+    end
+    return mattata.send_reply(
+        message,
+        output
+    )
+end
+
+return godwords

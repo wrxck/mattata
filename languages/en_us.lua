@@ -92,6 +92,18 @@ return {
         ['9'] = 'Yes, I\'m sure!',
         ['10'] = 'That message contains invalid Markdown formatting! Please correct your syntax and try again.'
     },
+    ['chuck'] = {
+        ['1'] = 'Click to send the result.'
+    },
+    ['clickbait'] = {
+        ['1'] = 'Generate Another'
+    },
+    ['coinflip'] = {
+        ['1'] = 'The coin landed on:',
+        ['2'] = 'You were correct!',
+        ['3'] = 'You weren\'t correct, try again...',
+        ['4'] = 'Invalid arguments were given. You must specify your guess, it should be either \'heads\' or \'tails\'.'
+    },
     ['commandstats'] = {
         ['1'] = 'No commands have been sent in this chat!',
         ['2'] = '<b>Command statistics for:</b> %s\n\n%s\n<b>Total commands sent:</b> %s',
@@ -173,7 +185,7 @@ return {
         ['2'] = 'Malformed binary!'
     },
     ['game'] = {
-        ['1'] = 'Total wins: %s\nTotal losses: %s\nBalance: %s mattacoins',
+        ['1'] = 'Total wins: %s\nTotal losses: %s\nBalance: %s BarreCoins',
         ['2'] = 'Join Game',
         ['3'] = 'This game has already ended!',
         ['4'] = 'It\'s not your turn!',
@@ -498,13 +510,13 @@ System:
         ['1'] = 'Please select a service to upload your paste to:'
     },
     ['pay'] = {
-        ['1'] = 'You currently have %s mattacoins. Earn more by winning games of Tic-Tac-Toe, using /game - You will win 100 mattacoins for every game you win, and you will lose 50 for every game you lose.',
-        ['2'] = 'You must use this command in reply to the user you\'d like to send mattacoins to.',
-        ['3'] = 'Please specify the amount of mattacoins you\'d like to give %s.',
+        ['1'] = 'You currently have %s BarreCoins. Earn more by winning games of Tic-Tac-Toe, using /game - You will win 100 BarreCoins for every game you win, and you will lose 50 for every game you lose.',
+        ['2'] = 'You must use this command in reply to the user you\'d like to send BarreCoins to.',
+        ['3'] = 'Please specify the amount of BarreCoins you\'d like to give %s.',
         ['4'] = 'The amount specified should be a numerical value, of which can be no less than 0.',
         ['5'] = 'You can\'t send money to yourself!',
         ['6'] = 'You don\'t have enough funds to complete that transaction!',
-        ['7'] = '%s mattacoins have been sent to %s. Your new balance is %s mattacoins.'
+        ['7'] = '%s BarreCoins have been sent to %s. Your new balance is %s BarreCoins.'
     },
     ['pin'] = {
         ['1'] = 'You haven\'t set a pin before. Use /pin <text> to set one. Markdown formatting is supported.',
