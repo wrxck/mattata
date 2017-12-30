@@ -377,7 +377,6 @@ function clashroyale.parse_clan_search(data, search_query, page)
         else
             pages = math.floor(pages)
         end
-        print(page .. "/" .. pages)
         if tonumber(page) ~= pages then
             for k = (((page-1)*10)+1), (page*10) do
                 table.insert(keyboard.inline_keyboard,
@@ -516,8 +515,7 @@ function clashroyale:on_message(message, configuration, language)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
         else
             local input_data = input:gsub("clan ", ""):gsub("#", "")
-            if not input_data then
-                print("DETECTED")
+            if input_data == "" then
                 json_data = clashroyale.request(configuration.keys.clashroyale, "clan", (clashroyale.request(configuration.keys.clashroyale, "player", redis:hget('clashroyale:' .. message.from.id, 'player'))).clan.tag)
                 local text, keyboard = clashroyale.parse_clan(json_data)
                 return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
