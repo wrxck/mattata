@@ -374,6 +374,7 @@ function clashroyale.parse_clan_search(data, search_query, page)
         if pages > math.floor(pages) then
             pages = pages + 1
         end
+        print(page .. "/" .. pages)
         if tonumber(page) ~= pages then
             for k = (((page-1)*10)+1), (page*10) do
                 table.insert(keyboard.inline_keyboard,
