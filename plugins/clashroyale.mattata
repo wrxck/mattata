@@ -383,7 +383,7 @@ function clashroyale.parse_clan_search(data, search_query, page)
                 { {['text'] = mattata.escape_html(data[k].name) .. " (" .. math.floor(tonumber(data[k].score)) .. " 🏆) | #" .. data[k].tag, ['callback_data'] = 'clashroyale:clan:' ..data[k].tag} })
             end
         else
-            for k = (((page-1)*10)+1), math.floor(tonumber#data, -1)) do
+            for k = (((page-1)*10)+1), math.floor(tonumber(#data, -1)) do
                 table.insert(keyboard.inline_keyboard,
                 { {['text'] = mattata.escape_html(data[k].name) .. " (" .. math.floor(tonumber(data[k].score)) .. " 🏆) | #" .. data[k].tag, ['callback_data'] = 'clashroyale:clan:' ..data[k].tag} })
             end
