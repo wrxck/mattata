@@ -44,7 +44,7 @@ function clashroyale.request(key, input, content)
     elseif input == "clan_search" then
         response = requests.get{url = 'https://api.cr-api.com/clan/search?name='..content, headers = headers}
         return response.json()
-    elseif input == "clan_search" then
+    elseif input == "version" then
         response = requests.get{url = 'https://api.cr-api.com/version', headers = headers}
         return response.text
     end
