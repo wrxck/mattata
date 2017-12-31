@@ -487,10 +487,9 @@ end
 
 
 
-function clashroyale:on_inline_query(inline_query, configuration, language)
+function clashroyale:on_inline_query(self, inline_query, configuration, language)
     local input = mattata.input(inline_query.query)
     print(inline_query.query)
-    print(input)
     if not input
     then
         return
