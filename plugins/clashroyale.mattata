@@ -69,6 +69,7 @@ function clashroyale.parse_player(data)
         cards_pages = cards_pages + 1
     end
     local keyboard = mattata.inline_keyboard()
+    :row(mattata.row():switch_inline_query_button('Share Player', '/cr player #' .. data.tag))
     :row(data.clan and mattata.row():callback_data_button('Clan Information', 'clashroyale:player:' .. data.tag .. ':clan'))
     :row((data.leagueStatistics and mattata.row():callback_data_button('User Stats', 'clashroyale:player:' .. data.tag .. ':stats'):callback_data_button('Season Stats', 'clashroyale:player:' .. data.tag .. ':season') or mattata.row():callback_data_button('Player Statistics', 'clashroyale:player:' .. data.tag .. ':stats')))
     :row(mattata.row():callback_data_button('View Current Deck', 'clashroyale:player:' .. data.tag .. ':deck'))
@@ -134,7 +135,7 @@ function clashroyale.parse_player_clan(data)
     end
 
     local keyboard = mattata.inline_keyboard()
-    :row(mattata.row():callback_data_button('View Clan Info', 'clashroyale:clan:' .. data.clan.tag))
+    :row(mattata.row():callback_data_button('View Clan Info', 'clashroyale:clan:' .. data.clan.tag):switch_inline_query_button('Share Clan', '/cr clan #' .. data.tag))
     :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
 
     return output, keyboard
@@ -392,6 +393,8 @@ function clashroyale.parse_clan_search(data, search_query, page)
                 { {['text'] = mattata.escape_html(data[k].name) .. " (" .. math.floor(tonumber(data[k].score)) .. " 🏆) | #" .. data[k].tag, ['callback_data'] = 'clashroyale:clan:' ..data[k].tag} })
             end
         end
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = "Share Clan Search", ['switch_inline_query_button'] = '/cr clan ' .. url.unescape(search_query)} })
         if pages > 1 then
             if tonumber(page) == 1 then
                 table.insert(keyboard.inline_keyboard,
@@ -441,6 +444,8 @@ function clashroyale.parse_clan(data, page)
                 { {['text'] = mattata.escape_html(data.members[k].name) .. " (" .. math.floor(tonumber(data.members[k].trophies)) .. " 🏆) | #" .. data.members[k].tag, ['callback_data'] = 'clashroyale:clan:' .. data.tag .. ":player:" .. math.floor(k)} })
             end
         end
+        table.insert(keyboard.inline_keyboard,
+        { {['text'] = "Share Clan", ['switch_inline_query_button'] = '/cr clan #' .. data.tag} })
         if pages > 1 then
             if tonumber(page) == 1 then
                 table.insert(keyboard.inline_keyboard,
