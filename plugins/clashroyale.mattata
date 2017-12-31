@@ -517,7 +517,17 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
         local json_data = clashroyale.request(configuration.keys.clashroyale, "clan", input:gsub("%s+", ""):gsub("clan", ""):gsub("#", ""))
         if json_data and json_data.tag then
             local text, keyboard = clashroyale.parse_clan(json_data, 1)
-            return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+            return mattata.answer_inline_query(
+                inline_query.id,
+                mattata.inline_result()
+                :id()
+                :type('article')
+                :title("Clan #" .. input:gsub("%s+", ""):gsub("clan", ""):gsub("#", ""))
+                :input_message_content(
+                    mattata.input_text_message_content(text, true)
+                )
+                :reply_markup(keyboard)
+            )
         else
             local input_data = input:sub(6, -1):gsub("#", "")
             if input_data:gsub("%s+", "") == "" then
@@ -540,19 +550,18 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
             end
         end
     elseif input:match('^save') then
-        local tag = input:gsub("%s+", ""):gsub("save", ""):gsub("#", "")
-        local json_data = clashroyale.request(configuration.keys.clashroyale, "player", tag)
-        if json_data and json_data.tag and json_data.clan then
-            redis:hset('clashroyale:' .. message.from.id, 'player', json_data.tag)
-            return mattata.send_message(message, "Your player info has been saved as <i>" .. mattata.escape_html(json_data.name) .. "</i>", 'html', false, false, message.message_id)
-        elseif json_data and json_data.tag and not json_data.clan then
-            return mattata.send_message(message, "You gave me the ID of a clan!", 'html', false, false, message.message_id)
-        else
-            return mattata.send_reply(message, language['errors']['results'])
-        end
+        return mattata.answer_inline_query(
+            inline_query.id,
+            mattata.inline_result()
+            :id()
+            :type('article')
+            :title("Save Player")
+            :input_message_content(
+                mattata.input_text_message_content("Only avaliable via direct command\n\n`/cr save #ID`", true)
+            )
+        )
     elseif input:match('^version') then
         local version = clashroyale.request(configuration.keys.clashroyale, "version")
-        print("DETECTED")
         return mattata.answer_inline_query(
             inline_query.id,
             mattata.inline_result()
