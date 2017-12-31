@@ -16,7 +16,7 @@ function clashroyale:init(configuration)
         'clashroyale.lua requires an API key, and you haven\'t got one configured!'
     )
     clashroyale.commands = mattata.commands(self.info.username):command('clashroyale'):command('cr').table
-    clashroyale.help = '/clashroyale save <#PLAYER_ID> - Save your player ID for future usage.\n/clashroyale player [#PLAYER_ID] - Send information about that player.\n/clashroyale clan [#CLAN_ID]/[`Clan Name`] [trohpies=`1`] [min=`1`] [max=`50`] - Send information about that clan, or search for a clan.\n/clashroyale version: View current plugin version\n\nAlias: /cr | _Supports inline queries_'
+    clashroyale.help = '/clashroyale <save> <#PLAYER\_ID> - _Save your player ID for future usage_.\n/clashroyale <player> [#PLAYER\_ID] - _Send information about that player_.\n/clashroyale <clan> [#CLAN\_ID]/[`Clan Name`] [trohpies=`1`] [min=`1`] [max=`50`] - _Send information about that clan, or search for a clan_.\n/clashroyale <version> - _View current plugin version_.\n\nAlias: /cr | *Supports inline queries*'
 end
 
 function clashroyale.ordinal(number)
