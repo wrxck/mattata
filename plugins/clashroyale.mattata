@@ -480,7 +480,7 @@ function clashroyale.parse_clan_player(data, player, page)
 
     local keyboard = mattata.inline_keyboard()
     :row(mattata.row():callback_data_button('View Detailed Player Info', 'clashroyale:player:' .. data.members[player].tag))
-    :row(mattata.row():callback_data_button('Back', 'clashroyale:clan:' .. data.tag .. ':info:' .. math.math.floor(page)))
+    :row(mattata.row():callback_data_button('Back', 'clashroyale:clan:' .. data.tag .. ':info:' .. math.floor(page)))
 
     return output, keyboard
 end
