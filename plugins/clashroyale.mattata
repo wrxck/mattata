@@ -524,7 +524,7 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
                 :type('article')
                 :title("Clan #" .. input:gsub("%s+", ""):gsub("clan", ""):gsub("#", ""))
                 :input_message_content(
-                    mattata.input_text_message_content(text, true)
+                    mattata.input_text_message_content(text, 'html')
                 )
                 :reply_markup(keyboard)
             )
