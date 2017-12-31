@@ -550,6 +550,7 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
         end
     elseif input:match('^version') then
         local version = clashroyale.request(configuration.keys.clashroyale, "version")
+        print("DETECTED")
         return mattata.answer_inline_query(
             inline_query.id,
             mattata.inline_result()
