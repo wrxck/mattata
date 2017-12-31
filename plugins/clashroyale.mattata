@@ -519,7 +519,7 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
                 mattata.inline_result()
                 :id()
                 :type('article')
-                :title("Player #" .. input:gsub("%s+", ""):gsub("clan", ""):gsub("#", ""))
+                :title("Player #" .. input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
                 :input_message_content(
                     mattata.input_text_message_content(text, 'html')
                 )
