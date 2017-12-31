@@ -643,7 +643,7 @@ function mattata:on_inline_query()
             end
             if inline_query.query:match(command) and plugin.on_inline_query then
                 local success, result = pcall(function()
-                    return plugin.on_inline_query(inline_query, configuration, language)
+                    return plugin.on_inline_query(self, inline_query, configuration, language)
                 end)
                 if not success then
                     mattata.exception(self, result, inline_query.from.id .. ': ' .. inline_query.query, configuration.log_chat)
