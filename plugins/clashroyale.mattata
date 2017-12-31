@@ -488,16 +488,20 @@ end
 
 
 function clashroyale:on_inline_query(inline_query, configuration, language)
-    print(inline_query.query)
-    local input = mattata.input(inline_query.query)
-    print(input)
-    if not input
-    then
-        return
+    local input = mattata.input(inline_query.query)urn
     end
-    if not input then
-        return mattata.send_reply(message, clashroyale.help)
-    end
+    return mattata.answer_inline_query(
+        inline_query.id,
+        mattata.inline_result()
+        :id()
+        :type('article')
+        :title("Usage")
+        :description("/cr <player>/<clan>")
+        :input_message_content(
+            mattata.input_text_message_content(clashroyale.help, true)
+        )
+        :reply_markup(keyboard)
+    )
 
     if input:match('^player') then
         local json_data = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
@@ -640,7 +644,7 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
             :type('article')
             :title("player | clan | version")
             :input_message_content(
-                mattata.input_text_message_content(clashroyale.help)
+                mattata.input_text_message_content(clashroyale.help, true)
             )
         )
     end
@@ -722,7 +726,7 @@ end
 function clashroyale:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if not input then
-        return mattata.send_reply(message, clashroyale.help)
+        return mattata.send_reply(message, clashroyale.help, true)
     end
 
     if input:match('^player') then
@@ -779,7 +783,7 @@ function clashroyale:on_message(message, configuration, language)
     elseif input:match('^version') then
         return mattata.send_reply(message, "Clash Royale API `" .. clashroyale.request(configuration.keys.clashroyale, "version") .. "`\n\n_For further support, contact_ [@Barreeeiroo](https://t.me/Barreeeiroo)", 'markdown')
     else
-        return mattata.send_reply(message, clashroyale.help)
+        return mattata.send_reply(message, clashroyale.help, true)
     end
 end
 
