@@ -394,7 +394,7 @@ function clashroyale.parse_clan_search(data, search_query, page)
             end
         end
         table.insert(keyboard.inline_keyboard,
-        { {['text'] = "Share Clan Search", ['switch_inline_query_button'] = '/cr clan ' .. url.unescape(search_query)} })
+        { {['text'] = "Share Clan Search", ['switch_inline_query'] = '/cr clan ' .. url.unescape(search_query)} })
         if pages > 1 then
             if tonumber(page) == 1 then
                 table.insert(keyboard.inline_keyboard,
@@ -445,7 +445,7 @@ function clashroyale.parse_clan(data, page)
             end
         end
         table.insert(keyboard.inline_keyboard,
-        { {['text'] = "Share Clan", ['switch_inline_query_button'] = '/cr clan #' .. data.tag} })
+        { {['text'] = "Share Clan", ['switch_inline_query'] = '/cr clan #' .. data.tag} })
         if pages > 1 then
             if tonumber(page) == 1 then
                 table.insert(keyboard.inline_keyboard,
