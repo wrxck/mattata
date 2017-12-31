@@ -462,7 +462,7 @@ function clashroyale.parse_clan(data, page)
     return output, keyboard
 end
 
-function clashroyale.parse_clan_player(data, player)
+function clashroyale.parse_clan_player(data, player, page)
     local output = ""
     player = math.floor(tonumber(player))
     output = "<b>Clan</b>\n"
@@ -479,8 +479,8 @@ function clashroyale.parse_clan_player(data, player)
     output = output.. "Donations Given: <code>" .. math.floor(tonumber(data.members[player].donations)) .. "</code> | Donations Received: <code>" .. math.floor(tonumber(data.members[player].donationsReceived)) .. "</code>"
 
     local keyboard = mattata.inline_keyboard()
-    :row(mattata.row():callback_data_button('View Player Info', 'clashroyale:player:' .. data.members[player].tag))
-    :row(mattata.row():callback_data_button('Back', 'clashroyale:clan:' .. data.tag .. ':back'))
+    :row(mattata.row():callback_data_button('View Detailed Player Info', 'clashroyale:player:' .. data.members[player].tag))
+    :row(mattata.row():callback_data_button('Back', 'clashroyale:clan:' .. data.tag .. ':info:' .. math.math.floor(page)))
 
     return output, keyboard
 end
@@ -542,7 +542,9 @@ function clashroyale:on_callback_query(callback_query, message, configuration)
     elseif callback_query.data:match('^clan:%w*:player:%d+$')
     then
         local clan, player = callback_query.data:match('^clan:(%w*):player:(%d+)$')
-        text, keyboard = clashroyale.parse_clan_player(clashroyale.request(configuration.keys.clashroyale, "clan", clan), player)
+        local page = tonumber(player)/5
+        if page > math.floor(page) then page = math.floor(page + 1) else page = math.floor(page) end
+        text, keyboard = clashroyale.parse_clan_player(clashroyale.request(configuration.keys.clashroyale, "clan", clan), player, page)
     else
         return false
     end
