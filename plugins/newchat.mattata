@@ -1,11 +1,12 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local newchat = {}
 local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
+local json = require('dkjson')
 
 function newchat:init()
     newchat.commands = mattata.commands(self.info.username):command('newchat').table

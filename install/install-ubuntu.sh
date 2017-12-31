@@ -4,7 +4,7 @@ printf "or press CTRL + C to abort.\n"
 read
 set -e
 sudo apt-get update
-aptlist="git wget openssl coreutils make gcc libreadline-dev libssl-dev redis-server unzip libexpat1-dev libcurl3 libcurl3-gnutls libcurl4-openssl-dev ruby ruby-dev"
+aptlist="git wget openssl coreutils make gcc libreadline-dev libssl-dev redis-server unzip libexpat1-dev libcurl3 libcurl3-gnutls libcurl4-openssl-dev ruby ruby-dev lua-requests"
 for package in $aptlist; do
     printf "[Info] Installing $package...\n"
     sudo apt-get install $package

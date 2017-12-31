@@ -1,4 +1,4 @@
--- This is a language file for mattata
+-- This is a language file for BarrePolice
 -- Language: en-us
 -- Author: wrxck
 
@@ -6,7 +6,7 @@
 -- THESE ARE PLACEHOLDERS!
 
 -- DO NOT CHANGE ANY MARKDOWN/HTML FORMATTING!
--- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/mattataDev)
+-- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/BarrePolice)
 
 return {
     ['errors'] = {
@@ -92,6 +92,18 @@ return {
         ['9'] = 'Yes, I\'m sure!',
         ['10'] = 'That message contains invalid Markdown formatting! Please correct your syntax and try again.'
     },
+    ['chuck'] = {
+        ['1'] = 'Click to send the result.'
+    },
+    ['clickbait'] = {
+        ['1'] = 'Generate Another'
+    },
+    ['coinflip'] = {
+        ['1'] = 'The coin landed on:',
+        ['2'] = 'You were correct!',
+        ['3'] = 'You weren\'t correct, try again...',
+        ['4'] = 'Invalid arguments were given. You must specify your guess, it should be either \'heads\' or \'tails\'.'
+    },
     ['commandstats'] = {
         ['1'] = 'No commands have been sent in this chat!',
         ['2'] = '<b>Command statistics for:</b> %s\n\n%s\n<b>Total commands sent:</b> %s',
@@ -173,7 +185,7 @@ return {
         ['2'] = 'Malformed binary!'
     },
     ['game'] = {
-        ['1'] = 'Total wins: %s\nTotal losses: %s\nBalance: %s mattacoins',
+        ['1'] = 'Total wins: %s\nTotal losses: %s\nBalance: %s BarreCoins',
         ['2'] = 'Join Game',
         ['3'] = 'This game has already ended!',
         ['4'] = 'It\'s not your turn!',
@@ -233,6 +245,8 @@ Here are some administrative commands and a brief comment regarding what they do
 • /unban - Unban a user by replying to one of their messages, or by specifying them by username/ID
 
 • /setrules <text> - Set the given Markdown-formatted text as the group rules, which will be sent whenever somebody uses /rules
+
+• /trust - Promotes an user to a trusted user of the current chat. This command can only be used by administrators of a supergroup. Admins can set their permissions to be immune to some filters.
         ]],
         ['10'] = [[
 • /setwelcome - Set the given Markdown-formatted text as a welcome message that will be sent every time a user joins your group (the welcome message can be disabled in the administration menu, accessible via /administration). You can use placeholders to automatically customise the welcome message for each user. Use $user\_id to insert the user's numerical ID, $chat\_id to insert the chat's numerical ID, $name to insert the user's name, $title to insert the chat title and $username to insert the user's username (if the user doesn't have an @username, their name will be used instead, so it is best to avoid using this with $name)
@@ -304,6 +318,9 @@ Redis:
 
 %s User Count: %s
 %s Group Count: %s
+%s Received Messages Count: %s
+%s Received CallbackQueries Count: %s
+%s Received InlineQueries Count: %s
 
 System:
 %s OS: %s
@@ -433,7 +450,7 @@ System:
         ['18'] = 'An error occured whilst re-authorising your Spotify account!',
         ['19'] = 'Successfully re-authorised your Spotify account! Processing your original request...',
         ['20'] = 'Re-authorising your Spotify account, please wait...',
-        ['21'] = 'You need to authorise mattata in order to connect your Spotify account. Click [here](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) and press the green "OKAY" button to link mattata to your Spotify account. After you\'ve done that, send the link you were redirected to (it should begin with "%s", followed by a unique code) in reply to this message.',
+        ['21'] = 'You need to authorise BarrePolice in order to connect your Spotify account. Click [here](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) and press the green "OKAY" button to link BarrePolice to your Spotify account. After you\'ve done that, send the link you were redirected to (it should begin with "%s", followed by a unique code) in reply to this message.',
         ['22'] = 'Playlists',
         ['23'] = 'Use Inline Mode',
         ['24'] = 'Lyrics',
@@ -493,13 +510,13 @@ System:
         ['1'] = 'Please select a service to upload your paste to:'
     },
     ['pay'] = {
-        ['1'] = 'You currently have %s mattacoins. Earn more by winning games of Tic-Tac-Toe, using /game - You will win 100 mattacoins for every game you win, and you will lose 50 for every game you lose.',
-        ['2'] = 'You must use this command in reply to the user you\'d like to send mattacoins to.',
-        ['3'] = 'Please specify the amount of mattacoins you\'d like to give %s.',
+        ['1'] = 'You currently have %s BarreCoins. Earn more by winning games of Tic-Tac-Toe, using /game - You will win 100 BarreCoins for every game you win, and you will lose 50 for every game you lose.',
+        ['2'] = 'You must use this command in reply to the user you\'d like to send BarreCoins to.',
+        ['3'] = 'Please specify the amount of BarreCoins you\'d like to give %s.',
         ['4'] = 'The amount specified should be a numerical value, of which can be no less than 0.',
         ['5'] = 'You can\'t send money to yourself!',
         ['6'] = 'You don\'t have enough funds to complete that transaction!',
-        ['7'] = '%s mattacoins have been sent to %s. Your new balance is %s mattacoins.'
+        ['7'] = '%s BarreCoins have been sent to %s. Your new balance is %s BarreCoins.'
     },
     ['pin'] = {
         ['1'] = 'You haven\'t set a pin before. Use /pin <text> to set one. Markdown formatting is supported.',
@@ -639,7 +656,7 @@ System:
         ['5'] = 'Successfully downloaded the file to the server - it can be found at <code>%s</code>!'
     },
     ['version'] = {
-        ['1'] = '@%s AKA %s `[%s]` is running mattata %s, created by [Matthew Hesketh](https://t.me/wrxck). The source code is available on [GitHub](https://github.com/wrxck/mattata).'
+        ['1'] = '@%s AKA %s `[%s]` is running BarrePolice %s, created by [Diego Barreiro](https://t.me/barreeeiroo). The source code is available on [GitHub](https://github.com/barreeeiroo/BarrePolice).'
     },
     ['voteban'] = {
         ['1'] = 'Which user would you like to open up a vote-ban for? You can specify this user by their @username or numerical ID.',

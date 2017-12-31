@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -16,13 +16,9 @@ end
 
 function plugins.get_toggleable_plugins()
     local toggleable = {}
-    for k, v in pairs(configuration.plugins)
-    do
+    for k, v in pairs(configuration.plugins) do
         if v ~= 'plugins' and v ~= 'control' and v ~= 'bash' and v ~= 'lua' and v ~= 'gwhitelist' and v ~= 'gblacklist' then
-            table.insert(
-                toggleable,
-                v
-            )
+            table.insert(toggleable, v)
         end
     end
     local extra_plugins = {
@@ -30,10 +26,7 @@ function plugins.get_toggleable_plugins()
         'captionbotai'
     }
     for k, v in pairs(extra_plugins) do
-        table.insert(
-            toggleable,
-            v
-        )
+        table.insert(toggleable, v)
     end
     table.sort(toggleable)
     return toggleable
@@ -183,14 +176,14 @@ function plugins.get_keyboard(chat, page, columns, per_page)
         {
             {
                 ['text'] = 'Back',
-                ['callback_data'] = 'help:settings'
+                ['callback_data'] = 'help:settings:'..chat
             }
         }
     )
     return keyboard
 end
 
-function plugins:on_callback_query(callback_query, message, configuration)
+function plugins:on_callback_query(callback_query, message, configuration, language)
     if not callback_query.data:match('^.-:.-:.-$') then
         return
     end
@@ -234,85 +227,36 @@ function plugins:on_callback_query(callback_query, message, configuration)
             end
             toggle_status = 'disabled!'
         elseif callback_type == 'enable_via_message' or callback_type == 'enable' then
-            redis:hset(
-                string.format(
-                    'chat:%s:disabled_plugins',
-                    chat
-                ),
-                page,
-                false
-            )
+            redis:hdel('chat:' .. chat .. ':disabled_plugins', page)
             return mattata.answer_callback_query(
                 callback_query.id,
                 page:gsub('^%l', string.upper) .. ' has been enabled!'
             )
         elseif callback_type == 'dismiss_disabled_message' then
-            redis:set(
-                string.format(
-                    'chat:%s:dismiss_disabled_message:%s',
-                    chat,
-                    page
-                ),
-                true
-            )
-            return mattata.answer_callback_query(
-                callback_query.id,
-                'You will no longer be notified about this plugin!'
-            )
+            redis:set('chat:' .. chat .. ':dismiss_disabled_message:' .. page, true)
+            local output = 'You will no longer be notified about this plugin!'
+            return mattata.answer_callback_query(callback_query.id, output)
         else
-            if mattata.is_plugin_disabled(
-                callback_type,
-                chat
-            ) then
-                redis:hset(
-                    string.format(
-                        'chat:%s:disabled_plugins',
-                        chat
-                    ),
-                    callback_type,
-                    false
-                )
+            if mattata.is_plugin_disabled(callback_type, chat) then
+                redis:hdel('chat:' .. chat .. ':disabled_plugins', callback_type)
             else
-                redis:hset(
-                    string.format(
-                        'chat:%s:disabled_plugins',
-                        chat
-                    ),
-                    callback_type,
-                    true
-                )
+                redis:hset('chat:' .. chat .. ':disabled_plugins', callback_type, true)
             end
         end
     end
-    local keyboard = plugins.get_keyboard(
-        chat,
-        tonumber(page),
-        2,
-        10
-    )
-    local success = mattata.edit_message_reply_markup(
-        message.chat.id,
-        message.message_id,
-        nil,
-        json.encode(keyboard)
-    )
+    local keyboard = plugins.get_keyboard(chat, tonumber(page), 2, 10)
+    local success = mattata.edit_message_reply_markup(message.chat.id, message.message_id, nil, json.encode(keyboard))
     if not success then
-        return mattata.answer_callback_query(
-            callback_query.id,
-            'All plugins have already been ' .. toggle_status
-        )
+        local output = callback_type == 'page' and language['errors']['generic'] or 'All plugins have already been ' .. toggle_status
+        return mattata.answer_callback_query(callback_query.id, output)
     end
 end
 
 function plugins:on_message(message, configuration)
-    if message.chat.type ~= 'private' and not mattata.is_group_admin(
-        message.chat.id,
-        message.from.id
-    ) then
-        return mattata.send_reply(
-            message,
-            'You must be an administrator to use this!'
-        )
+    if message.chat.type ~= 'private' and not mattata.is_group_admin(message.chat.id, message.from.id) then
+        local output = 'You must be an administrator to use this!'
+        mattata.send_reply(message, output)
+        return false, output
     elseif message.chat.type == 'private' then
         local input = mattata.input(message.text)
         if input then
@@ -320,30 +264,16 @@ function plugins:on_message(message, configuration)
                 input = '@' .. input
             end
             local resolved = mattata.get_chat(input)
-            if resolved and mattata.is_group_admin(
-                resolved.result.id,
-                message.from.id
-            ) then
+            if resolved and mattata.is_group_admin(resolved.result.id, message.from.id) then
                 message.chat = resolved.result
             elseif not resolved then
-                return mattata.send_reply(
-                    message,
-                    'That\'s not a valid chat!'
-                )
+                return mattata.send_reply(message, 'That\'s not a valid chat!')
             else
-                return mattata.send_reply(
-                    message,
-                    'You don\'t appear to be an administrator in that chat!'
-                )
+                return mattata.send_reply(message, 'You don\'t appear to be an administrator in that chat!')
             end
         end
     end
-    local keyboard = plugins.get_keyboard(
-        message.chat.id,
-        1,
-        2,
-        10
-    )
+    local keyboard = plugins.get_keyboard(message.chat.id, 1, 2, 10)
     local success = mattata.send_message(
         message.from.id,
         string.format(
@@ -368,10 +298,7 @@ function plugins:on_message(message, configuration)
             'markdown'
         )
     end
-    return mattata.send_reply(
-        message,
-        'I have sent you the plugin management menu via private chat.'
-    )
+    return mattata.send_reply(message, 'I have sent you the plugin management menu via private chat.')
 end
 
 return plugins

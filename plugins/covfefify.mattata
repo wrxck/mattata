@@ -1,0 +1,46 @@
+--[[
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local covfefify = {}
+local mattata = require('mattata')
+
+function covfefify:init()
+    covfefify.commands = mattata.commands(self.info.username):command('covfefify').table
+    covfefify.help = '/covfefify <word> - Repeats the given word in a style similar to that of an absurd tweet by the 45th President of the United States, Donald J. Trump.'
+end
+
+function covfefify.process(word)
+    local i, j, a, b = word:find('[aeiouy]+([^aeiouy]+)(.)')
+    return word:sub(1, j - #a) .. (('pgtvkhjglmnbqrzdfwxs'):sub(('bcdfghjklmnpqrstvwxz'):find(a:sub(1, 1))) .. b):rep(2)
+end
+
+function covfefify:on_message(message)
+    local input = mattata.input(message.text:lower())
+    if not input
+    then
+        return mattata.send_reply(
+            message,
+            covfefify.help
+        )
+    elseif not input:match('^%a+$')
+    then
+        return mattata.send_reply(
+            message,
+            'This command only accepts single words with alphabetic characters, such as "coverage" or "president".'
+        )
+    elseif not input:find('[aeiouy]+([^aeiouy]+)(.)')
+    then
+        return mattata.send_reply(
+            message,
+            'This word does not meet the command\'s requirements. It must contain at least 1 vowel and at least 1 consonant. It must also be a minimum of 3 characters in length.'
+        )
+    end
+    return mattata.send_message(
+        message.chat.id,
+        'Despite the constant negative press ' .. covfefify.process(input)
+    )
+end
+
+return covfefify

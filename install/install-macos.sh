@@ -60,7 +60,7 @@ if [ ! -f "`which luarocks`" ]; then
 fi
 printf "[Info] Installing openssl...\n"
 sudo luarocks install --server=http://luarocks.org/dev openssl
-rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem uuid html-entities luaossl feedparser telegram-bot-lua lbase64 luacrypto"
+rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem uuid html-entities luaossl feedparser telegram-bot-lua lbase64 luacrypto lua-requests"
 for rock in $rocklist; do
     printf "[Info] Installing $rock...\n"
     sudo luarocks install $rock

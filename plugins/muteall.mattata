@@ -1,0 +1,79 @@
+--[[
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local muteall = {}
+local mattata = require('mattata')
+local redis = dofile('libs/redis.lua')
+
+function muteall:init()
+    muteall.commands = mattata.commands(self.info.username):command('muteall').table
+    muteall.help = '/muteall - Mute all users on the current chat. This command can only be used by administrators of a supergroup. Only administrators and moderators will be able to talk.'
+end
+
+function muteall:on_message(message, configuration, language)
+    if message.chat.type ~= 'supergroup'
+    then
+        return mattata.send_reply(
+            message,
+            language['errors']['supergroup']
+        )
+    elseif not mattata.is_group_admin(
+        message.chat.id,
+        message.from.id,
+        true
+    )
+    then
+        return mattata.send_reply(
+            message,
+            language['errors']['admin']
+        )
+    end
+    redis:sadd(
+        'administration:groups:muted',
+        message.chat.id
+    )
+    if redis:hget(
+        string.format(
+            'chat:%s:settings',
+            message.chat.id
+        ),
+        'log administrative actions'
+    ) and mattata.get_setting(message.chat.id, 'log muteall')
+    then
+        mattata.send_message(
+            mattata.get_log_chat(message.chat.id),
+            string.format(
+                '#action #muteall #admin_'..tostring(message.from.id)..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s%s [%s] has muted everyone in %s%s [%s].</pre>',
+                message.from.username
+                and '@'
+                or '',
+                message.from.username
+                or mattata.escape_html(message.from.first_name),
+                message.from.id,
+                message.chat.username
+                and '@'
+                or '',
+                message.chat.username
+                or mattata.escape_html(message.chat.title),
+                message.chat.id
+            ),
+            'html'
+        )
+    end
+    return mattata.send_message(
+        message.chat.id,
+        string.format(
+            '<pre>%s%s has muted everyone in the group.</pre>',
+            message.from.username
+            and '@'
+            or '',
+            message.from.username
+            or mattata.escape_html(message.from.first_name)
+        ),
+        'html'
+    )
+end
+
+return muteall

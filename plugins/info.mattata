@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -40,6 +40,12 @@ function info:on_message(message, configuration, language)
             mattata.comma_value(mattata.get_user_count()),
             mattata.symbols.bullet,
             mattata.comma_value(mattata.get_group_count()),
+            mattata.symbols.bullet,
+            mattata.comma_value(mattata.get_received_messages_count()),
+            mattata.symbols.bullet,
+            mattata.comma_value(mattata.get_received_callbacks_count()),
+            mattata.symbols.bullet,
+            mattata.comma_value(mattata.get_received_inlines_count()),
             mattata.symbols.bullet,
             io.popen('uname -a'):read('*all')
         ),

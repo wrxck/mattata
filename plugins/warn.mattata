@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -8,8 +8,8 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 
 function warn:init()
-    warn.commands = mattata.commands(self.info.username):command('warn').table
-    warn.help = '/warn [user] - Warns a user in the current chat. This command can only be used by moderators and administrators of a supergroup. Once a user has reached the maximum allowed number of warnings allowed in the chat, the configured action for the chat is performed on them.'
+    warn.commands = mattata.commands(self.info.username):command('warn'):command('w').table
+    warn.help = '/warn [user] - Warns a user in the current chat. This command can only be used by moderators and administrators of a supergroup. Once a user has reached the maximum allowed number of warnings allowed in the chat, the configured action for the chat is performed on them. Alias: /w'
 end
 
 function warn:on_callback_query(callback_query, message, configuration)
@@ -151,8 +151,12 @@ function warn:on_message(message, configuration, language)
     then
         input = '@' .. input
     end
-    local user = mattata.get_user(input)
-    or mattata.get_chat(input) -- Resolve the username/ID to a user object.
+    local success = mattata.get_user(input)
+    if not success then
+        user = mattata.get_chat(input)
+    else
+        user = mattata.get_chat(success.result.id)
+    end
     if not user
     then
         return mattata.send_reply(
@@ -183,6 +187,12 @@ function warn:on_message(message, configuration, language)
         return mattata.send_reply(
             message,
             'I cannot warn this user because they are a moderator or an administrator in this chat.'
+        )
+    elseif mattata.get_setting(message.chat.id, 'trusted permissions warnings') and mattata.is_trusted_user(message.chat.id, user.id)
+    then
+        return mattata.send_reply(
+            message,
+            'I cannot warn this user because he is a trusted user and trusted users are immune to warns in this chat.'
         )
     elseif status.result.status == 'left'
     or status.result.status == 'kicked'
@@ -246,11 +256,11 @@ function warn:on_message(message, configuration, language)
             message.chat.id
         ),
         'log administrative actions'
-    ) then
+    ) and mattata.get_setting(message.chat.id, 'log warn') then
         mattata.send_message(
             mattata.get_log_chat(message.chat.id),
             string.format(
-                '<pre>%s%s [%s] has warned %s%s [%s] in %s%s [%s]%s.</pre>',
+                '#action #warn #admin_'..tostring(message.from.id)..' #user_'..tostring(user.id)..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s%s [%s] has warned %s%s [%s] in %s%s [%s]%s.</pre>',
                 message.from.username and '@' or '',
                 message.from.username or mattata.escape_html(message.from.first_name),
                 message.from.id,

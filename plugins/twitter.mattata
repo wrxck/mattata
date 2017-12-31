@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -49,7 +49,7 @@ function twitter.authorise(message, configuration, language)
             ['oauth_callback'] = 'oob',
             ['state'] = tracking_code
         })
-        local output = 'To authorise mattata to use your Twitter account, please [navigate to this page](' .. new_url .. '), authorise mattata, and reply to this message with the code you are presented with on your screen.'
+        local output = 'To authorise BarrePolice to use your Twitter account, please [navigate to this page](' .. new_url .. '), authorise mattata, and reply to this message with the code you are presented with on your screen.'
         local success = mattata.send_force_reply(message, output, 'markdown')
         if success then
             redis:set('action:' .. message.chat.id .. ':' .. success.result.message_id, '/authtwitter')
@@ -134,7 +134,6 @@ function twitter:on_message(message, configuration, language)
                 redis:del(v)
             end
             local erased_user = message.from.username and '@' .. message.from.username or message.from.id
-            print('Erased saved Twitter credentials for ' .. erased_user)
         end
         local output = 'I could not send your tweet. Are you sure you\'ve authorised your Twitter to be used with me? Try sending /authtwitter to re-authorise your account.'
         return mattata.send_reply(message, output)

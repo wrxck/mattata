@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -12,13 +12,14 @@ function user:init()
     user.commands = mattata.commands(
         self.info.username
     ):command('user')
+     :command('u')
      :command('warns')
      :command('bans')
      :command('kicks')
      :command('unbans')
      :command('warnings')
      :command('status').table
-    user.help = '/user [user] - Displays information about the given user.'
+    user.help = '/user [user] - Displays information about the given user. Alias: /u'
 end
 
 function user:on_message(message, configuration)
@@ -38,7 +39,12 @@ function user:on_message(message, configuration)
     if tonumber(input) == nil and not input:match('^%@') then
         input = '@' .. input
     end
-    local user = mattata.get_user(input) or mattata.get_chat(input) -- Resolve the username/ID to a user object.
+    local success = mattata.get_user(input)
+    if not success then
+        user = mattata.get_chat(input)
+    else
+        user = mattata.get_chat(success.result.id)
+    end
     if not user then
         return mattata.send_reply(
             message,

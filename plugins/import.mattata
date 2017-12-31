@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -9,7 +9,7 @@ local redis = dofile('libs/redis.lua')
 
 function import:init()
     import.commands = mattata.commands(self.info.username):command('import').table
-    import.help = '/import - Import administrative settings & toggled plugins from another mattata-administrated group.'
+    import.help = '/import - Import administrative settings & toggled plugins from another BarrePolice-administrated group.'
 end
 
 function import:on_message(message, configuration, language)
@@ -68,6 +68,17 @@ function import:on_message(message, configuration, language)
     do
         redis:hset(
             'chat:' .. message.chat.id .. ':settings',
+            k,
+            v
+        )
+    end
+    local values = redis:hgetall('chat:' .. input.result.id .. ':values')
+    or {}
+    local current = redis:hgetall('chat:' .. message.chat.id .. ':values')
+    for k, v in pairs(values)
+    do
+        redis:hset(
+            'chat:' .. message.chat.id .. ':values',
             k,
             v
         )

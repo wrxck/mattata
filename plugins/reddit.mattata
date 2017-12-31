@@ -1,6 +1,6 @@
 --[[
     Based on a plugin by topkecleon.
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -50,8 +50,6 @@ function reddit:on_message(message, configuration, language)
     end
     https.timeout = 1
     local jstr, res, a, b = https.request(request_url)
-    print(json.encode(a,{indent=true}))
-    print(b)
     if res == 404 then
         return mattata.send_reply(message, language['errors']['results'])
     elseif res ~= 200 then

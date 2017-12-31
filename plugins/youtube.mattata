@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -63,11 +63,9 @@ function youtube.get_result(input, n)
 end
 
 function youtube:on_callback_query(callback_query, message, configuration, language)
-    if not message.reply then
-        return mattata.answer_callback_query(callback_query.id, language['errors']['generic'])
-    elseif callback_query.data:match('^results:%d*$') then
-        local result = callback_query.data:match('^results:(%d*)$')
-        local input = mattata.input(message.reply.text)
+    if callback_query.data:match('^.*:results:%d*$') then
+        local input, result = callback_query.data:match('^(.*):results:(%d*)$')
+        input = url.unescape(input)
         local total_results = youtube.get_result_count(input)
         if tonumber(result) > tonumber(total_results) then
             result = 1
@@ -100,7 +98,7 @@ function youtube:on_callback_query(callback_query, message, configuration, langu
                 }
             }
         )
-        return mattata.edit_message_text(message.chat.id, message.message_id, output, 'html', true, keyboard)
+        return mattata.edit_message_text(message.chat.id, message.message_id, output, 'html', false, keyboard)
     elseif callback_query.data:match('^pages:.-:.-$') then
         local current_page, total_pages = callback_query.data:match('^pages:(.-):(.-)$')
         return mattata.answer_callback_query(
@@ -129,7 +127,7 @@ function youtube:on_message(message, configuration, language)
                 {
                     {
                         ['text'] = mattata.symbols.back .. ' ' .. language['youtube']['1'],
-                        ['callback_data'] = 'youtube:results:0'
+                        ['callback_data'] = 'youtube:' .. url.escape(input) ..':results:0'
                     },
                     {
                         ['text'] = '1/' .. youtube.get_result_count(input),
@@ -137,7 +135,7 @@ function youtube:on_message(message, configuration, language)
                     },
                     {
                         ['text'] = language['youtube']['2'] .. ' ' .. mattata.symbols.next,
-                        ['callback_data'] = 'youtube:results:2'
+                        ['callback_data'] = 'youtube:' .. url.escape(input) ..':results:2'
                     }
                 }
             }
@@ -147,7 +145,7 @@ function youtube:on_message(message, configuration, language)
         message.chat.id,
         output,
         'html',
-        true,
+        false,
         false,
         message.message_id,
         keyboard

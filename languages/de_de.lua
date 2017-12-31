@@ -1,4 +1,4 @@
--- This is a language file for mattata
+-- This is a language file for BarrePolice
 -- Language: de-de
 -- Author: LKD70, CodeNameT1M
 
@@ -6,7 +6,7 @@
 -- THESE ARE PLACEHOLDERS!
 
 -- DO NOT CHANGE ANY MARKDOWN/HTML FORMATTING!
--- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/mattataDev)
+-- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/BarrePolice)
 
 return {
     ['errors'] = {
@@ -92,6 +92,18 @@ return {
         ['9'] = 'Ja, ich bin sicher!',
         ['10'] = 'Diese Nachricht hat ein falsches Format! Bitte korigiere den Syntax und versuche es noch einmal.'
     },
+    ['chuck'] = {
+        ['1'] = 'Click to send the result.'
+    },
+    ['clickbait'] = {
+        ['1'] = 'Generate Another'
+    },
+    ['coinflip'] = {
+        ['1'] = 'The coin landed on:',
+        ['2'] = 'You were correct!',
+        ['3'] = 'You weren\'t correct, try again...',
+        ['4'] = 'Invalid arguments were given. You must specify your guess, it should be either \'heads\' or \'tails\'.'
+    },
     ['commandstats'] = {
         ['1'] = 'Es wurden keine Befehle in dieser Unterhaltung gesendet!',
         ['2'] = '<b>Befehl Statistiken für:</b> %s\n\n%s\n<b>Summe der gesendeten Befehle:</b> %s',
@@ -162,8 +174,15 @@ return {
         ['2'] = 'Bitte gebe einen Suchbegriff ein (das ist, was ich in flickr für dich suchen soll, d.h. "Big Ben" will ein Bild vom Big Ben in London senden).',
         ['3'] = 'Mehr Ergebnisse.'
     },
+    ['fortune'] = {
+        ['1'] = 'Click to send your fortune!'
+    },
+    ['frombinary'] = {
+        ['1'] = 'Please enter the binary value you would like to convert to a string.',
+        ['2'] = 'Malformed binary!'
+    },
     ['game'] = {
-        ['1'] = 'Total gewonnen: %s\nTotal verloren: %s\nGuthaben: %s mattacoins',
+        ['1'] = 'Total gewonnen: %s\nTotal verloren: %s\nGuthaben: %s BarreCoins',
         ['2'] = 'Dem Spiel beitreten',
         ['3'] = 'Dieses Spiel hat schon geendet!',
         ['4'] = 'Du bist nicht an der reihe!',
@@ -187,6 +206,11 @@ return {
     },
     ['gif'] = {
         ['1'] = 'Bitte gebe einen Suchbegriff ein (das ist, was ich in GIPHY für dich suchen soll, d.h. "Katze" will ein GIF von einer Katze senden).'
+    },
+    ['godwords'] = {
+        ['1'] = 'Please enter a numerical value, between 1 and 64!',
+        ['2'] = 'That number is too small, please specify one between 1 and 64!',
+        ['3'] = 'That number is too large, please specify one between 1 and 64!'
     },
     ['gwhitelist'] = {
         ['1'] = 'Bitte Antworte-zu dem Benutzer, welchen du global auf der weißen Liste haben möchtest, oder gebe ihn/sie mit Benutzername/Identifikationsnummer an.',
@@ -289,6 +313,9 @@ Redis:
 
 %s Benutzeranzahl: %s
 %s Gruppenanzahl: %s
+%s Received Messages Count: %s
+%s Received CallbackQueries Count: %s
+%s Received InlineQueries Count: %s
 
 System:
 %s OS: %s
@@ -312,6 +339,11 @@ System:
     },
     ['ispwned'] = {
         ['1'] = 'Dieses Konto wurde in folgenden undichten Stellen gefunden:'
+    },
+    ['isup'] = {
+        ['1'] = 'This website appears to be up, maybe it\'s just you?',
+        ['2'] = 'That doesn\'t appear to be a valid site!',
+        ['3'] = 'It\'s not just you, this website looks down from here.'
     },
     ['itunes'] = {
         ['1'] = 'Name:',
@@ -341,6 +373,9 @@ System:
         ['7'] = '%s hörte zuletzt:\n',
         ['8'] = 'Unbekannt',
         ['9'] = 'Klick zum senden des Ergebnis.'
+    },
+    ['lmgtfy'] = {
+        ['1'] = 'Let me Google that for you!'
     },
     ['location'] = {
         ['1'] = 'Du hast keinen Standort angegeben. Welchen Standort möchtest du haben?'
@@ -405,7 +440,7 @@ System:
         ['18'] = 'Beim erneuten Autorisieren deines Spotify Accounts ist ein Fehler aufgetreten!',
         ['19'] = 'Dein Spotify Account wurde erneut erfolgreich Autorisiert! Deine orginal Anfrage wird bearbeitet...',
         ['20'] = 'Erneutes Autorisieren deines Spotify Accounts, bitte warten...',
-        ['21'] = 'Zum verbinden deines Spotify Accounts musst du mattata autorisieren. Klick [hier](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) and press the green "OKAY" button to link mattata to your Spotify account. After you\'ve done that, send the link you were redirected to (it should begin with "%s", followed by a unique code) in reply to this message.',
+        ['21'] = 'Zum verbinden deines Spotify Accounts musst du BarrePolice autorisieren. Klick [hier](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) and press the green "OKAY" button to link BarrePolice to your Spotify account. After you\'ve done that, send the link you were redirected to (it should begin with "%s", followed by a unique code) in reply to this message.',
         ['22'] = 'Wiedergabeliste',
         ['23'] = 'Benutze Inline Mode',
         ['24'] = 'Lyrics',
@@ -454,6 +489,9 @@ System:
         ['1'] = 'Dein Spitzname is vergessen!',
         ['2'] = 'Dein Spitzname wurde geändert zu "%s"!'
     },
+    ['ninegag'] = {
+        ['1'] = 'Read More'
+    },
     ['optout'] = {
         ['1'] = 'Du bist opted-in(beigetreten), dass die Daten, welche du sendest, gesammelt werden! Benutze /optout zum opt-out(austreten).',
         ['2'] = 'Du bist opted-out(ausgetreten), dass die Daten, welche du sendest, gesammelt werden! Benutze /optin zum opt-in(beitreten).'
@@ -462,13 +500,13 @@ System:
         ['1'] = 'Bitte suche einen Service aus zum hochladen und einfügen deines Textes:'
     },
     ['pay'] = {
-        ['1'] = 'Du hast im Moment %s mattacoins. Verdiene mehr wenn du das Spiel Tic-Tac-Toe gewinnst. Benutze /game - Du gewinnst 100 mattacoins für jedes gewonnene Spiel und du verlierst 50 für jedes verlorene Spiel.',
-        ['2'] = 'Du musst diesen Befehl benutzen als Antwort zu dem Benutzer dem du mattacoins senden willst.',
-        ['3'] = 'Bitte gebe die Menge der mattacoins an, welche du zu %s senden möchtest.',
+        ['1'] = 'Du hast im Moment %s BarreCoins. Verdiene mehr wenn du das Spiel Tic-Tac-Toe gewinnst. Benutze /game - Du gewinnst 100 BarreCoins für jedes gewonnene Spiel und du verlierst 50 für jedes verlorene Spiel.',
+        ['2'] = 'Du musst diesen Befehl benutzen als Antwort zu dem Benutzer dem du BarreCoins senden willst.',
+        ['3'] = 'Bitte gebe die Menge der BarreCoins an, welche du zu %s senden möchtest.',
         ['4'] = 'Die Menge sollte in einer Zahl angegeben sein, welche nicht kleiner als 0 sein kann.',
         ['5'] = 'Du kannst kein Geld zu dir selbst schicken!',
         ['6'] = 'Du hast nicht genug Guthaben zum durchführen der Transaktion!',
-        ['7'] = '%s mattacoins wurden gesendet zu %s. Dein neues Guthaben ist %s mattacoins.'
+        ['7'] = '%s BarreCoins wurden gesendet zu %s. Dein neues Guthaben ist %s BarreCoins.'
     },
     ['pin'] = {
         ['1'] = 'Du hast noch keinen pin gesetzt. Benutze /pin <dein Text> um deinen Text zu pinnen. Markdown formatierung ist verfügbar.',
@@ -608,7 +646,7 @@ System:
         ['5'] = 'Die Datei wurde erfolgreich hochgelanden zum Server - sie kan gefunden werden mit <code>%s</code>!'
     },
     ['version'] = {
-        ['1'] = '@%s alias %s `[%s]` läuft mit mattata %s, kreiert von [Matthew Hesketh](https://t.me/wrxck). Der Quellcode ist auf [GitHub](https://github.com/wrxck/mattata) zu bekommen.'
+        ['1'] = '@%s alias %s `[%s]` läuft mit BarrePolice %s, kreiert von [Diego Barreiro](https://t.me/barreeeiroo). Der Quellcode ist auf [GitHub](https://github.com/barreeeiroo/BarrePolice) zu bekommen.'
     },
     ['voteban'] = {
         ['1'] = 'Für welchen Benutzer möchtest einen vote-ban(Wahl zur Sperre) eröffnen? Gebe den Benutzer mit dem @Benutzername oder der Identifikationsnummer an.',

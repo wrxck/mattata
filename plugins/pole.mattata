@@ -1,0 +1,386 @@
+--[[
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local pole = {}
+local mattata = require('mattata')
+local redis = dofile('libs/redis.lua')
+
+function pole:init()
+    pole.commands = mattata.commands(self.info.username)
+    :command('pole'):command('polestats')
+    :command('polereset')
+    :command('gpole'):command('gpolestats')
+    :command('gpolereset')
+    :command('gpoleban'):command('gpoleunban').table
+    pole.help = '/pole - Get the stats for the pole.'
+end
+
+function pole:on_message(message, configuration, language)
+    if (message.text:match('^[/!#]pole') or message.text:match('^[/!#]polestats')) and not message.text:match('^[/!#]polereset') and message.chat.type ~= "private" then
+        local poles = redis:keys("pole:*:"..message.chat.id)
+        local subpoles = redis:keys("subpole:*:"..message.chat.id)
+        local fails = redis:keys("fail:*:"..message.chat.id)
+        local latest_pole = redis:hget("latest_pole:" .. message.chat.id, "date") or false
+        local latest_subpole = redis:hget("latest_subpole:" .. message.chat.id, "date") or false
+        local latest_fail = redis:hget("latest_fail:" .. message.chat.id, "date") or false
+        local output = ""
+
+        if latest_pole then
+            local user = mattata.get_user(redis:hget('pole:'..latest_pole..":"..message.chat.id, 'user'))
+            if user then
+                user = user.result
+                output = output.. "<b>Latest Pole done by</b> "
+                if user.username then
+                    output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. latest_pole .. " " .. redis:hget('pole:'..latest_pole..":"..message.chat.id, 'time') .. "</i>\n"
+                else
+                    output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_pole .. " " .. redis:hget('pole:'..latest_pole..":"..message.chat.id, 'time') .. "</i>\n"
+                end
+            end
+        end
+        if latest_subpole then
+            local user = mattata.get_user(redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'user'))
+            if user then
+                user = user.result
+                output = output.. "<b>Latest Subole done by</b> "
+                if user.username then
+                    output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. latest_subpole .. " " .. redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'time') .. "</i>\n"
+                else
+                    output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_subpole .. " " .. redis:hget('subpole:'..latest_subpole..":"..message.chat.id, 'time') .. "</i>\n"
+                end
+            end
+        end
+        if latest_fail then
+            local user = mattata.get_user(redis:hget('fail:'..latest_fail..":"..message.chat.id, 'user'))
+            if user then
+                user = user.result
+                output = output.. "<b>Latest Fail done by</b> "
+                if user.username then
+                    output = output .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> <b>at</b> <i>' .. latest_fail .. " " .. redis:hget('fail:'..latest_fail..":"..message.chat.id, 'time') .. "</i>\n"
+                else
+                    output = output .. user.first_name .. ' <b>at</b> <i>' .. latest_fail .. " " .. redis:hget('fail:'..latest_fail..":"..message.chat.id, 'time') .. "</i>\n"
+                end
+            end
+        end
+
+        local emojis = {"1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"}
+        output = output.."\n"
+
+        if #poles > 0 then
+            output = output.."\n<b>POLE RANK</b>\n"
+            local poles = {}
+            for user, value in pairs(redis:hgetall('pole_stats:' .. message.chat.id)) do
+                poles[user] = math.floor(tonumber(value))
+            end
+            local sortedKeys = mattata.getKeysSortedByValue(poles, function(a, b) return a > b end)
+            local output_values = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output_values[_] = tonumber(poles[key])
+                output_ids[_] = key
+            end
+            for k, v in pairs(output_ids) do
+                if k >= 11 then
+                    break
+                end
+                user = mattata.get_user(v)
+                if user then
+                    user = user.result
+                    if user.username then
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. math.floor(output_values[k]) .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
+                    else
+                        output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. math.floor(output_values[k]) .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
+                    end
+                end
+            end
+        end
+        if #subpoles > 0 then
+            output = output.."\n<b>SUBPOLE RANK</b>\n"
+            local subpoles = {}
+            for user, value in pairs(redis:hgetall('subpole_stats:' .. message.chat.id)) do
+                subpoles[user] = math.floor(tonumber(value))
+            end
+            local sortedKeys = mattata.getKeysSortedByValue(subpoles, function(a, b) return a > b end)
+            local output_values = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output_values[_] = tonumber(subpoles[key])
+                output_ids[_] = key
+            end
+            for k, v in pairs(output_ids) do
+                if k >= 11 then
+                    break
+                end
+                user = mattata.get_user(v)
+                if user then
+                    user = user.result
+                    if user.username then
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. math.floor(output_values[k]) .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
+                    else
+                        output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. math.floor(output_values[k]) .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
+                    end
+                end
+            end
+        end
+        if #fails > 0 then
+            output = output.."\n<b>FAILS RANK</b>\n"
+            local fails = {}
+            for user, value in pairs(redis:hgetall('fail_stats:' .. message.chat.id)) do
+                fails[user] = math.floor(tonumber(value))
+            end
+            local sortedKeys = mattata.getKeysSortedByValue(fails, function(a, b) return a > b end)
+            local output_values = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output_values[_] = tonumber(fails[key])
+                output_ids[_] = key
+            end
+            for k, v in pairs(output_ids) do
+                if k >= 11 then
+                    break
+                end
+                user = mattata.get_user(v)
+                if user then
+                    user = user.result
+                    if user.username then
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. math.floor(output_values[k]) .. ' Fails (' .. math.floor(output_values[k]) ..'p)</i>\n'
+                    else
+                        output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. math.floor(output_values[k]) .. ' Fails (' .. math.floor(output_values[k]) ..'p)</i>\n'
+                    end
+                end
+            end
+        end
+
+        local emojis_global = {"🥇", "🥈", "🥉", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"}
+        output = output.."\n"
+
+        if #poles > 0 or #subpoles > 0 or #fails > 0 then
+            output = output.."\n\n<b>GROUP RANK</b>\n"
+            local stats = redis:hgetall('group_pole_stats:' .. message.chat.id)
+            local parsed_stats = {}
+            for k, v in pairs(stats) do
+                parsed_stats[k] = math.floor(tonumber(v))
+            end
+            local sortedKeys = mattata.getKeysSortedByValue(parsed_stats, function(a, b) return a > b end)
+            local output_values = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output_values[_] = tonumber(parsed_stats[key])
+                output_ids[_] = key
+            end
+            for k, v in pairs(output_ids) do
+                if k >= 11 then
+                    break
+                end
+                user = mattata.get_user(v)
+                if user then
+                    user = user.result
+                    if user.username then
+                        output = output.. emojis_global[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. math.floor(output_values[k]) .. ' Points</i>\n'
+                    else
+                        output = output.. emojis_global[k] .. " " .. user.first_name .. ' => <i>' .. math.floor(output_values[k]) .. ' Points</i>\n'
+                    end
+                end
+            end
+        end
+
+        if output:gsub("%\n", "") == "" then
+            output = "I couldn't retreive any POLE information for this group"
+        end
+        return mattata.send_reply(message, output, 'html')
+
+
+    elseif message.text:match('^[/!#]polereset') and mattata.is_group_admin(message.chat.id, message.from.id) and message.chat.type ~= "private" then
+        for k, v in pairs(redis:keys('pole:*:'..message.chat.id)) do
+            redis:del(v)
+        end
+        for k, v in pairs(redis:keys('subpole:*:'..message.chat.id)) do
+            redis:del(v)
+        end
+        for k, v in pairs(redis:keys('fail:*:'..message.chat.id)) do
+            redis:del(v)
+        end
+        redis:del('pole_stats:'..message.chat.id)
+        redis:del('latest_pole:'..message.chat.id)
+        redis:del('subpole_stats:'..message.chat.id)
+        redis:del('latest_subpole:'..message.chat.id)
+        redis:del('fail_stats:'..message.chat.id)
+        redis:del('latest_fail:'..message.chat.id)
+        redis:del('group_pole_stats:'..message.chat.id)
+
+        return mattata.send_reply(message, "Successfully resetted Pole stats!")
+
+
+    elseif (message.text:match('^[/!#]gpole') or message.text:match('^[/!#]gpolestats')) and not (message.text:match('^[/!#]gpolereset') or message.text:match('^[/!#]gpoleban') or message.text:match('^[/!#]gpoleunban')) then
+        local poles = redis:keys("global_pole")
+        local subpoles = redis:keys("global_subpole")
+        local fails = redis:keys("global_fail")
+        local output = ""
+        local emojis = {"1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"}
+
+        if #poles > 0 then
+            output = output.."\n<b>GLOBAL POLE RANK</b>\n"
+            local poles = {}
+            for user, value in pairs(redis:hgetall('global_pole')) do
+                poles[user] = math.floor(tonumber(value))
+            end
+            local sortedKeys = mattata.getKeysSortedByValue(poles, function(a, b) return a > b end)
+            local output_values = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output_values[_] = tonumber(poles[key])
+                output_ids[_] = key
+            end
+            for k, v in pairs(output_ids) do
+                if k >= 11 then
+                    break
+                end
+                user = mattata.get_user(v)
+                if user then
+                    user = user.result
+                    if user.username then
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. math.floor(output_values[k]) .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
+                    else
+                        output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. math.floor(output_values[k]) .. ' Poles (' .. math.floor(output_values[k]*5) ..'p)</i>\n'
+                    end
+                end
+            end
+        end
+        if #subpoles > 0 then
+            output = output.."\n<b>GLOBAL SUBPOLE RANK</b>\n"
+            local subpoles = {}
+            for user, value in pairs(redis:hgetall('global_subpole')) do
+                subpoles[user] = math.floor(tonumber(value))
+            end
+            local sortedKeys = mattata.getKeysSortedByValue(subpoles, function(a, b) return a > b end)
+            local output_values = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output_values[_] = tonumber(subpoles[key])
+                output_ids[_] = key
+            end
+            for k, v in pairs(output_ids) do
+                if k >= 11 then
+                    break
+                end
+                user = mattata.get_user(v)
+                if user then
+                    user = user.result
+                    if user.username then
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. math.floor(output_values[k]) .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
+                    else
+                        output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. math.floor(output_values[k]) .. ' Subpoles (' .. math.floor(output_values[k]*3) ..'p)</i>\n'
+                    end
+                end
+            end
+        end
+        if #fails > 0 then
+            output = output.."\n<b>GLOBAL FAILS RANK</b>\n"
+            local fails = {}
+            for user, value in pairs(redis:hgetall('global_fail')) do
+                fails[user] = math.floor(tonumber(value))
+            end
+            local sortedKeys = mattata.getKeysSortedByValue(fails, function(a, b) return a > b end)
+            local output_values = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output_values[_] = tonumber(fails[key])
+                output_ids[_] = key
+            end
+            for k, v in pairs(output_ids) do
+                if k >= 11 then
+                    break
+                end
+                user = mattata.get_user(v)
+                if user then
+                    user = user.result
+                    if user.username then
+                        output = output.. emojis[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. math.floor(output_values[k]) .. ' Fails (' .. math.floor(output_values[k]) ..'p)</i>\n'
+                    else
+                        output = output.. emojis[k] .. " " .. user.first_name .. ' => <i>' .. math.floor(output_values[k]) .. ' Fails (' .. math.floor(output_values[k]) ..'p)</i>\n'
+                    end
+                end
+            end
+        end
+
+        local emojis_global = {"🥇", "🥈", "🥉", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"}
+        output = output.."\n"
+
+        if #poles > 0 or #subpoles > 0 or #fails > 0 then
+            output = output.."\n\n<b>GLOBAL GENERAL RANK</b>\n"
+            local stats = redis:hgetall('global_pole_stats')
+            local parsed_stats = {}
+            for k, v in pairs(stats) do
+                parsed_stats[k] = math.floor(tonumber(v))
+            end
+            local sortedKeys = mattata.getKeysSortedByValue(parsed_stats, function(a, b) return a > b end)
+            local output_values = {}
+            local output_ids = {}
+            for _, key in ipairs(sortedKeys) do
+                output_values[_] = tonumber(parsed_stats[key])
+                output_ids[_] = key
+            end
+            for k, v in pairs(output_ids) do
+                if k >= 11 then
+                    break
+                end
+                user = mattata.get_user(v)
+                if user then
+                    user = user.result
+                    if user.username then
+                        output = output.. emojis_global[k] .. " " .. '<a href="https://t.me/' .. user.username .. '">' .. user.first_name .. '</a> => <i>' .. math.floor(output_values[k]) .. ' Points</i>\n'
+                    else
+                        output = output.. emojis_global[k] .. " " .. user.first_name .. ' => <i>' .. math.floor(output_values[k]) .. ' Points</i>\n'
+                    end
+                end
+            end
+        end
+
+        if output:gsub("%\n", "") == "" then
+            output = "I couldn't retreive any global POLE information"
+        end
+        return mattata.send_reply(message, output, 'html')
+
+
+    elseif message.text:match('^[/!#]gpolereset') and mattata.is_global_admin(message.from.id) then
+        local input = mattata.input(message)
+        if message.reply then
+            input = message.reply.from.id
+        end
+        if not input then
+            return mattata.send_reply(message, 'Please specify an user to reset their global pole stats')
+        end
+        redis:hdel('global_pole', input)
+        redis:hdel('global_subpole', input)
+        redis:hdel('global_fail', input)
+        redis:hdel('global_pole_stats', input)
+        return mattata.send_reply(message, 'Successfully resetted pole stats!')
+
+    elseif message.text:match('^[/!#]gpoleban') and mattata.is_global_admin(message.from.id) then
+        local input = mattata.input(message)
+        if message.reply then
+            input = message.reply.from.id
+        end
+        if not input then
+            return mattata.send_reply(message, 'Please specify an user to ban from the global pole stats')
+        end
+        redis:set(
+            'pole_blacklist:' .. input,
+            true
+        )
+        return mattata.send_reply(message, 'Successfully banned! Remember that stats are still saved. Run /gpolereset ID to remove them')
+    elseif message.text:match('^[/!#]gpoleunban') and mattata.is_global_admin(message.from.id) then
+        local input = mattata.input(message)
+        if message.reply then
+            input = message.reply.from.id
+        end
+        if not input then
+            return mattata.send_reply(message, 'Please specify an user to unban from the global pole stats')
+        end
+        redis:del('pole_blacklist:' .. input)
+        return mattata.send_reply(message, 'Successfully unbanned!')
+    end
+end
+
+return pole

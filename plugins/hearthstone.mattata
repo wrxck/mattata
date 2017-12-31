@@ -1,0 +1,103 @@
+--[[
+    Based on a plugin by topkecleon.
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local hearthstone = {}
+local mattata = require('mattata')
+local redis = dofile('libs/redis.lua')
+local https = require('ssl.https')
+local url = require('socket.url')
+local json = require('dkjson')
+
+function hearthstone:init(configuration)
+    hearthstone.commands = mattata.commands(self.info.username):command('hearthstone'):command('hs').table
+    hearthstone.help = '/hearthstone <card> - Returns Hearthstone card info. Alias: /hs'
+end
+
+local function format_card(card)
+    local ctype = card.type
+    if card.race then
+        ctype = card.race
+    end
+    if card.rarity then
+        ctype = card.rarity .. ' ' .. ctype
+    end
+    if card.playerClass then
+        ctype = ctype .. ' (' .. card.playerClass .. ')'
+    elseif card.faction then
+        ctype = ctype .. ' (' .. card.faction .. ')'
+    end
+
+    local stats
+    if card.cost then
+        stats = card.cost .. 'c'
+        if card.attack then
+            stats = stats .. ' | ' .. card.attack .. 'a'
+        end
+        if card.health then
+            stats = stats .. ' | ' .. card.health .. 'h'
+        end
+        if card.durability then
+            stats = stats .. ' | ' .. card.durability .. 'd'
+        end
+    elseif card.health then
+        stats = card.health .. 'h'
+    end
+
+    -- unused?
+    local info
+    if card.text then
+        info = card.text:gsub('</?.->',''):gsub('%$','')
+        if card.flavor then
+            info = info .. '\n_' .. card.flavor .. '_'
+        end
+    elseif card.flavor then
+        info = card.flavor
+    else
+        info = nil
+    end
+
+    local s = '*' .. card.name .. '*\n' .. ctype
+    if stats then
+        s = s .. '\n' .. stats
+    end
+    if info then
+        s = s .. '\n' .. info
+    end
+
+    return s
+
+end
+
+function hearthstone:on_message(message, configuration, language)
+    if not redis:hget('hearthstone', 'downloaded') or os.time() > redis:hget('hearthstone', 'expiration') then
+        print(string.char(27)..'[31mDownloading Hearthstone database...'..string.char(27)..'[0m')
+        local jstr, res = https.request('https://api.hearthstonejson.com/v1/22611/enUS/cards.json')
+        redis:hset('hearthstone', 'database', json.decode(jstr))
+        redis:hset('hearthstone', 'expiration', os.time() + 600000)
+        redis:hset('hearthstone', 'downloaded', os.time())
+    end
+    local input = mattata.input(message)
+    if not input then
+        return mattata.send_reply(message, hearthstone.help)
+    end
+
+    local output = ''
+    for _,v in pairs(redis:hget('hearthstone', 'database')) do
+        if type(v) == 'table' and string.lower(v.name):match(input) then
+            output = output .. format_card(v) .. '\n\n'
+        end
+    end
+
+    output = mattata.trim(output)
+    if output:len() == 0 then
+        return mattata.send_reply(message, language['errors']['results'])
+    end
+
+    return mattata.send_message(message.chat.id, output, true, message.message_id, true)
+
+end
+
+return hearthstone

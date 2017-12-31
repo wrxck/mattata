@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -7,12 +7,13 @@ local report = {}
 local mattata = require('mattata')
 
 function report:init()
-    report.commands = mattata.commands(self.info.username):command('report'):command('ops').table
-    report.help = '/report - Reports the replied-to message to all administrators of the group, via private message. Alias: /ops.'
+    report.commands = mattata.commands(self.info.username):command('report'):command('admin'):command('ops').table
+    report.help = '/report - Reports the replied-to message to all administrators of the group, via private message. Alias: /ops, /admin.'
 end
 
 function report:on_message(message, configuration, language)
-    if not message.reply then
+    local input = mattata.input(message.text)
+    if not message.reply or not input then
         return mattata.send_message(message.chat.id, language['report']['1'])
     elseif message.reply.from.id == message.from.id then
         return mattata.send_message(message.chat.id, language['report']['2'])
@@ -25,13 +26,18 @@ function report:on_message(message, configuration, language)
             local old_language = language
             language = require('languages.' .. mattata.get_user_language(admins.result[n].user.id))
             local output = string.format(language['report']['3'], mattata.escape_html(message.from.first_name), mattata.escape_html(message.chat.title))
-            if message.chat.username then -- If it's a public supergroup, then we'll link to the report message to
+            if message.chat.username and message.reply then -- If it's a public supergroup, then we'll link to the report message to
             -- make things easier for the administrator the report was sent to.
                 output = output .. '\n<a href="https://t.me/' .. message.chat.username .. '/' .. message.reply.message_id .. '">' .. language['report']['4'] .. '</a>'
             end
+            if input then
+                output = output .. '\n\n<i>' .. input .. '</i>'
+            end
             local success = mattata.send_message(admins.result[n].user.id, output, 'html')
             if success then
-                mattata.forward_message(admins.result[n].user.id, message.chat.id, false, message.reply.message_id)
+                if message.reply then
+                    mattata.forward_message(admins.result[n].user.id, message.chat.id, false, message.reply.message_id)
+                end
                 notified = notified + 1
             end
             language = old_language

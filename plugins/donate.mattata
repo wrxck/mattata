@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -8,7 +8,7 @@ local mattata = require('mattata')
 
 function donate:init()
     donate.commands = mattata.commands(self.info.username):command('donate').table
-    donate.help = '/donate [amount] - Make an optional, monetary contribution to the mattata project. Donation amount is £1 by default, but you can specify an amount between 1 and 100. All payments are made in GBP.'
+    donate.help = '/donate [amount] - Make an optional, monetary contribution to the BarrePolice projec, by supporting by project @Makeroid. Donation amount is £1 by default, but you can specify an amount between 1 and 100. All payments are made in GBP.'
 end
 
 function donate:on_message(message, configuration)
@@ -39,8 +39,8 @@ function donate:on_message(message, configuration)
         local time = os.time()
         local success = mattata.send_invoice(
             message.from.id,
-            'mattata Donation',
-            'Donate ' .. amount .. ' GBP to help with the ongoing development of mattata! Alternatively, you can donate through PayPal by heading to https://paypal.me/wrxck/' .. amount .. ', or by sending BitCoin to 17vZxsngLkPbgai8wRFzrTw5rFEjMD2AnQ',
+            'BarrePolice Donation',
+            'Donate ' .. amount .. ' EUR to help with the ongoing development of BarrePolice! Alternatively, you can donate through PayPal by heading to https://paypal.me/wrxck/' .. amount .. ', or by sending BitCoin to 17vZxsngLkPbgai8wRFzrTw5rFEjMD2AnQ',
             message.from.id .. '_' .. time,
             configuration.stripe_live_token,
             'donate' .. (
@@ -49,7 +49,7 @@ function donate:on_message(message, configuration)
                 or ''
             ),
             'GBP',
-            '[{"label":"£' .. amount .. ' Donation","amount":' .. amount * 100 .. '}]'
+            '[{"label":"€' .. amount .. ' Donation","amount":' .. amount * 100 .. '}]'
         )
         if not success
         and message.chat.type ~= 'private'
@@ -71,7 +71,7 @@ function donate:on_message(message, configuration)
     return mattata.send_message(
         message.chat.id,
         string.format(
-            '<b>Hello, %s!</b>\n\nIf you\'re feeling generous, you can contribute to the mattata project by making a monetary donation of any amount. This will go towards server costs and any time and resources used to develop mattata. This is an optional act, however it is greatly appreciated and your name will also be listed publically on mattata\'s GitHub page.\n\nIf you\'re still interested, you can donate <a href="https://paypal.me/wrxck">here</a>. Thank you for your continued support! 😀',
+            '<b>Hello, %s!</b>\n\nIf you\'re feeling generous, you can contribute to the BarrePolice project by making a monetary donation of any amount to my project @Makeroid. This will go towards server costs and any time and resources used to develop BarrePolice. This is an optional act, however it is greatly appreciated and your name will also be listed publically on BarrePolice\'s GitHub page.\n\nIf you\'re still interested, you can donate <a href="https://paypal.me/Makeroid">here</a>. Thank you for your continued support! 😀',
             mattata.escape_html(message.from.first_name)
         ),
         'html'

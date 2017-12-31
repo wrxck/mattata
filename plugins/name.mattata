@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -29,7 +29,7 @@ function name.get_name(chat_id)
             chat_id
         )
     )
-    or 'mattata'
+    or 'BarrePolice'
 end
 
 function name:on_message(message, configuration, language)

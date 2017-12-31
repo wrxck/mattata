@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -8,14 +8,14 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 
 function gblacklist:init()
-    gblacklist.commands = mattata.commands(self.info.username):command('gblacklist').table
+    gblacklist.commands = mattata.commands(self.info.username):command('gblacklist'):command('gban').table
 end
 
 function gblacklist:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if not mattata.is_global_admin(message.from.id)
     then
-        return
+        return mattata.send_reply(message, "You must be a global admin to use this command!")
     elseif not message.reply
     and not input
     then
@@ -27,57 +27,135 @@ function gblacklist:on_message(message, configuration, language)
     then
         input = message.reply.from.id
     end
-    if tonumber(input) == nil
-    and not input:match('^@')
-    then
-        input = '@' .. input
+
+    if input == "list" then
+        local keys = redis:keys('global_blacklist:*') or false
+        if keys then
+            local output = "💀 <b>Global Banned Users</b> ("..#keys.." IDs)\n"
+            local users_found = 0
+            for k, id in pairs(keys) do
+                local user_output
+                local id = id:match('^global_blacklist:(%d+)')
+                local user = mattata.get_user(id) or mattata.get_chat(id)
+                if user then
+                    users_found = users_found + 1
+                    user = user.result
+                    local branch = ' ├ '
+                    if user.username then
+                        user_output = string.format(
+                            '<a href="https://t.me/%s">%s</a> [<code>%s</code>]',
+                            user.username,
+                            user.first_name,
+                            id
+                        )
+                    else
+                        user_output = user.first_name .. " [<code>".. id .."</code>]"
+                    end
+                    if k == #keys then
+                        branch = ' └ '
+                    end
+                    output = output .. branch .. user_output .. '\n'
+                else
+                    local branch = ' ├ '
+                    if k == #keys then
+                        branch = ' └ '
+                    end
+                    output = output .. branch .. "<i>Deleted Account</i> [<code>" .. id .. '</code>]\n'
+                end
+            end
+            return mattata.send_reply(message, output.."\n<i>"..users_found.."</i> <b>Existing Accounts Found</b>", 'html')
+        else
+            return mattata.send_reply(message, "I couldn't fetch the list for globally banned users")
+        end
+    elseif input == "clean" then
+        local keys = redis:keys('global_blacklist:*') or false
+        if keys then
+            local users_deleted = 0
+            for k, entry in pairs(keys) do
+                local id = entry:match('^global_blacklist:(%d+)')
+                local user = mattata.get_user(id) or mattata.get_chat(id)
+                if not user then
+                    users_deleted = users_deleted + 1
+                    redis:del(entry)
+                    if configuration.log_admin_actions
+                    and configuration.log_channel ~= '' then
+                        local output = message.from.first_name .. ' [' .. message.from.id .. '] has deleted from the global blacklist ' .. id .. ' as it\'s a deleted account'
+                        mattata.send_message(
+                            configuration.log_channel,
+                            '#action #ungblacklist #admin_'..message.from.id..' #user_'..id..'\n\n<code>' .. mattata.escape_html(output) .. '</code>',
+                            'html'
+                        )
+                    end
+                end
+            end
+            return mattata.send_reply(message, 'Successfully deleted <b>'..users_deleted..'</b> accounts from the global blacklist as <i>deleted accounts</i>', 'html')
+        else
+            return mattata.send_reply(message, "I couldn't fetch the list for globally banned users")
+        end
     end
-    local resolved = mattata.get_user(input)
-    or mattata.get_chat(input)
-    if not resolved
-    then
-        return mattata.send_reply(
-            message,
-            string.format(
-                language['gblacklist']['2'],
-                input
+
+    local banned_users = 0
+    for input in input:gmatch("%S+") do
+        local continue = true
+        if tonumber(input) == nil
+        and not input:match('^@')
+        then
+            input = '@' .. input
+        end
+        local resolved = mattata.get_user(input)
+        or mattata.get_chat(input)
+        if not resolved
+        then
+            continue = false
+            mattata.send_reply(
+                message,
+                string.format(
+                    language['gblacklist']['2'],
+                    input
+                )
             )
-        )
-    elseif resolved.result.type ~= 'private'
-    then
-        return mattata.send_reply(
-            message,
-            string.format(
-                language['gblacklist']['3'],
-                resolved.result.type
+        elseif continue and resolved.result.type ~= 'private'
+        then
+            continue = false
+            mattata.send_reply(
+                message,
+                string.format(
+                    language['gblacklist']['3'],
+                    resolved.result.type
+                )
             )
-        )
+        end
+        if continue and (resolved.result.id == self.info.id
+        or mattata.is_global_admin(resolved.result.id))
+        then
+            continue = false
+            mattata.send_reply(message, 'I can\'t ban a global admin!')
+        end
+        if continue then
+            local user = resolved.result.id
+            local hash = 'global_blacklist:' .. user
+            redis:set(
+                hash,
+                true
+            )
+            banned_users = banned_users + 1
+            local output = message.from.first_name .. ' [' .. message.from.id .. '] has blacklisted ' .. resolved.result.first_name .. ' [' .. resolved.result.id .. '] from using ' .. self.info.first_name .. '.'
+            if configuration.log_admin_actions
+            and configuration.log_channel ~= '' then
+                mattata.send_message(
+                    configuration.log_channel,
+                    '#action #gblacklist #admin_'..message.from.id..' #user_'..resolved.result.id..'\n\n<code>' .. mattata.escape_html(output) .. '</code>',
+                    'html'
+                )
+            end
+            mattata.send_message(
+                message.chat.id,
+                '<code>' .. mattata.escape_html(output) .. '</code>',
+                'html'
+            )
+        end
     end
-    if resolved.result.id == self.info.id
-    or mattata.is_global_admin(resolved.result.id)
-    then
-        return
-    end
-    local user = resolved.result.id
-    local hash = 'global_blacklist:' .. user
-    redis:set(
-        hash,
-        true
-    )
-    local output = message.from.first_name .. ' [' .. message.from.id .. '] has blacklisted ' .. resolved.result.first_name .. ' [' .. resolved.result.id .. '] from using ' .. self.info.first_name .. '.'
-    if configuration.log_admin_actions
-    and configuration.log_channel ~= '' then
-        mattata.send_message(
-            configuration.log_channel,
-            '<pre>' .. mattata.escape_html(output) .. '</pre>',
-            'html'
-        )
-    end
-    return mattata.send_message(
-        message.chat.id,
-        '<pre>' .. mattata.escape_html(output) .. '</pre>',
-        'html'
-    )
+    return mattata.send_reply(message, "Successfully globally backlisted ".. banned_users .." users")
 end
 
 return gblacklist

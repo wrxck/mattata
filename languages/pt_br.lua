@@ -1,4 +1,4 @@
--- This is a language file for mattata
+-- This is a language file for BarrePolice
 -- Language: pt-pt
 -- Author: American_Jesus
 
@@ -6,7 +6,7 @@
 -- THESE ARE PLACEHOLDERS!
 
 -- DO NOT CHANGE ANY MARKDOWN/HTML FORMATTING!
--- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/mattataDev)
+-- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/BarrePolice)
 
 return {
     ['errors'] = {
@@ -92,6 +92,18 @@ return {
         ['9'] = 'Sim, tenho a certeza!',
         ['10'] = 'Essa mensagem contém formatação Markdown inválida! Corrija a sintaxe e tente novamente.'
     },
+    ['chuck'] = {
+        ['1'] = 'Click to send the result.'
+    },
+    ['clickbait'] = {
+        ['1'] = 'Generate Another'
+    },
+    ['coinflip'] = {
+        ['1'] = 'The coin landed on:',
+        ['2'] = 'You were correct!',
+        ['3'] = 'You weren\'t correct, try again...',
+        ['4'] = 'Invalid arguments were given. You must specify your guess, it should be either \'heads\' or \'tails\'.'
+    },
     ['commandstats'] = {
         ['1'] = 'Nenhum comando foi enviado neste chat!',
         ['2'] = '<b>Estatísticas de comandos para:</b> %s\n\n%s\n<b>Total de comandos enviados:</b> %s',
@@ -125,8 +137,23 @@ return {
         ['3'] = 'Eu não posso despromover esse utilizador porque ele já deixou este grupo.',
         ['4'] = 'Não consigo despromover esse utilizador porque ele já foi expulso deste grupo.'
     },
+    ['dice'] = {
+        ['1'] = 'The minimum range is %s.',
+        ['2'] = 'The maximum range and count are both %s.',
+        ['3'] = 'The maximum range is %s, and the maximum count is %s.',
+        ['4'] = '%s rolls with a range of %s:\n'
+    },
     ['doge'] = {
         ['1'] = 'Por favor, escreva o texto que deseja para Doge-ify. Cada sentença deve ser separada usando barras (/) ou novas linhas.'
+    },
+    ['duckduckgo'] = {
+        ['1'] = 'I\'m not sure what that is!'
+    },
+    ['eightball'] = {
+        ['1'] = 'Yes.',
+        ['2'] = 'No.',
+        ['3'] = 'It is likely so.',
+        ['4'] = 'Well, uh... I\'d ask again later, if I were you.'
     },
     ['exec'] = {
         ['1'] = 'Selecione a linguagem em que gostaria de executar o seu código:',
@@ -150,8 +177,15 @@ return {
         ['2'] = 'Introduza uma consulta de pesquisa (Ou seja, o que quer que eu procure no Flickr, i.e. "Big Ben" mostrara uma fotografia do Big Ben em Londres).',
         ['3'] = 'Mais Resultados'
     },
+    ['fortune'] = {
+        ['1'] = 'Click to send your fortune!'
+    },
+    ['frombinary'] = {
+        ['1'] = 'Please enter the binary value you would like to convert to a string.',
+        ['2'] = 'Malformed binary!'
+    },
     ['game'] = {
-        ['1'] = 'Total de vitórias: %s\nTotal de derrotas: %s\nBalanço: %s mattacoins',
+        ['1'] = 'Total de vitórias: %s\nTotal de derrotas: %s\nBalanço: %s BarreCoins',
         ['2'] = 'Entrar no Jogo',
         ['3'] = 'Este jogo já acabou!',
         ['4'] = 'Não é a sua vez!',
@@ -175,6 +209,11 @@ return {
     },
     ['gif'] = {
         ['1'] = 'Introduza uma consulta de pesquisa (Que é, o que quer que eu procure no GIPHY, ex: "cat" irá mostrar um GIF de um gato).'
+    },
+    ['godwords'] = {
+        ['1'] = 'Please enter a numerical value, between 1 and 64!',
+        ['2'] = 'That number is too small, please specify one between 1 and 64!',
+        ['3'] = 'That number is too large, please specify one between 1 and 64!'
     },
     ['gwhitelist'] = {
         ['1'] = 'Responda ao utilizador que deseja incluir na lista branca global ou especifique-o por nome de utilizador/ID.',
@@ -277,6 +316,9 @@ Redis:
 
 %s Contagem de Utilizadores: %s
 %s Contagem de Grupos: %s
+%s Received Messages Count: %s
+%s Received CallbackQueries Count: %s
+%s Received InlineQueries Count: %s
 
 Sistema:
 %s OS: %s
@@ -300,6 +342,11 @@ Sistema:
     },
     ['ispwned'] = {
         ['1'] = 'Essa conta foi encontrada nos seguintes fugas de informação:'
+    },
+    ['isup'] = {
+        ['1'] = 'This website appears to be up, maybe it\'s just you?',
+        ['2'] = 'That doesn\'t appear to be a valid site!',
+        ['3'] = 'It\'s not just you, this website looks down from here.'
     },
     ['itunes'] = {
         ['1'] = 'Nome:',
@@ -329,6 +376,9 @@ Sistema:
         ['7'] = '%s ouviu ultimamente:\n',
         ['8'] = 'Desconhecido',
         ['9'] = 'Clique para enviar o resultado.'
+    },
+    ['lmgtfy'] = {
+        ['1'] = 'Let me Google that for you!'
     },
     ['location'] = {
         ['1'] = 'Não tem uma localização definida. O que nova localização gostaria que fosse?'
@@ -393,7 +443,7 @@ Sistema:
         ['18'] = 'An error occured whilst re-authorising your Spotify account!',
         ['19'] = 'Successfully re-authorised your Spotify account! Processing your original request...',
         ['20'] = 'Re-authorising your Spotify account, please wait...',
-        ['21'] = 'You need to authorise mattata in order to connect your Spotify account. Click [here](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) and press the green "OKAY" button to link mattata to your Spotify account. After you\'ve done that, send the link you were redirected to (it should begin with "%s", followed by a unique code) in reply to this message.',
+        ['21'] = 'You need to authorise BarrePolice in order to connect your Spotify account. Click [here](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) and press the green "OKAY" button to link BarrePolice to your Spotify account. After you\'ve done that, send the link you were redirected to (it should begin with "%s", followed by a unique code) in reply to this message.',
         ['22'] = 'Playlists',
         ['23'] = 'Use Inline Mode',
         ['24'] = 'Lyrics',
@@ -442,12 +492,24 @@ Sistema:
         ['1'] = 'O seu nick foi esquecido!',
         ['2'] = 'O seu nick foi definido como "%s"!'
     },
+    ['ninegag'] = {
+        ['1'] = 'Read More'
+    },
     ['optout'] = {
         ['1'] = 'Optou por enviar os seus dados! Use /optout para excluir.',
         ['2'] = 'Optou por não enviar os seus dados! Use /optin para enviar.'
     },
     ['paste'] = {
         ['1'] = 'Selecione um serviço para enviar copia:'
+    },
+    ['pay'] = {
+        ['1'] = 'You currently have %s BarreCoins. Earn more by winning games of Tic-Tac-Toe, using /game - You will win 100 BarreCoins for every game you win, and you will lose 50 for every game you lose.',
+        ['2'] = 'You must use this command in reply to the user you\'d like to send BarreCoins to.',
+        ['3'] = 'Please specify the amount of BarreCoins you\'d like to give %s.',
+        ['4'] = 'The amount specified should be a numerical value, of which can be no less than 0.',
+        ['5'] = 'You can\'t send money to yourself!',
+        ['6'] = 'You don\'t have enough funds to complete that transaction!',
+        ['7'] = '%s BarreCoins have been sent to %s. Your new balance is %s BarreCoins.'
     },
     ['pin'] = {
         ['1'] = 'Não definiu ainda uma mensagem afixada. Use /pin <texto> para definir uma. A formatação Markdown é suportada.',
@@ -460,6 +522,11 @@ Sistema:
     ['pokedex'] = {
         ['1'] = 'Nome: %s\nID: %s\nTipo: %s\nDescrição: %s'
     },
+    ['prime'] = {
+        ['1'] = 'Please enter a number between 1 and 99999.',
+        ['2'] = '%s is a prime number!',
+        ['3'] = '%s is NOT a prime number...'
+    },
     ['promote'] = {
         ['1'] = 'Não consigo promover este utilizador porque é moderador ou administrador deste grupo.',
         ['2'] = 'Não consigo promover este utilizador porque já saiu deste grupo.',
@@ -469,12 +536,22 @@ Sistema:
         ['1'] = 'Este utilizador desativou a funcionalidade de armazenamento de dados.',
         ['2'] = 'Não há citações guardadas para %s%s! Pode guardar um usando /save em resposta a uma mensagem que enviam.'
     },
+    ['randomsite'] = {
+        ['1'] = 'Generate Another'
+    },
+    ['randomword'] = {
+        ['1'] = 'Generate Another',
+        ['2'] = 'Your random word is <b>%s</b>!'
+    },
     ['report'] = {
         ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
         ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
         ['3'] = '<b>%s precisa de ajuda em %s!</b>',
         ['4'] = 'Click here to view the reported message.',
         ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
+    },
+    ['rms'] = {
+        ['1'] = 'Holy GNU!'
     },
     ['save'] = {
         ['1'] = 'Este utilizador desativou a funcionalidade de armazenamento de dados.',
@@ -537,6 +614,15 @@ Sistema:
         ['2'] = '"%s" não é um nome de utilizador Steam valido.',
         ['3'] = '%s é utilizador do Steam desde %s, em %s. Desligou a ultima vez %s, em %s. Clique <a href="%s">aqui</a> para ver o perfil no Steam.',
         ['4'] = '%s, AKA "%s",'
+    },
+    ['synonym'] = {
+        ['1'] = 'You could use the word <b>%s</b>, instead of %s.'
+    },
+    ['thoughts'] = {
+        ['1'] = '%s\n\nPositive: <code>%s%% [%s]</code>\nNegative: <code>%s%% [%s]</code>\nIndifferent: <code>%s%% [%s]</code>\nTotal thoughts: <code>%s</code>'
+    },
+    ['tobinary'] = {
+        ['1'] = 'Please enter the string you would like to convert to binary.'
     },
     ['trust'] = {
         ['1'] = 'I cannot trust this user because they are a moderator or an administrator of this chat.',

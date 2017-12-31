@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -60,17 +60,17 @@ function groups:on_message(message)
     end
     if not next(output)
     then
-        local output = 'No groups were found. If you\'d like your group to appear here, contact @wrxck0.'
+        local output = 'No groups were found.'
         if input
         then
             output = string.format(
-                'No groups were found matching "%s"! Use /groups to view a complete list of available groups.',
+                'No groups were found matching "%s"!\nUse /groups to view a complete list of available groups.',
                 input
             )
         end
         return mattata.send_reply(
             message,
-            output
+            output .. "\n\nIf you\'d like your group to appear here, contact @Barreeeiroo."
         )
     end
     table.sort(output)
@@ -87,7 +87,7 @@ function groups:on_message(message)
     end
     return mattata.send_message(
         message.chat.id,
-        output,
+        output .. "\n\nIf you\'d like your group to appear here, contact @Barreeeiroo.",
         'html'
     )
 end

@@ -1,0 +1,84 @@
+--[[
+    Based on a plugin by topkecleon.
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local porn = {}
+local mattata = require('mattata')
+local http = require('socket.http')
+local url = require('socket.url')
+local json = require('dkjson')
+
+function porn:init(configuration)
+    porn.commands = mattata.commands(self.info.username)
+    :command('porn')
+    :command('boob')
+    :command('boobs')
+    :command('butt')
+    :command('butts').table
+    porn.help = '/porn - Displays this help\n/boobs - Sends random boobs.\n/butts - Sends random button.'
+end
+
+local function getRandomButts(attempt)
+  attempt = attempt or 0
+  attempt = attempt + 1
+
+  local res,status = http.request("http://api.obutts.ru/noise/1")
+
+  if status ~= 200 then return mattata.send_reply(message, language['errors']['connection']) end
+  local data = jsonlib:decode(res)[1]
+
+  -- The OpenBoobs API sometimes returns an empty array
+  if not data and attempt <= 3 then
+    return getRandomButts(attempt)
+  end
+
+  return 'http://media.obutts.ru/' .. data.preview
+end
+
+local function getRandomBoobs(attempt)
+  attempt = attempt or 0
+  attempt = attempt + 1
+
+  local res,status = http.request("http://api.oboobs.ru/noise/1")
+
+  if status ~= 200 then return mattata.send_reply(message, language['errors']['connection']) end
+  local data = jsonlib:decode(res)[1]
+
+  -- The OpenBoobs API sometimes returns an empty array
+  if not data and attempt < 10 then
+    return getRandomBoobs(attempt)
+  end
+
+  return 'http://media.oboobs.ru/' .. data.preview
+end
+
+function porn:on_message(message, configuration, language)
+    if message.text:match('^[/!#]porn') then
+        return mattata.send_reply(
+            message,
+            porn.help
+        )
+    elseif message.text:match('^[/!#]boob') or message.text:match('^[/!#]boobs') then
+        mattata.send_chat_action(
+            message.chat.id,
+            'upload_photo'
+        )
+        return mattata.send_photo(
+            message.chat.id,
+            getRandomBoobs()
+        )
+    elseif message.text:match('^[/!#]butt') or message.text:match('^[/!#]butts') then
+        mattata.send_chat_action(
+            message.chat.id,
+            'upload_photo'
+        )
+        return mattata.send_photo(
+            message.chat.id,
+            getRandomButts()
+        )
+    end
+end
+
+return porn

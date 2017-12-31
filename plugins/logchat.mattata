@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -8,8 +8,8 @@ local mattata = require('mattata')
 local redis = dofile('libs/redis.lua')
 
 function logchat:init()
-    logchat.commands = mattata.commands(self.info.username):command('logchat').table
-    logchat.help = '/logchat [chat] - Specify the chat that you wish to log all of this chat\'s administrative actions into.'
+    logchat.commands = mattata.commands(self.info.username):command('logchat'):command('setlog'):command('setlogchat').table
+    logchat.help = '/logchat [chat] - Specify the chat that you wish to log all of this chat\'s administrative actions into. Alias: /setlog'
 end
 
 function logchat:on_message(message, configuration, language)

@@ -5,7 +5,7 @@ then
 else
     while true; do
         lua5.3 -e "require('mattata').run({}, require('configuration'))"
-        echo "mattata has stopped!"
+        echo "BarrePolice has stopped!"
         sleep 3s
     done
 fi

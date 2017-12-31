@@ -1,0 +1,44 @@
+--[[
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local eightball = {}
+local mattata = require('mattata')
+
+function eightball:init()
+    eightball.commands = mattata.commands(
+        self.info.username,
+        {
+            '[Yy]/[Nn]%p*$'
+        }
+    )
+    :command('eightball')
+    :command('8ball').table
+    eightball.help = '/eightball - Makes a decision for you using the (virtual) magic 8 ball! Alias: /8ball.'
+end
+
+function eightball:on_message(message, configuration, language)
+    local output
+    if message.text:lower():match('y/n%p?$')
+    then
+        local responses = {
+            '👍',
+            '👎',
+            language['eightball']['1'],
+            language['eightball']['2'],
+            language['eightball']['3'],
+            language['eightball']['4']
+        }
+        output = responses[math.random(#responses)]
+    else
+        local answers = configuration.eightball
+        output = answers[math.random(#answers)]
+    end
+    return mattata.send_reply(
+        message,
+        output
+    )
+end
+
+return eightball

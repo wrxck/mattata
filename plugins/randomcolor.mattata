@@ -1,0 +1,94 @@
+--[[
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local randomcolor = {}
+local mattata = require('mattata')
+local socket = require('socket')
+
+function randomcolor:init()
+    randomcolor.commands = mattata.commands(self.info.username):command('randomcolou?r').table
+    randomcolor.help = '/randomcolor - Generates a random colour. Alias: /randomcolour.'
+end
+
+function randomcolor.num_to_hex(num)
+    local hex = '0123456789abcdef'
+    local s = ''
+    while num > 0
+    do
+        local mod = math.fmod(num, 16)
+        s = hex:sub(mod + 1, mod +1) .. s
+        num = math.floor(num / 16)
+    end
+    if s == ''
+    then
+        s = '0'
+    end
+    return s
+end
+
+function randomcolor.generate()
+    local time = socket.gettime() * 1000000000
+    math.randomseed(time)
+    math.random()
+    math.random()
+    math.random()
+    -- We want to ensure the number will be as random as possible, hence the above steps are
+    -- taken as a precautionary measure!
+    local output = string.sub(
+        '000000' .. randomcolor.num_to_hex(
+            math.floor(
+                math.random() * 16777215
+            )
+        ),
+        -6
+    )
+    return 'https://placeholdit.imgix.net/~text?txtsize=1&bg=' .. output .. '&w=200&h=200', '#' .. output .. '\nrgb(' .. tonumber('0x' .. output:sub(1, 2)) .. ', ' .. tonumber('0x' .. output:sub(3, 4)) .. ', ' .. tonumber('0x' .. output:sub(5, 6)) .. ')'
+end
+
+function randomcolor.get_inline_colors()
+    local output = {}
+    local id = socket.gettime()
+    for i = 1, 50
+    do
+        local url, caption = randomcolor.generate()
+        table.insert(
+            output,
+            mattata.inline_result()
+            :type('photo')
+            :id(
+                tostring(id)
+            )
+            :photo_url(url)
+            :thumb_url(url)
+            :caption(caption)
+        )
+        id = id + 1
+    end
+    return output
+end
+
+function randomcolor:on_inline_query(inline_query)
+    local offset = inline_query.offset
+    and tonumber(inline_query.offset)
+    or 0
+    return mattata.answer_inline_query(
+        inline_query.id,
+        randomcolor.get_inline_colors(),
+        0,
+        true,
+        tostring(offset + 50)
+    )
+end
+
+function randomcolor:on_message(message)
+    local url, caption = randomcolor.generate()
+    return mattata.send_photo(
+        message.chat.id,
+        url,
+        caption
+    )
+end
+
+return randomcolor

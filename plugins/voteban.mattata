@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -331,6 +331,12 @@ function voteban:on_message(message, configuration, language)
         return mattata.send_reply(
             message,
             language['voteban']['2']
+        )
+    elseif mattata.get_setting(message.chat.id, 'trusted permissions voteban') and mattata.is_trusted_user(message.chat.id, user.id)
+    then
+        return mattata.send_reply(
+            message,
+            'I cannot start a voteban against this user because he is a trusted user and trusted users are immune to warns in this chat.'
         )
     elseif status.result.status == 'left'
     or status.result.status == 'kicked'

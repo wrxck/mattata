@@ -1,5 +1,5 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
@@ -133,11 +133,11 @@ function blacklist:on_message(message, configuration, language)
             message.chat.id
         ),
         'log administrative actions'
-    ) then
+    ) and mattata.get_setting(message.chat.id, 'log blacklist') then
         mattata.send_message(
             mattata.get_log_chat(message.chat.id),
             string.format(
-                '<pre>%s%s [%s] has blacklisted %s%s [%s] in %s%s [%s]%s.</pre>',
+                '#action #blacklist #admin_'..tostring(message.from.id)..' #user_'..tostring(user.id)..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s%s [%s] has blacklisted %s%s [%s] in %s%s [%s]%s.</pre>',
                 message.from.username and '@' or '',
                 message.from.username or mattata.escape_html(message.from.first_name),
                 message.from.id,

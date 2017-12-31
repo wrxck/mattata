@@ -5,14 +5,15 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v1.1.0
+      v2.0.0
 
-      Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+      Copyright 2017 Matthew Hesketh <wrxck0@gmail.com> & Diego Barreiro <diego@makeroid.io>
       See LICENSE for details
 
 ]]
 
 local mattata = {}
+
 local http = require('socket.http')
 local https = require('ssl.https')
 local url = require('socket.url')
@@ -26,8 +27,8 @@ local tools = require('telegram-bot-lua.tools')
 local socket = require('socket')
 local utils = dofile('libs/utils.lua')
 
-local plugin_list = {}
-local inline_plugin_list = {}
+-- Public JSON lib
+jsonlib = dofile('libs/json.lua')
 
 function mattata:init()
     self.info = api.info -- Set the bot's information to the object fetched from the Telegram bot API.
@@ -38,6 +39,8 @@ function mattata:init()
     self.tools = tools
     mattata.tools = tools
     self.configuration = configuration
+    self.plugin_list = {}
+    self.inline_plugin_list = {}
     for k, v in ipairs(configuration.plugins) do -- Iterate over all of the configured plugins.
         local plugin = dofile('plugins/' .. v .. '.mattata') -- Load each plugin.
         self.plugins[k] = plugin
@@ -50,22 +53,20 @@ function mattata:init()
         plugin.commands = plugin.commands or {} -- If the plugin hasn't got any commands configured, then set a blank
         -- table, so when it comes to iterating over the commands later on, the bot won't encounter any problems.
         if plugin.help then -- If the plugin has help documentation, then insert it into other tables (where necessary).
-            table.insert(plugin_list, plugin.help)
+            table.insert(self.plugin_list, plugin.help)
             if plugin.is_inline then -- If the plugin is inline and has documentation, then insert the documentation into
             -- the `inline_plugin_list` table.
-                table.insert(inline_plugin_list, plugin.help)
+                table.insert(self.inline_plugin_list, plugin.help)
             end
             plugin.help = 'Usage:\n' .. plugin.help:gsub('%. (Alias)', '.\n%1') -- Make the plugin's documentation style all
             -- nicely unified, for consistency.
         end
-        self.plugin_list = plugin_list
-        self.inline_plugin_list = inline_plugin_list
     end
     local connected_message = 'Connected to the Telegram bot API!'
     print(connected_message)
     local info_message = '\tUsername: @' .. self.info.username .. '\n\tName: ' .. self.info.name .. '\n\tID: ' .. self.info.id
     print('\n' .. info_message .. '\n')
-    self.version = 'v1.1.0'
+    self.version = 'v2.0.0'
     -- Make necessary database changes if the version has changed.
     if not redis:get('mattata:version') or redis:get('mattata:version') ~= self.version then
         redis:set('mattata:version', self.version)
@@ -74,15 +75,17 @@ function mattata:init()
     -- problems when it tries to add the necessary increment.
     self.last_backup = self.last_backup or os.date('%V')
     self.last_cron = self.last_cron or os.date('%H')
+    self.last_m_cron = self.last_m_cron or os.date('%M')
     local init_message = '<pre>' .. connected_message .. '\n\n' .. mattata.escape_html(info_message) .. '\n\n\tPlugins loaded: ' .. #configuration.plugins .. '</pre>'
     mattata.send_message(configuration.log_chat, init_message:gsub('\t', ''), 'html')
-    for n, admin in pairs(configuration.admins) do
+    for _, admin in pairs(configuration.admins) do
         mattata.send_message(admin, init_message:gsub('\t', ''), 'html')
     end
     return true
 end
 
--- Set a bunch of function aliases, for consistency & compatibility.
+-- A bunch of function aliases, for consistency & backwards-compatibility.
+
 mattata.request = api.request
 mattata.get_me = api.get_me
 mattata.send_message = api.send_message
@@ -173,17 +176,19 @@ mattata.is_media = utils.is_media
 mattata.media_type = utils.media_type
 mattata.file_id = utils.file_id
 mattata.is_trusted_user = utils.is_trusted_user
+mattata.get_trusted_users = utils.get_trusted_users
+mattata.is_muted_user = utils.is_muted_user
+mattata.get_muted_users = utils.get_muted_users
+mattata.is_muted_group = utils.is_muted_group
 mattata.get_inline_help = utils.get_inline_help
 mattata.get_chat_id = utils.get_chat_id
 mattata.get_setting = utils.get_setting
 mattata.get_value = utils.get_value
 mattata.get_user_count = utils.get_user_count
 mattata.get_group_count = utils.get_group_count
-mattata.clear_broadcast_memory = utils.clear_broadcast_memory
 mattata.get_user_language = utils.get_user_language
 mattata.get_log_chat = utils.get_log_chat
 mattata.get_missing_languages = utils.get_missing_languages
-mattata.purge_user = utils.purge_user
 mattata.get_user_message_statistics = utils.get_user_message_statistics
 mattata.reset_message_statistics = utils.reset_message_statistics
 mattata.is_group = utils.is_group
@@ -192,6 +197,39 @@ mattata.get_user_setting = utils.get_user_setting
 mattata.get_input = utils.get_input
 mattata.log_error = utils.log_error
 mattata.write_file = utils.write_file
+mattata.does_language_exist = utils.does_language_exist
+mattata.get_usernames = utils.get_usernames
+mattata.is_valid = utils.is_valid
+mattata.insert_keyboard_row = utils.insert_keyboard_row
+mattata.get_inline_help = utils.get_inline_help
+mattata.get_inline_list = utils.get_inline_list
+mattata.toggle_setting = utils.toggle_setting
+mattata.uses_administration = utils.uses_administration
+mattata.format_time = utils.format_time
+mattata.check_links = utils.check_links
+mattata.is_whitelisted_link = utils.is_whitelisted_link
+mattata.process_stickers = utils.process_stickers
+mattata.get_user = utils.get_user
+mattata.is_plugin_disabled = utils.is_plugin_disabled
+mattata.is_group_admin = utils.is_group_admin
+mattata.is_global_admin = utils.is_global_admin
+mattata.is_group_mod = utils.is_group_mod
+mattata.is_group_owner = utils.is_group_owner
+mattata.get_help = utils.get_help
+mattata.is_privacy_enabled = utils.is_privacy_enabled
+mattata.is_user_blacklisted = utils.is_user_blacklisted
+mattata.input = utils.input
+mattata.get_message_statistics = utils.get_message_statistics
+mattata.get_received_messages_count = utils.get_received_messages_count
+mattata.get_received_callbacks_count = utils.get_received_callbacks_count
+mattata.get_received_inlines_count = utils.get_received_inlines_count
+mattata.case_insensitive_pattern = utils.case_insensitive_pattern
+mattata.is_pole_done = utils.is_pole_done
+mattata.is_subpole_done = utils.is_subpole_done
+mattata.is_fail_done = utils.is_fail_done
+mattata.is_pole_blacklisted = utils.is_pole_blacklisted
+mattata.split = utils.split
+mattata.getKeysSortedByValue = utils.getKeysSortedByValue
 
 function mattata:run(configuration, token)
 -- mattata's main long-polling function which repeatedly checks the Telegram bot API for updates.
@@ -242,10 +280,12 @@ function mattata:run(configuration, token)
                     if configuration.debug then
                         print(
                             string.format(
-                                '%s[36m[Update #%s] Message from %s to %s%s[0m',
+                                '%s[36m[Update Message #%s] Message from %s [%s] to %s [%s]%s[0m',
                                 string.char(27),
                                 v.update_id,
+                                v.message.from.first_name,
                                 v.message.from.id,
+                                v.message.chat.title or self.info.name,
                                 v.message.chat.id,
                                 string.char(27)
                             )
@@ -261,9 +301,10 @@ function mattata:run(configuration, token)
                     if configuration.debug then
                         print(
                             string.format(
-                                '%s[37m[Update #%s] Channel post from %s%s[0m',
+                                '%s[37m[Update Message #%s] Channel post from %s [%s]%s[0m',
                                 string.char(27),
                                 v.update_id,
+                                v.channel_post.chat.title,
                                 v.channel_post.chat.id,
                                 string.char(27)
                             )
@@ -275,9 +316,10 @@ function mattata:run(configuration, token)
                     if configuration.debug then
                         print(
                             string.format(
-                                '%s[35m[Update #%s] Inline query from %s%s[0m',
+                                '%s[35m[Update Inline #%s] Inline query from %s [%s]%s[0m',
                                 string.char(27),
                                 v.update_id,
+                                v.inline_query.from.first_name,
                                 v.inline_query.from.id,
                                 string.char(27)
                             )
@@ -294,9 +336,10 @@ function mattata:run(configuration, token)
                     if configuration.debug then
                         print(
                             string.format(
-                                '%s[33m[Update #%s] Callback query from %s%s[0m',
+                                '%s[33m[Update Callback #%s] Callback query from %s [%s]%s[0m',
                                 string.char(27),
                                 v.update_id,
+                                v.callback_query.from.first_name,
                                 v.callback_query.from.id,
                                 string.char(27)
                             )
@@ -326,11 +369,23 @@ function mattata:run(configuration, token)
             for i = 1, #self.plugins do
                 local plugin = self.plugins[i]
                 if plugin.cron then
-                    local success, res = pcall(
-                        function()
-                            plugin.cron(self, configuration)
-                        end
-                    )
+                    local success, res = pcall(function()
+                        plugin.cron(self, configuration)
+                    end)
+                    if not success then
+                        mattata.exception(self, res, 'CRON: ' .. i, configuration.log_chat)
+                    end
+                end
+            end
+        end
+        if self.last_m_cron ~= os.date('%M') then -- Perform minutely CRON jobs.
+            self.last_m_cron = os.date('%M')
+            for i = 1, #self.plugins do
+                local plugin = self.plugins[i]
+                if plugin.m_cron then
+                    local success, res = pcall(function()
+                            plugin.m_cron(self, configuration)
+                    end)
                     if not success then
                         mattata.exception(self, res, 'CRON: ' .. i, configuration.log_chat)
                     end
@@ -360,7 +415,7 @@ function mattata:on_message()
     -- If the chat doesn't have a custom nickname for the bot to respond by, we'll
     -- stick with the default one that was set through @BotFather.
     self.info.nickname = redis:get('chat:' .. message.chat.id .. ':name') or self.info.name
-    if message.forward_from or message.forward_from_chat or mattata.process_spam(message) then
+    if mattata.process_spam(message) then
         return false -- We don't want to process these messages any further!
     end
 
@@ -398,11 +453,9 @@ function mattata:on_message()
                             end
                             return false
                         end
-                        local success, result = pcall(
-                            function()
-                                return plugin.on_message(self, message, configuration, language)
-                            end
-                        )
+                        local success, result = pcall(function()
+                            return plugin.on_message(self, message, configuration, language)
+                        end)
                         if not success then
                             mattata.exception(self, result, string.format('%s: %s', message.from.id, message.text), configuration.log_chat)
                         end
@@ -421,7 +474,10 @@ function mattata:on_message()
         self.is_done = false
         return true
     end
+    -- Anything miscellaneous is processed here, things which are perhaps plugin-specific
+    -- and just not relevant to the core `mattata.on_message` function.
     mattata.process_plugin_extras(self)
+    redis:incr('stats:messages:received')
     return true
 end
 
@@ -442,27 +498,28 @@ function mattata:process_plugin_extras()
     -- Process custom commands with #hashtag triggers.
     if message.chat.type ~= 'private' and message.text:match('^%#%a+') and mattata.get_setting(message.chat.id, 'use administration') then
         local trigger = message.text:match('^(%#%a+)')
-        local custom_commands = redis:hkeys(string.format('administration:%s:custom', message.chat.id))
+        local custom_commands = redis:hkeys('administration:' .. message.chat.id .. ':custom')
         if custom_commands then
             for k, v in ipairs(custom_commands) do
                 if trigger == v then
-                    local value = redis:hget(string.format('administration:%s:custom', message.chat.id), trigger)
-                    if value then mattata.send_message(message.chat.id, value) end
+                    local value = redis:hget('administration:' .. message.chat.id .. ':custom', trigger)
+                    if value then
+                        mattata.send_message(message.chat.id, value)
+                    end
                 end
             end
         end
     end
 
     if not mattata.is_plugin_disabled('captionbotai', message) and (message.photo or (message.reply and message.reply.photo)) then
-        if message.reply then
-            message = message.reply
-        end
+        message = message.reply or message
         if message.text:lower():match('^wh?at .- th[ia][st].-') or message.text:lower():match('^who .- th[ia][st].-') then
             local captionbotai = dofile('plugins/captionbotai.mattata')
             captionbotai.on_message(self, message, configuration, language)
         end
     end
 
+    -- Process the BugReports
     if mattata.is_global_admin(message.from.id) and message.chat.id == configuration.bug_reports_chat and message.reply and message.reply.forward_from and not message.text:match('^[/!#]') then
         mattata.send_message(
             message.reply.forward_from.id,
@@ -473,34 +530,103 @@ function mattata:process_plugin_extras()
             ),
             'html'
         )
-    elseif not mattata.is_plugin_disabled('ai', message) and message.chat.type ~= 'channel' and not redis:sismember('ainotice', tostring(message.chat.id)) then
-        local success = mattata.send_message(message.chat.id, '*IMPORTANT* My AI functionality has moved to a dedicated bot to allow me to do everything else even faster! This is one of many huge changes coming over the next couple of months! The new AI is @mattataaibot. It does NOT need administrative permissions to work!', 'markdown')
+    end
+
+    -- Process the AI notice
+    if not mattata.is_plugin_disabled('ai', message) and message.chat.type ~= 'channel' and not redis:sismember('ainotice', tostring(message.chat.id)) then
+        local success = mattata.send_message(message.chat.id, '*IMPORTANT* My AI functionality has moved to a dedicated bot to allow me to do everything else even faster! This is one of many huge changes coming over the next couple of months! The new AI is @BarrePoliceBot. It does NOT need administrative permissions to work!', 'markdown')
         if success then
             redis:sadd('ainotice', tostring(message.chat.id))
         end
     end
 
-    if ( -- If a user executes a command and it's not recognised, provide a response
+    -- Process @admin in report
+    if not mattata.is_plugin_disabled('report', message) and message.text:match('^@admin') and message.chat.type ~= 'private' then
+        local language = dofile('languages/' .. mattata.get_user_language(message.from.id) .. '.lua')
+        local input = mattata.input(message.text)
+        if not message.reply or not input then
+            mattata.send_message(message.chat.id, language['report']['1'])
+        elseif message.reply.from.id == message.from.id then
+            mattata.send_message(message.chat.id, language['report']['2'])
+        end
+        local admin_list = {}
+        local admins = mattata.get_chat_administrators(message.chat.id)
+        local notified = 0
+        for n in pairs(admins.result) do
+            if admins.result[n].user.id ~= self.info.id then
+                local old_language = language
+                language = require('languages.' .. mattata.get_user_language(admins.result[n].user.id))
+                local output = string.format(language['report']['3'], mattata.escape_html(message.from.first_name), mattata.escape_html(message.chat.title))
+                if message.chat.username and message.reply then -- If it's a public supergroup, then we'll link to the report message to
+                -- make things easier for the administrator the report was sent to.
+                    output = output .. '\n<a href="https://t.me/' .. message.chat.username .. '/' .. message.reply.message_id .. '">' .. language['report']['4'] .. '</a>'
+                end
+                if input then
+                    output = output .. '\n\n<i>' .. input .. '</i>'
+                end
+                local success = mattata.send_message(admins.result[n].user.id, output, 'html')
+                if success then
+                    if message.reply then
+                        mattata.forward_message(admins.result[n].user.id, message.chat.id, false, message.reply.message_id)
+                    end
+                    notified = notified + 1
+                end
+                language = old_language
+            end
+        end
+        local output = string.format(language['report']['5'], notified)
+        mattata.send_reply(message, output)
+    end
+
+    -- Process the Pole plugin
+    if not mattata.is_plugin_disabled('pole', message) and message.chat.type ~= 'private' then
+        local date = os.date("%x")
+        if (message.text:match('^'..mattata.case_insensitive_pattern('pole')) or message.text:match('^'..mattata.case_insensitive_pattern('oro'))) and not mattata.is_pole_done(message.chat.id, message.from.id) then
+            redis:hset('pole:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
+            redis:hset('pole:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
+            redis:hset('latest_pole:' .. message.chat.id, 'date', os.date("%x"))
+            redis:hset('pole_stats:' .. message.chat.id, message.from.id, math.floor(tonumber(redis:hget('pole_stats:' .. message.chat.id, message.from.id) or 0)+1))
+            redis:hset('group_pole_stats:' .. message.chat.id, message.from.id, math.floor(tonumber(redis:hget('group_pole_stats:' .. message.chat.id, message.from.id) or 0)+5))
+            if not mattata.is_pole_blacklisted(message.from.id) then
+                redis:hset('global_pole', message.from.id, math.floor(tonumber(redis:hget('global_pole', message.from.id) or 0)+1))
+                redis:hset('global_pole_stats', message.from.id, math.floor(tonumber(redis:hget('global_pole_stats', message.from.id) or 0)+5))
+            end
+            mattata.send_reply(message, message.from.first_name.." has done the POLE!")
+        elseif (message.text:match('^'..mattata.case_insensitive_pattern('subpole')) or message.text:match('^'..mattata.case_insensitive_pattern('plata')) or message.text:match('^'..mattata.case_insensitive_pattern('sub'))) and not mattata.is_subpole_done(message.chat.id, message.from.id) and mattata.is_pole_done(message.chat.id, message.from.id) then
+            redis:hset('subpole:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
+            redis:hset('subpole:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
+            redis:hset('latest_subpole:' .. message.chat.id, 'date', os.date("%x"))
+            redis:hset('subpole_stats:' .. message.chat.id, message.from.id, math.floor(tonumber(redis:hget('subpole_stats:' .. message.chat.id, message.from.id) or 0)+1))
+            redis:hset('group_pole_stats:' .. message.chat.id, message.from.id, math.floor(tonumber(redis:hget('group_pole_stats:' .. message.chat.id, message.from.id) or 0)+3))
+            if not mattata.is_pole_blacklisted(message.from.id) then
+                redis:hset('global_subpole', message.from.id, math.floor(tonumber(redis:hget('global_subpole', message.from.id) or 0)+1))
+                redis:hset('global_pole_stats', message.from.id, math.floor(tonumber(redis:hget('global_pole_stats', message.from.id) or 0)+3))
+            end
+            mattata.send_reply(message, message.from.first_name.." has done the SUBPOLE")
+        elseif (message.text:match('^'..mattata.case_insensitive_pattern('fail')) or message.text:match('^'..mattata.case_insensitive_pattern('bronce'))) and not mattata.is_fail_done(message.chat.id, message.from.id) and mattata.is_subpole_done(message.chat.id, message.from.id) and mattata.is_pole_done(message.chat.id, message.from.id) then
+            redis:hset('fail:' .. date .. ':' .. message.chat.id, 'user', message.from.id)
+            redis:hset('fail:' .. date .. ':' .. message.chat.id, 'time', os.date("%X"))
+            redis:hset('latest_fail:' .. message.chat.id, 'date', os.date("%x"))
+            redis:hset('fail_stats:' .. message.chat.id, message.from.id, math.floor(tonumber(redis:hget('fail_stats:' .. message.chat.id, message.from.id) or 0)+1))
+            redis:hset('group_pole_stats:' .. message.chat.id, message.from.id, math.floor(tonumber(redis:hget('group_pole_stats:' .. message.chat.id, message.from.id) or 0)+1))
+            if not mattata.is_pole_blacklisted(message.from.id) then
+                redis:hset('global_fail', message.from.id, math.floor(tonumber(redis:hget('global_fail', message.from.id) or 0)+1))
+                redis:hset('global_pole_stats', message.from.id, math.floor(tonumber(redis:hget('global_pole_stats', message.from.id) or 0)+1))
+            end
+            mattata.send_reply(message, message.from.first_name.." has done a FAIL, sad")
+        end
+    end
+
+    -- If a user executes a command and it's not recognised, provide a response
     -- explaining what's happened and how it can be resolved.
-        message.text:match('^[!/#]')
-        and message.chat.type == 'private'
-        and not self.is_commmand
-    )
-    or (
-        message.chat.type ~= 'private'
-        and message.text:match('^[!/#]%a+@' .. self.info.username)
-        and not self.is_command
-    )
-    then
-        mattata.send_reply(
-            message,
-            'Sorry, I don\'t understand that command.\nTip: Use /help to discover what else I can do!'
-        )
+    if (message.text:match('^[!/#]') and message.chat.type == 'private' and not self.is_commmand) or (message.chat.type ~= 'private' and message.text:match('^[!/#]%a+@' .. self.info.username) and not self.is_command) then
+        mattata.send_reply(message, 'Sorry, I don\'t understand that command.\nTip: Use /help to discover what else I can do!')
     end
     return true
 end
 
 function mattata:on_inline_query()
+    redis:incr('stats:inlines:received')
     local inline_query = self.inline_query
     if not inline_query.from then
         return false, 'No `inline_query.from` object was found!'
@@ -510,53 +636,30 @@ function mattata:on_inline_query()
     local language = dofile('languages/' .. mattata.get_user_language(inline_query.from.id) .. '.lua')
     inline_query.offset = inline_query.offset and tonumber(inline_query.offset) or 0
     for _, plugin in ipairs(self.plugins) do
-        local plugins = plugin.commands or {}
-        for i = 1, #plugins do
-            local command = plugin.commands[i]
+        local commands = plugin.commands or {}
+        for _, command in pairs(commands) do
             if not inline_query then
                 return false, 'No `inline_query` object was found!'
             end
-            if inline_query.query:match(command)
-            and plugin.on_inline_query
-            then
-                local success, result = pcall(
-                    function()
-                        return plugin.on_inline_query(self, inline_query, configuration, language)
-                    end
-                )
+            if inline_query.query:match(command) and plugin.on_inline_query then
+                local success, result = pcall(function()
+                    return plugin.on_inline_query(self, inline_query, configuration, language)
+                end)
                 if not success then
-                    local exception = string.format('%s: %s', inline_query.from.id, inline_query.query)
-                    mattata.exception(self, result, exception, configuration.log_chat)
+                    mattata.exception(self, result, inline_query.from.id .. ': ' .. inline_query.query, configuration.log_chat)
                     return false, result
-                elseif not result then
-                    return api.answer_inline_query(
-                        inline_query.id,
-                        api.inline_result()
-                        :id()
-                        :type('article')
-                        :title(configuration.errors.results)
-                        :description(plugin.help)
-                        :input_message_content(api.input_text_message_content(plugin.help))
-                    )
+                elseif result then
+                    return success, result
                 end
             end
         end
-    end
-    if not inline_query.query or inline_query.query:gsub('%s', '') == '' then
-        local offset = inline_query.offset and tonumber(inline_query.offset) or 0
-        local list = mattata.get_inline_list(self.info.username, offset)
-        if #list == 0 then
-            local title = 'No more results found!'
-            local description = 'There were no more inline features found. Use @' .. self.info.username .. ' <query> to search for more information about commands matching the given search query.'
-            return mattata.send_inline_article(inline_query.id, title, description)
-        end
-        return mattata.answer_inline_query(inline_query.id, json.encode(list), 0, false, tostring(offset + 50))
     end
     local help = dofile('plugins/help.mattata')
     return help.on_inline_query(self, inline_query, configuration, language)
 end
 
 function mattata:on_callback_query()
+    redis:incr('stats:callbacks:received')
     local callback_query = self.callback_query
     local message = self.message
     if not callback_query.message or not callback_query.message.chat then
@@ -589,11 +692,9 @@ function mattata:on_callback_query()
                 plugin = callback_query.data
                 callback_query = ''
             end
-            local success, result = pcall(
-                function()
-                    return plugin.on_callback_query(self, callback_query, message or false, configuration, language)
-                end
-            )
+            local success, result = pcall(function()
+                return plugin.on_callback_query(self, callback_query, message or false, configuration, language)
+            end)
             if not success then
                 mattata.answer_callback_query(callback_query.id, language['errors']['generic'])
                 local exception = string.format('%s: %s', callback_query.from.id, callback_query.data)
@@ -604,9 +705,6 @@ function mattata:on_callback_query()
     end
     return true
 end
-
-mattata.send_message = api.send_message
-
 
 -- A variant of mattata.send_message(), optimised for sending a message as a reply that forces a
 -- reply back from the user.
@@ -632,16 +730,6 @@ function mattata.get_chat(chat_id, token)
         mattata.process_chat(success.result)
     end
     return success
-end
-
-function mattata.is_plugin_disabled(plugin, message)
-    if type(message) == 'table' and message.chat then
-        message = message.chat.id
-    end
-    if redis:hget('chat:' .. message .. ':disabled_plugins', plugin) == 'true' and plugin ~= 'plugins' then
-        return true
-    end
-    return false
 end
 
 function mattata.get_redis_hash(k, v)
@@ -679,8 +767,6 @@ function mattata.get_word(str, i)
     return false
 end
 
-mattata.input = utils.input
-
 function mattata:exception(err, message, log_chat)
     local output = string.format(
         '[%s]\n%s: %s\n%s\n',
@@ -699,42 +785,6 @@ function mattata:exception(err, message, log_chat)
     err = nil
     message = nil
     log_chat = nil
-end
-
-function mattata.is_group_admin(chat_id, user_id, is_real_admin)
-    if mattata.is_global_admin(chat_id) or mattata.is_global_admin(user_id) then
-        return true
-    elseif not is_real_admin and mattata.is_group_mod(chat_id, user_id) then
-        return true
-    end
-    local admins = mattata.get_chat_administrators(chat_id)
-    if not admins then
-        return false
-    end
-    for _, admin in ipairs(admins.result) do
-        if admin.user.id == user_id then
-            return true
-        end
-    end
-    return false
-end
-
-function mattata.is_group_mod(chat_id, user_id)
-    if not chat_id or not user_id then
-        return false
-    elseif redis:sismember('administration:' .. chat_id .. ':mods', user_id) then
-        return true
-    end
-    return false
-end
-
-function mattata.is_group_owner(chat_id, user_id)
-    local is_owner = false
-    local user = mattata.get_chat_member(chat_id, user_id)
-    if user.status == 'creator' then
-        is_owner = true
-    end
-    return is_owner
 end
 
 function mattata.process_chat(chat)
@@ -841,7 +891,11 @@ function mattata.sort_message(message)
     message.text = message.text or message.caption or '' -- Ensure there is always a value assigned to message.text.
     message.text = message.text:gsub('^/(%a+)%_', '/%1 ')
     if message.text:match('^[/!#]start .-$') then -- Allow deep-linking through the /start command.
-        message.text = '/' .. message.text:match('^[/!#]start (.-)$')
+        local payload = message.text:match('^[/!#]start (.-)$')
+        if payload:match('^[%w_]+_.-$') then
+            payload = payload:match('^([%w]+)_.-$') .. ' ' .. payload:match('^[%w]+_(.-)$')
+        end
+        message.text = '/' .. payload
     end
     message.is_media = mattata.is_media(message)
     message.media_type = mattata.media_type(message)
@@ -876,6 +930,13 @@ function mattata.sort_message(message)
         message.chat = mattata.process_chat(message.chat)
         message.left_chat_member = mattata.process_user(message.left_chat_member)
         redis:srem('chat:' .. message.chat.id .. ':users', message.left_chat_member.id)
+        if mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'delete leftgroup messages') then
+            mattata.delete_message(message.chat.id, message.message_id)
+        end
+        if mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(message.chat.id, 'log leftgroup') then
+            local log_chat = mattata.get_log_chat(message.chat.id)
+            mattata.send_message(log_chat, string.format('#leftmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] left %s [%s]</pre>', mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
+        end
     end
     if message.forward_from_chat then
         mattata.process_chat(message.forward_from_chat)
@@ -896,278 +957,27 @@ function mattata.sort_message(message)
     return message
 end
 
-function mattata.is_global_admin(id)
-    for k, v in pairs(configuration.admins) do
-        if id == v then
-            return true
-        end
-    end
-    return false
-end
-
-function mattata.get_user(input, cached)
-    input = tostring(input)
-    input = input:match('^%@(.-)$') or input
-    input = input:lower()
-    if tonumber(input) == nil then
-        input = redis:get('username:' .. input)
-    end
-    if not input or tonumber(input) == nil then
-        return false
-    end
-    input = tonumber(input)
-    if cached then
-        local user = redis:hgetall('user:' .. input .. ':info')
-        return user
-    end
-    return api.get_chat(input)
-end
-
-function mattata.get_inline_list(username, offset)
-    offset = offset and tonumber(offset) or 0
-    local inline_list = {}
-    table.sort(inline_plugin_list)
-    for k, v in pairs(inline_plugin_list) do
-        if k > offset and k < offset + 50 then -- The bot API only accepts a maximum of 50 results, hence we need the offset.
-            v = v:gsub('\n', ' ')
-            table.insert(
-                inline_list,
-                mattata.inline_result()
-                :type('article')
-                :id(tostring(k))
-                :title(v:match('^(/.-) %- .-$'))
-                :description(v:match('^/.- %- (.-)$'))
-                :input_message_content(
-                    mattata.input_text_message_content(
-                        string.format(
-                            '• %s - %s\n\nTo use this command inline, you must use the syntax:\n@%s %s',
-                            v:match('^(/.-) %- .-$'),
-                            v:match('^/.- %- (.-)$'),
-                            username,
-                            v:match('^(/.-) %- .-$')
-                        )
-                    )
-                )
-                :reply_markup(
-                    mattata.inline_keyboard():row(
-                        mattata.row():switch_inline_query_button('Show me how!', v:match('^(/.-) '))
-                    )
-                )
-            )
-        end
-    end
-    return inline_list
-end
-
-function mattata.get_help()
-    local help = {}
-    local count = 1
-    table.sort(plugin_list)
-    for k, v in pairs(plugin_list) do
-        if v:match('^/.- %- .-$') then
-            table.insert(help, utf8.char(8226) .. ' ' .. v:match('^(/.-) %- .-$'))
-            count = count + 1
-        end
-    end
-    return help
-end
-
-function mattata.format_time(seconds)
-    if not seconds or tonumber(seconds) == nil then
-        return false
-    end
-    local output = ''
-    seconds = tonumber(seconds) -- Make sure we're handling a numerical value
-    local minutes = math.floor(seconds / 60)
-    if minutes == 0 then
-        return seconds ~= 1 and seconds .. ' seconds' or seconds .. ' second'
-    elseif minutes < 60 then
-        return minutes ~= 1 and minutes .. ' minutes' or minutes .. ' minute'
-    end
-    local hours = math.floor(seconds / 3600)
-    if hours == 0 then
-        return minutes ~= 1 and minutes .. ' minutes' or minutes .. ' minute'
-    elseif hours < 24 then
-        return hours ~= 1 and hours .. ' hours' or hours .. ' hour'
-    end
-    local days = math.floor(seconds / 86400)
-    if days == 0 then
-        return hours ~= 1 and hours .. ' hours' or hours .. ' hour'
-    elseif days < 7 then
-        return days ~= 1 and days .. ' days' or days .. ' day'
-    end
-    local weeks = math.floor(seconds / 604800)
-    if weeks == 0 then
-        return days ~= 1 and days .. ' days' or days .. ' day'
-    else
-        return weeks ~= 1 and weeks .. ' weeks' or weeks .. ' week'
-    end
-end
-
-function mattata.does_language_exist(language)
-    return pcall(
-        function()
-            return require('languages.' .. language)
-        end
-    )
-end
-
-function mattata.save_to_file(content, file_path)
-    if not content then
-        return false
-    end
-    file_path = file_path or '/tmp/temp_' .. os.time() .. '.txt'
-    local file = io.open(file_path, 'w+')
-    file:write(tostring(content))
-    file:close()
-    return true
-end
-
-function mattata.export_ai_responses(save)
-    local output = {}
-    for k, v in pairs(redis:hgetall('ai')) do
-        v = json.decode(v)
-        v['message'] = nil
-        local responses = v['responses']
-        v['responses'] = nil
-        for n, response in pairs(responses) do
-            table.insert(output, response)
-        end
-        output[k] = v
-    end
-    output = json.encode(output, { ['indent'] = true })
-    if save then
-        return mattata.save_to_file(output, '/tmp/ai.json')
-    end
-    return output
-end
-
-function mattata.insert_keyboard_row(keyboard, first_text, first_callback, second_text, second_callback, third_text, third_callback)
-    table.insert(
-        keyboard['inline_keyboard'],
-        {
-            {
-                ['text'] = first_text,
-                ['callback_data'] = first_callback
-            },
-            {
-                ['text'] = second_text,
-                ['callback_data'] = second_callback
-            },
-            {
-                ['text'] = third_text,
-                ['callback_data'] = third_callback
-            }
-        }
-    )
-    return keyboard
-end
-
-function mattata.is_valid(message) -- Performs basic checks on the message object to see if it's fit
--- for its purpose. If it's valid, this function will return `true` - otherwise it will return `false`.
-    if not message then -- If the `message` object is nil, then we'll ignore it.
-        return false, 'No `message` object exists!'
-    elseif message.date < os.time() - 7 then -- We don't want to process old messages, so anything
-    -- older than the current system time (giving it a leeway of 7 seconds).
-        return false, 'This `message` object is too old!'
-    elseif not message.from then -- If the `message.from` object doesn't exist, this will likely
-    -- break some more code further down the line!
-        return false, 'No `message.from` object exists!'
-    end
-    return true
-end
-
-function mattata.is_user_blacklisted(message)
-    if not message or not message.from or not message.chat then
-        return false
-    end
-    local global = redis:get('global_blacklist:' .. message.from.id) -- Check if the user is globally
-    -- blacklisted from using the bot.
-    local group = redis:get('group_blacklist:' .. message.chat.id .. ':' .. message.from.id) -- Check
-    -- if the user is blacklisted from using the bot in the current group.
-    if global or group then
-        return true
-    end
-    return false
-end
-
 function mattata.process_afk(message) -- Checks if the message references an AFK user and tells the
 -- person mentioning them that they are marked AFK. If a user speaks and is currently marked as AFK,
 -- then the bot will announce their return along with how long they were gone for.
-    if message.from.username
-    and redis:hget(
-        'afk:' .. message.chat.id .. ':' .. message.from.id,
-        'since'
-    )
-    and not mattata.is_plugin_disabled(
-        'afk',
-        message
-    )
-    and not message.text:match('^[/!#]afk')
-    and not message.text:lower():match('^i?\'?m? ?back.?$')
-    and not message.text:lower():match('^i?\'?l?l? ?brb.?$')
-    then
-        local since = os.time() - tonumber(
-            redis:hget(
-                'afk:' .. message.chat.id .. ':' .. message.from.id,
-                'since'
-            )
-        )
-        redis:hdel(
-            'afk:' .. message.chat.id .. ':' .. message.from.id,
-            'since'
-        )
-        redis:hdel(
-            'afk:' .. message.chat.id .. ':' .. message.from.id,
-            'note'
-        )
-        mattata.send_message(
-            message.chat.id,
-            message.from.first_name .. ' has returned, after being AFK for ' .. mattata.format_time(since) .. '.'
-        )
-    elseif message.text:match('@[%w_]+') -- If a user gets mentioned, check to see if they're AFK.
-    then
+    if message.from.username and redis:hget('afk:' .. message.chat.id .. ':' .. message.from.id, 'since') and not utils.is_plugin_disabled('afk', message) and not message.text:match('^[/!#]afk') and not message.text:lower():match('^i?\'?m? ?back.?$') and not message.text:lower():match('^i?\'?l?l? ?brb.?$') then
+        local since = os.time() - tonumber(redis:hget('afk:' .. message.chat.id .. ':' .. message.from.id, 'since'))
+        redis:del('afk:' .. message.chat.id .. ':' .. message.from.id)
+        local output = message.from.first_name .. ' has returned, after being AFK for ' .. utils.format_time(since) .. '.'
+        api.send_message(message.chat.id, output)
+    elseif message.text:match('@[%w_]+') then -- If a user gets mentioned, check to see if they're AFK.
         local username = message.text:match('@([%w_]+)')
-        local success = mattata.get_user(username)
-        if success
-        and success.result
-        and redis:hexists(
-            'afk:' .. message.chat.id .. ':' .. success.result.id,
-            'since'
-        )
-        then -- If all the checks are positive, the mentioned user is AFK, so we'll tell the
-        -- person mentioning them that this is the case!
-            mattata.send_reply(
-                message,
-                success.result.first_name .. ' is currently AFK!'
-            )
+        local success = utils.get_user(username)
+        if success and success.result and redis:hexists('afk:' .. message.chat.id .. ':' .. success.result.id, 'since') then
+        -- If all the checks are positive, the mentioned user is AFK, so we'll tell the person mentioning
+        -- them that this is the case!
+            utils.send_reply(message, success.result.first_name .. ' is currently AFK!')
         end
     end
-end
-
-function mattata.process_stickers(message)
-    if message.chat.type == 'supergroup' and message.sticker and message.file_id then
-        -- Process each sticker to see if they are one of the configured, command-performing stickers.
-        for k, v in pairs(configuration.stickers.ban) do
-            if message.file_id == v then
-                message.text = '/ban'
-            end
-        end
-        for k, v in pairs(configuration.stickers.warn) do
-            if message.file_id == v then
-                message.text = '/warn'
-            end
-        end
-        for k, v in pairs(configuration.stickers.kick) do
-            if message.file_id == v then
-                message.text = '/kick'
-            end
-        end
-    end
-    return message
 end
 
 function mattata:process_natural_language(message)
+    message.is_natural_language = true
     local text = message.text:lower()
     local name = self.info.name:lower()
     if name:find(' ') then
@@ -1186,60 +996,216 @@ function mattata:process_natural_language(message)
         local success = myspotify.reauthorise_account(message.from.id, configuration)
         local output = success and myspotify.play(message.from.id) or 'An error occured whilst trying to connect to your Spotify account, are you sure you\'ve connected me to it?'
         mattata.send_message(message.chat.id, output)
+    else
+        message.is_natural_language = false
     end
-    message.is_natural_language = true
     return message
 end
 
 function mattata.process_spam(message)
-    if message.chat and message.chat.title and message.chat.title:match('[Pp][Oo][Nn][Zz][Ii]') and message.chat.type ~= 'private' then
-        mattata.leave_chat(message.chat.id)
-        return true -- Ponzi scheme groups are considered a negative influence on the bot's
-        -- reputation and performance, so we'll leave the group and start processing the next update.
-        -- TODO: Implement a better detection that just matching the title for the word "PONZI".
-    end
-    local msg_count = tonumber(
-        redis:get('antispam:' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
-        -- has already sent 1 or more messages to the current chat, in the past 5 seconds.
-    )
-    or 1 -- If this is the first time the user has posted in the past 5 seconds, we'll make it 1 accordingly.
-    redis:setex(
-        'antispam:' .. message.chat.id .. ':' .. message.from.id,
-        5, -- Set the time to live to 5 seconds.
-        msg_count + 1 -- Increase the current message count by 1.
-    )
-    if msg_count == 7 -- If the user has sent 7 messages in the past 5 seconds, send them a warning.
-    and not mattata.is_global_admin(message.from.id)
-    then
-    -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
-        mattata.send_reply( -- Send a warning message to the user who is at risk of being blacklisted for sending
-        -- too many messages.
-            message,
-            string.format(
-                'Hey %s, please don\'t send that many messages, or you\'ll be forbidden to use me for 24 hours!',
-                message.from.username and '@' .. message.from.username or message.from.name
-            )
+    if #redis:keys('antispam:'..message.chat.id..':'..message.from.id..':delete') > 0 then
+        mattata.delete_message(
+            message.chat.id,
+            message.message_id
         )
-    elseif messages == 15 -- If the user has sent 15 messages in the past 5 seconds, blacklist them globally from
-    -- using the bot for 24 hours.
-    and not mattata.is_global_admin(message.from.id) -- Don't blacklist the user if they are configured as a global
-    -- admin in `configuration.lua`.
-    then
+    end
+    local language = dofile('languages/' .. mattata.get_user_language(message.from.id) .. '.lua')
+    if message.chat.id and mattata.is_group(message) and mattata.get_setting(message.chat.id, 'force group language') then
+        language = dofile('languages/' .. (mattata.get_value(message.chat.id, 'group language') or 'en_gb') .. '.lua')
+    end
+    if message.chat.type == "private" or message.text:match('^[/!#]')  then
+        if message.chat and message.chat.title and message.chat.title:match('[Pp][Oo][Nn][Zz][Ii]') and message.chat.type ~= 'private' then
+            mattata.leave_chat(message.chat.id)
+            return true -- Ponzi scheme groups are considered a negative influence on the bot's
+            -- reputation and performance, so we'll leave the group and start processing the next update.
+            -- TODO: Implement a better detection that just matching the title for the word "PONZI".
+        end
+        local msg_count = tonumber(
+            redis:get('antispam:' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
+            -- has already sent 1 or more messages to the current chat, in the past 5 seconds.
+        ) or 1 -- If this is the first time the user has posted in the past 5 seconds, we'll make it 1 accordingly.
         redis:setex(
-            'global_blacklist:' .. message.from.id,
-            86400,
-            true
+            'antispam:' .. message.chat.id .. ':' .. message.from.id,
+            5, -- Set the time to live to 5 seconds.
+            msg_count + 1 -- Increase the current message count by 1.
         )
-        mattata.send_reply(
-            message,
-            string.format(
-                'Sorry, %s, but you have been blacklisted from using me for the next 24 hours because you have been spamming!',
-                message.from.username and '@' .. message.from.username or message.from.name
+        if msg_count == 5 -- If the user has sent 5 messages in the past 5 seconds, send them a warning.
+        and not mattata.is_global_admin(message.from.id)then
+        -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
+            mattata.send_reply( -- Send a warning message to the user who is at risk of being blacklisted for sending
+            -- too many messages.
+                message,
+                string.format(
+                    'Hey %s, please don\'t send that many messages, or you\'ll be forbidden to use me for 24 hours!',
+                    message.from.username and '@' .. message.from.username or message.from.name
+                )
             )
-        )
-        return true
+        elseif msg_count == 10 -- If the user has sent 10 messages in the past 5 seconds, blacklist them globally from
+        -- using the bot for 24 hours.
+        and not mattata.is_global_admin(message.from.id) -- Don't blacklist the user if they are configured as a global
+        -- admin in `configuration.lua`.
+        then
+            redis:setex('global_blacklist:' .. message.from.id, 86400, true)
+            mattata.send_reply(
+                message,
+                string.format(
+                    'Sorry, %s, but you have been blacklisted from using me for the next 24 hours because you have been spamming!',
+                    message.from.username and '@' .. message.from.username or message.from.name
+                )
+            )
+            return true
+        end
+        return false
+    else
+        if message.chat.type ~= 'supergroup' then
+            return false, 'The chat is not a supergroup!'
+        elseif mattata.is_group_admin(message.chat.id, message.from.id) then
+            return false, 'That user is an admin/mod in this chat!'
+        elseif mattata.is_global_admin(message.from.id) then
+            return false, 'That user is a global admin!'
+        elseif not mattata.get_setting(message.chat.id, 'use administration') then
+            return false, 'The administration plugin is switched off in this chat!'
+        elseif not mattata.get_setting(message.chat.id, 'antispam') then
+            return false, 'The antispam plugin is switched off in this chat!'
+        elseif mattata.get_setting(message.chat.id, 'trusted permissions antispam') and mattata.is_trusted_user(message.chat.id, message.from.id) then
+            return false, 'That user is a trusted user and he has authorization to spam!'
+        end
+
+        local msg_count = tonumber(
+            redis:get('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
+            -- has already sent 1 or more messages to the current chat, in the past 5 seconds.
+        ) or 1 -- If this is the first time the user has posted in the past 5 seconds, we'll make it 1 accordingly.
+        --[[if message.photo and #message.photo > 1 then -- Handle albums
+            redis:setex(
+                'antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id,
+                5, -- Set the time to live to 5 seconds.
+                msg_count + #message.photo -- Increase the current message count by the number of photos.
+            )
+        else]]
+            redis:setex(
+                'antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id,
+                5, -- Set the time to live to 5 seconds.
+                msg_count + 1 -- Increase the current message count by 1.
+            )
+        --end
+        local antispam_delete_setting = 'antispam delete ' .. message.media_type
+        if mattata.get_setting(message.chat.id, antispam_delete_setting) then
+            redis:expire('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages', 5)
+            redis:sadd('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages', message.message_id)
+        end
+        local antispam = {}
+        antispam.default_values = { ['text'] = 8,['forwarded'] = 16,['sticker'] = 4, ['photo'] = 4,['video'] = 4,['document'] = 4,['location'] = 4,['voice'] = 4,['game'] = 2,['venue'] = 4,['video note'] = 4,['invoice'] = 2,['contact'] = 2 }
+        local msg_limit = mattata.get_value(message.chat.id, message.media_type .. ' limit') or antispam.default_values[message.media_type]
+        if msg_count == tonumber(msg_limit) and not mattata.is_global_admin(message.from.id) then -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
+            local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
+            local success, error_message = action(message.chat.id, message.from.id)
+            if not success then
+                return false, error_message
+            elseif mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(message.chat.id, 'log antispam') then
+                mattata.send_message(
+                    mattata.get_log_chat(message.chat.id),
+                    string.format(
+                        '#action #antispam #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                        mattata.escape_html(api.info.first_name),
+                        api.info.id,
+                        mattata.escape_html(message.from.first_name),
+                        message.from.id,
+                        mattata.escape_html(message.chat.title),
+                        message.chat.id,
+                        message.media_type
+                    ),
+                    'html'
+                )
+            end
+            if mattata.get_setting(message.chat.id, 'notify admins actions') then
+                for i, admin in pairs(mattata.get_chat_administrators(message.chat.id).result) do
+                    if not admin.username then
+                        mattata.send_message(
+                            admin.user.id,
+                            string.format(
+                                '#action #antispam #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                                mattata.escape_html(api.info.first_name),
+                                api.info.id,
+                                mattata.escape_html(message.from.first_name),
+                                message.from.id,
+                                mattata.escape_html(message.chat.title),
+                                message.chat.id,
+                                message.media_type
+                            ),
+                            'html'
+                        )
+                    elseif not admin.username:lower():match('bot$') then
+                        mattata.send_message(
+                            admin.user.id,
+                            string.format(
+                                '#action #antispam #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                                mattata.escape_html(api.info.first_name),
+                                api.info.id,
+                                mattata.escape_html(message.from.first_name),
+                                message.from.id,
+                                mattata.escape_html(message.chat.title),
+                                message.chat.id,
+                                message.media_type
+                            ),
+                            'html'
+                        )
+                     end
+                end
+            end
+            if mattata.get_setting(message.chat.id, antispam_delete_setting) then
+                for k, v in pairs(redis:smembers('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages')) do
+                    mattata.delete_message(
+                        message.chat.id,
+                        tonumber(v)
+                    )
+                    redis:srem('antispam:' .. message.media_type .. ':' .. message.chat.id .. ':' .. message.from.id .. ':messages', message.message_id)
+                    redis:setex('antispam:' .. message.chat.id .. ':' .. message.from.id .. ':delete', 10, "true")
+                end
+            end
+        end
+        return false
     end
-    return false
+    if message.media_type == 'rtl' and mattata.get_setting(message.chat.id, 'antirtl') then
+        if mattata.is_trusted_user(message.chat.id, message.from.id) and mattata.get_setting(message.chat.id, 'trusted permissions antirtl') then else
+            local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
+            local success, error_message = action(message.chat.id, message.from.id)
+            if not success then
+                return false, error_message
+            elseif mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(message.chat.id, 'log antirtl') then
+                mattata.send_message(
+                    mattata.get_log_chat(message.chat.id),
+                    string.format('#action #antirtl #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending messages with RTL writing</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id),
+                    'html'
+                )
+            end
+            if mattata.get_setting(message.chat.id, 'notify admins actions') then
+                for i, admin in pairs(mattata.get_chat_administrators(message.chat.id).result) do
+                  if not admin.username then
+                      mattata.send_message(
+                          admin.user.id,
+                          string.format(
+                              '#action #antirtl #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                              mattata.escape_html(api.info.first_name),
+                              api.info.id,
+                              mattata.escape_html(message.from.first_name),
+                              message.from.id,
+                              mattata.escape_html(message.chat.title),
+                              message.chat.id,
+                              message.media_type
+                          ),
+                          'html'
+                      )
+                  elseif not admin.username:lower():match('bot$') then
+                      mattata.send_message(
+                          admin.user.id,
+                          string.format('#action #antirtl #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending messages with RTL writing</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id),
+                          'html'
+                      )
+                   end
+                end
+            end
+        end
+    end
 end
 
 function mattata:process_language(message)
@@ -1276,115 +1242,31 @@ function mattata.process_deeplinks(message)
     end
 end
 
-function mattata.toggle_setting(chat_id, setting, value)
-    value = (type(value) ~= 'string' and tostring(value) ~= 'nil') and value or true
-    if not chat_id or not setting then
-        return false
-    elseif not redis:hexists('chat:' .. chat_id .. ':settings', tostring(setting)) then
-        return redis:hset('chat:' .. chat_id .. ':settings', tostring(setting), value)
-    end
-    return redis:hdel('chat:' .. chat_id .. ':settings', tostring(setting))
-end
+--[[ function mattata.isX(imageUrl)
+   local api_key = configuration.keys.mashape
+   if isempty(api_key) then
+      return nil, 'Configure your Mashape API Key'
+   end
 
-function mattata.get_usernames(user_id)
-    if not user_id then
-        return false
-    elseif tonumber(user_id) == nil then
-        user_id = tostring(user_id):match('^@(.-)$') or tostring(user_id)
-        user_id = redis:get('username:' .. user_id:lower())
-        if not user_id then
-            return false
-        end
-    end
-    return redis:smembers('user:' .. user_id .. ':usernames')
-end
-
-function mattata.check_links(message, get_links, only_valid, whitelist)
-    local links = {}
-    if message.entities then
-        for i = 1, #message.entities do
-            if message.entities[i].type == 'text_link' then
-                message.text = message.text .. ' ' .. message.entities[i].url
-            end
-        end
-    end
-    for n in message.text:lower():gmatch('%@[%w_]+') do
-        table.insert(links, n:match('^%@([%w_]+)$'))
-    end
-    for n in message.text:lower():gmatch('t%.me/joinchat/[%w_]+') do
-        table.insert(links, n:match('/(joinchat/[%w_]+)$'))
-    end
-    for n in message.text:lower():gmatch('t%.me/[%w_]+') do
-        if not n:match('/joinchat$') then
-            table.insert(links, n:match('/([%w_]+)$'))
-        end
-    end
-    for n in message.text:lower():gmatch('telegram%.me/joinchat/[%w_]+') do
-        table.insert(links, n:match('/(joinchat/[%w_]+)$'))
-    end
-    for n in message.text:lower():gmatch('telegram%.me/[%w_]+') do
-        if not n:match('/joinchat$') then
-            table.insert(links, n:match('/([%w_]+)$'))
-        end
-    end
-    for n in message.text:lower():gmatch('telegram%.dog/joinchat/[%w_]+') do
-        table.insert(links, n:match('/(joinchat/[%w_]+)$'))
-    end
-    for n in message.text:lower():gmatch('telegram%.dog/[%w_]+') do
-        if not n:match('/joinchat$') then
-            table.insert(links, n:match('/([%w_]+)$'))
-        end
-    end
-    if whitelist then
-        local count = 0
-        for k, v in pairs(links) do
-            redis:set('whitelisted_links:' .. message.chat.id .. ':' .. v:lower(), true)
-            count = count + 1
-        end
-        return string.format(
-            '%s link%s ha%s been whitelisted in this chat!',
-            count,
-            count == 1 and '' or 's',
-            count == 1 and 's' or 've'
-        )
-    end
-    local checked = {}
-    local valid = {}
-    for k, v in pairs(links) do
-        if not redis:get('whitelisted_links:' .. message.chat.id .. ':' .. v:lower()) and not mattata.is_whitelisted_link(v:lower()) then
-            if v:match('^joinchat/') then
-                return true
-            elseif not table.contains(checked, v:lower()) then
-                local success = mattata.get_chat(v:lower())
-                if success and success.result and success.result.type ~= 'private' then
-                    if not get_links then
-                        return true
-                    end
-                    table.insert(valid, v:lower())
-                end
-                table.insert(checked, v:lower())
-            end
-        end
-    end
-    if get_links then
-        if only_valid then
-            return valid
-        end
-        return checked
-    end
-    return false
-end
-
-function mattata.is_whitelisted_link(link)
-    if link == 'username' or link == 'isiswatch' or link == 'mattata' or link == 'telegram' then
-        return true
-    end
-    return false
-end
-
-function mattata.uses_administration(chat_id)
-    return mattata.get_setting(message.chat.id, 'use administration')
-end
+   local api = "https://sphirelabs-advanced-porn-nudity-and-adult-content-detection.p.mashape.com/v1/get/index.php"
+   local parameters = "?url="..(URL.escape(imageUrl) or "")
+   local url = api..parameters
+   local respbody = {}
+   local headers = {
+      ["X-Mashape-Key"] = api_key,
+      ["Accept"] = "Accept: application/json"
+   }
+   local body, code, headers, status = https.request{
+      url = url,
+      method = "GET",
+      headers = headers,
+      sink = ltn12.sink.table(respbody),
+      protocol = "tlsv1"
+   }
+   if code ~= 200 then return "", code end
+   local body = table.concat(respbody)
+   return body, code
+end ]]
 
 function mattata:process_message()
     local message = self.message
@@ -1404,122 +1286,201 @@ function mattata:process_message()
     if message.chat and message.chat.type ~= 'private' and not mattata.service_message(message) and not mattata.is_plugin_disabled('statistics', message.chat.id) and not mattata.is_privacy_enabled(message.from.id) then
         redis:incr('messages:' .. message.from.id .. ':' .. message.chat.id)
     end
-    if message.new_chat_members and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'antibot') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) then
-        local kicked = {}
-        local usernames = {}
-        for k, v in pairs(message.new_chat_members) do
-            if v.username and v.username:lower():match('bot$') and v.id ~= message.from.id and v.id ~= self.info.id and tostring(v.is_bot) == 'true' then
-                local success = mattata.kick_chat_member(message.chat.id, v.id)
-                if success then
-                    table.insert(kicked, mattata.escape_html(v.first_name) .. ' [' .. v.id .. ']')
-                    table.insert(usernames, '@' .. v.username)
-                end
-            end
-        end
-        if #kicked > 0 and #usernames > 0 and #kicked == #usernames then
-            local log_chat = mattata.get_log_chat(message.chat.id)
-            mattata.send_message(log_chat, string.format('<pre>%s [%s] has kicked %s from %s [%s] because anti-bot is enabled.</pre>', mattata.escape_html(self.info.first_name), self.info.id, table.concat(kicked, ', '), mattata.escape_html(message.chat.title), message.chat.id), 'html')
-            return mattata.send_message(message, string.format('Kicked %s because anti-bot is enabled.', table.concat(usernames, ', ')))
+    -- Just in case Telegram doesn't work properly, BarrePolice will delete messages manually from muted users
+    if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.is_muted_user(message.chat.id, message.from.id) then
+        mattata.delete_message(message.chat.id, message.message_id)
+    end
+    if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.is_muted_group(message.chat.id) then
+        if mattata.get_setting(message.chat.id, 'trusted permissions muteall') and mattata.is_trusted_user(message.chat.id, message.from.id) then else
+            mattata.delete_message(message.chat.id, message.message_id)
         end
     end
-    if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'word filter') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) then
-        local words = redis:smembers('word_filter:' .. message.chat.id)
-        if words and #words > 0 then
-            for k, v in pairs(words) do
-                local text = message.text:lower()
-                if text:match('^' .. v:lower() .. '$') or text:match('^' .. v:lower() .. ' ') or text:match(' ' .. v:lower() .. ' ') or text:match(' ' .. v:lower() .. '$') then
-                    mattata.delete_message(message.chat.id, message.message_id)
-                    local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
-                    local success = action(message.chat.id, message.from.id)
+    if message.new_chat_members and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'antibot') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) then
+        if mattata.is_trusted_user(message.chat.id, message.from.id) and mattata.get_setting(message.chat.id, 'trusted permissions antibot') then else
+            local kicked = {}
+            local usernames = {}
+            for k, v in pairs(message.new_chat_members) do
+                if v.username and v.username:lower():match('bot$') and v.id ~= message.from.id and v.id ~= self.info.id and tostring(v.is_bot) == 'true' then
+                    local success = mattata.kick_chat_member(message.chat.id, v.id)
                     if success then
-                        if mattata.get_setting(message.chat.id, 'log administrative actions') then
-                            local log_chat = mattata.get_log_chat(message.chat.id)
-                            mattata.send_message(log_chat, string.format('<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending one or more prohibited words.</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
-                        end
-                        mattata.send_message(message.chat.id, string.format('Kicked %s for sending one or more prohibited words.', message.from.username and '@' .. message.from.username or message.from.first_name))
-                        break_cycle = true
+                        table.insert(kicked, mattata.escape_html(v.first_name) .. ' [' .. v.id .. ']')
+                        table.insert(usernames, '@' .. v.username)
                     end
                 end
             end
-            if break_cycle then return true end
-        end
-    end
-    if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'antilink') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.check_links(message) then
-        local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
-        local success = action(message.chat.id, message.from.id)
-        if success then
-            if mattata.get_setting(message.chat.id, 'log administrative actions') then
+            if #kicked > 0 and #usernames > 0 and #kicked == #usernames then
                 local log_chat = mattata.get_log_chat(message.chat.id)
-                mattata.send_message(log_chat, string.format('<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending Telegram invite link(s)</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
+                mattata.send_message(log_chat, string.format('#action #antibot #admin_'..self.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s from %s [%s] because anti-bot is enabled.</pre>', mattata.escape_html(self.info.first_name), self.info.id, table.concat(kicked, ', '), mattata.escape_html(message.chat.title), message.chat.id), 'html')
+                if mattata.get_setting(message.chat.id, 'notify admins actions') then
+                    for i, admin in pairs(mattata.get_chat_administrators(message.chat.id).result) do
+                      if not admin.username then
+                          mattata.send_message(
+                              admin.user.id,
+                              string.format(
+                                  '#action #antibot #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                                  mattata.escape_html(api.info.first_name),
+                                  api.info.id,
+                                  mattata.escape_html(message.from.first_name),
+                                  message.from.id,
+                                  mattata.escape_html(message.chat.title),
+                                  message.chat.id,
+                                  message.media_type
+                              ),
+                              'html'
+                          )
+                      elseif not admin.username:lower():match('bot$') then
+                            mattata.send_message(
+                                admin.user.id,
+                                string.format('#action #antibot #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s from %s [%s] because anti-bot is enabled.</pre>', mattata.escape_html(self.info.first_name), self.info.id, table.concat(kicked, ', '), mattata.escape_html(message.chat.title), message.chat.id),
+                                'html'
+                            )
+                        end
+                    end
+                end
+                return mattata.send_message(message, string.format('Kicked %s because anti-bot is enabled.', table.concat(usernames, ', ')))
             end
-            return mattata.send_message(message.chat.id, string.format('Kicked %s for sending Telegram invite link(s).', message.from.username and '@' .. message.from.username or message.from.first_name))
         end
     end
-    if message.new_chat_members and message.chat.type ~= 'private' and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'welcome message') then
-        local name = message.new_chat_members[1].first_name
-        local first_name = mattata.escape_markdown(name)
-        if message.new_chat_members[1].last_name then
-            name = name .. ' ' .. message.new_chat_members[1].last_name
+    if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'word filter') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) then
+        if mattata.is_trusted_user(message.chat.id, message.from.id) and mattata.get_setting(message.chat.id, 'trusted permissions wordfilter') then else
+            local words = redis:smembers('word_filter:' .. message.chat.id)
+            if words and #words > 0 then
+                for k, v in pairs(words) do
+                    local text = message.text:lower()
+                    if text:match('^' .. v:lower() .. '$') or text:match('^' .. v:lower() .. ' ') or text:match(' ' .. v:lower() .. ' ') or text:match(' ' .. v:lower() .. '$') then
+                        mattata.delete_message(message.chat.id, message.message_id)
+                        local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
+                        local success = action(message.chat.id, message.from.id)
+                        if success then
+                            if mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(message.chat.id, 'log wordfilter') then
+                                local log_chat = mattata.get_log_chat(message.chat.id)
+                                mattata.send_message(log_chat, string.format('#action #wordfilter #admin_'..self.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending one or more prohibited words.</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
+                            end
+                            if mattata.get_setting(message.chat.id, 'notify admins actions') then
+                                for i, admin in pairs(mattata.get_chat_administrators(message.chat.id).result) do
+                                  if not admin.username then
+                                      mattata.send_message(
+                                          admin.user.id,
+                                          string.format(
+                                              '#action #wordfilter #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                                              mattata.escape_html(api.info.first_name),
+                                              api.info.id,
+                                              mattata.escape_html(message.from.first_name),
+                                              message.from.id,
+                                              mattata.escape_html(message.chat.title),
+                                              message.chat.id,
+                                              message.media_type
+                                          ),
+                                          'html'
+                                      )
+                                  elseif not admin.username:lower():match('bot$') then
+                                        mattata.send_message(
+                                            admin.user.id,
+                                            string.format('#action #wordfilter #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending one or more prohibited words.</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id),
+                                            'html'
+                                        )
+                                    end
+                                end
+                            end
+                            mattata.send_message(message.chat.id, string.format('Kicked %s for sending one or more prohibited words.', message.from.username and '@' .. message.from.username or message.from.first_name))
+                            break_cycle = true
+                        end
+                    end
+                end
+                if break_cycle then return true end
+            end
         end
-        name = name:gsub('%%', '%%%%')
-        name = mattata.escape_markdown(name)
-        local title = message.chat.title:gsub('%%', '%%%%')
-        title = mattata.escape_markdown(title)
-        local username = message.new_chat_members[1].username and '@' .. message.new_chat_members[1].username or name
-        local welcome_message = mattata.get_value(message.chat.id, 'welcome message') or configuration.join_messages
-        if type(welcome_message) == 'table' then
-            welcome_message = welcome_message[math.random(#welcome_message)]:gsub('NAME', name)
+    end
+    --[[ if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'anti porn') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and message.photo then
+        jsonlib = dofile('libs/json.lua')
+        local file = mattata.get_file(message.photo[#message.photo].file_id)
+        if not file then
+            return false
         end
-        welcome_message = welcome_message:gsub('%$user_id', message.new_chat_member.id):gsub('%$chat_id', message.chat.id):gsub('%$first_name', first_name):gsub('%$name', name):gsub('%$title', title):gsub('%$username', username)
-        local keyboard
-        if mattata.get_setting(message.chat.id, 'send rules on join') then
-            keyboard = mattata.inline_keyboard():row(mattata.row():url_button(utf8.char(128218) .. ' ' .. language['welcome']['1'], 'https://t.me/' .. self.info.username .. '?start=' .. message.chat.id .. '_rules'))
+        local request_url = string.format('https://api.telegram.org/file/bot%s/%s', configuration.bot_token, file.result.file_path)
+
+        local jsonBody = jsonlib:decode(mattata.isX(request_url))
+        local response = ""
+        if jsonBody["Error Occured"] ~= nil then
+           return false
+        elseif jsonBody["Is Porn"] == nil or jsonBody["Reason"] == nil then
+           return false
+        else
+           response = "Skin Colors Level: `" .. jsonBody["Skin Colors"] .. "`\nContains Bad Words: `" .. jsonBody["Is Contain Bad Words"] .. "`\n\n*Is Porn:* " .. jsonBody["Is Porn"] .. "\n*Reason:* _" .. jsonBody["Reason"] .. "_"
         end
-        return mattata.send_message(message, welcome_message, 'markdown', true, false, nil, keyboard)
+    end ]]
+    if message.chat.type == 'supergroup' and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'antilink') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) and mattata.check_links(message) then
+        if mattata.is_trusted_user(message.chat.id, message.from.id) and mattata.get_setting(message.chat.id, 'trusted permissions antilink') then else
+          local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
+          local success = action(message.chat.id, message.from.id)
+          if success then
+              if mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(message.chat.id, 'log antilink') then
+                  local log_chat = mattata.get_log_chat(message.chat.id)
+                  mattata.send_message(log_chat, string.format('#action #antilink #admin_'..self.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending Telegram invite link(s) from unauthorized groups/channels</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
+              end
+              if mattata.get_setting(message.chat.id, 'notify admins actions') then
+                  for i, admin in pairs(mattata.get_chat_administrators(message.chat.id).result) do
+                    if not admin.username then
+                        mattata.send_message(
+                            admin.user.id,
+                            string.format(
+                                '#action #antilink #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>' .. language['antispam']['6'] .. '</pre>',
+                                mattata.escape_html(api.info.first_name),
+                                api.info.id,
+                                mattata.escape_html(message.from.first_name),
+                                message.from.id,
+                                mattata.escape_html(message.chat.title),
+                                message.chat.id,
+                                message.media_type
+                            ),
+                            'html'
+                        )
+                    elseif not admin.username:lower():match('bot$') then
+                          mattata.send_message(
+                              admin.user.id,
+                              string.format('#action #antilink #admin_'..api.info.id..' #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has kicked %s [%s] from %s [%s] for sending Telegram invite link(s) from unauthorized groups/channels</pre>', mattata.escape_html(self.info.first_name), self.info.id, mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id),
+                              'html'
+                          )
+                      end
+                  end
+              end
+              mattata.delete_message(message.chat.id, message.message_id)
+              return mattata.send_message(message.chat.id, string.format('Kicked %s for sending Telegram invite link(s) from unauthorized groups/channels.', message.from.username and '@' .. message.from.username or message.from.first_name))
+          end
+       end
+    end
+    if message.new_chat_members and message.chat.type ~= 'private' and mattata.get_setting(message.chat.id, 'use administration') then
+        if mattata.get_setting(message.chat.id, 'welcome message') then
+            local name = message.new_chat_members[1].first_name
+            local first_name = mattata.escape_markdown(name)
+            if message.new_chat_members[1].last_name then
+                name = name .. ' ' .. message.new_chat_members[1].last_name
+            end
+            name = name:gsub('%%', '%%%%')
+            name = mattata.escape_markdown(name)
+            local title = message.chat.title:gsub('%%', '%%%%')
+            title = mattata.escape_markdown(title)
+            local username = message.new_chat_members[1].username and '@' .. message.new_chat_members[1].username or name
+            local welcome_message = mattata.get_value(message.chat.id, 'welcome message') or configuration.join_messages
+            if type(welcome_message) == 'table' then
+                welcome_message = welcome_message[math.random(#welcome_message)]:gsub('NAME', name)
+            end
+            welcome_message = welcome_message:gsub('%$user_id', message.new_chat_member.id):gsub('%$chat_id', message.chat.id):gsub('%$first_name', first_name):gsub('%$name', name):gsub('%$title', title):gsub('%$username', username)
+            local keyboard
+            if mattata.get_setting(message.chat.id, 'send rules on join') then
+                keyboard = mattata.inline_keyboard():row(mattata.row():url_button(utf8.char(128218) .. ' ' .. language['welcome']['1'], 'https://t.me/' .. self.info.username .. '?start=' .. message.chat.id .. '_rules'))
+            end
+            return mattata.send_message(message, welcome_message, 'markdown', true, false, nil, keyboard)
+        end
+        if mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'delete joingroup messages') then
+            mattata.delete_message(message.chat.id, message.message_id)
+        end
+        if mattata.get_setting(message.chat.id, 'log administrative actions') and mattata.get_setting(message.chat.id, 'log joingroup') then
+            local log_chat = mattata.get_log_chat(message.chat.id)
+            mattata.send_message(log_chat, string.format('#newmember #user_'..message.from.id..' #group_'..tostring(message.chat.id):gsub("%-", "")..'\n\n<pre>%s [%s] has joined %s [%s]</pre>', mattata.escape_html(message.from.first_name), message.from.id, mattata.escape_html(message.chat.title), message.chat.id), 'html')
+        end
     end
     return false
-end
-
-function mattata:get_message_statistics()
-    local message = self.message
-    local language = self.language
-    if not message or not language then
-        return language['errors']['generic']
-    end
-    local users = redis:smembers('chat:' .. message.chat.id .. ':users')
-    local user_info = {}
-    for i = 1, #users do
-        local user = mattata.get_user_message_statistics(users[i], message.chat.id)
-        if user.name and user.name ~= '' and user.messages > 0 and not mattata.is_privacy_enabled(user.id) then
-            table.insert(user_info, user)
-        end
-    end
-    table.sort(user_info, function(a, b)
-        if a.messages and b.messages then
-            return a.messages > b.messages
-        end
-    end)
-    local total = 0
-    for n, user in pairs(user_info) do
-        local message_count = user_info[n].messages
-        total = total + message_count
-    end
-    local text = ''
-    local output = {}
-    for i = 1, 10 do table.insert(output, user_info[i]) end
-    for k, v in pairs(output) do
-        local message_count = v.messages
-        local percent = tostring(mattata.round((message_count / total) * 100, 1))
-        text = text .. mattata.escape_html(v.name) .. ': <b>' .. mattata.comma_value(message_count) .. '</b> [' .. percent .. '%]\n'
-    end
-    if not text or text == '' then
-        return language['statistics']['1']
-    end
-    return string.format(language['statistics']['2'], mattata.escape_html(message.chat.title), text, mattata.comma_value(total))
-end
-
-function mattata.is_privacy_enabled(user_id)
-    return redis:exists('user:' .. user_id .. ':opt_out')
 end
 
 return mattata

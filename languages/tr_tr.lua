@@ -1,4 +1,4 @@
--- This is a language file for mattata
+-- This is a language file for BarrePolice
 -- Language: tr-tr
 -- Author: By_Azade
 
@@ -6,7 +6,7 @@
 -- THESE ARE PLACEHOLDERS!
 
 -- DO NOT CHANGE ANY MARKDOWN/HTML FORMATTING!
--- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/mattataDev)
+-- IF YOU ARE UNSURE, ASK ON TELEGRAM (t.me/BarrePolice)
 
 return {
     ['errors'] = {
@@ -48,7 +48,7 @@ return {
     ['ban'] = {
         ['1'] = 'Hangi kullanıcı banlamamı istersiniz? Bu kullanıcıyı @kulanıcıadı şeklinde veya kullanıcı IDsi ile belirtebilirsin.',
         ['2'] = 'Bu kullanıcıyı, bu sohbette bir moderatör veya yönetici oldukları için banlayamam.',
-        ['3'] = 'Bu sohbetten ayrıldığı için bu kullanıcıyı banyalamam.',
+        ['3'] = 'Bu sohbetten ayrıldığı için bu kullanıcıyı banlayamam.',
         ['4'] = 'Bu sohbetten zaten banlandıkları için bu kullanıcıyı banlayamam.',
         ['5'] = 'Bu kullanıcıyı banlamam için admin izinlerine sahip olmam gerekiyor. Lütfen bu sorunu düzeltip tekrar deneyin.'
     },
@@ -92,6 +92,18 @@ return {
         ['9'] = 'Evet eminim!',
         ['10'] = 'Bu mesaj geçersiz Markdown biçimlendirme içeriyor! Lütfen sözdiziminizi düzeltin ve tekrar deneyin.'
     },
+    ['chuck'] = {
+        ['1'] = 'Click to send the result.'
+    },
+    ['clickbait'] = {
+        ['1'] = 'Generate Another'
+    },
+    ['coinflip'] = {
+        ['1'] = 'The coin landed on:',
+        ['2'] = 'You were correct!',
+        ['3'] = 'You weren\'t correct, try again...',
+        ['4'] = 'Invalid arguments were given. You must specify your guess, it should be either \'heads\' or \'tails\'.'
+    },
     ['commandstats'] = {
         ['1'] = 'Bu sohbette hiçbir komut gönderilmedi!',
         ['2'] = '<b>Komut için istatistikler:</b> %s\n\n%s\n<b>Toplam göderilen komutlar:</b> %s',
@@ -125,8 +137,23 @@ return {
         ['3'] = 'Bu sohbetten zaten ayrıldıı, bu kullanıcının yetkisini alamam.',
         ['4'] = 'Bu kullanıcı daha önce bu sohbetten atılmış ulduğu için yetkisini almam mümkün değil.'
     },
+    ['dice'] = {
+        ['1'] = 'The minimum range is %s.',
+        ['2'] = 'The maximum range and count are both %s.',
+        ['3'] = 'The maximum range is %s, and the maximum count is %s.',
+        ['4'] = '%s rolls with a range of %s:\n'
+    },
     ['doge'] = {
         ['1'] = 'Lütfen Dogeify istediğiniz metni girin. Her cümle eğik çizgi veya yeni satırlar kullanılarak ayrılmalıdır.'
+    },
+    ['duckduckgo'] = {
+        ['1'] = 'I\'m not sure what that is!'
+    },
+    ['eightball'] = {
+        ['1'] = 'Yes.',
+        ['2'] = 'No.',
+        ['3'] = 'It is likely so.',
+        ['4'] = 'Well, uh... I\'d ask again later, if I were you.'
     },
     ['exec'] = {
         ['1'] = 'Lütfen kodunuzu yürütmek istediğiniz dili seçin:',
@@ -150,8 +177,15 @@ return {
         ['2'] = 'Lütfen bir arama sorgusu girin (Yani, Flickrı aramamı ne için istiyorsun, Örnek: "Kalem" kalem fotoğragları gösterilecek).',
         ['3'] = 'Daha fazla sonuç'
     },
+    ['fortune'] = {
+        ['1'] = 'Click to send your fortune!'
+    },
+    ['frombinary'] = {
+        ['1'] = 'Please enter the binary value you would like to convert to a string.',
+        ['2'] = 'Malformed binary!'
+    },
     ['game'] = {
-        ['1'] = 'Toplam kazanç: %s\nToplam kayıp: %s\nKalan: %s mattacoins',
+        ['1'] = 'Toplam kazanç: %s\nToplam kayıp: %s\nKalan: %s BarreCoins',
         ['2'] = 'Oyuna Katıl',
         ['3'] = 'Bu oyun zaten bitti!',
         ['4'] = 'Senin sıran değil!',
@@ -175,6 +209,11 @@ return {
     },
     ['gif'] = {
         ['1'] = 'Lütfen bir arama sorgusu girin (GIPHY de ne aramak istediğini belirt , örnek: "kedi" kedi ile ilgili olan GIF ler gösterilecek).'
+    },
+    ['godwords'] = {
+        ['1'] = 'Please enter a numerical value, between 1 and 64!',
+        ['2'] = 'That number is too small, please specify one between 1 and 64!',
+        ['3'] = 'That number is too large, please specify one between 1 and 64!'
     },
     ['gwhitelist'] = {
         ['1'] = 'Lütfen genel olarak beyaz listeye eklemek isteyen kullanıcıyı yanıtlayın, kullanıcı adı veya kimlik numarasına göre belirtin.',
@@ -277,6 +316,9 @@ Dağıtım:
 
 %s Kullanıcı Sayısı: %s
 %s Grup Sayısı: %s
+%s Received Messages Count: %s
+%s Received CallbackQueries Count: %s
+%s Received InlineQueries Count: %s
 
 Sistem:
 %s İşletim sistemi: %s
@@ -300,6 +342,11 @@ Sistem:
     },
     ['ispwned'] = {
         ['1'] = 'Bu hesap aşağıdaki sızıntılarda bulundu:'
+    },
+    ['isup'] = {
+        ['1'] = 'This website appears to be up, maybe it\'s just you?',
+        ['2'] = 'That doesn\'t appear to be a valid site!',
+        ['3'] = 'It\'s not just you, this website looks down from here.'
     },
     ['itunes'] = {
         ['1'] = 'İsim:',
@@ -329,6 +376,9 @@ Sistem:
         ['7'] = '%s en son dinlenilen:\n',
         ['8'] = 'Bilinmeyen',
         ['9'] = 'Sonuç göndermek için tıklayın.'
+    },
+    ['lmgtfy'] = {
+        ['1'] = 'Let me Google that for you!'
     },
     ['location'] = {
         ['1'] = 'Ayarlanmış konumunuz yok. Yeni konum ayarlamak ister misiniz?'
@@ -393,7 +443,7 @@ Sistem:
         ['18'] = 'Spotify hesabınızı yeniden yetkilendirirken bir hata oluştu.!',
         ['19'] = 'Spotify hesabınız başarılı bir şekilde yeniden yetkilendirildi! İsteğinizi işleme koyabilirsiniz....',
         ['20'] = 'Spotify hesabınızı yeniden yetkilendirilecek, lütfen bekleyin...',
-        ['21'] = 'Spotify hesabınızı bağlamak için mattatayı yetkilendirmeniz gerekir. Tıklayın [buraya](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) Mattatayı Spotify hesabınıza bağlamak için yeşil "Tamam" düğmesine basın. Bunu yaptıktan sonra, yönlendirilen bağlantıyı şu adrese gönderin: ("%s" ile başlamalı ve onu benzersiz bir kod takip etmelidir).',
+        ['21'] = 'Spotify hesabınızı bağlamak için BarrePoliceyı yetkilendirmeniz gerekir. Tıklayın [buraya](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read%%20playlist-read-private%%20playlist-read-collaborative%%20user-read-private%%20user-read-birthdate%%20user-read-email%%20user-follow-read%%20user-top-read%%20user-read-playback-state%%20user-read-recently-played%%20user-read-currently-playing%%20user-modify-playback-state) Mattatayı Spotify hesabınıza bağlamak için yeşil "Tamam" düğmesine basın. Bunu yaptıktan sonra, yönlendirilen bağlantıyı şu adrese gönderin: ("%s" ile başlamalı ve onu benzersiz bir kod takip etmelidir).',
         ['22'] = 'Çalma listeleri',
         ['23'] = 'Satıriçi Modu Kullan',
         ['24'] = 'Şarkı sözleri',
@@ -442,12 +492,24 @@ Sistem:
         ['1'] = 'Takma adınız şimdi unutuldu!',
         ['2'] = 'Takma adınız "%s"!'
     },
+    ['ninegag'] = {
+        ['1'] = 'Read More'
+    },
     ['optout'] = {
         ['1'] = 'Toplanan verileri göndermeyi için seçtiniz! /optout komutunu kullanın.',
         ['2'] = 'Toplanan verileri göndermekten vazgeçtiniz! Etkinleştirmek için /optin komutunu kullanın.'
     },
     ['paste'] = {
         ['1'] = 'Lütfen yapıştırma dosyanızı yüklemek için bir hizmet seçin:'
+    },
+    ['pay'] = {
+        ['1'] = 'You currently have %s BarreCoins. Earn more by winning games of Tic-Tac-Toe, using /game - You will win 100 BarreCoins for every game you win, and you will lose 50 for every game you lose.',
+        ['2'] = 'You must use this command in reply to the user you\'d like to send BarreCoins to.',
+        ['3'] = 'Please specify the amount of BarreCoins you\'d like to give %s.',
+        ['4'] = 'The amount specified should be a numerical value, of which can be no less than 0.',
+        ['5'] = 'You can\'t send money to yourself!',
+        ['6'] = 'You don\'t have enough funds to complete that transaction!',
+        ['7'] = '%s BarreCoins have been sent to %s. Your new balance is %s BarreCoins.'
     },
     ['pin'] = {
         ['1'] = 'Daha önce bir mesaj sabitlemediniz. /pin <yazı> komutunu kullanarak bir tane oluşturun.Yazı tipi türlerini destekler.',
@@ -460,6 +522,11 @@ Sistem:
     ['pokedex'] = {
         ['1'] = 'İsim: %s\nKimlik: %s\nTip: %s\nAçıklama: %s'
     },
+    ['prime'] = {
+        ['1'] = 'Please enter a number between 1 and 99999.',
+        ['2'] = '%s is a prime number!',
+        ['3'] = '%s is NOT a prime number...'
+    },
     ['promote'] = {
         ['1'] = 'Admini veya moderatörü yetkilendiremezsin.',
         ['2'] = 'Bu kullanıcıyı yetkilendiremiyorum çünkü bu sohbetten ayrılmış durumda.',
@@ -469,12 +536,22 @@ Sistem:
         ['1'] = 'Bu kullanıcı, veri saklama işlevini devre dışı bıraktı.',
         ['2'] = 'Bunun için kayıtlı söz yok! Onların gönderdikleri bir mesajı /save komutunu kullanarak kaydedebilirsiniz.'
     },
+    ['randomsite'] = {
+        ['1'] = 'Generate Another'
+    },
+    ['randomword'] = {
+        ['1'] = 'Generate Another',
+        ['2'] = 'Your random word is <b>%s</b>!'
+    },
     ['report'] = {
         ['1'] = 'Lütfen grubun yöneticilerine bildirmek istediğiniz iletiyi yanıtlayın.',
         ['2'] = 'Kendi mesajlarınızı bildiremezsiniz, sadece komik olmaya mı çalışıyorsunuz?',
-        ['3'] = '<b>%s içinde yardıma ihtiyacı var %s!</b>',
+        ['3'] = '<b>%s nun %s! içinde yardıma ihtiyacı var! </b>',
         ['4'] = 'Bildirilen mesajı görüntülemek için burayı tıklayın.',
         ['5'] = 'Bu mesajı  %s admin(ler) e başarıyla rapor ettim.!'
+    },
+    ['rms'] = {
+        ['1'] = 'Holy GNU!'
     },
     ['save'] = {
         ['1'] = 'Bu kullanıcı, veri saklama işlevini devre dışı bıraktı.',
@@ -537,6 +614,15 @@ Sistem:
         ['2'] = '"%s" Steam kullanıcı adı değil.',
         ['3'] = '%s Steam kullanıcısı %s, açık %s. En son kapattılanlar %s, açık %s. Tıkla <a href="%s">here</a> Steam profilini görüntüle.',
         ['4'] = '%s, AKA "%s",'
+    },
+    ['synonym'] = {
+        ['1'] = 'You could use the word <b>%s</b>, instead of %s.'
+    },
+    ['thoughts'] = {
+        ['1'] = '%s\n\nPositive: <code>%s%% [%s]</code>\nNegative: <code>%s%% [%s]</code>\nIndifferent: <code>%s%% [%s]</code>\nTotal thoughts: <code>%s</code>'
+    },
+    ['tobinary'] = {
+        ['1'] = 'Please enter the string you would like to convert to binary.'
     },
     ['trust'] = {
         ['1'] = 'Admini ve moderatörü güvenli olarak işaretleyemem.',

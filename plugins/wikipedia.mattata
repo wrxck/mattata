@@ -1,6 +1,6 @@
 --[[
     Based on a plugin by topkecleon.
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See ./LICENSE for details.
 ]]
 
@@ -13,9 +13,8 @@ local json = require('dkjson')
 function wikipedia:init()
     wikipedia.commands = mattata.commands(self.info.username)
     :command('wikipedia')
-    :command('wiki')
-    :command('w').table
-    wikipedia.help = '/wikipedia <query> - Searches Wikipedia for the given search query and returns the most relevant article. Aliases: /wiki, /w.'
+    :command('wiki').table
+    wikipedia.help = '/wikipedia <query> - Searches Wikipedia for the given search query and returns the most relevant article. Alias: /wiki.'
 end
 
 function wikipedia:on_message(message, configuration, language)

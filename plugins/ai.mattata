@@ -1,0 +1,22 @@
+--[[
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local ai = {}
+local mattata = require('mattata')
+local redis = dofile('libs/redis.lua')
+
+function ai:init()
+    ai.commands = mattata.commands(self.info.username):command('ai').table
+    ai.help = '/ai - Get @BarrePoliceBot stats.'
+end
+
+function ai:on_message(message, configuration, language)
+    local received_messages = redis:get('ai:received_messages')
+    local replied_messages = redis:get('ai:sent_replies')
+    local output = '<a href="https://t.me/BarrePoliceBot">BarrePolice AI</a> Statistics\n\n• <i>Messages Received</i>: <code>'..received_messages..'</code>\n•<i>Replies Sent</i>: <code>'..replied_messages..'</code>'
+    return mattata.send_reply(message, output, 'html')
+end
+
+return ai

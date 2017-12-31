@@ -1,10 +1,11 @@
 --[[
-    Copyright 2017 Matthew Hesketh <wrxck0@gmail.com>
+    Copyright 2017 Diego Barreiro <diego@makeroid.io>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local weather = {}
 local mattata = require('mattata')
+local redis = dofile('libs/redis.lua')
 local https = require('ssl.https')
 local http = require('socket.http')
 local url = require('socket.url')
@@ -74,7 +75,14 @@ function weather:on_message(message, configuration, language)
             )
         end
     end
-    local jstr, res = https.request('https://api.darksky.net/forecast/' .. configuration.keys.weather .. '/' .. latitude .. ',' .. longitude .. '?units=auto')
+    if (message.chat.type ~= "private" and redis:hget('chat:' .. message.chat.id .. ':values','group language')) then
+        locale = redis:hget('chat:' .. message.chat.id .. ':values','group language'):gsub("(.*)_.*$","%1")
+    elseif (message.chat.type == "priate" and redis:hget('chat:' .. message.from.id .. ':settings', 'language')) or (message.chat.type ~= "private" and not mattata.get_setting(message.chat.id, 'force group language')) then
+        locale = redis:hget('chat:' .. message.from.id .. ':settings', 'language'):gsub("(.*)_.*$","%1")
+    else
+        locale = "en"
+    end
+    local jstr, res = https.request('https://api.darksky.net/forecast/' .. configuration.keys.weather .. '/' .. latitude .. ',' .. longitude .. '?units=auto&lang='..locale)
     if res ~= 200
     then
         return mattata.send_reply(
