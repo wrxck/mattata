@@ -530,7 +530,7 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
             )
         else
             local input_data = input:sub(6, -1):gsub("#", "")
-            if input_data:gsub("%s+", "") == "" and redis:hget('clashroyale:' .. message.from.id, 'player') then
+            if input_data:gsub("%s+", "") == "" and redis:hget('clashroyale:' .. inline_query.from.id, 'player') then
                 json_data = clashroyale.request(configuration.keys.clashroyale, "clan", (clashroyale.request(configuration.keys.clashroyale, "player", redis:hget('clashroyale:' .. message.from.id, 'player'))).clan.tag)
                 local text, keyboard = clashroyale.parse_clan(json_data, 1)
                 return mattata.answer_inline_query(
