@@ -488,20 +488,22 @@ end
 
 
 function clashroyale:on_inline_query(inline_query, configuration, language)
-    local input = mattata.input(inline_query.query)urn
-    end
-    return mattata.answer_inline_query(
-        inline_query.id,
-        mattata.inline_result()
-        :id()
-        :type('article')
-        :title("Usage")
-        :description("/cr <player>/<clan>")
-        :input_message_content(
-            mattata.input_text_message_content(clashroyale.help, true)
+    local input = mattata.input(inline_query.query)
+
+    if not input then
+        return mattata.answer_inline_query(
+            inline_query.id,
+            mattata.inline_result()
+            :id()
+            :type('article')
+            :title("Usage")
+            :description("/cr <player>/<clan>")
+            :input_message_content(
+                mattata.input_text_message_content(clashroyale.help, true)
+            )
+            :reply_markup(keyboard)
         )
-        :reply_markup(keyboard)
-    )
+    end
 
     if input:match('^player') then
         local json_data = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
