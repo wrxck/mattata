@@ -555,7 +555,7 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
             mattata.inline_result()
             :id()
             :type('article')
-            :title(version)
+            :title("lol")
             :input_message_content(
                 mattata.input_text_message_content("Clash Royale API `" .. version .. "`\n\n_For further support, contact_ [@Barreeeiroo](https://t.me/Barreeeiroo)", false, 'markown')
             )
