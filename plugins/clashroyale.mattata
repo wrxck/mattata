@@ -135,7 +135,7 @@ function clashroyale.parse_player_clan(data)
     end
 
     local keyboard = mattata.inline_keyboard()
-    :row(mattata.row():callback_data_button('View Clan Info', 'clashroyale:clan:' .. data.clan.tag):switch_inline_query_button('Share Clan', '/cr clan #' .. data.tag))
+    :row(mattata.row():callback_data_button('View Clan Info', 'clashroyale:clan:' .. data.clan.tag):switch_inline_query_button('Share Clan', '/cr clan #' .. data.clan.tag))
     :row(mattata.row():callback_data_button('Back', 'clashroyale:player:' .. data.tag .. ':back'))
 
     return output, keyboard
@@ -484,7 +484,7 @@ function clashroyale.parse_clan_player(data, player, page)
     output = output.. "Donations Given: <code>" .. math.floor(tonumber(data.members[player].donations)) .. "</code> | Donations Received: <code>" .. math.floor(tonumber(data.members[player].donationsReceived)) .. "</code>"
 
     local keyboard = mattata.inline_keyboard()
-    :row(mattata.row():callback_data_button('View Detailed Player Info', 'clashroyale:player:' .. data.members[player].tag))
+    :row(mattata.row():callback_data_button('View Detailed Player Info', 'clashroyale:player:' .. data.members[player].tag):switch_inline_query_button('Share Player', '/cr player #' .. data.members[player].tag))
     :row(mattata.row():callback_data_button('Back', 'clashroyale:clan:' .. data.tag .. ':info:' .. math.floor(page)))
 
     return output, keyboard
@@ -504,7 +504,7 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
             :title("Usage")
             :description("/cr <player>/<clan>")
             :input_message_content(
-                mattata.input_text_message_content(clashroyale.help, true)
+                mattata.input_text_message_content(clashroyale.help)
             )
             :reply_markup(keyboard)
         )
@@ -651,7 +651,7 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
             :type('article')
             :title("player | clan | version")
             :input_message_content(
-                mattata.input_text_message_content(clashroyale.help, true)
+                mattata.input_text_message_content(clashroyale.help)
             )
         )
     end
@@ -733,7 +733,7 @@ end
 function clashroyale:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     if not input then
-        return mattata.send_reply(message, clashroyale.help, 'markdown')
+        return mattata.send_reply(message, clashroyale.help)
     end
 
     if input:match('^player') then
@@ -790,7 +790,7 @@ function clashroyale:on_message(message, configuration, language)
     elseif input:match('^version') then
         return mattata.send_reply(message, "Clash Royale API `" .. clashroyale.request(configuration.keys.clashroyale, "version") .. "`\n\n_For further support, contact_ [@Barreeeiroo](https://t.me/Barreeeiroo)", 'markdown')
     else
-        return mattata.send_reply(message, clashroyale.help, 'markdown')
+        return mattata.send_reply(message, clashroyale.help)
     end
 end
 
