@@ -429,7 +429,7 @@ function clashroyale.parse_clan(data, page)
             pages = math.floor(pages)
         end
         table.insert(keyboard.inline_keyboard,
-        { {['text'] = "CLAN MEMBES", ['callback_data'] = 'clashroyale:nil'} })
+        { {['text'] = "CLAN MEMBERS", ['callback_data'] = 'clashroyale:nil'} })
         if tonumber(page) ~= pages then
             for k = (((page-1)*5)+1), (page*5) do
                 table.insert(keyboard.inline_keyboard,
@@ -530,10 +530,20 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
             )
         else
             local input_data = input:sub(6, -1):gsub("#", "")
-            if input_data:gsub("%s+", "") == "" then
+            if input_data:gsub("%s+", "") == "" and redis:hget('clashroyale:' .. message.from.id, 'player') then
                 json_data = clashroyale.request(configuration.keys.clashroyale, "clan", (clashroyale.request(configuration.keys.clashroyale, "player", redis:hget('clashroyale:' .. message.from.id, 'player'))).clan.tag)
                 local text, keyboard = clashroyale.parse_clan(json_data, 1)
-                return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+                return mattata.answer_inline_query(
+                    inline_query.id,
+                    mattata.inline_result()
+                    :id()
+                    :type('article')
+                    :title("My Clan")
+                    :input_message_content(
+                        mattata.input_text_message_content(text, 'html')
+                    )
+                    :reply_markup(keyboard)
+                )
             else
                 local trophies = input_data:match('trophies=(%d+)') or ""
                 local min_members = input_data:match('min=(%d+)') or ""
@@ -543,9 +553,28 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
                 json_data = clashroyale.request(configuration.keys.clashroyale, "clan_search", content)
                 if #json_data > 0 then
                     local text, keyboard = clashroyale.parse_clan_search(json_data, content, 1)
-                    return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+                    return mattata.answer_inline_query(
+                        inline_query.id,
+                        mattata.inline_result()
+                        :id()
+                        :type('article')
+                        :title("Clan Search for " .. input_data)
+                        :input_message_content(
+                            mattata.input_text_message_content(text, 'html')
+                        )
+                        :reply_markup(keyboard)
+                    )
                 else
-                    return mattata.send_reply(message, language['errors']['results'])
+                return mattata.answer_inline_query(
+                    inline_query.id,
+                    mattata.inline_result()
+                    :id()
+                    :type('article')
+                    :title("Error")
+                    :input_message_content(
+                        mattata.input_text_message_content(language['error']['results'], 'html')
+                    )
+                )
                 end
             end
         end
@@ -686,7 +715,7 @@ function clashroyale:on_message(message, configuration, language)
             return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
         else
             local input_data = input:sub(6, -1):gsub("#", "")
-            if input_data:gsub("%s+", "") == "" then
+            if input_data:gsub("%s+", "") == "" and redis:hget('clashroyale:' .. message.from.id, 'player') then
                 json_data = clashroyale.request(configuration.keys.clashroyale, "clan", (clashroyale.request(configuration.keys.clashroyale, "player", redis:hget('clashroyale:' .. message.from.id, 'player'))).clan.tag)
                 local text, keyboard = clashroyale.parse_clan(json_data, 1)
                 return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
