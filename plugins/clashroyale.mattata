@@ -487,6 +487,93 @@ end
 
 
 
+function clashroyale:on_inline_query(inline_query, configuration, language)
+    local input = mattata.input(inline_query.query)
+    if not input
+    then
+        return
+    end
+    if not input then
+        return mattata.send_reply(message, clashroyale.help)
+    end
+
+    if input:match('^player') then
+        local json_data = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
+        if json_data and json_data.tag then
+            local text, keyboard = clashroyale.parse_player(json_data)
+            return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+        else
+            if redis:hget('clashroyale:' .. message.from.id, 'player') then
+                local json_data = clashroyale.request(configuration.keys.clashroyale, "player", redis:hget('clashroyale:' .. message.from.id, 'player'))
+                local text, keyboard = clashroyale.parse_player(json_data)
+                return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+            else
+                return mattata.send_reply(message, language['errors']['results'])
+            end
+        end
+    elseif input:match('^clan') then
+        local json_data = clashroyale.request(configuration.keys.clashroyale, "clan", input:gsub("%s+", ""):gsub("clan", ""):gsub("#", ""))
+        if json_data and json_data.tag then
+            local text, keyboard = clashroyale.parse_clan(json_data, 1)
+            return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+        else
+            local input_data = input:sub(6, -1):gsub("#", "")
+            if input_data:gsub("%s+", "") == "" then
+                json_data = clashroyale.request(configuration.keys.clashroyale, "clan", (clashroyale.request(configuration.keys.clashroyale, "player", redis:hget('clashroyale:' .. message.from.id, 'player'))).clan.tag)
+                local text, keyboard = clashroyale.parse_clan(json_data, 1)
+                return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+            else
+                local trophies = input_data:match('trophies=(%d+)') or ""
+                local min_members = input_data:match('min=(%d+)') or ""
+                local max_members = input_data:match('max=(%d+)') or ""
+                input_data = input_data:gsub(' trophies=' .. trophies, ""):gsub(' max=' .. max_members, ""):gsub(' min=' .. min_members, "")
+                local content = url.escape(input_data) .. (trophies ~= "" and "&score="..trophies or "") .. (min_members ~= "" and "&minMembers="..min_members or "") .. (max_members ~= "" and "&maxMembers="..max_members or "")
+                json_data = clashroyale.request(configuration.keys.clashroyale, "clan_search", content)
+                if #json_data > 0 then
+                    local text, keyboard = clashroyale.parse_clan_search(json_data, content, 1)
+                    return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+                else
+                    return mattata.send_reply(message, language['errors']['results'])
+                end
+            end
+        end
+    elseif input:match('^save') then
+        local tag = input:gsub("%s+", ""):gsub("save", ""):gsub("#", "")
+        local json_data = clashroyale.request(configuration.keys.clashroyale, "player", tag)
+        if json_data and json_data.tag and json_data.clan then
+            redis:hset('clashroyale:' .. message.from.id, 'player', json_data.tag)
+            return mattata.send_message(message, "Your player info has been saved as <i>" .. mattata.escape_html(json_data.name) .. "</i>", 'html', false, false, message.message_id)
+        elseif json_data and json_data.tag and not json_data.clan then
+            return mattata.send_message(message, "You gave me the ID of a clan!", 'html', false, false, message.message_id)
+        else
+            return mattata.send_reply(message, language['errors']['results'])
+        end
+    elseif input:match('^version') then
+        return mattata.answer_inline_query(
+            inline_query.id,
+            mattata.inline_result()
+            :id()
+            :type('article')
+            :title("Error")
+            :input_message_content(
+                mattata.input_text_message_content("Clash Royale API `" .. clashroyale.request(configuration.keys.clashroyale, "version") .. "`\n\n_For further support, contact_ [@Barreeeiroo](https://t.me/Barreeeiroo)")
+            )
+        )
+    else
+        return mattata.answer_inline_query(
+            inline_query.id,
+            mattata.inline_result()
+            :id()
+            :type('article')
+            :title("Error")
+            :input_message_content(
+                mattata.input_text_message_content(clashroyale.help)
+            )
+        )
+    end
+end
+
+
 function clashroyale:on_callback_query(callback_query, message, configuration)
     if callback_query.data == 'nil'
     then
