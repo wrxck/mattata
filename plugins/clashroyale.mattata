@@ -503,14 +503,44 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
         local json_data = clashroyale.request(configuration.keys.clashroyale, "player", input:gsub("%s+", ""):gsub("player", ""):gsub("#", ""))
         if json_data and json_data.tag then
             local text, keyboard = clashroyale.parse_player(json_data)
-            return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+            return mattata.answer_inline_query(
+                inline_query.id,
+                mattata.inline_result()
+                :id()
+                :type('article')
+                :title("Player #" .. input:gsub("%s+", ""):gsub("clan", ""):gsub("#", ""))
+                :input_message_content(
+                    mattata.input_text_message_content(text, 'html')
+                )
+                :reply_markup(keyboard)
+            )
         else
             if redis:hget('clashroyale:' .. message.from.id, 'player') then
                 local json_data = clashroyale.request(configuration.keys.clashroyale, "player", redis:hget('clashroyale:' .. message.from.id, 'player'))
                 local text, keyboard = clashroyale.parse_player(json_data)
-                return mattata.send_message(message, text, 'html', false, false, message.message_id, keyboard)
+                return mattata.answer_inline_query(
+                    inline_query.id,
+                    mattata.inline_result()
+                    :id()
+                    :type('article')
+                    :title("My ClashRoyale Profile")
+                    :input_message_content(
+                        mattata.input_text_message_content(text, 'html')
+                    )
+                    :reply_markup(keyboard)
+                )
             else
-                return mattata.send_reply(message, language['errors']['results'])
+                return mattata.answer_inline_query(
+                    inline_query.id,
+                    mattata.inline_result()
+                    :id()
+                    :type('article')
+                    :title("Error")
+                    :description(language['error']['results'])
+                    :input_message_content(
+                        mattata.input_text_message_content(language['error']['results'], 'html')
+                    )
+                )
             end
         end
     elseif input:match('^clan') then
@@ -571,6 +601,7 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
                     :id()
                     :type('article')
                     :title("Error")
+                    :description(language['error']['results'])
                     :input_message_content(
                         mattata.input_text_message_content(language['error']['results'], 'html')
                     )
