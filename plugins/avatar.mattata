@@ -14,10 +14,8 @@ function avatar:init()
 end
 
 function avatar:on_inline_query(inline_query, configuration, language)
-    print(inline_query.query)
     local input = mattata.input(inline_query.query)
     or inline_query.from.id
-    print(input)
     local selected_photo = false
     if tostring(input):match('^.- %d*$')
     then
