@@ -547,9 +547,9 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
                     :id()
                     :type('article')
                     :title("Error")
-                    :description(language['error']['results'])
+                    :description(language['errors']['results'])
                     :input_message_content(
-                        mattata.input_text_message_content(language['error']['results'], 'html')
+                        mattata.input_text_message_content(language['errors']['results'], 'html')
                     )
                 )
             end
@@ -612,9 +612,9 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
                     :id()
                     :type('article')
                     :title("Error")
-                    :description(language['error']['results'])
+                    :description(language['errors']['results'])
                     :input_message_content(
-                        mattata.input_text_message_content(language['error']['results'], 'html')
+                        mattata.input_text_message_content(language['errors']['results'], 'html')
                     )
                 )
                 end
