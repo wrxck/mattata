@@ -549,14 +549,16 @@ function clashroyale:on_inline_query(inline_query, configuration, language)
             return mattata.send_reply(message, language['errors']['results'])
         end
     elseif input:match('^version') then
+        local version = clashroyale.request(configuration.keys.clashroyale, "version")
+        print(version)
         return mattata.answer_inline_query(
             inline_query.id,
             mattata.inline_result()
             :id()
             :type('article')
-            :title("Error")
+            :title(version)
             :input_message_content(
-                mattata.input_text_message_content("Clash Royale API `" .. clashroyale.request(configuration.keys.clashroyale, "version") .. "`\n\n_For further support, contact_ [@Barreeeiroo](https://t.me/Barreeeiroo)")
+                mattata.input_text_message_content("Clash Royale API `" .. version .. "`\n\n_For further support, contact_ [@Barreeeiroo](https://t.me/Barreeeiroo)", false, true)
             )
         )
     else
