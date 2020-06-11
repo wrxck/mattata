@@ -40,46 +40,39 @@ function utils.get_log_chat(chat_id)
     return configuration.log_channel or false
 end
 
-function utils.set_captcha(chat_id, user_id, id, text, original_message, is_inline)
+function utils.set_captcha(chat_id, user_id, id, text, original_message)
     local hash = string.format('chat:%s:captcha:%s', chat_id, user_id)
     redis:hset(hash, 'id', id)
     redis:hset(hash, 'text', text)
     redis:hset(hash, 'original message', original_message)
     redis:hset(hash, 'time', os.time())
-    return redis:hset(hash, 'is inline', is_inline)
-end
-
-function utils.is_inline_captcha(chat_id, user_id)
-    return redis:hget('chat:' .. chat_id .. ':captcha:' .. user_id, 'is inline')
+    return true
 end
 
 function utils.get_captcha_id(chat_id, user_id)
-    return redis:hget('chat:' .. chat_id .. ':captcha:' .. user_id, 'id')
+    return redis:hget('chat:' .. chat_id .. ':captcha:' .. user_id, 'id') or false
 end
 
 function utils.get_captcha_text(chat_id, user_id)
-    return redis:hget('chat:' .. chat_id .. ':captcha:' .. user_id, 'text')
+    return redis:hget('chat:' .. chat_id .. ':captcha:' .. user_id, 'text') or false
 end
 
 function utils.get_captcha_original_message(chat_id, user_id)
-    return redis:hget('chat:' .. chat_id .. ':captcha:' .. user_id, 'original message')
+    return redis:hget('chat:' .. chat_id .. ':captcha:' .. user_id, 'original message') or false
 end
 
 function utils.get_captcha_time(chat_id, user_id)
-    return redis:hget('chat:' .. chat_id .. ':captcha:' .. user_id, 'time')
+    return redis:hget('chat:' .. chat_id .. ':captcha:' .. user_id, 'time') or false
 end
 
 function utils.delete_redis_hash(hash, field)
     return redis:hdel(hash, field)
 end
 
-function utils.wipe_redis_captcha(chat_id, user_id, not_completed)
+function utils.wipe_redis_captcha(chat_id, user_id)
     redis:hdel('chat:' .. chat_id .. ':captcha:' .. user_id, 'original message')
     redis:hdel('chat:' .. chat_id .. ':captcha:' .. user_id, 'id')
-    if not not_completed then
-        redis:hdel('chat:' .. chat_id .. ':captcha:' .. user_id, 'text')
-    end
-    redis:hdel('chat:' .. chat_id .. ':captcha:' .. user_id, 'is inline')
+    redis:hdel('chat:' .. chat_id .. ':captcha:' .. user_id, 'text')
     redis:hdel('chat:' .. chat_id .. ':captcha:' .. user_id, 'time')
 end
 
