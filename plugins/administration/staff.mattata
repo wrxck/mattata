@@ -1,0 +1,98 @@
+--[[
+    Copyright 2020 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local staff = {}
+local mattata = require('mattata')
+local redis = dofile('libs/redis.lua')
+
+function staff:init()
+    staff.commands = mattata.commands(self.info.username):command('staff'):command('admins').table
+    staff.help = '/staff - Displays the staff members in the current chat. Alias: /admins.'
+end
+
+function staff.format_admin_list(output, chat_id)
+    local creator = ''
+    local admin_count = 1
+    local admins = ''
+    for i, admin in pairs(output.result) do
+        local user
+        local branch = ' ├ '
+        if admin.status == 'creator' then
+            creator = mattata.escape_html(admin.user.first_name)
+            if admin.user.username then
+                creator = string.format(
+                    '<a href="https://t.me/%s">%s</a>',
+                    admin.user.username,
+                    creator
+                )
+            end
+        elseif admin.status == 'administrator' then
+            user = mattata.escape_html(admin.user.first_name)
+            if admin.user.username then
+                user = string.format(
+                    '<a href="https://t.me/%s">%s</a>',
+                    admin.user.username,
+                    user
+                )
+            end
+            admin_count = admin_count + 1
+            if admin_count == #output.result then
+                branch = ' └ '
+            end
+            admins = admins .. branch .. user .. '\n'
+        end
+    end
+    local mod_list = redis:smembers('administration:' .. chat_id .. ':mods')
+    local mod_count = 0
+    local mods = ''
+    if next(mod_list) then
+        local branch = ' ├ '
+        local user
+        for i = 1, #mod_list do
+            user = mattata.get_linked_name(mod_list[i])
+            if user then
+                if i == #mod_list then
+                    branch = ' └ '
+                end
+                mods = mods .. branch .. user .. '\n'
+                mod_count = mod_count + 1
+            end
+        end
+    end
+    if creator == '' then
+        creator = '-'
+    end
+    if admins == '' then
+        admins = '-'
+    end
+    if mods == '' then
+        mods = '-'
+    end
+    return string.format(
+        '<b>👤 Creator</b>\n└ %s\n\n<b>👥 Admins</b> (%d)\n%s\n<b>👥 Moderators</b> (%d)\n%s',
+        creator,
+        admin_count - 1,
+        admins,
+        mod_count,
+        mods
+    )
+end
+
+function staff:on_message(message)
+    local success = mattata.get_chat_administrators(message.chat.id)
+    if not success then
+        return mattata.send_reply(
+            message,
+            'I couldn\'t get a list of administrators in this chat.'
+        )
+    end
+    return mattata.send_message(
+        message,
+        staff.format_admin_list(success, message.chat.id),
+        'html'
+    )
+end
+
+return staff

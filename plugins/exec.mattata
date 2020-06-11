@@ -1,0 +1,196 @@
+--[[
+    Copyright 2020 Matthew Hesketh <wrxck0@gmail.com>
+    This code is licensed under the MIT. See LICENSE for details.
+]]
+
+local exec = {}
+local mattata = require('mattata')
+local https = require('ssl.https')
+local ltn12 = require('ltn12')
+local multipart = require('multipart-post')
+local json = require('dkjson')
+local redis = dofile('libs/redis.lua')
+
+function exec:init()
+    exec.commands = mattata.commands(self.info.username):command('exec').table
+    exec.help = '/exec <language> <code> - Executes the specified code in the given language and returns the output.'
+    exec.languages = {
+        ['C#'] = 1,
+        ['VB.NET'] = 2,
+        ['Java'] = 4,
+        ['Python'] = 5,
+        ['PHP'] = 8,
+        ['Pascal'] = 9,
+        ['Objective-C'] = 10,
+        ['Haskell'] = 11,
+        ['Ruby'] = 12,
+        ['Perl'] = 13,
+        ['Lua'] = 14,
+        ['JavaScript'] = 17,
+        ['GoLang'] = 20,
+        ['Node.js'] = 23,
+        ['Python 3'] = 24,
+        ['C'] = 26,
+        ['C++'] = 27,
+        ['MySQL'] = 33,
+        ['Swift'] = 37,
+        ['Bash'] = 38
+    }
+end
+
+function exec.get_keyboard(user_id)
+    local keyboard = {
+        ['inline_keyboard'] = {{}}
+    }
+    local total = 0
+    for _, _ in pairs(exec.languages) do
+        total = total + 1
+    end
+    local count = 0
+    local rows = math.floor(total / 8)
+    if rows ~= total then
+        rows = rows + 1
+    end
+    local row = 1
+    for k, v in pairs(exec.languages) do
+        count = count + 1
+        if count == rows * row then
+            row = row + 1
+            table.insert(keyboard.inline_keyboard, {})
+        end
+        local last_used = redis:hget('user:' .. user_id .. ':info', 'last_used_exec_lang')
+        if last_used and last_used == tostring(v) then
+            k = utf8.char(9889) .. ' ' .. k
+        end
+        table.insert(keyboard.inline_keyboard[row], {
+            ['text'] = k,
+            ['callback_data'] = 'exec:' .. user_id .. ':' .. tostring(v) .. ':n'
+        })
+    end
+    return keyboard
+end
+
+function exec.get_arguments(language)
+    language = tonumber(language)
+    if language == 6 or language == 26 then
+        return '-Wall -std=gnu99 -O2 -o a.out source_file.c'
+    elseif language == 7 or language == 27 then
+        return '-Wall -std=c++14 -O2 -o a.out source_file.cpp'
+    elseif language == 28 then
+        return 'source_file.cpp -o a.exe /EHsc /MD /I C:\\\\boost_1_60_0 /link /LIBPATH:C:\\\\boost_1_60_0\\\\stage\\\\lib'
+    elseif language == 29 then
+        return 'source_file.c -o a.exe'
+    elseif language == 30 then
+        return 'source_file.d -ofa.out'
+    elseif language == 20 then
+        return '-o a.out source_file.go'
+    elseif language == 11 then
+        return '-o a.out source_file.hs'
+    elseif language == 10 then
+        return '-MMD -MP -DGNUSTEP -DGNUSTEP_BASE_LIBRARY=1 -DGNU_GUI_LIBRARY=1 -DGNU_RUNTIME=1 -DGNUSTEP_BASE_LIBRARY=1 -fno-strict-aliasing -fexceptions -fobjc-exceptions -D_NATIVE_OBJC_EXCEPTIONS -pthread -fPIC -Wall -DGSWARN -DGSDIAGNOSE -Wno-import -g -O2 -fgnu-runtime -fconstant-string-class=NSConstantString -I. -I /usr/include/GNUstep -I/usr/include/GNUstep -o a.out source_file.m -lobjc -lgnustep-base'
+    end
+    return ''
+end
+
+function exec.make_request(language, code)
+    language = language:lower()
+    local args = exec.get_arguments(language)
+    local parameters = {
+        ['LanguageChoice'] = language,
+        ['Program'] = code,
+        ['Input'] = 'stdin',
+        ['CompilerArgs'] = args
+    }
+    local response = {}
+    local body, boundary = multipart.encode(parameters)
+    local old_timeout = https.TIMEOUT
+    https.TIMEOUT = 1
+    local _, res = https.request({
+        ['url'] = 'https://rextester.com/rundotnet/api/',
+        ['method'] = 'POST',
+        ['headers'] = {
+            ['Content-Type'] = 'multipart/form-data; boundary=' .. boundary,
+            ['Content-Length'] = #body
+        },
+        ['source'] = ltn12.source.string(body),
+        ['sink'] = ltn12.sink.table(response)
+    })
+    https.TIMEOUT = old_timeout
+    if res ~= 200 then
+        return false
+    end
+    local jdat = json.decode(table.concat(response))
+    local output = {}
+    if jdat.Warnings and jdat.Warnings ~= '' then
+        table.insert(output, '<b>Warnings</b>\n' .. mattata.escape_html(jdat.Warnings))
+    end
+    if jdat.Errors and jdat.Errors ~= '' then
+        table.insert(output, '<b>Errors</b>\n' .. mattata.escape_html(jdat.Errors))
+    end
+    if jdat.Result and jdat.Result ~= '' then
+        table.insert(output, '<b>Result</b>\n<pre>' .. mattata.escape_html(jdat.Result) .. '</pre>')
+    end
+    if jdat.Stats and jdat.Stats ~= '' then
+        local stats = jdat.Stats:gsub('%, ', '\n• '):gsub('cpu', 'CPU'):gsub('memory', 'Memory'):gsub('absolute', 'Absolute'):gsub('%,', '.')
+        table.insert(output, '<b>Statistics</b>\n• ' .. mattata.escape_html(stats))
+    end
+    return table.concat(output, '\n')
+end
+
+function exec.on_callback_query(_, callback_query, message, _, language)
+    local user_id, lang, confirmed = callback_query.data:match('^(%d+):(.-):(.-)$')
+    if not user_id or not lang or not message.reply or callback_query.from.id ~= tonumber(user_id) then
+        return mattata.answer_callback_query(callback_query.id, language.errors.generic)
+    elseif lang == 'back' then
+        return mattata.edit_message_text(message.chat.id, message.message_id, language['exec']['1'], nil, true, exec.get_keyboard(user_id))
+    end
+    local code = mattata.input(message.reply.text) or message.reply.text
+    if not code then
+        return
+    end
+    local language_name
+    for k, v in pairs(exec.languages) do
+        if tostring(v) == lang then
+            language_name = k
+        end
+    end
+    local output
+    if not language_name then
+        return
+    elseif confirmed == 'y' then
+        redis:hset('user:' .. user_id .. ':info', 'last_used_exec_lang', lang)
+        output = exec.make_request(lang, code) or language['exec']['2'] .. ' ' .. utf8.char(128527)
+        return mattata.edit_message_text(message.chat.id, message.message_id, output, 'html')
+    end
+    output = string.format(language['exec']['3'], language_name)
+    local keyboard = mattata.inline_keyboard():row(
+    mattata.row():callback_data_button(
+        language['exec']['4'],
+        'exec:' .. user_id .. ':back:n'
+    ):callback_data_button(
+        language['exec']['5'],
+        string.format('exec:%s:%s:y', user_id, tostring(lang))
+    ))
+    return mattata.edit_message_text(message.chat.id, message.message_id, output, nil, true, keyboard)
+end
+
+function exec.on_message(_, message, _, language)
+    local input = mattata.input(message.text)
+    if not input then
+        local success = mattata.send_force_reply(message, language['exec']['6'])
+        if success then
+            local key = string.format('action:%s:%s', message.chat.id, success.result.message_id)
+            redis:set(key, '/exec')
+        end
+        return
+    end
+    mattata.send_chat_action(message.chat.id)
+    return mattata.send_message(
+        message, language['exec']['7'],
+        'html', true, false,
+        message.message_id,
+        exec.get_keyboard(message.from.id)
+    )
+end
+
+return exec

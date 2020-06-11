@@ -1,0 +1,1 @@
+return require('languages.en_us')
