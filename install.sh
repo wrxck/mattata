@@ -4,7 +4,7 @@ printf "or press CTRL + C to abort.\n"
 read
 set -e
 sudo apt-get update
-aptlist="git wget openssl coreutils make gcc libreadline-dev redis-server unzip libexpat1-dev libcurl3 libcurl3-gnutls ruby ruby-dev libgd-dev imagemagick"
+aptlist="git wget openssl coreutils make gcc libreadline-dev redis-server unzip libexpat1-dev libcurl3 libcurl3-gnutls ruby ruby-dev libgd-dev imagemagick tesseract-ocr"
 for package in $aptlist; do
     printf "[Info] Installing $package...\n"
     sudo apt-get --yes --force-yes install $package

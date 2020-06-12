@@ -25,6 +25,7 @@ function needsmorejpeg.on_message(_, message, configuration)
     end
     local file_name = file.result.file_path
     local file_path = string.format('https://api.telegram.org/file/bot%s/%s', configuration.bot_token, file_name)
+    print(file_path)
     file = mattata.download_file(file_path, file_name:match('/(.-)$'), '/home/matt/matticatebot')
     if not file then
         return false

@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v1.0
+      v1.1
 
       Copyright 2020 Matthew Hesketh <matthew@matthewhesketh.com>
       See LICENSE for details
@@ -91,7 +91,7 @@ function mattata:init()
         local success = dofile('migrate.lua')
         print(success)
     end
-    self.version = configuration.version
+    self.version = configuration.version or '1.2.0' -- version wasn't put into configuration until 1.2.1
     -- Make necessary database changes if the version has changed.
     if not redis:get('mattata:version') or redis:get('mattata:version') ~= self.version then
         redis:set('mattata:version', self.version)
@@ -315,7 +315,7 @@ function mattata:on_message(message)
         if not plugin.is_beta_plugin or (plugin.is_beta_plugin and self.is_allowed_beta_access) then
             local commands = #plugin.commands or {}
             for i = 1, commands do
-                if message.text:match(plugin.commands[i]) and mattata.is_plugin_allowed(plugin.name, self.is_user_blacklisted, configuration) and not self.is_command_done and self.is_telegram == false and not message.is_edited then
+                if message.text:match(plugin.commands[i]) and mattata.is_plugin_allowed(plugin.name, self.is_user_blacklisted, configuration) and not self.is_command_done and self.is_telegram == false and (not message.is_edited or mattata.is_global_admin(message.from.id)) then
                     self.is_command = true
                     message.command = plugin.commands[i]:match('([%w_%-]+)')
                     if plugin.on_message and not mattata.is_plugin_disabled(plugin.name, message) then
@@ -520,7 +520,8 @@ function mattata.is_plugin_disabled(plugin, message, is_administrative)
     plugin = plugin:lower():gsub('^administration/', '')
     if type(message) == 'table' and message.chat then
         message = message.chat.id
-    elseif plugin == 'plugins' or plugin == 'help' or plugin == 'administration' or plugin == 'about' then
+    end
+    if plugin == 'plugins' or plugin == 'help' or plugin == 'administration' or plugin == 'about' then
         return false
     end
     if is_administrative and not mattata.get_setting(message, 'use administration') and plugin ~= 'administration' then
@@ -1116,6 +1117,7 @@ function mattata:process_natural_language(message)
 end
 
 function mattata.process_spam(message)
+    if message.forward_from then return false end
     local msg_count = tonumber(
         redis:get('antispam:' .. message.chat.id .. ':' .. message.from.id) -- Check to see if the user
         -- has already sent 1 or more messages to the current chat, in the past 5 seconds.

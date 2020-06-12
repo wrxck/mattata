@@ -51,9 +51,15 @@ function responses:on_new_message(message)
                 elseif category == 'morning' then
                     output = 'Good morning, ' .. message.from.first_name .. '!'
                 elseif category == 'iam' and message.text:len() < 50 then
-                    output = 'Hello ' .. message.text:match(trigger) .. ', I\'m ' .. self.info.first_name
+                    local name = message.text:match(trigger)
+                    if name:lower() ~= 'back' and name:lower() ~= 'here' then
+                        output = 'Hello ' .. name .. ', I\'m ' .. self.info.first_name
+                    end
                 end
-                return mattata.send_reply(message, output)
+                if output then
+                    return mattata.send_reply(message, output)
+                end
+                return
             end
         end
     end

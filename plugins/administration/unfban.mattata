@@ -113,7 +113,7 @@ function unfban:on_message(message, configuration, language)
     if message.reply and mattata.get_setting(message.chat.id, 'delete reply on action') then
         mattata.delete_message(message.chat.id, message.reply.message_id)
     end
-    return
+    return mattata.delete_message(message.chat.id, message.message_id)
 end
 
 return unfban

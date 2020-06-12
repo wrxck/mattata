@@ -10,9 +10,9 @@ local captcha_lib = require('captcha')
 
 function join_captcha.cron()
     local keys = redis:keys('chat:*:captcha:*')
-    for _, key in ipairs(keys) do
+    for _, key in pairs(keys) do
         local captcha_time = redis:hget(key, 'time')
-        if captcha_time and tonumber(captcha_time) ~= nil then
+        if captcha_time then
             captcha_time = tonumber(captcha_time)
             local chat_id, user_id = key:match('^chat:(%-?%d+):captcha:(%d+)$')
             local original_message = redis:hget(key, 'original message')
@@ -135,7 +135,7 @@ function join_captcha.on_member_join(_, message, configuration)
         if not mute then
             return false
         end
-        mattata.set_captcha(message.chat.id, message.new_chat_participant.id, photo_success.result.message_id, correct, success.result.message_id)
+        mattata.set_captcha(message.chat.id, message.new_chat_participant.id, photo_success.result.message_id, correct, success.result.message_id, os.time())
         return mattata.delete_message(message.chat.id, message.message_id)
     end
 end

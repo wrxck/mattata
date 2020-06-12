@@ -16,7 +16,7 @@ function staff.format_admin_list(output, chat_id)
     local creator = ''
     local admin_count = 1
     local admins = ''
-    for i, admin in pairs(output.result) do
+    for _, admin in pairs(output.result) do
         local user
         local branch = ' ├ '
         if admin.status == 'creator' then
@@ -80,19 +80,25 @@ function staff.format_admin_list(output, chat_id)
     )
 end
 
-function staff:on_message(message)
-    local success = mattata.get_chat_administrators(message.chat.id)
-    if not success then
-        return mattata.send_reply(
-            message,
-            'I couldn\'t get a list of administrators in this chat.'
-        )
+function staff.on_message(_, message)
+    local input = mattata.input(message.text)
+    local chat_id = message.chat.id
+    local success
+    if input then
+        local chat = mattata.get_chat(input)
+        if not chat then
+            return mattata.send_reply(message, 'That\'s not a valid chat.')
+        end
+        chat_id = chat.result.id
+        success = mattata.get_chat_administrators(chat_id)
+    else
+        success = mattata.get_chat_administrators(message.chat.id)
     end
-    return mattata.send_message(
-        message,
-        staff.format_admin_list(success, message.chat.id),
-        'html'
-    )
+    if not success then
+        local output = input and 'I wasn\'t able to get information about that chat\'s administrators.' or 'I couldn\'t get a list of administrators in this chat.'
+        return mattata.send_reply(message, output)
+    end
+    return mattata.send_message(message.chat.id, staff.format_admin_list(success, chat_id), 'html')
 end
 
 return staff

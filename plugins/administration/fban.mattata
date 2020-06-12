@@ -124,9 +124,8 @@ function fban:on_message(message, _, language)
     end
     if message.reply and mattata.get_setting(message.chat.id, 'delete reply on action') then
         mattata.delete_message(message.chat.id, message.reply.message_id)
-        mattata.delete_message(message.chat.id, message.message_id)
     end
-    return
+    return mattata.delete_message(message.chat.id, message.message_id)
 end
 
 return fban

@@ -16,7 +16,10 @@ local socket = require('socket')
 local configuration = require('configuration')
 
 function lyrics:init(configuration)
-    assert(configuration.keys.lyrics, 'lyrics.lua requires an API key, and you haven\'t got one configured!')
+    assert(
+        configuration.keys.lyrics,
+        'lyrics.lua requires an API key, and you haven\'t got one configured!'
+    )
     lyrics.commands = mattata.commands(self.info.username):command('lyrics').table
     lyrics.help = '/lyrics <query> - Finds the lyrics to the given track.'
 end

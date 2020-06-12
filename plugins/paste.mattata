@@ -13,27 +13,29 @@ local mime = require('mime')
 local multipart = require('multipart-post')
 local json = require('dkjson')
 local configuration = require('configuration')
+local redis = dofile('libs/redis.lua')
 
 function paste:init()
     paste.commands = mattata.commands(self.info.username):command('paste').table
     paste.help = '/paste <text> - Uploads the given text, or replied-to text to a pasting service and returns the result URL.'
 end
 
-function paste.get_keyboard()
+function paste.get_keyboard(current_time)
+    current_time = current_time or 0
     return mattata.inline_keyboard()
     :row(
         mattata.row()
         :callback_data_button(
             'paste.ee',
-            'paste:pasteee'
+            'paste:pasteee:' .. current_time
         )
         :callback_data_button(
             'pastebin.com',
-            'paste:pastebin'
+            'paste:pastebin:' .. current_time
         )
         :callback_data_button(
             'hastebin.com',
-            'paste:hastebin'
+            'paste:hastebin:' .. current_time
         )
     )
 end
@@ -127,7 +129,9 @@ end
 function paste:on_callback_query(callback_query, message, configuration, language)
     local input = mattata.input(message.reply.text)
     if not input then
-        return false
+        input = redis:get('paste:' .. callback_query.data:match(':(%d+)$'))
+        redis:del('paste:' .. callback_query.data:match(':(%d+)$'))
+        callback_query.data = callback_query.data:match('^(%a+):')
     end
     local output
     if callback_query.data == 'pasteee' then
@@ -144,11 +148,14 @@ function paste:on_callback_query(callback_query, message, configuration, languag
 end
 
 function paste:on_message(message, configuration, language)
+    local current_time = os.time()
     local input = message.reply and message.reply.text or mattata.input(message.text)
     if not input then
         return mattata.send_reply(message, paste.help)
+    elseif message.reply then
+        redis:set('paste:' .. current_time, input)
     end
-    return mattata.send_message(message.chat.id, language['paste']['1'], nil, true, false, message.message_id, paste.get_keyboard())
+    return mattata.send_message(message.chat.id, language['paste']['1'], nil, true, false, message.message_id, paste.get_keyboard(message.reply and current_time or false))
 end
 
 return paste

@@ -40,12 +40,12 @@ function utils.get_log_chat(chat_id)
     return configuration.log_channel or false
 end
 
-function utils.set_captcha(chat_id, user_id, id, text, original_message)
+function utils.set_captcha(chat_id, user_id, id, text, original_message, sent_time)
     local hash = string.format('chat:%s:captcha:%s', chat_id, user_id)
     redis:hset(hash, 'id', id)
     redis:hset(hash, 'text', text)
     redis:hset(hash, 'original message', original_message)
-    redis:hset(hash, 'time', os.time())
+    redis:hset(hash, 'time', sent_time)
     return true
 end
 

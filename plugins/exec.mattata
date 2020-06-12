@@ -104,7 +104,7 @@ function exec.make_request(language, code)
     local response = {}
     local body, boundary = multipart.encode(parameters)
     local old_timeout = https.TIMEOUT
-    https.TIMEOUT = 1
+    https.TIMEOUT = 5
     local _, res = https.request({
         ['url'] = 'https://rextester.com/rundotnet/api/',
         ['method'] = 'POST',
@@ -121,14 +121,23 @@ function exec.make_request(language, code)
     end
     local jdat = json.decode(table.concat(response))
     local output = {}
+    if jdat.Result and jdat.Result ~= '' then
+        if utf8.len(jdat.Result) > 2000 then
+            jdat.Result = jdat.Result:sub(1, 2000) .. '...'
+        end
+        table.insert(output, '<b>Result</b>\n<pre>' .. mattata.escape_html(jdat.Result) .. '</pre>')
+    end
     if jdat.Warnings and jdat.Warnings ~= '' then
+        if utf8.len(jdat.Warnings) > 2000 then
+            jdat.Warnings = jdat.Warnings:sub(1, 2000) .. '...'
+        end
         table.insert(output, '<b>Warnings</b>\n' .. mattata.escape_html(jdat.Warnings))
     end
     if jdat.Errors and jdat.Errors ~= '' then
+        if utf8.len(jdat.Errors) > 2000 then
+            jdat.Errors = jdat.Errors:sub(1, 2000) .. '...'
+        end
         table.insert(output, '<b>Errors</b>\n' .. mattata.escape_html(jdat.Errors))
-    end
-    if jdat.Result and jdat.Result ~= '' then
-        table.insert(output, '<b>Result</b>\n<pre>' .. mattata.escape_html(jdat.Result) .. '</pre>')
     end
     if jdat.Stats and jdat.Stats ~= '' then
         local stats = jdat.Stats:gsub('%, ', '\n• '):gsub('cpu', 'CPU'):gsub('memory', 'Memory'):gsub('absolute', 'Absolute'):gsub('%,', '.')
