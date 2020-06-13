@@ -1,4 +1,4 @@
-printf "This script is intended to work with Ubuntu 16.04.2 LTS, other versions may also\n"
+printf "This script is intended to work with Ubuntu 16.04-18.04, other versions may also\n"
 printf "work. Root access is required to complete the installation. Press enter to continue,\n"
 printf "or press CTRL + C to abort.\n"
 read
@@ -35,7 +35,7 @@ if [ ! -f "`which luarocks`" ]; then
 fi
 printf "[Info] Installing openssl...\n"
 sudo luarocks install --server=http://luarocks.org/dev openssl
-rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem uuid html-entities feedparser telegram-bot-lua lua-captcha"
+rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem uuid html-entities feedparser telegram-bot-lua lua-captcha lzlib"
 for rock in $rocklist; do
     printf "[Info] Installing $rock...\n"
     sudo luarocks install $rock

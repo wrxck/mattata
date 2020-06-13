@@ -11,39 +11,35 @@ local captcha_lib = require('captcha')
 function join_captcha.cron()
     local keys = redis:keys('chat:*:captcha:*')
     for _, key in pairs(keys) do
-        local captcha_time = redis:hget(key, 'time')
-        if captcha_time then
-            captcha_time = tonumber(captcha_time)
-            local chat_id, user_id = key:match('^chat:(%-?%d+):captcha:(%d+)$')
+        local chat_id, user_id = key:match('^chat:(%-?%d+):captcha:(%d+)$')
+        if not redis:get('captcha:' .. chat_id .. ':' .. user_id) then
             local original_message = redis:hget(key, 'original message')
             local photo_id = redis:hget(key, 'id')
-            if captcha_time <= (os.time() - 300) then
-                mattata.delete_message(chat_id, tonumber(original_message))
-                mattata.delete_message(chat_id, tonumber(photo_id))
-                local user = mattata.get_user(user_id, nil, nil, true)
-                local kicked_user = mattata.get_formatted_user(user_id, user.result.first_name, 'html')
-                local action = mattata.get_setting(chat_id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
-                local action_str = mattata.get_setting(chat_id, 'ban not kick') and 'Banned' or 'Kicked'
-                local output = action_str .. ' ' .. kicked_user .. ' <code>[' .. user_id .. ']</code> %sbecause they didn\'t complete the CAPTCHA within 5 minutes!'
-                if mattata.get_setting(chat_id, 'log administrative actions') then
-                    local chat = mattata.get_chat(chat_id)
-                    local log_output = output
-                    if chat then
-                        local title = mattata.escape_html(chat.result.title)
-                        title = 'from ' .. title .. ' <code>[' .. chat.result.id .. ']</code> '
-                        log_output = string.format(log_output, title)
-                        log_output = log_output .. '\n#chat' .. tostring(chat.result.id):gsub('^%-100', '') .. ' #user' .. user_id
-                    else
-                        log_output = string.format(log_output, '')
-                    end
-                    mattata.send_message(mattata.get_log_chat(chat_id), log_output, 'html')
+            mattata.delete_message(chat_id, tonumber(original_message))
+            mattata.delete_message(chat_id, tonumber(photo_id))
+            local user = mattata.get_user(user_id, nil, nil, true)
+            local kicked_user = mattata.get_formatted_user(user_id, user.result.first_name, 'html')
+            local action = mattata.get_setting(chat_id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
+            local action_str = mattata.get_setting(chat_id, 'ban not kick') and 'Banned' or 'Kicked'
+            local output = action_str .. ' ' .. kicked_user .. ' <code>[' .. user_id .. ']</code> %sbecause they didn\'t complete the CAPTCHA within 5 minutes!'
+            if mattata.get_setting(chat_id, 'log administrative actions') then
+                local chat = mattata.get_chat(chat_id)
+                local log_output = output
+                if chat then
+                    local title = mattata.escape_html(chat.result.title)
+                    title = 'from ' .. title .. ' <code>[' .. chat.result.id .. ']</code> '
+                    log_output = string.format(log_output, title)
+                    log_output = log_output .. '\n#chat' .. tostring(chat.result.id):gsub('^%-100', '') .. ' #user' .. user_id
                 else
-                    output = string.format(output, '')
-                    mattata.send_message(chat_id, output, 'html')
+                    log_output = string.format(log_output, '')
                 end
-                mattata.wipe_redis_captcha(chat_id, user_id)
-                action(chat_id, user_id)
+                mattata.send_message(mattata.get_log_chat(chat_id), log_output, 'html')
+            else
+                output = string.format(output, '')
+                mattata.send_message(chat_id, output, 'html')
             end
+            mattata.wipe_redis_captcha(chat_id, user_id)
+            action(chat_id, user_id)
         end
     end
 end
@@ -60,7 +56,6 @@ function join_captcha.on_callback_query(_, callback_query, message)
     local id = mattata.get_captcha_original_message(chat_id, callback_query.from.id)
     local photo_id = mattata.get_captcha_id(chat_id, callback_query.from.id)
     local default_permissions = mattata.get_chat(message.chat.id)
-    mattata.wipe_redis_captcha(chat_id, callback_query.from.id)
     if guess:lower() == correct:lower() then
         local success
         if not default_permissions then
@@ -74,6 +69,7 @@ function join_captcha.on_callback_query(_, callback_query, message)
         end
         mattata.delete_message(chat_id, tonumber(photo_id))
         mattata.delete_message(chat_id, tonumber(id))
+        mattata.wipe_redis_captcha(chat_id, callback_query.from.id)
         return mattata.answer_callback_query(callback_query.id, 'Success! You may now speak!')
     else
         mattata.delete_message(chat_id, tonumber(photo_id))
@@ -86,6 +82,7 @@ function join_captcha.on_callback_query(_, callback_query, message)
             local log_chat = mattata.get_log_chat(chat_id)
             mattata.send_message(log_chat, output, 'html')
         end
+        mattata.wipe_redis_captcha(chat_id, callback_query.from.id)
         return mattata.answer_callback_query(callback_query.id, 'You got it wrong! Re-join the group and try again, or consult an admin if you wish to be unmuted!')
     end
 end
@@ -135,7 +132,7 @@ function join_captcha.on_member_join(_, message, configuration)
         if not mute then
             return false
         end
-        mattata.set_captcha(message.chat.id, message.new_chat_participant.id, photo_success.result.message_id, correct, success.result.message_id, os.time())
+        mattata.set_captcha(message.chat.id, message.new_chat_participant.id, photo_success.result.message_id, correct, success.result.message_id)
         return mattata.delete_message(message.chat.id, message.message_id)
     end
 end

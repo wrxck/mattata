@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v1.1
+      v1.1.1
 
       Copyright 2020 Matthew Hesketh <matthew@matthewhesketh.com>
       See LICENSE for details
@@ -91,13 +91,12 @@ function mattata:init()
         local success = dofile('migrate.lua')
         print(success)
     end
-    self.version = configuration.version or '1.2.0' -- version wasn't put into configuration until 1.2.1
+    self.version = configuration.version
     -- Make necessary database changes if the version has changed.
     if not redis:get('mattata:version') or redis:get('mattata:version') ~= self.version then
         redis:set('mattata:version', self.version)
     end
-    self.last_update = self.last_update or 0 -- If there is no last update known, make it 0 so the bot doesn't encounter any
-    -- problems when it tries to add the necessary increment.
+    self.last_update = self.last_update or 0 -- If there is no last update known, make it 0 so the bot doesn't encounter any problems when it tries to add the necessary increment.
     self.last_backup = self.last_backup or os.date('%V')
     self.last_cron = self.last_cron or os.date('%M')
     local init_message = '<pre>' .. configuration.connected_message .. '\n\n' .. mattata.escape_html(info_message) .. '\n\n\tPlugins loaded: ' .. #configuration.plugins - #configuration.administrative_plugins .. '\n\tAdministrative plugins loaded: ' .. #configuration.administrative_plugins .. '</pre>'
