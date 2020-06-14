@@ -40,11 +40,10 @@ function utils.get_log_chat(chat_id)
     return configuration.log_channel or false
 end
 
-function utils.set_captcha(chat_id, user_id, id, text, original_message)
-    local hash = string.format('chat:%s:captcha:%s', chat_id, user_id)
+function utils.set_captcha(chat_id, user_id, text, id)
+    local hash = string.format('chat:%s:captcha:%s', tostring(chat_id), tostring(user_id))
     redis:hset(hash, 'id', id)
     redis:hset(hash, 'text', text)
-    redis:hset(hash, 'original message', original_message)
     redis:set('captcha:' .. chat_id .. ':' .. user_id, true)
     redis:expire('captcha:' .. chat_id .. ':' .. user_id, 300)
     return true
@@ -58,23 +57,15 @@ function utils.get_captcha_text(chat_id, user_id)
     return redis:hget('chat:' .. chat_id .. ':captcha:' .. user_id, 'text') or false
 end
 
-function utils.get_captcha_original_message(chat_id, user_id)
-    return redis:hget('chat:' .. chat_id .. ':captcha:' .. user_id, 'original message') or false
-end
-
-function utils.get_captcha_time(chat_id, user_id)
-    return redis:hget('chat:' .. chat_id .. ':captcha:' .. user_id, 'time') or false
-end
-
 function utils.delete_redis_hash(hash, field)
     return redis:hdel(hash, field)
 end
 
 function utils.wipe_redis_captcha(chat_id, user_id)
-    redis:hdel('chat:' .. chat_id .. ':captcha:' .. user_id, 'original message')
-    redis:hdel('chat:' .. chat_id .. ':captcha:' .. user_id, 'id')
-    redis:hdel('chat:' .. chat_id .. ':captcha:' .. user_id, 'text')
-    redis:hdel('chat:' .. chat_id .. ':captcha:' .. user_id, 'time')
+    local hash = string.format('chat:%s:captcha:%s', tostring(chat_id), tostring(user_id))
+    redis:hdel(hash, 'id')
+    redis:hdel(hash, 'text')
+    return true
 end
 
 function utils.get_missing_languages(delimiter)
@@ -219,28 +210,6 @@ end
 function utils.is_group(message)
     if not message or not message.chat or not message.chat.type or message.chat.type == 'private' then
         return false
-    end
-    return true
-end
-
-function utils.get_user_message_statistics(user_id, chat_id)
-    return {
-        ['messages'] = tonumber(redis:get('messages:' .. user_id .. ':' .. chat_id)) or 0,
-        ['name'] = redis:hget('user:' .. user_id .. ':info', 'first_name'),
-        ['id'] = user_id
-    }
-end
-
-function utils.reset_message_statistics(chat_id)
-    if not chat_id or tonumber(chat_id) == nil then
-        return false
-    end
-    local messages = redis:keys('messages:*:' .. chat_id)
-    if not next(messages) then
-        return false
-    end
-    for _, v in pairs(messages) do
-        redis:del(v)
     end
     return true
 end
@@ -520,6 +489,27 @@ function utils.is_duplicate(tab, val)
         return false
     end
     return duplicated
+end
+
+function utils.is_valid_url(url, parts, any)
+    if not url:match('^[Hh][Tt][Tt][Pp][Ss]?://') and not any then
+        url = 'http://' .. url
+    end
+    -- Thanks to https://stackoverflow.com/questions/23590304/finding-a-url-in-a-string-lua-pattern
+    local url, protocol, subdomain, tld, colon, port, slash, path = string.match(url, '^(([%w_.~!*:@&+$/?%%#-]-)(%w[-.%w]*%.)(%w+)(:?)(%d*)(/?)([%w_.~!*:@&+$/?%%#=-]*))$')
+    if parts then
+        return {
+            ['url'] = url,
+            ['protocol'] = protocol,
+            ['subdomain'] = subdomain,
+            ['tld'] = tld,
+            ['colon'] = colon,
+            ['port'] = port,
+            ['slash'] = slash,
+            ['path'] = path
+        }
+    end
+    return url and true or false, url
 end
 
 return utils

@@ -1,0 +1,26 @@
+diff --git a/src/captcha.c b/src/captcha.c
+index e0a8382..2c6df2e 100644
+--- a/src/captcha.c
++++ b/src/captcha.c
+@@ -51,10 +51,8 @@ static int generate(lua_State* L) {
+     if (elements == 0) {
+         luaL_argerror (L, 0, "Fonts directory has not fonts");
+     }
+-    path = (char*)lua_newuserdata(L, strlen(usr_path)+usr_length+strlen(usr_fmt)+1); // works like malloc, adding dat to gc
+-    lua_pop(L, 1); // continues
+-    captcha = (char*)lua_newuserdata(L, strlen(usr_path)+usr_length+strlen(usr_fmt)+1); // works like malloc, adding dat to gc
+-    lua_pop(L, 1); // continues
++    path = malloc(strlen(usr_path)+usr_length+strlen(usr_fmt)+1); // works like malloc, adding dat to gc
++    captcha = calloc(usr_length+1, 0); // works like malloc, adding dat to gc
+     sprintf(path, "%s/", usr_path);
+     FILE *out;
+     int x_image = usr_fntsize*usr_length; // calcule width image, using length * font size
+@@ -99,6 +97,8 @@ static int generate(lua_State* L) {
+     gdImageDestroy(im);
+     lua_pushstring(L, path);
+     lua_pushstring(L, captcha);
++    free(path);
++    free(captcha);
+     return 2;
+ }
+ static int setlength(lua_State* L) {

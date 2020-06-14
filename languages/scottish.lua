@@ -91,7 +91,8 @@ return {
         ['48'] = 'Remove Pasted Code?',
         ['49'] = 'Prevent Inline Bots?',
         ['50'] = 'Kick Media On Join?',
-        ['51'] = 'Disable Plugins For All?'
+        ['51'] = 'Enable Plugins For Admins?',
+        ['52'] = 'Kick URLs On Join?'
     },
     ['afk'] = {
         ['1'] = 'Sorry, Am afraid thes feature is anely available tae usars with a public @usarname!',
@@ -114,7 +115,8 @@ return {
         ['12'] = '%s <code>[%s]</code> has %s %s <code>[%s]</code> from %s <code>[%s]</code> for sending Telegram invite link(s).\n#chat%s #user%s',
         ['13'] = '%s %s for sending Telegram invite link(s).',
         ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to whitelist it, use /whitelistlink <links>.',
-        ['15'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending media within their first few messages.\n#chat%s #user%s'
+        ['15'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending media within their first few messages.\n#chat%s #user%s',
+        ['16'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending a URL within their first few messages.\n#chat%s #user%s'
     },
     ['appstore'] = {
         ['1'] = 'veu on iTunes',

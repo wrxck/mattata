@@ -5,7 +5,7 @@
     | | | | | | (_| | |_| || (_| | || (_| |
     |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-    Configuration file for mattata v1.1.1
+    Configuration file for mattata v1.2
 
     Copyright 2020 Matthew Hesketh <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
@@ -19,7 +19,7 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     ['bot_token'] = '', -- In order for the bot to actually work, you MUST insert the Telegram
     -- bot API token you received from @BotFather.
     ['connected_message'] = 'Connected to the Telegram bot API!', -- The message to print when the bot is connected to the Telegram bot API.
-    ['version'] = '1.1.1', -- the version of mattata, don't change this!
+    ['version'] = '1.2', -- the version of mattata, don't change this!
     -- The following two tokens will require you to have setup payments with @BotFather, and
     -- a Stripe account with @stripe!
     ['stripe_live_token'] = '', -- Payment token you receive from @BotFather.
@@ -28,11 +28,17 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     -- FULL control over the bot, this includes access to server files via the lua and shell plugins.
         221714512
     },
-    ['blacklist_plugin_exceptions'] = {
+    ['blacklist_plugin_exceptions'] = { -- An array of plugins that will still be used for blacklisted users.
         'antispam'
     },
-    ['beta_plugins'] = {
+    ['beta_plugins'] = { -- An array of plugins that only the configured bot admins are able to use.
         'array_of_beta_plugins_here'
+    },
+    ['permanent_plugins'] = { -- An array of plugins that can't be disabled with /plugins.
+        'plugins',
+        'help',
+        'administration',
+        'about'
     },
     ['updates'] = {
         ['timeout'] = 3, -- timeout in seconds for api.get_updates()
@@ -115,12 +121,12 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     },
     ['limits'] = {
         ['bing'] = {
-            ['private'] = 12,
-            ['public'] = 8
-        },
-        ['stackoverflow'] = {
             ['private'] = 15,
             ['public'] = 7
+        },
+        ['stackoverflow'] = {
+            ['private'] = 12,
+            ['public'] = 8
         },
         ['reddit'] = {
             ['private'] = 8,
@@ -138,6 +144,13 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
             ['maximum'] = 10,
             ['minimum'] = 2,
             ['default'] = 3
+        },
+        ['allowed_links'] = {
+            'username',
+            'telegram',
+            'mattata',
+            'admin',
+            'admins'
         },
         ['store_chat_members'] = true,
         ['global_antispam'] = { -- normal antispam is processed in plugins/antispam.mattata

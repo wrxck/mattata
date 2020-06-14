@@ -1,4 +1,4 @@
-printf "This script is intended to work with Ubuntu 16.04-18.04, other versions may also\n"
+printf "This script is intended to work with Ubuntu 16.04 - 18.04, other versions may also\n"
 printf "work. Root access is required to complete the installation. Press enter to continue,\n"
 printf "or press CTRL + C to abort.\n"
 read
@@ -35,11 +35,17 @@ if [ ! -f "`which luarocks`" ]; then
 fi
 printf "[Info] Installing openssl...\n"
 sudo luarocks install --server=http://luarocks.org/dev openssl
-rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem uuid html-entities feedparser telegram-bot-lua lua-captcha lzlib"
+rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem uuid html-entities feedparser telegram-bot-lua lzlib"
 for rock in $rocklist; do
     printf "[Info] Installing $rock...\n"
     sudo luarocks install $rock
 done
+printf "[Info] Installing lua-captcha...\n"
+git clone git://github.com/lua-programming/lua-captcha.git
+cp patch/malloc.patch lua-captcha/
+cd lua-captcha/
+sudo luarocks make rockspec/lua-captcha-1.0-0.rockspec
+cd ../
 printf "[Info] Installing redis-dump...\n"
 sudo gem install redis-dump
 printf "[Info] Installing ImageMagick...\n"
@@ -48,5 +54,7 @@ printf "[Info] Cleaning up installation files...\n"
 sudo rm -rf lua-5.3.5/
 sudo rm lua-5.3.5.tar.gz
 sudo rm -rf luarocks/
+sudo rm -rf patch/
+sudo rm -rf lua-captcha/
 sudo -k
 printf "[Info] Installation complete.\n"
