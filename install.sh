@@ -44,6 +44,7 @@ printf "[Info] Installing lua-captcha...\n"
 git clone git://github.com/lua-programming/lua-captcha.git
 cp patch/malloc.patch lua-captcha/
 cd lua-captcha/
+git apply malloc.patch
 sudo luarocks make rockspec/lua-captcha-1.0-0.rockspec
 cd ../
 printf "[Info] Installing redis-dump...\n"
