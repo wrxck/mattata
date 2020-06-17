@@ -16,15 +16,15 @@ function allowedlinks:on_message(message, _, language)
     if message.chat.type ~= 'supergroup' then
         return mattata.send_reply(message, language.errors.supergroup)
     elseif not mattata.get_setting(message.chat.id, 'antilink') then
-        return mattata.send_reply(message, 'You\'re as free as a bird! Feel free to send any links in this chat (make sure you check the `/rules` first!). Admins can setup anti-link by using `/settings`, enabling `Anti-Link` and sending `/whitelistlink <links>`.', true)
+        return mattata.send_reply(message, 'You\'re as free as a bird! Feel free to send any links in this chat (make sure you check the `/rules` first!). Admins can setup anti-link by using `/settings`, enabling `Anti-Link` and sending `/allowlink <links>`.', true)
     end
-    local allowed = redis:keys('whitelisted_links:' .. message.chat.id .. ':*')
+    local allowed = redis:keys('allowlisted_links:' .. message.chat.id .. ':*')
     local output = { 'You\'re allowed to send the following links in this group:\n' }
     if #allowed == 0 then
-        return mattata.send_reply(message, 'There are no whitelisted groups here. Admins can whitelist Telegram links (or @username) by sending `/whitelistlink <links>`.', true)
+        return mattata.send_reply(message, 'There are no allowlisted groups here. Admins can allowlist Telegram links (or @username) by sending `/allowlink <links>`.', true)
     end
     for _, link in pairs(allowed) do
-        link = link:match('^whitelisted_links:' .. tostring(message.chat.id):gsub('%-', '%%-') .. ':(.-)$')
+        link = link:match('^allowlisted_links:' .. tostring(message.chat.id):gsub('%-', '%%-') .. ':(.-)$')
         link = 't.me/' .. link
         table.insert(output, mattata.symbols.bullet .. ' ' .. link)
     end

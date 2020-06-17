@@ -114,7 +114,7 @@ return {
         ['11'] = 'Hey %s, if you\'re going to send code that is longer than %s characters in length, please do so using /paste in <a href="https://t.me/%s">private chat with me</a>!',
         ['12'] = '%s <code>[%s]</code> has %s %s <code>[%s]</code> from %s <code>[%s]</code> for sending Telegram invite link(s).\n#chat%s #user%s',
         ['13'] = '%s %s for sending Telegram invite link(s).',
-        ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to whitelist it, use /whitelistlink <links>.',
+        ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to allowlist it, use /allowlink <links>.',
         ['15'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending media within their first few messages.\n#chat%s #user%s',
         ['16'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending a URL within their first few messages.\n#chat%s #user%s'
     },
@@ -150,17 +150,17 @@ return {
         ['1'] = 'Pleese specify a commaund tae run!',
         ['2'] = 'Success!'
     },
-    ['blacklist'] = {
-        ['1'] = 'Which usar wud ye like me tae blacklist? Ye can specify thes usar by thair @usarname ore numerical ID.',
-        ['2'] = 'A cannae blacklist thes usar becawis thei be a moderator ore an administrator in thes tauk.',
-        ['3'] = 'A cannae blacklist thes usar becawis thei have alrady left thes tauk.',
-        ['4'] = 'A cannae blacklist thes usar becawis thei have alrady been banned from thes tauk.',
-        ['5'] = '%s <code>[%s]</code> has blacklisted %s <code>[%s]</code> from using %s <code>[%s]</code> in %s <code>[%s]</code>%s.\n%s %s',
-        ['6'] = '%s has blacklisted %s from using %s%s.'
+    ['blocklist'] = {
+        ['1'] = 'Which usar wud ye like me tae blocklist? Ye can specify thes usar by thair @usarname ore numerical ID.',
+        ['2'] = 'A cannae blocklist thes usar becawis thei be a moderator ore an administrator in thes tauk.',
+        ['3'] = 'A cannae blocklist thes usar becawis thei have alrady left thes tauk.',
+        ['4'] = 'A cannae blocklist thes usar becawis thei have alrady been banned from thes tauk.',
+        ['5'] = '%s <code>[%s]</code> has blocklisted %s <code>[%s]</code> from using %s <code>[%s]</code> in %s <code>[%s]</code>%s.\n%s %s',
+        ['6'] = '%s has blocklisted %s from using %s%s.'
     },
-    ['blacklistchat'] = {
-        ['1'] = '%s has now been blacklisted, and A will leave whenever A am added there!',
-        ['2'] = '%s is a usar, thes commaund is anely for blacklisting tauks such as gruips and channels!',
+    ['blocklistchat'] = {
+        ['1'] = '%s has now been blocklisted, and A will leave whenever A am added there!',
+        ['2'] = '%s is a usar, thes commaund is anely for blocklisting tauks such as gruips and channels!',
         ['3'] = '%s daesna appeir tae be a valid tauk!'
     },
     ['bugreport'] = {
@@ -297,16 +297,16 @@ return {
         ['15'] = 'Statistics for %s:\n',
         ['16'] = 'Play Tic-Tac-Toe!'
     },
-    ['gblacklist'] = {
-        ['1'] = 'Pleese reply-to the usar ye\'d like tae globally blacklist, ore specify them by usarname/ID.',
+    ['gblocklist'] = {
+        ['1'] = 'Pleese reply-to the usar ye\'d like tae globally blocklist, ore specify them by usarname/ID.',
         ['2'] = 'A coudna get information about "%s", pleese check it\'s a valid usarname/ID and pree again.',
         ['3'] = 'That\'s a %s, not a usar!'
     },
     ['gif'] = {
         ['1'] = 'Pleese enter a serch query (that is, what ye want me tae serch GIPHY for, i.e. "cat" will return a GIF of a cat).'
     },
-    ['gwhitelist'] = {
-        ['1'] = 'Pleese reply-to the usar ye\'d like tae globally whitelist, ore specify them by usarname/ID.',
+    ['gallowlist'] = {
+        ['1'] = 'Pleese reply-to the usar ye\'d like tae globally allowlist, ore specify them by usarname/ID.',
         ['2'] = 'A coudna get information about "%s", pleese check it\'s a valid usarname/ID and pree again.',
         ['3'] = 'That\'s a %s, not a usar!'
     },
@@ -352,7 +352,7 @@ Here be some administrative commands and a brief comment regarding what thei do:
 
 • /setlink <URL> - Set the gruip's link tae the given URL, which will be sent whenever somebody uses /link
 
-• /links <text> - Whitelists all of the Telegram links found in the given text (includes @usarname links)
+• /links <text> - Allowlists all of the Telegram links found in the given text (includes @usarname links)
         ]],
         ['12'] = 'Below be some links ye might find useful:',
         ['13'] = 'Development',
@@ -713,11 +713,11 @@ System:
     ['welcome'] = {
         ['1'] = 'Group Rules'
     },
-    ['whitelist'] = {
-        ['1'] = 'Which user would you like me to whitelist? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot whitelist this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot whitelist this user because they have already left this chat.',
-        ['4'] = 'I cannot whitelist this user because they have already been banned from this chat.'
+    ['allowlist'] = {
+        ['1'] = 'Which user would you like me to allowlist? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot allowlist this user because they are a moderator or an administrator in this chat.',
+        ['3'] = 'I cannot allowlist this user because they have already left this chat.',
+        ['4'] = 'I cannot allowlist this user because they have already been banned from this chat.'
     },
     ['wikipedia'] = {
         ['1'] = 'Read more.'

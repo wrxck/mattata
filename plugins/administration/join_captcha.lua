@@ -8,7 +8,7 @@ local mattata = require('mattata')
 local redis = require('libs.redis')
 local captcha_lib = require('captcha')
 
-function join_captcha:cron()
+function join_captcha.cron()
     local keys = redis:keys('chat:*:captcha:*')
     for _, key in pairs(keys) do
         local chat_id, user_id = key:match('^chat:(%-?%d+):captcha:(%d+)$')
@@ -89,59 +89,66 @@ function join_captcha.on_callback_query(_, callback_query, message)
 end
 
 function join_captcha.on_member_join(_, message, configuration)
-    if mattata.get_setting(message.chat.id, 'require captcha') and not message.new_chat_participant.is_bot then
-        if mattata.get_captcha_id(message.chat.id, message.new_chat_participant.id) then
-            return mattata.send_reply(message, 'You still need to complete your CAPTCHA in order to speak!')
-        end
-        local chat_member = mattata.get_chat_member(message.chat.id, message.new_chat_participant.id)
-        if not chat_member then -- we can't even get info about the user? abort! abort!
-            return false
-        end
-        local download_location = configuration.download_location
-        if download_location:match('/$') then
-            download_location = download_location:match('^(.-)/$')
-        end
-        local new_captcha = captcha_lib.new()
-        new_captcha:setlength(7)
-        new_captcha:setfontsize(45)
-        new_captcha:setpath(download_location)
-        new_captcha:setformat('jpg')
-        new_captcha:setfontsfolder(configuration.fonts_directory)
-        local generated_captcha = new_captcha:generate()
-        local username = message.new_chat_participant.username and '@' .. message.new_chat_participant.username or false
-        local msg = string.format('Hey, [%s](tg://user?id=%s)! Please enter the above CAPTCHA using the buttons below before you can speak! You will be removed in 5 minutes if you don\'t do this.', username or mattata.escape_markdown(message.new_chat_participant.first_name), message.new_chat_participant.id)
-        local correct = generated_captcha:match('^' .. download_location .. '/(.-)%.jpg$')
-        local captchas = mattata.random_string(8, 5)
-        table.insert(captchas, correct)
-        table.sort(captchas)
-        local callback_data = string.format('join_captcha:%s:%s', message.chat.id, message.new_chat_participant.id)
-        local keyboard = mattata.inline_keyboard():row(
-            mattata.row()
-            :callback_data_button(captchas[1], callback_data .. ':' .. captchas[1])
-            :callback_data_button(captchas[2], callback_data .. ':' .. captchas[2])
-            :callback_data_button(captchas[3], callback_data .. ':' .. captchas[3])
-        ):row(
-            mattata.row()
-            :callback_data_button(captchas[4], callback_data .. ':' .. captchas[4])
-            :callback_data_button(captchas[5], callback_data .. ':' .. captchas[5])
-            :callback_data_button(captchas[6], callback_data .. ':' .. captchas[6])
-        )
-        local success = mattata.send_photo(message.chat.id, generated_captcha, msg, 'markdown', false, nil, keyboard)
-        if not success then
-            error('No success!')
-            os.execute('rm ' .. generated_captcha)
-            return false
-        end
-        os.execute('rm ' .. generated_captcha)
-        local restrict = mattata.restrict_chat_member(message.chat.id, message.new_chat_participant.id, 'forever', false, false, false, false, false, false, false, false)
-        if restrict then
-            mattata.set_captcha(message.chat.id, message.new_chat_participant.id, correct, success.result.message_id)
-            mattata.delete_message(message.chat.id, message.message_id)
-        else
-            error('Could not restrict ChatMember!')
-        end
-        return
+    if not mattata.get_setting(message.chat.id, 'require captcha') or message.new_chat_participant.is_bot then
+        return false
+    elseif mattata.get_captcha_id(message.chat.id, message.new_chat_participant.id) then
+        return mattata.send_reply(message, 'You still need to complete your CAPTCHA in order to speak!')
     end
+    local chat_member = mattata.get_chat_member(message.chat.id, message.new_chat_participant.id)
+    if not chat_member then -- we can't even get info about the user? abort! abort!
+        return false
+    end
+    local download_location = configuration.download_location
+    if download_location:match('/$') then
+        download_location = download_location:match('^(.-)/$')
+    end
+    local new_captcha = captcha_lib.new()
+    local size = mattata.get_setting(message.chat.id, 'captcha size') or configuration.administration.captcha.size.default
+    size = math.floor(size)
+    local length = mattata.get_setting(message.chat.id, 'captcha length') or configuration.administration.captcha.length.default
+    length = math.floor(length)
+    local captchas = configuration.administration.captcha.files
+    local current = mattata.get_setting(message.chat.id, 'captcha font') or 1
+    current = math.floor(current)
+    local font = captchas[current] or captchas[1]
+    new_captcha:setlength(length)
+    new_captcha:setfontsize(size)
+    new_captcha:setpath(download_location)
+    new_captcha:setformat('jpg')
+    new_captcha:setfontsfolder(configuration.fonts_directory .. '/' .. font)
+    local generated_captcha, correct = new_captcha:generate()
+    local username = message.new_chat_participant.username and '@' .. message.new_chat_participant.username or false
+    local msg = string.format('Hey, [%s](tg://user?id=%s)! Please enter the above CAPTCHA using the buttons below before you can speak! You will be removed in 5 minutes if you don\'t do this.\n_Click to expand the image on Android devices!_', username or mattata.escape_markdown(message.new_chat_participant.first_name), message.new_chat_participant.id)
+    captchas = mattata.random_string(length, 5)
+    table.insert(captchas, correct)
+    table.sort(captchas)
+    local callback_data = string.format('join_captcha:%s:%s', message.chat.id, message.new_chat_participant.id)
+    local keyboard = mattata.inline_keyboard():row(
+        mattata.row()
+        :callback_data_button(captchas[1], callback_data .. ':' .. captchas[1])
+        :callback_data_button(captchas[2], callback_data .. ':' .. captchas[2])
+        :callback_data_button(captchas[3], callback_data .. ':' .. captchas[3])
+    ):row(
+        mattata.row()
+        :callback_data_button(captchas[4], callback_data .. ':' .. captchas[4])
+        :callback_data_button(captchas[5], callback_data .. ':' .. captchas[5])
+        :callback_data_button(captchas[6], callback_data .. ':' .. captchas[6])
+    )
+    local success = mattata.send_photo(message.chat.id, generated_captcha, msg, 'markdown', false, nil, keyboard)
+    if not success then
+        error('No success!')
+        os.execute('rm ' .. generated_captcha)
+        return false
+    end
+    os.execute('rm ' .. generated_captcha)
+    local restrict = mattata.restrict_chat_member(message.chat.id, message.new_chat_participant.id, 'forever', false, false, false, false, false, false, false, false)
+    if restrict then
+        mattata.set_captcha(message.chat.id, message.new_chat_participant.id, correct, success.result.message_id)
+        mattata.delete_message(message.chat.id, message.message_id)
+    else
+        error('Could not restrict ChatMember!')
+    end
+    return
 end
 
 return join_captcha

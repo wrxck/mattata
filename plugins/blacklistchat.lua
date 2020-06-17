@@ -3,15 +3,15 @@
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
-local blacklistchat = {}
+local blocklistchat = {}
 local mattata = require('mattata')
 local redis = require('libs.redis')
 
-function blacklistchat:init()
-    blacklistchat.commands = mattata.commands(self.info.username):command('blacklistchat').table
+function blocklistchat:init()
+    blocklistchat.commands = mattata.commands(self.info.username):command('blocklistchat').table
 end
 
-function blacklistchat.on_message(_, message, _, language)
+function blocklistchat.on_message(_, message, _, language)
     if not mattata.is_global_admin(message.from.id) then
         return false
     end
@@ -23,14 +23,14 @@ function blacklistchat.on_message(_, message, _, language)
     local res = mattata.get_chat(input)
     local output
     if not res then
-        output = string.format(language['blacklistchat']['3'], input)
+        output = string.format(language['blocklistchat']['3'], input)
     elseif res.result.type == 'private' then
-        output = string.format(language['blacklistchat']['2'], input)
+        output = string.format(language['blocklistchat']['2'], input)
     else
-        redis.set('blacklisted_chats:' .. input, true)
-        output = string.format(language['blacklistchat']['1'], input)
+        redis.set('blocklisted_chats:' .. input, true)
+        output = string.format(language['blocklistchat']['1'], input)
     end
     return mattata.send_reply(message, output)
 end
 
-return blacklistchat
+return blocklistchat

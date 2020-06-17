@@ -3,16 +3,16 @@
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
-local blacklist = {}
+local blocklist = {}
 local mattata = require('mattata')
 local redis = require('libs.redis')
 
-function blacklist:init()
-    blacklist.commands = mattata.commands(self.info.username):command('blacklist').table
-    blacklist.help = '/blacklist [user] - Blacklists a user from using the bot in the current chat. This command can only be used by moderators and administrators of a supergroup.'
+function blocklist:init()
+    blocklist.commands = mattata.commands(self.info.username):command('blocklist').table
+    blocklist.help = '/blocklist [user] - Blocklists a user from using the bot in the current chat. This command can only be used by moderators and administrators of a supergroup.'
 end
 
-function blacklist:on_message(message, _, language)
+function blocklist:on_message(message, _, language)
     if message.chat.type ~= 'supergroup' then
         return mattata.send_reply(message, language.errors.supergroup)
     elseif not mattata.is_group_admin(message.chat.id, message.from.id) then
@@ -21,9 +21,9 @@ function blacklist:on_message(message, _, language)
     local reason = false
     local input = message.reply and message.reply.from.id or mattata.input(message.text)
     if not input then
-        local success = mattata.send_force_reply(message, language['blacklist']['1'])
+        local success = mattata.send_force_reply(message, language['blocklist']['1'])
         if success then
-            mattata.set_command_action(message.chat.id, success.result.message_id, '/blacklist')
+            mattata.set_command_action(message.chat.id, success.result.message_id, '/blocklist')
         end
         return
     elseif not message.reply then
@@ -46,25 +46,25 @@ function blacklist:on_message(message, _, language)
     local status = mattata.get_chat_member(message.chat.id, user.id)
     if not status then
         return mattata.send_reply(message, language.errors.generic)
-    elseif mattata.is_group_admin(message.chat.id, user.id) then -- We won't try and blacklist moderators and administrators.
-        return mattata.send_reply(message, language['blacklist']['2'])
+    elseif mattata.is_group_admin(message.chat.id, user.id) then -- We won't try and blocklist moderators and administrators.
+        return mattata.send_reply(message, language['blocklist']['2'])
     elseif status.result.status == 'left' or status.result.status == 'kicked' then -- Check if the user is in the group or not.
-        local output = status.result.status == 'left' and language['blacklist']['3'] or language['blacklist']['4']
+        local output = status.result.status == 'left' and language['blocklist']['3'] or language['blocklist']['4']
         return mattata.send_reply(message, output)
     end
-    redis:set('group_blacklist:' .. message.chat.id .. ':' .. user.id, true)
-    mattata.increase_administrative_action(message.chat.id, user.id, 'blacklists')
+    redis:set('group_blocklist:' .. message.chat.id .. ':' .. user.id, true)
+    mattata.increase_administrative_action(message.chat.id, user.id, 'blocklists')
     reason = reason and ', for ' .. reason or ''
     local admin_username = mattata.get_formatted_user(message.from.id, message.from.first_name, 'html')
-    local blacklisted_username = mattata.get_formatted_user(user.id, user.first_name, 'html')
+    local blocklisted_username = mattata.get_formatted_user(user.id, user.first_name, 'html')
     local bot_username = mattata.get_formatted_user(self.info.id, self.info.first_name, 'html')
     local output
     if mattata.get_setting(message.chat.id, 'log administrative actions') then
         local log_chat = mattata.get_log_chat(message.chat.id)
-        output = string.format(language['blacklist']['5'], admin_username, message.from.id, blacklisted_username, user.id, bot_username, self.info.id, mattata.escape_html(message.chat.title), message.chat.id, reason, '#chat' .. tostring(message.chat.id):gsub('^-100', ''), '#user' .. user.id)
+        output = string.format(language['blocklist']['5'], admin_username, message.from.id, blocklisted_username, user.id, bot_username, self.info.id, mattata.escape_html(message.chat.title), message.chat.id, reason, '#chat' .. tostring(message.chat.id):gsub('^-100', ''), '#user' .. user.id)
         mattata.send_message(log_chat, output, 'html')
     else
-        output = string.format(language['blacklist']['6'], admin_username, blacklisted_username, bot_username, reason)
+        output = string.format(language['blocklist']['6'], admin_username, blocklisted_username, bot_username, reason)
         mattata.send_message(message.chat.id, output, 'html')
     end
     if message.reply and mattata.get_setting(message.chat.id, 'delete reply on action') then
@@ -74,4 +74,4 @@ function blacklist:on_message(message, _, language)
     return
 end
 
-return blacklist
+return blocklist

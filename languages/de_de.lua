@@ -114,7 +114,7 @@ return {
         ['11'] = 'Hey %s, if you\'re going to send code that is longer than %s characters in length, please do so using /paste in <a href="https://t.me/%s">private chat with me</a>!',
         ['12'] = '%s <code>[%s]</code> has %s %s <code>[%s]</code> from %s <code>[%s]</code> for sending Telegram invite link(s).\n#chat%s #user%s',
         ['13'] = '%s %s for sending Telegram invite link(s).',
-        ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to whitelist it, use /whitelistlink <links>.',
+        ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to allowlist it, use /allowlink <links>.',
         ['15'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending media within their first few messages.\n#chat%s #user%s',
         ['16'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending a URL within their first few messages.\n#chat%s #user%s'
     },
@@ -150,15 +150,15 @@ return {
         ['1'] = 'Zum durchführen gebe ein Befehl an bitte!',
         ['2'] = 'Erfolg!'
     },
-    ['blacklist'] = {
+    ['blocklist'] = {
         ['1'] = 'Welchen Benutzer soll ich auf die schwarze Liste setzen? Du kannst den Benutzer mit dem Benutzernamen oder mit der Identifikationsnummer angeben.',
         ['2'] = 'Ich kann diesen Benutzer nicht auf die schwarze Liste setzen, weil er/sie ein Moderator oder Administrator in dieser Gruppe ist.',
         ['3'] = 'Ich kann diesen Benutzer nicht auf die schwarze Liste setzen, weil er/sie die Gruppe schon verlassen hat.',
         ['4'] = 'Ich kann diesen Benutzer nicht auf die schwarze Liste setzen, weil er/sie für die gruppe schon gesperrt ist.',
-        ['5'] = '%s <code>[%s]</code> has blacklisted %s <code>[%s]</code> from using %s <code>[%s]</code> in %s <code>[%s]</code>%s.\n%s %s',
-        ['6'] = '%s has blacklisted %s from using %s%s.'
+        ['5'] = '%s <code>[%s]</code> has blocklisted %s <code>[%s]</code> from using %s <code>[%s]</code> in %s <code>[%s]</code>%s.\n%s %s',
+        ['6'] = '%s has blocklisted %s from using %s%s.'
     },
-    ['blacklistchat'] = {
+    ['blocklistchat'] = {
         ['1'] = '%s ist nun auf der schwarzen Liste. Ich will euch auch verlassen wenn ich hinzugefügt werde!',
         ['2'] = '%s ist ein Benutzer. Dieser Befehl ist für die schwarze Liste von Unterhaltungen wie Gruppen und Kanäle!',
         ['3'] = '%s ist keine gültige Unterhaltung!'
@@ -309,7 +309,7 @@ return {
         ['15'] = 'Statistik für %s:\n',
         ['16'] = 'Spiel Tic-Tac-Toe!'
     },
-    ['gblacklist'] = {
+    ['gblocklist'] = {
         ['1'] = 'Bitte Antworte-zu dem Benutzer, welchen du global auf der schwarzen Liste haben möchtest, oder gebe ihn/sie mit Benutzername/Identifikationsnummer an.',
         ['2'] = 'Ich kann keine Information über "%s" finden, bitte prüfe nach ob der Benutzername/Identifikationsnummer gültig ist und versuche es noch einmal.',
         ['3'] = 'Das ist ein/e %s, aber kein Benutzer!'
@@ -317,7 +317,7 @@ return {
     ['gif'] = {
         ['1'] = 'Bitte gebe einen Suchbegriff ein (das ist, was ich in GIPHY für dich suchen soll, d.h. "Katze" will ein GIF von einer Katze senden).'
     },
-    ['gwhitelist'] = {
+    ['gallowlist'] = {
         ['1'] = 'Bitte Antworte-zu dem Benutzer, welchen du global auf der weißen Liste haben möchtest, oder gebe ihn/sie mit Benutzername/Identifikationsnummer an.',
         ['2'] = 'Ich kann keine Information über "%s" finden, bitte prüfe nach ob der Benutzername/Identifikationsnummer gültig ist und versuche es noch einmal.',
         ['3'] = 'Das ist ein/e %s, aber kein Benutzer!'
@@ -761,7 +761,7 @@ System:
     ['welcome'] = {
         ['1'] = 'Group Rules'
     },
-    ['whitelist'] = {
+    ['allowlist'] = {
         ['1'] = 'Welchen Benutzer soll ich auf die Weiße Liste setzen? Gebe den Benutzer mit dem @Benutzername oder der Identifikationsnummer an.',
         ['2'] = 'Ich kann den Benutzer nicht auf die Weiße Liste setzen, weil er Moderator oder Administrator in dieser Gruppe ist.',
         ['3'] = 'Ich kann den Benutzer nicht auf die Weiße Liste setzen, weil er die Gruppe schon verlassen hat.',

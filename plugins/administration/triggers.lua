@@ -38,10 +38,11 @@ function triggers:on_new_message(message)
                 if success then
                     redis:set('bot:' .. message.chat.id .. ':' .. message.message_id, success.result.message_id)
                 end
+                return success
             else
                 local message_id = redis:get('bot:' .. message.chat.id .. ':' .. message.message_id)
                 if message_id then
-                    mattata.edit_message_text(message.chat.id, message_id, '<pre>' .. mattata.escape_html(value) .. '</pre>', 'html')
+                    return mattata.edit_message_text(message.chat.id, message_id, '<pre>' .. mattata.escape_html(value) .. '</pre>', 'html')
                 end
             end
         end

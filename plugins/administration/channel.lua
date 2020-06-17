@@ -1,5 +1,6 @@
 --[[
-    Based on a plugin by topkecleon.
+    Based on a plugin by topkecleon. Licensed under GNU AGPLv3
+    https://github.com/topkecleon/otouto/blob/master/LICENSE.
     Copyright 2020 Matthew Hesketh <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]

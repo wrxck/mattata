@@ -114,7 +114,7 @@ return {
         ['11'] = 'Hey %s, if you\'re going to send code that is longer than %s characters in length, please do so using /paste in <a href="https://t.me/%s">private chat with me</a>!',
         ['12'] = '%s <code>[%s]</code> has %s %s <code>[%s]</code> from %s <code>[%s]</code> for sending Telegram invite link(s).\n#chat%s #user%s',
         ['13'] = '%s %s for sending Telegram invite link(s).',
-        ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to whitelist it, use /whitelistlink <links>.',
+        ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to allowlist it, use /allowlink <links>.',
         ['15'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending media within their first few messages.\n#chat%s #user%s',
         ['16'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending a URL within their first few messages.\n#chat%s #user%s'
     },
@@ -150,15 +150,15 @@ return {
         ['1'] = 'Podaj komendę to uruchomienia.',
         ['2'] = 'Sukces!'
     },
-    ['blacklist'] = {
+    ['blocklist'] = {
         ['1'] = 'Kogo mam ignorować? Podaj @username lub ID.',
         ['2'] = 'Nie mogę ignorować tego użytkownika, ponieważ jest to moderator lub administrator tej grupy.',
         ['3'] = 'Nie mogę ignorować tego użytkownika, ponieważ opuścił on tę grupę.',
         ['4'] = 'Nie mogę ignorować tego użytkownika, ponieważ został on zbanowany.',
-        ['5'] = '%s <code>[%s]</code> has blacklisted %s <code>[%s]</code> from using %s <code>[%s]</code> in %s <code>[%s]</code>%s.\n%s %s',
-        ['6'] = '%s has blacklisted %s from using %s%s.'
+        ['5'] = '%s <code>[%s]</code> has blocklisted %s <code>[%s]</code> from using %s <code>[%s]</code> in %s <code>[%s]</code>%s.\n%s %s',
+        ['6'] = '%s has blocklisted %s from using %s%s.'
     },
-    ['blacklistchat'] = {
+    ['blocklistchat'] = {
         ['1'] = '%s został dodany do czarnej listy, nie pozwolę się tam dodać!',
         ['2'] = '%s jest użytkownikiem, ta komenda służy do blokowanie grup i kanałów!',
         ['3'] = '%s wydaje się nie istnieć!'
@@ -319,7 +319,7 @@ return {
         ['15'] = 'Statystyki dla %s:\n',
         ['16'] = 'Zagraj w kółko i krzyżyk!'
     },
-    ['gblacklist'] = {
+    ['gblocklist'] = {
         ['1'] = 'Odpowiedz do użytkownika którego mam wszędzie ignorować, bądź podaj jego @username lub ID.',
         ['2'] = 'Nie mogę dostać informacji o "%s", upewnij się że jest to poprawny @username lub ID.',
         ['3'] = 'To %s, a nie użytkownik!'
@@ -332,7 +332,7 @@ return {
         ['2'] = 'Liczba zbyt mała, musi należeć do przedziału od 1 do 64!',
         ['3'] = 'Liczba zbyt duża, musi należeć do przedziału od 1 do 64!'
     },
-    ['gwhitelist'] = {
+    ['gallowlist'] = {
         ['1'] = 'Odpowiedz do użytkownika któremu mam znowu odpowiedać, bądź podaj jego @username lub ID.',
         ['2'] = 'Nie mogę dostać informacji o "%s", upewnij się że jest to poprawny @username lub ID.',
         ['3'] = 'To %s, a nie użytkownik!'
@@ -792,7 +792,7 @@ System:
     ['welcome'] = {
         ['1'] = 'Przeczytaj zasady'
     },
-    ['whitelist'] = {
+    ['allowlist'] = {
         ['1'] = 'Kogo mam przestać ignorować? Podaj @username lub ID.',
         ['2'] = 'Nie mogę przestać ignorować tego użytkownika, ponieważ jest to moderator lub administrator tej grupy.',
         ['3'] = 'Nie mogę przestać ignorować tego użytkownika, ponieważ opuścił on tę grupę.',

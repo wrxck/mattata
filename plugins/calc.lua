@@ -1,5 +1,6 @@
 --[[
-    Based on a plugin by topkecleon.
+    Based on a plugin by topkecleon. Licensed under GNU AGPLv3
+    https://github.com/topkecleon/otouto/blob/master/LICENSE.
     Copyright 2020 Matthew Hesketh <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
@@ -24,12 +25,16 @@ function calc:init()
         ['take away'] = '-',
         ['to the power of'] = '^',
         ['raised to'] = '^',
-        [' pi '] = math.pi,
+        ['π'] = math.pi,
+        ['pi'] = math.pi,
         ['plus'] = '+',
         ['added to'] = '+',
         ['add'] = '+',
         ['point'] = '.',
-        ['dot'] = '.'
+        ['dot'] = '.',
+        ['percent'] = '%%',
+        ['percentage'] = '%%',
+        ['²'] = '^2'
     }
     calc.numbers = {
         ['zero'] = 0,
@@ -92,7 +97,7 @@ function calc.convert(str, language)
     str = str:lower()
     local results = {}
     local prev = nil
-    for word in str:gmatch('%w+') do
+    for word in str:gmatch('[%w²π]+') do
         if word ~= 'and' then -- don't process "and"
             local top = #results
             local number = tonumber(word)
@@ -136,6 +141,7 @@ end
 
 
 function calc.process_input(input, language)
+    input = input:gsub('percent of', 'percent')
     for k, v in pairs(calc.aliases) do
         input = input:gsub(k, v)
     end

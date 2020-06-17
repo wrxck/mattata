@@ -114,7 +114,7 @@ return {
         ['11'] = 'Hey %s, if you\'re going to send code that is longer than %s characters in length, please do so using /paste in <a href="https://t.me/%s">private chat with me</a>!',
         ['12'] = '%s <code>[%s]</code> has %s %s <code>[%s]</code> from %s <code>[%s]</code> for sending Telegram invite link(s).\n#chat%s #user%s',
         ['13'] = '%s %s for sending Telegram invite link(s).',
-        ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to whitelist it, use /whitelistlink <links>.',
+        ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to allowlist it, use /allowlink <links>.',
         ['15'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending media within their first few messages.\n#chat%s #user%s',
         ['16'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending a URL within their first few messages.\n#chat%s #user%s'
     },
@@ -150,15 +150,15 @@ return {
         ['1'] = 'Lütfen çalıştırılacak bir komut belirtin!',
         ['2'] = 'Başarılı!'
     },
-    ['blacklist'] = {
+    ['blocklist'] = {
         ['1'] = 'Hangi kullanıcıyı kara listeye almamı istersiniz?? Bu kullanıcıyı @kulanıcıadı şeklinde veya kullanıcı IDsi ile belirtebilirsin.',
         ['2'] = 'Bu kullanıcıyı, bu sohbette bir moderatör veya yönetici oldukları için kara listeye alamam.',
         ['3'] = 'Bu sohbetten ayrıldığı için bu kullanıcıyı kara listeye alamam.',
         ['4'] = 'Bu sohbetten banlandığı için bu kullanıcıyı kara listeye alamam.',
-        ['5'] = '%s <code>[%s]</code> has blacklisted %s <code>[%s]</code> from using %s <code>[%s]</code> in %s <code>[%s]</code>%s.\n%s %s',
-        ['6'] = '%s has blacklisted %s from using %s%s.'
+        ['5'] = '%s <code>[%s]</code> has blocklisted %s <code>[%s]</code> from using %s <code>[%s]</code> in %s <code>[%s]</code>%s.\n%s %s',
+        ['6'] = '%s has blocklisted %s from using %s%s.'
     },
-    ['blacklistchat'] = {
+    ['blocklistchat'] = {
         ['1'] = '%s şimdi kara listeye alındı!',
         ['2'] = '%s bir kullanıcıysa, bu komut sadece gruplar ve kanallar gibi sohbetleri kara listeye almak için kullanılır!',
         ['3'] = '%s Geçerli bir sohbet gibi gözükmüyor!'
@@ -297,7 +297,7 @@ return {
         ['15'] = 'Oyun istatistiği %s:\n',
         ['16'] = 'Tic-Tac-Toe oyna!'
     },
-    ['gblacklist'] = {
+    ['gblocklist'] = {
         ['1'] = 'Lütfen genel kara listeye eklemek istediğiniz kullanıcıyı yanıtlayın veya kullanıcı adı veya kimlik numarasına göre belirtin.',
         ['2'] = 'Hakkında bilgi alamadım "%s", lütfen geçerli bir kullanıcı adı veya kimliğini kontrol edin ve tekrar deneyin.',
         ['3'] = 'Bu bir %s kullanıcı değil'
@@ -305,7 +305,7 @@ return {
     ['gif'] = {
         ['1'] = 'Lütfen bir arama sorgusu girin (GIPHY de ne aramak istediğini belirt , örnek: "kedi" kedi ile ilgili olan GIF ler gösterilecek).'
     },
-    ['gwhitelist'] = {
+    ['gallowlist'] = {
         ['1'] = 'Lütfen genel olarak beyaz listeye eklemek isteyen kullanıcıyı yanıtlayın, kullanıcı adı veya kimlik numarasına göre belirtin.',
         ['2'] = 'Hakkında bilgi alamadım "%s", lütfen geçerli bir kullanıcı adı veya kimliğini kontrol edin ve tekrar deneyin.',
         ['3'] = 'Bu bir %s kullanıcı değil'
@@ -713,7 +713,7 @@ Sistem:
     ['welcome'] = {
         ['1'] = 'Grup Kuralları'
     },
-    ['whitelist'] = {
+    ['allowlist'] = {
         ['1'] = 'Hangi kullanıcıyı beyaz listeye almak istiyorsun? Bir kullanıcıyı özel olarak @kullanıcıadı şeklinde veya kullanıcı kimliği ile belirtebilirsin.',
         ['2'] = 'Admini veya moderatörü beyaz listeye alamam.',
         ['3'] = 'Bu kullanıcıyı beyaz listeye alamam, kullanıcı sohbetten ayrılmış.',

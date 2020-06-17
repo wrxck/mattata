@@ -90,17 +90,17 @@ function antispam:on_new_message(message, configuration, language)
                 return
             end
         else
-            local whitelisted = true
+            local allowlisted = true
             local links = mattata.check_links(message, true, true)
             if links and #links > 0 then
                 for _, link in pairs(links) do
-                    if not redis:get('whitelisted_links:' .. message.chat.id .. ':' .. link) and not mattata.table_contains(configuration.administration.allowed_links, link:lower()) then
-                        whitelisted = false
+                    if not redis:get('allowlisted_links:' .. message.chat.id .. ':' .. link) and not mattata.table_contains(configuration.administration.allowed_links, link:lower()) then
+                        allowlisted = false
                         break
                     end
                 end
             end
-            if not whitelisted and not message.text:match('^[!/#]whitelistlink') and not message.text:match('^[!/#]wl') then
+            if not allowlisted and not message.text:match('^[!/#]allowlink') and not message.text:match('^[!/#]wl') then
                 return mattata.send_reply(message, language['antispam']['14'])
             end
         end

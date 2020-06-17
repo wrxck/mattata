@@ -114,7 +114,7 @@ return {
         ['11'] = 'Hey %s, if you\'re going to send code that is longer than %s characters in length, please do so using /paste in <a href="https://t.me/%s">private chat with me</a>!',
         ['12'] = '%s <code>[%s]</code> has %s %s <code>[%s]</code> from %s <code>[%s]</code> for sending Telegram invite link(s).\n#chat%s #user%s',
         ['13'] = '%s %s for sending Telegram invite link(s).',
-        ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to whitelist it, use /whitelistlink <links>.',
+        ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to allowlist it, use /allowlink <links>.',
         ['15'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending media within their first few messages.\n#chat%s #user%s',
         ['16'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending a URL within their first few messages.\n#chat%s #user%s'
     },
@@ -150,17 +150,17 @@ return {
         ['1'] = 'Please specify a command to run!',
         ['2'] = 'Success!'
     },
-    ['blacklist'] = {
-        ['1'] = 'Which user would you like me to blacklist? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot blacklist this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot blacklist this user because they have already left this chat.',
-        ['4'] = 'I cannot blacklist this user because they have already been banned from this chat.',
-        ['5'] = '%s <code>[%s]</code> has blacklisted %s <code>[%s]</code> from using %s <code>[%s]</code> in %s <code>[%s]</code>%s.\n%s %s',
-        ['6'] = '%s has blacklisted %s from using %s%s.'
+    ['blocklist'] = {
+        ['1'] = 'Which user would you like me to blocklist? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot blocklist this user because they are a moderator or an administrator in this chat.',
+        ['3'] = 'I cannot blocklist this user because they have already left this chat.',
+        ['4'] = 'I cannot blocklist this user because they have already been banned from this chat.',
+        ['5'] = '%s <code>[%s]</code> has blocklisted %s <code>[%s]</code> from using %s <code>[%s]</code> in %s <code>[%s]</code>%s.\n%s %s',
+        ['6'] = '%s has blocklisted %s from using %s%s.'
     },
-    ['blacklistchat'] = {
-        ['1'] = '%s has now been blacklisted, and I will leave whenever I am added there!',
-        ['2'] = '%s is a user, this command is only for blacklisting chats such as groups and channels!',
+    ['blocklistchat'] = {
+        ['1'] = '%s has now been blocklisted, and I will leave whenever I am added there!',
+        ['2'] = '%s is a user, this command is only for blocklisting chats such as groups and channels!',
         ['3'] = '%s doesn\'t appear to be a valid chat!'
     },
     ['bugreport'] = {
@@ -319,8 +319,8 @@ return {
         ['15'] = 'Statistics for %s:\n',
         ['16'] = 'Play Tic-Tac-Toe!'
     },
-    ['gblacklist'] = {
-        ['1'] = 'Please reply-to the user you\'d like to globally blacklist, or specify them by username/ID.',
+    ['gblocklist'] = {
+        ['1'] = 'Please reply-to the user you\'d like to globally blocklist, or specify them by username/ID.',
         ['2'] = 'I couldn\'t get information about "%s", please check it\'s a valid username/ID and try again.',
         ['3'] = 'That\'s a %s, not a user!'
     },
@@ -332,8 +332,8 @@ return {
         ['2'] = 'That number is too small, please specify one between 1 and 64!',
         ['3'] = 'That number is too large, please specify one between 1 and 64!'
     },
-    ['gwhitelist'] = {
-        ['1'] = 'Please reply-to the user you\'d like to globally whitelist, or specify them by username/ID.',
+    ['gallowlist'] = {
+        ['1'] = 'Please reply-to the user you\'d like to globally allowlist, or specify them by username/ID.',
         ['2'] = 'I couldn\'t get information about "%s", please check it\'s a valid username/ID and try again.',
         ['3'] = 'That\'s a %s, not a user!'
     },
@@ -379,7 +379,7 @@ Here are some administrative commands and a brief comment regarding what they do
 
 • /setlink <URL> - Set the group's link to the given URL, which will be sent whenever somebody uses /link
 
-• /links <text> - Whitelists all of the Telegram links found in the given text (includes @username links)
+• /links <text> - Allowlists all of the Telegram links found in the given text (includes @username links)
         ]],
         ['12'] = 'Below are some links you might find useful:',
         ['13'] = 'Development',
@@ -792,11 +792,11 @@ System:
     ['welcome'] = {
         ['1'] = 'Group Rules'
     },
-    ['whitelist'] = {
-        ['1'] = 'Which user would you like me to whitelist? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot whitelist this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot whitelist this user because they have already left this chat.',
-        ['4'] = 'I cannot whitelist this user because they have already been banned from this chat.'
+    ['allowlist'] = {
+        ['1'] = 'Which user would you like me to allowlist? You can specify this user by their @username or numerical ID.',
+        ['2'] = 'I cannot allowlist this user because they are a moderator or an administrator in this chat.',
+        ['3'] = 'I cannot allowlist this user because they have already left this chat.',
+        ['4'] = 'I cannot allowlist this user because they have already been banned from this chat.'
     },
     ['wikipedia'] = {
         ['1'] = 'Read more.'

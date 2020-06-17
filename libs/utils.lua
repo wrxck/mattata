@@ -1,5 +1,5 @@
 local utils = {}
-local redis = dofile('libs/redis.lua')
+local redis = require('libs.redis')
 local configuration = require('configuration')
 
 local mattata = {}
@@ -309,7 +309,7 @@ function utils.increase_administrative_action(chat_id, user_id, action, increase
     return redis:hincrby(hash, action, increase_by)
 end
 
-function utils.is_whitelisted_link(link)
+function utils.is_allowlisted_link(link)
     if link == 'username' or link == 'isiswatch' or link == 'mattata' or link == 'telegram' then
         return true
     end
@@ -342,11 +342,11 @@ function utils.uses_administration(chat_id)
     return utils.get_setting(chat_id, 'use administration')
 end
 
-function utils.is_plugin_allowed(plugin, is_blacklisted)
-    if not is_blacklisted then
+function utils.is_plugin_allowed(plugin, is_blocklisted)
+    if not is_blocklisted then
         return true
     end
-    for _, p in pairs(configuration.blacklist_plugin_exceptions) do
+    for _, p in pairs(configuration.blocklist_plugin_exceptions) do
         if p == plugin then
             return true
         end
@@ -458,18 +458,18 @@ function utils.get_fed_bans(fed_id)
     return #redis:smembers('fedbans:' .. fed_id)
 end
 
-function utils.fed_whitelist(chat_id, user_id)
+function utils.fed_allowlist(chat_id, user_id)
     if not chat_id or not user_id then
         return false
     end
-    return redis:sadd('fedwhitelist:' .. chat_id, user_id)
+    return redis:sadd('fedallowlist:' .. chat_id, user_id)
 end
 
-function utils.is_user_fed_whitelisted(chat_id, user_id)
+function utils.is_user_fed_allowlisted(chat_id, user_id)
     if not chat_id or not user_id then
         return false
     end
-    return redis:sismember('fedwhitelist:' .. chat_id, user_id) and true or false
+    return redis:sismember('fedallowlist:' .. chat_id, user_id) and true or false
 end
 
 function utils.is_duplicate(tab, val)

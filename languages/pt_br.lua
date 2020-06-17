@@ -114,7 +114,7 @@ return {
         ['11'] = 'Hey %s, if you\'re going to send code that is longer than %s characters in length, please do so using /paste in <a href="https://t.me/%s">private chat with me</a>!',
         ['12'] = '%s <code>[%s]</code> has %s %s <code>[%s]</code> from %s <code>[%s]</code> for sending Telegram invite link(s).\n#chat%s #user%s',
         ['13'] = '%s %s for sending Telegram invite link(s).',
-        ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to whitelist it, use /whitelistlink <links>.',
+        ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to allowlist it, use /allowlink <links>.',
         ['15'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending media within their first few messages.\n#chat%s #user%s',
         ['16'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending a URL within their first few messages.\n#chat%s #user%s'
     },
@@ -150,15 +150,15 @@ return {
         ['1'] = 'Especifique um comando para executar!',
         ['2'] = 'Sucesso!'
     },
-    ['blacklist'] = {
+    ['blocklist'] = {
         ['1'] = 'Qual utilizador gostaria de adicionar a lista negra? Pode especificar este utilizador pelo seu @username ou ID numérico.',
         ['2'] = 'Não consigo adicionar a lista negra esse utilizador porque ele é um moderador ou um administrador neste grupo.',
         ['3'] = 'Não consigo adicionar a lista negra esse utilizador porque ele já deixou este grupo.',
         ['4'] = 'Não consigo adicionar a lista negra esse utilizador porque ele já foi banido neste grupo.',
-        ['5'] = '%s <code>[%s]</code> has blacklisted %s <code>[%s]</code> from using %s <code>[%s]</code> in %s <code>[%s]</code>%s.\n%s %s',
-        ['6'] = '%s has blacklisted %s from using %s%s.'
+        ['5'] = '%s <code>[%s]</code> has blocklisted %s <code>[%s]</code> from using %s <code>[%s]</code> in %s <code>[%s]</code>%s.\n%s %s',
+        ['6'] = '%s has blocklisted %s from using %s%s.'
     },
-    ['blacklistchat'] = {
+    ['blocklistchat'] = {
         ['1'] = '%s foi adicionado a lista negra, e vou deixar lá quem eu adicionar!',
         ['2'] = '%s é um utilizador, este comando é apenas para lista negras em conversas como grupos e canais!',
         ['3'] = '%s não parece ser uma conversa valida!'
@@ -297,7 +297,7 @@ return {
         ['15'] = 'Estatísticas %s:\n',
         ['16'] = 'Jogar ao Jogo do Galo!'
     },
-    ['gblacklist'] = {
+    ['gblocklist'] = {
         ['1'] = 'Responda ao utilizador que deseja incluir na lista negra global ou especifique-o por nome de utilizador/ID.',
         ['2'] = 'Não conseguir obter informações sobre "%s", verifique se é um nome de utilizador/ID válido e tente novamente.',
         ['3'] = 'Isso é um %s, não um utilizador!'
@@ -305,7 +305,7 @@ return {
     ['gif'] = {
         ['1'] = 'Introduza uma consulta de pesquisa (Que é, o que quer que eu procure no GIPHY, ex: "cat" irá mostrar um GIF de um gato).'
     },
-    ['gwhitelist'] = {
+    ['gallowlist'] = {
         ['1'] = 'Responda ao utilizador que deseja incluir na lista branca global ou especifique-o por nome de utilizador/ID.',
         ['2'] = 'Não conseguir obter informações sobre "%s", verifique se é um nome de utilizador/ID válido e tente novamente.',
         ['3'] = 'Isso é um %s, não um utilizador!'
@@ -713,7 +713,7 @@ Sistema:
     ['welcome'] = {
         ['1'] = 'Regras do Grupo'
     },
-    ['whitelist'] = {
+    ['allowlist'] = {
         ['1'] = 'Qual utilizador gostaria de adicionar à white-list? Pode especificar este utilizador pelo seu @utilizador ou ID numérico.',
         ['2'] = 'Não consigo adicionar à white-list esse utilizador porque ele é um moderador ou administrador neste grupo.',
         ['3'] = 'Não consigo adicionar à white-list esse utilizador porque ele já deixou este grupo.',

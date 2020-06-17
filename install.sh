@@ -4,7 +4,7 @@ printf "or press CTRL + C to abort.\n"
 read
 set -e
 sudo apt-get update
-aptlist="git wget openssl coreutils make gcc libreadline-dev redis-server unzip libexpat1-dev libcurl3 libcurl3-gnutls ruby ruby-dev libgd-dev imagemagick tesseract-ocr"
+aptlist="git wget openssl coreutils make gcc libreadline-dev redis-server unzip libexpat1-dev libcurl3 libcurl3-gnutls ruby ruby-dev libgd-dev imagemagick tesseract-ocr libpcre3-dev"
 for package in $aptlist; do
     printf "[Info] Installing $package...\n"
     sudo apt-get --yes --force-yes install $package
@@ -35,7 +35,7 @@ if [ ! -f "`which luarocks`" ]; then
 fi
 printf "[Info] Installing openssl...\n"
 sudo luarocks install --server=http://luarocks.org/dev openssl
-rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem uuid html-entities feedparser telegram-bot-lua lzlib"
+rocklist="luasocket luasec multipart-post lpeg dkjson serpent redis-lua luafilesystem uuid html-entities feedparser telegram-bot-lua lzlib lrexlib-pcre"
 for rock in $rocklist; do
     printf "[Info] Installing $rock...\n"
     sudo luarocks install $rock

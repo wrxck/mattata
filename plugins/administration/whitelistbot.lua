@@ -3,17 +3,17 @@
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
-local whitelistbot = {}
+local allowbot = {}
 local mattata = require('mattata')
 local redis = require('libs.redis')
 
-function whitelistbot:init()
-    whitelistbot.commands = mattata.commands(self.info.username):command('whitelistbot'):command('whitelistbots'):command('wb').table
-    whitelistbot.help = '/whitelistbot <bots> - Whitelists the given bots in the current chat. Requires administrative privileges. Aliases: /whitelistbots, /wb.'
-    whitelistbot.example_bots = { 'gif', 'imdb', 'wiki', 'music', 'youtube', 'bold', 'sticker', 'vote', 'like', 'gamee', 'coub', 'pic', 'vid', 'bing' }
+function allowbot:init()
+    allowbot.commands = mattata.commands(self.info.username):command('allowbot'):command('allowbots'):command('wb').table
+    allowbot.help = '/allowbot <bots> - Allowlists the given bots in the current chat. Requires administrative privileges. Aliases: /allowbots, /wb.'
+    allowbot.example_bots = { 'gif', 'imdb', 'wiki', 'music', 'youtube', 'bold', 'sticker', 'vote', 'like', 'gamee', 'coub', 'pic', 'vid', 'bing' }
 end
 
-function whitelistbot:on_new_message(message, configuration, language)
+function allowbot:on_new_message(message, configuration, language)
     if message.chat.type ~= 'supergroup' then
         return false
     elseif mattata.get_setting(message.chat.id, 'prevent inline bots') and message.via_bot and not mattata.is_group_admin(message.chat.id, message.from.id) then
@@ -21,13 +21,13 @@ function whitelistbot:on_new_message(message, configuration, language)
     end
 end
 
-function whitelistbot:on_message(message, configuration, language)
+function allowbot:on_message(message, configuration, language)
     if not mattata.is_group_admin(message.chat.id, message.from.id) then
         return mattata.send_reply(message, language.errors.admin)
     end
     local input = mattata.input(message.text)
     if not input then
-        return mattata.send_reply(message, 'Please specify the @usernames of the bots you\'d like to whitelist.')
+        return mattata.send_reply(message, 'Please specify the @usernames of the bots you\'d like to allowlist.')
     elseif not input:match('@?[%w_]') then
         return mattata.send_reply(message, 'Please make sure you\'re specifying valid bot usernames!')
     end
@@ -35,7 +35,7 @@ function whitelistbot:on_message(message, configuration, language)
     for bot in input:gmatch('@?([%w_]+bot)') do
         table.insert(bots, bot)
     end
-    for _, bot in pairs(whitelistbot.example_bots) do
+    for _, bot in pairs(allowbot.example_bots) do
         if input:match('@?' .. bot) then
             table.insert(bots, bot)
         end
@@ -44,10 +44,10 @@ function whitelistbot:on_message(message, configuration, language)
         return mattata.send_reply(message, 'Please make sure you\'re specifying valid bot usernames!')
     end
     for _, bot in pairs(bots) do
-        redis:sadd('whitelisted_bots:' .. message.chat.id, bot)
+        redis:sadd('allowlisted_bots:' .. message.chat.id, bot)
     end
-    local output = string.format('Successfully whitelisted the following bots in this chat: %s', table.concat(bots, ', '))
+    local output = string.format('Successfully allowlisted the following bots in this chat: %s', table.concat(bots, ', '))
     return mattata.send_reply(message, output)
 end
 
-return whitelistbot
+return allowbot

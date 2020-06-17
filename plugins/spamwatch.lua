@@ -16,7 +16,7 @@ function spamwatch:on_new_message(message, configuration, language)
         return false
     elseif not mattata.get_setting(message.chat.id, 'ban spamwatch users') then
         return false
-    elseif self.is_spamwatch_blacklisted then
+    elseif self.is_spamwatch_blocklisted then
         mattata.ban_chat_member(message.chat.id, message.from.id)
     end
     return false
@@ -35,7 +35,7 @@ function spamwatch:on_message(message, configuration, language)
         user = { ['result'] = { ['id'] = input:match('^(%d+)$') } }
     end
     user = user.result.id
-    local res, jdat = mattata.is_spamwatch_blacklisted(user)
+    local res, jdat = mattata.is_spamwatch_blocklisted(user)
     if not res then
         return mattata.send_reply(message, 'That user isn\'t in the SpamWatch database!')
     end

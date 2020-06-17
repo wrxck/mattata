@@ -15,7 +15,7 @@ end
 function fban.on_new_message(_, message)
     if message.chat.type ~= 'supergroup' then
         return false
-    elseif mattata.is_user_fedbanned(message.chat.id, message.from.id) and not mattata.is_user_fed_whitelisted(message.chat.id, message.from.id) then
+    elseif mattata.is_user_fedbanned(message.chat.id, message.from.id) and not mattata.is_user_fed_allowlisted(message.chat.id, message.from.id) then
         mattata.send_message(message.chat.id, 'Banned ' .. message.from.first_name .. ', because they\'ve been banned in one of this group\'s Feds!')
         return mattata.ban_chat_member(message.chat.id, message.from.id)
     end

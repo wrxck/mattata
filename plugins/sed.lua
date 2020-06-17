@@ -1,15 +1,33 @@
 --[[
+    Based on a plugin by topkecleon. Licensed under GNU AGPLv3
+    https://github.com/topkecleon/otouto/blob/master/LICENSE.
     Copyright 2020 Matthew Hesketh <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
 ]]
 
 local sed = {}
 local mattata = require('mattata')
-local json = require('dkjson')
+local re = require('re')
+local regex = require('rex_pcre')
 
 function sed:init()
     sed.commands = { '^%/?[sS]%/.-%/.-%/?$' }
     sed.help = '/s/pattern/substitution - Replaces all occurences, of text matching a given Lua pattern, with the given substitution.'
+    sed.compiled = re.compile[[
+invocation <- 's/' {~ pcre ~} '/' {~ replace ~} ('/' modifiers)? !.
+pcre <- ( [^\/] / slash / '\' )*
+replace <- ( [^\/%$] / percent / slash / capture / '\' / '$' )*
+
+modifiers <- { flags? } {~ matches? ~} {~ probability? ~}
+
+flags <- ('i' / 'm' / 's' / 'x' / 'U' / 'X')+
+matches <- ('#' {[0-9]+}) -> '%1'
+probability <- ('%' {[0-9]+}) -> '%1'
+
+slash <- ('\' '/') -> '/'
+percent <- '%' -> '%%%%'
+capture <- ('$' {[0-9]+}) -> '%%%1'
+]]
 end
 
 function sed:on_callback_query(callback_query, message, configuration, language)
@@ -52,40 +70,63 @@ function sed:on_callback_query(callback_query, message, configuration, language)
     )
 end
 
-function sed:on_message(message, configuration, language)
-    message.text = message.text:gsub('\\%/', '%%fwd_slash%%')
-    local matches, substitution = message.text:match('^/?[sS]/(.-)/(.-)/?$')
-    if not substitution
-    or not message.reply
-    then
-        return
-    elseif message.reply.from.id == self.info.id
-    then
+function sed:on_message(message, _, language)
+    if not message.reply then
+        return false
+    elseif message.reply.from.id == self.info.id then
         return mattata.send_reply(
             message,
             language['sed']['4'],
             'html'
         )
     end
-    matches = matches:gsub('%%fwd%_slash%%', '/')
-    substitution = substitution:gsub('\\n', '\n'):gsub('\\/', '/'):gsub('\\(%d)', '%%%1')
-    local success, output = pcall(
-        function()
-            return message.reply.text:gsub(matches, substitution)
+    local input = message.reply.text
+    local text = message.text:match('^/?(.*)$')
+    if not text then
+        return false
+    end
+    local pattern, replace, flags, matches, probability = sed.compiled:match(text)
+    if not pattern then
+        return false
+    end
+    matches = matches and tonumber(matches) or matches
+    probability = probability and tonumber(probability) or probability
+    if probability then
+        if not matches then
+            matches = function()
+                return math.random() * 100 < probability
+            end
+        else
+            local remaining = matches
+            matches = function()
+                local temp
+                if remaining > 0 then
+                    temp = nil
+                else
+                    temp = 0
+                end
+                remaining = remaining - 1
+                return math.random() * 100 < probability, temp
+            end
         end
-    )
-    if not success then
+    end
+    local success, result, matched = pcall(function ()
+        return regex.gsub(input, pattern, replace, matches, flags)
+    end)
+    if success == false then
         return mattata.send_reply(
             message,
             string.format(
-                language['sed']['5'],
-                mattata.escape_html(matches)
+                '%s is invalid PCRE regex syntax!',
+                mattata.escape_html(text)
             ),
             'html'
         )
+    elseif matched == 0 then
+        return
     end
-    output = mattata.trim(output)
-    if not output or output == '' then
+    result = mattata.trim(result)
+    if not result or result == '' then
         return false
     end
     return mattata.send_message(
@@ -93,7 +134,7 @@ function sed:on_message(message, configuration, language)
         string.format(
             language['sed']['6'],
             mattata.escape_html(message.reply.from.first_name),
-            mattata.escape_html(output)
+            mattata.escape_html(result)
         ),
         'html',
         true,

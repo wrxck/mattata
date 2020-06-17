@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v1.2
+      v1.3
 
       Copyright 2020 Matthew Hesketh <matthew@matthewhesketh.com>
       See LICENSE for details
@@ -248,16 +248,16 @@ end
 function mattata:on_message(message)
 
     -- If the message is old or is missing necessary fields/values, then we'll stop and allow the bot to start processing the next update(s).
-    -- If the message was sent from a blacklisted chat, then we'll stop because we don't want the bot to respond there.
+    -- If the message was sent from a blocklisted chat, then we'll stop because we don't want the bot to respond there.
     if not mattata.is_valid(message) then
         return false
-    elseif redis:get('blacklisted_chats:' .. message.chat.id) then
+    elseif redis:get('blocklisted_chats:' .. message.chat.id) then
         return mattata.leave_chat(message.chat.id)
     end
     message = mattata.sort_message(message) -- Process the message.
-    self.is_user_blacklisted, self.is_globally_blacklisted, self.is_globally_banned = mattata.is_user_blacklisted(message)
+    self.is_user_blocklisted, self.is_globally_blocklisted, self.is_globally_banned = mattata.is_user_blocklisted(message)
     -- We only want this functionality if the bot owner has been granted API permission to SpamWatch!
-    self.is_spamwatch_blacklisted = configuration.keys.spamwatch ~= '' and mattata.is_spamwatch_blacklisted(message) or false
+    self.is_spamwatch_blocklisted = configuration.keys.spamwatch ~= '' and mattata.is_spamwatch_blocklisted(message) or false
 
     if self.is_globally_banned and message.chat.type ~= 'private' then -- Only for the worst of the worst
         mattata.ban_chat_member(message.chat.id, message.from.id)
@@ -271,8 +271,8 @@ function mattata:on_message(message)
         return false
     end
 
-    -- Perform the following actions if the user isn't blacklisted.
-    if not self.is_user_blacklisted then
+    -- Perform the following actions if the user isn't blocklisted.
+    if not self.is_user_blocklisted then
         mattata.process_afk(message)
         mattata.process_language(self, message)
         if message.text then
@@ -320,7 +320,7 @@ function mattata:on_message(message)
         if not plugin.is_beta_plugin or (plugin.is_beta_plugin and self.is_allowed_beta_access) then
             local commands = #plugin.commands or {}
             for i = 1, commands do
-                if message.text:match(plugin.commands[i]) and mattata.is_plugin_allowed(plugin.name, self.is_user_blacklisted, configuration) and not self.is_command_done and not self.is_telegram and (not message.is_edited or mattata.is_global_admin(message.from.id)) then
+                if message.text:match(plugin.commands[i]) and mattata.is_plugin_allowed(plugin.name, self.is_user_blocklisted, configuration) and not self.is_command_done and not self.is_telegram and (not message.is_edited or mattata.is_global_admin(message.from.id)) then
                     self.is_command = true
                     message.command = plugin.commands[i]:match('([%w_%-]+)')
                     if plugin.on_message and not mattata.is_plugin_disabled(plugin.name, message) then
@@ -374,6 +374,7 @@ function mattata:on_message(message)
     end
     mattata.process_message(self, message, language)
     self.is_done = true
+    self.is_command_done = false
     self.is_ai = false
     return
 end
@@ -381,8 +382,8 @@ end
 function mattata:on_inline_query(inline_query)
     if not inline_query.from then
         return false, 'No `inline_query.from` object was found!'
-    elseif redis:get('global_blacklist:' .. inline_query.from.id) then
-        return false, 'This user is globally blacklisted!'
+    elseif redis:get('global_blocklist:' .. inline_query.from.id) then
+        return false, 'This user is globally blocklisted!'
     end
     local language = require('languages.' .. mattata.get_user_language(inline_query.from.id))
     inline_query.offset = inline_query.offset and tonumber(inline_query.offset) or 0
@@ -450,8 +451,8 @@ function mattata:on_callback_query(message, callback_query)
         language = require('languages.' .. (mattata.get_value(message.chat.id, 'group language') or 'en_gb'))
     end
     self.language = language
-    if redis:get('global_blacklist:' .. callback_query.from.id) and not callback_query.data:match('^join_captcha') and not mattata.is_global_admin(callback_query.from.id) then
-        return false, 'This user is globally blacklisted!'
+    if redis:get('global_blocklist:' .. callback_query.from.id) and not callback_query.data:match('^join_captcha') and not mattata.is_global_admin(callback_query.from.id) then
+        return false, 'This user is globally blocklisted!'
     elseif message and message.exists then
         if message.reply and message.chat.type ~= 'channel' and callback_query.from.id ~= message.reply.from.id and not callback_query.data:match('^game:') and not mattata.is_global_admin(callback_query.from.id) then
             local output = 'Only ' .. message.reply.from.first_name .. ' can use this!'
@@ -949,21 +950,21 @@ function mattata.insert_keyboard_row(keyboard, first_text, first_callback, secon
     return keyboard
 end
 
-function mattata.is_user_blacklisted(message)
+function mattata.is_user_blocklisted(message)
     if not message or not message.from or not message.chat then
         return false, false, false
     elseif mattata.is_global_admin(message.from.id) then
         return false, false, false
     end
     local gbanned = redis:get('global_ban:' .. message.from.id) -- Check if the user is globally
-    -- blacklisted from using the bot.
-    local group = redis:get('group_blacklist:' .. message.chat.id .. ':' .. message.from.id) -- Check
-    -- if the user is blacklisted from using the bot in the current group.
-    local gblacklisted = redis:get('global_blacklist:' .. message.from.id)
-    return group, gblacklisted, gbanned
+    -- blocklisted from using the bot.
+    local group = redis:get('group_blocklist:' .. message.chat.id .. ':' .. message.from.id) -- Check
+    -- if the user is blocklisted from using the bot in the current group.
+    local gblocklisted = redis:get('global_blocklist:' .. message.from.id)
+    return group, gblocklisted, gbanned
 end
 
-function mattata.is_spamwatch_blacklisted(message, force_check)
+function mattata.is_spamwatch_blocklisted(message, force_check)
     if tonumber(message) ~= nil then -- Add support for passing just the user ID too!
         message = {
             ['from'] = {
@@ -973,9 +974,9 @@ function mattata.is_spamwatch_blacklisted(message, force_check)
     elseif not message or not message.from then
         return false, nil, 'No valid message object was passed! It needs to have a message.from as well!', 404
     end
-    local is_cached = redis:get('not_blacklisted:' .. message.from.id)
+    local is_cached = redis:get('not_blocklisted:' .. message.from.id)
     if is_cached and not force_check then -- We don't want to perform an HTTPS call every time the bot sees a chat!
-        return false, nil, 'That user is cached as not blacklisted!', 404
+        return false, nil, 'That user is cached as not blocklisted!', 404
     end
     local response = {}
     local _ = https.request(
@@ -994,8 +995,8 @@ function mattata.is_spamwatch_blacklisted(message, force_check)
         return false, nil, 'The server appears to be offline', 521
     elseif jdat.error then
         if jdat.code == 404 then -- The API returns a 404 code when the user isn't in the SpamWatch database
-            redis:set('not_blacklisted:' .. message.from.id, true)
-            redis:expire('not_blacklisted:' .. message.from.id, 604800) -- Let the key last a week!
+            redis:set('not_blocklisted:' .. message.from.id, true)
+            redis:expire('not_blocklisted:' .. message.from.id, 604800) -- Let the key last a week!
         end
         return false, jdat, jdat.error, jdat.code
     elseif jdat.id then
@@ -1100,7 +1101,7 @@ function mattata.process_spam(message)
     -- and not mattata.is_global_admin(message.from.id)
     and message.chat.type == 'private' then
     -- Don't run the antispam plugin if the user is configured as a global admin in `configuration.lua`.
-        mattata.send_reply( -- Send a warning message to the user who is at risk of being blacklisted for sending
+        mattata.send_reply( -- Send a warning message to the user who is at risk of being blocklisted for sending
         -- too many messages.
             message,
             string.format(
@@ -1108,19 +1109,19 @@ function mattata.process_spam(message)
                 message.from.username and '@' .. message.from.username or message.from.name
             )
         )
-    elseif msg_count == configuration.administration.global_antispam.message_blacklist_amount -- If the user has sent x messages in the past y seconds, blacklist them globally from
+    elseif msg_count == configuration.administration.global_antispam.message_blocklist_amount -- If the user has sent x messages in the past y seconds, blocklist them globally from
     -- using the bot for 24 hours.
-    -- and not mattata.is_global_admin(message.from.id) -- Don't blacklist the user if they are configured as a global
+    -- and not mattata.is_global_admin(message.from.id) -- Don't blocklist the user if they are configured as a global
     -- admin in `configuration.lua`.
     then
-        redis:set('global_blacklist:' .. message.from.id, true)
-        if configuration.administration.global_antispam.blacklist_length ~= -1 and configuration.administration.global_antispam.blacklist_length ~= 'forever' then
-            redis:expire('global_blacklist:' .. message.from.id, configuration.administration.global_antispam.blacklist_length)
+        redis:set('global_blocklist:' .. message.from.id, true)
+        if configuration.administration.global_antispam.blocklist_length ~= -1 and configuration.administration.global_antispam.blocklist_length ~= 'forever' then
+            redis:expire('global_blocklist:' .. message.from.id, configuration.administration.global_antispam.blocklist_length)
         end
         return mattata.send_reply(
             message,
             string.format(
-                'Sorry, %s, but you have been blacklisted from using me for the next 24 hours because you have been spamming!',
+                'Sorry, %s, but you have been blocklisted from using me for the next 24 hours because you have been spamming!',
                 message.from.username and '@' .. message.from.username or message.from.name
             )
         )
@@ -1179,7 +1180,7 @@ function mattata.get_usernames(user_id)
     return redis:smembers('user:' .. user_id .. ':usernames')
 end
 
-function mattata.check_links(message, get_links, only_valid, whitelist, return_message, delete)
+function mattata.check_links(message, get_links, only_valid, allowlist, return_message, delete)
     message.is_invite_link = false
     local links = {}
     if message.entities then
@@ -1222,14 +1223,14 @@ function mattata.check_links(message, get_links, only_valid, whitelist, return_m
     for n in message.text:gmatch('[Tt][Gg]://[Rr][Ee][Ss][Oo][Ll][Vv][Ee]%?[Dd][Oo][Mm][Aa][Ii][Nn]=[%w_]+') do
         table.insert(links, n:match('=([%w_]+)$'))
     end
-    if whitelist then
+    if allowlist then
         local count = 0
         for _, v in pairs(links) do
             v = v:match('^[Jj][Oo][Ii][Nn][Cc][Hh][Aa][Tt]') and v or v:lower()
             if delete then
-                redis:del('whitelisted_links:' .. message.chat.id .. ':' .. v)
+                redis:del('allowlisted_links:' .. message.chat.id .. ':' .. v)
             else
-                redis:set('whitelisted_links:' .. message.chat.id .. ':' .. v, true)
+                redis:set('allowlisted_links:' .. message.chat.id .. ':' .. v, true)
             end
             count = count + 1
         end
@@ -1238,13 +1239,13 @@ function mattata.check_links(message, get_links, only_valid, whitelist, return_m
             count,
             count == 1 and '' or 's',
             count == 1 and 's' or 've',
-            delete and 'blacklisted' or 'whitelisted'
+            delete and 'blocklisted' or 'allowlisted'
         )
     end
     local checked = {}
     local valid = {}
     for _, v in pairs(links) do
-        if not redis:get('whitelisted_links:' .. message.chat.id .. ':' .. v:lower()) and not mattata.is_whitelisted_link(v:lower()) then
+        if not redis:get('allowlisted_links:' .. message.chat.id .. ':' .. v:lower()) and not mattata.is_allowlisted_link(v:lower()) then
             if v:match('^[Jj][Oo][Ii][Nn][Cc][Hh][Aa][Tt]/') then
                 message.is_invite_link = true
                 if only_valid then
@@ -1284,7 +1285,7 @@ function mattata:process_message(message, language)
     local break_cycle = false
     if not message.chat then
         return true
-    elseif self.is_command and not mattata.is_plugin_disabled('commandstats', message.chat.id) and not self.is_blacklisted then
+    elseif self.is_command and not mattata.is_plugin_disabled('commandstats', message.chat.id) and not self.is_blocklisted then
         local command = message.text:match('^([!/#][%w_]+)')
         if command then
             redis:incr('commandstats:' .. message.chat.id .. ':' .. command)
@@ -1293,7 +1294,7 @@ function mattata:process_message(message, language)
             end
         end
     end
-    if message.chat and message.chat.type ~= 'private' and not mattata.service_message(message) and not mattata.is_plugin_disabled('statistics', message) and not mattata.is_privacy_enabled(message.from.id) and not self.is_blacklisted then
+    if message.chat and message.chat.type ~= 'private' and not mattata.service_message(message) and not mattata.is_plugin_disabled('statistics', message) and not mattata.is_privacy_enabled(message.from.id) and not self.is_blocklisted then
         redis:incr('messages:' .. message.from.id .. ':' .. message.chat.id)
     end
     if message.new_chat_members and mattata.get_setting(message.chat.id, 'use administration') and mattata.get_setting(message.chat.id, 'antibot') and not mattata.is_group_admin(message.chat.id, message.from.id) and not mattata.is_global_admin(message.from.id) then

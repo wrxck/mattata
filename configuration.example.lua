@@ -5,7 +5,7 @@
     | | | | | | (_| | |_| || (_| | || (_| |
     |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-    Configuration file for mattata v1.2
+    Configuration file for mattata v1.3
 
     Copyright 2020 Matthew Hesketh <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
@@ -18,8 +18,8 @@
 local configuration = { -- Rename this file to configuration.lua for the bot to work!
     ['bot_token'] = '', -- In order for the bot to actually work, you MUST insert the Telegram
     -- bot API token you received from @BotFather.
-    ['connected_message'] = 'Connected to the Telegram bot API!', -- The message to print when the bot is connected to the Telegram bot API.
-    ['version'] = '1.2', -- the version of mattata, don't change this!
+    ['connected_message'] = 'Connected to the Telegram bot API!', -- The message to print when the bot is connected to the Telegram bot API
+    ['version'] = '1.3', -- the version of mattata, don't change this!
     -- The following two tokens will require you to have setup payments with @BotFather, and
     -- a Stripe account with @stripe!
     ['stripe_live_token'] = '', -- Payment token you receive from @BotFather.
@@ -28,11 +28,11 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     -- FULL control over the bot, this includes access to server files via the lua and shell plugins.
         221714512
     },
-    ['blacklist_plugin_exceptions'] = { -- An array of plugins that will still be used for blacklisted users.
+    ['allowlist_plugin_exceptions'] = { -- An array of plugins that will still be used for allowlisted users.
         'antispam'
     },
     ['beta_plugins'] = { -- An array of plugins that only the configured bot admins are able to use.
-        'array_of_beta_plugins_here'
+        'array_of_beta_plugins'
     },
     ['permanent_plugins'] = { -- An array of plugins that can't be disabled with /plugins.
         'plugins',
@@ -54,11 +54,8 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     -- bug reports into. If it's not a private chat it should begin with a '-' symbol.
     ['counter_channel'] = nil, -- This needs to be the numerical identifier of the channel you wish
     -- to forward messages into, for use with the /counter command. It should begin with a '-' symbol.
-    ['download_location'] = '/your/downloads/directory', -- The location to save all downloaded media to.
-    ['fonts_directory'] = '/your/fonts/directory', -- The location where fonts are stored for CAPTCHAs
-    ['respond_to_misc'] = true, -- Respond to shitpostings/memes in mattata.lua? [true/false]
-    ['max_copypasta_length'] = 300, -- The maximum number of characters a message can have to be
-    -- able to have /copypasta used on it.
+    ['download_location'] = '/path/to/downloads', -- The location to save all downloaded media to.
+    ['fonts_directory'] = '/path/to/fonts', -- The location where fonts are stored for CAPTCHAs
     ['debug'] = true, -- Turn this on to print EVEN MORE information to the terminal.
     ['redis'] = { -- Configurable options for connecting the bot to redis. Do NOT modify
     -- these settings if you don't know what you're doing!
@@ -99,7 +96,7 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
         ['spotify'] = { -- https://developer.spotify.com/my-applications/#!/applications/create
             ['client_id'] = '',
             ['client_secret'] = '',
-            ['redirect_uri'] = ''
+            ['redirect_uri'] = 'https://t.me/mattatabot?start='
         },
         ['twitter'] = { -- https://apps.twitter.com/app/new
             ['consumer_key'] = '',
@@ -109,7 +106,8 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
             ['client_id'] = '',
             ['client_secret'] = ''
         },
-        ['spamwatch'] = '' -- https://t.me/SpamWatchSupport
+        ['spamwatch'] = '', -- https://t.me/SpamWatchSupport
+        ['wolframalpha'] = '' -- https://developer.wolframalpha.com/portal/myapps/
     },
     ['errors'] = { -- Messages to provide a more user-friendly approach to errors.
         ['connection'] = 'Connection error.',
@@ -145,6 +143,18 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
             ['minimum'] = 2,
             ['default'] = 3
         },
+        ['captcha'] = {
+            ['length'] = {
+                ['min'] = 4,
+                ['max'] = 10,
+                ['default'] = 7
+            },
+            ['size'] = {
+                ['min'] = 20,
+                ['max'] = 50,
+                ['default'] = 40
+            }
+        },
         ['allowed_links'] = {
             'username',
             'telegram',
@@ -156,8 +166,8 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
         ['global_antispam'] = { -- normal antispam is processed in plugins/antispam.mattata
             ['ttl'] = 5, -- amount of seconds to process the messages in
             ['message_warning_amount'] = 10, -- amount of messages a user can send in the TTL until they're warned
-            ['message_blacklist_amount'] = 25, -- amount of messages a user can send in the TTL until they're blacklisted
-            ['blacklist_length'] = 86400, -- amount (in seconds) to blacklist the user for (set it to -1 if you want it forever)
+            ['message_allowlist_amount'] = 25, -- amount of messages a user can send in the TTL until they're allowlisted
+            ['allowlist_length'] = 86400, -- amount (in seconds) to allowlist the user for (set it to -1 if you want it forever)
             ['max_code_length'] = 64 -- maximum length of code or pre entities that are allowed with "remove pasted code" setting on
         },
         ['default'] = {
@@ -206,7 +216,7 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
         'Hi, NAME!'
     },
     ['groups'] = {
-        ['name'] = 'https://t.me/link'
+        ['name'] = 't.me/username'
     },
     ['sort_groups'] = true, -- Decides whether groups will be sorted by name in /groups.
     ['stickers'] = { -- Values used in mattata.lua, for administrative plugin functionality.
@@ -329,7 +339,7 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
 }
 
 local get_plugins = function(extension, directory)
-    extension = extension and tostring(extension) or 'mattata'
+    extension = extension and tostring(extension) or 'lua'
     if extension:match('^%.') then
         extension = extension:match('^%.(.-)$')
     end
@@ -338,7 +348,9 @@ local get_plugins = function(extension, directory)
         directory = directory:match('^(.-)/$')
     end
     local plugins = {}
-    local all = io.popen('ls ' .. directory .. '/'):read('*all')
+    local list = io.popen('ls ' .. directory .. '/')
+    local all = list:read('*all')
+    list:close()
     for plugin in all:gmatch('[%w_-]+%.' .. extension .. ' ?') do
         plugin = plugin:match('^([%w_-]+)%.' .. extension .. ' ?$')
         table.insert(plugins, plugin)
@@ -346,8 +358,20 @@ local get_plugins = function(extension, directory)
     return plugins
 end
 
+local get_fonts = function()
+    local fonts = {}
+    local list = io.popen('ls fonts/')
+    local all = list:read('*all')
+    list:close()
+    for font in all:gmatch('%a+') do
+        table.insert(fonts, font)
+    end
+    return fonts
+end
+
 configuration.plugins = get_plugins()
 configuration.administrative_plugins = get_plugins(nil, 'plugins/administration')
+configuration.administration.captcha.files = get_fonts()
 for _, v in pairs(configuration.administrative_plugins) do
     table.insert(configuration.plugins, v)
 end

@@ -18,7 +18,7 @@ function plugins.get_toggleable_plugins()
     local toggleable = {}
     for _, v in pairs(configuration.plugins) do
         if not mattata.table_contains(configuration.administrative_plugins, v) then
-            if v ~= 'plugins' and v ~= 'control' and v ~= 'bash' and v ~= 'lua' and v ~= 'gwhitelist' and v ~= 'gblacklist'  and v ~= 'administration' then
+            if v ~= 'plugins' and v ~= 'control' and v ~= 'bash' and v ~= 'lua' and v ~= 'gallowlist' and v ~= 'gblocklist'  and v ~= 'administration' then
                 v = v:gsub('_', ' ')
                 table.insert(toggleable, v)
             end

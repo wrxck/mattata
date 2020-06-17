@@ -15,7 +15,8 @@ function reboot:on_message(message)
     if not mattata.is_global_admin(message.from.id) or message.date < (os.time() - 2) then
         return false
     end
-    if message.command == 'reload' then
+    if message.text:match('^[/!#]reload') then
+        local success = mattata.send_message(message.chat.id, 'Reloading...')
         for pkg, _ in pairs(package.loaded) do -- Disable all of mattata's plugins and languages.
             if pkg:match('^plugins%.') or pkg:match('^languages%.') then
                 package.loaded[pkg] = nil
@@ -24,6 +25,7 @@ function reboot:on_message(message)
         package.loaded['libs.utils'] = nil
         package.loaded['configuration'] = nil
         mattata.init(self)
+        return mattata.edit_message_text(message.chat.id, success.result.message_id, 'Successfully reloaded')
     end
     package.loaded['mattata'] = require('mattata')
     mattata.is_running = false

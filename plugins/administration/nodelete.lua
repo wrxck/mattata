@@ -9,7 +9,7 @@ local redis = require('libs.redis')
 
 function nodelete:init()
     nodelete.commands = mattata.commands(self.info.username):command('nodelete').table
-    nodelete.help = '/nodelete [add | del] <plugins> - Allows the given plugins to retain the commands they were executed with by whitelisting them from the "delete commands" administrative setting. Multiple plugins can be specified.'
+    nodelete.help = '/nodelete [add | del] <plugins> - Allows the given plugins to retain the commands they were executed with by allowlisting them from the "delete commands" administrative setting. Multiple plugins can be specified.'
 end
 
 function nodelete:on_message(message, configuration, language)
@@ -42,11 +42,11 @@ function nodelete:on_message(message, configuration, language)
     local total = #plugins
     local success = {}
     for k, v in pairs(plugins) do
-        if process_type == 'add' and not redis:sismember('chat:' .. message.chat.id .. ':no_delete', v) then -- Check to make sure the plugin isn't already whitelisted from having
+        if process_type == 'add' and not redis:sismember('chat:' .. message.chat.id .. ':no_delete', v) then -- Check to make sure the plugin isn't already allowlisted from having
         -- its commands deleted.
             redis:sadd('chat:' .. message.chat.id .. ':no_delete', v)
             table.insert(success, v)
-        elseif process_type == 'del' and redis:sismember('chat:' .. message.chat.id .. ':no_delete', v) then -- Check to make sure the plugin has already been whitelisted from having
+        elseif process_type == 'del' and redis:sismember('chat:' .. message.chat.id .. ':no_delete', v) then -- Check to make sure the plugin has already been allowlisted from having
         -- its commands deleted.
             redis:srem('chat:' .. message.chat.id .. ':no_delete', v)
             table.insert(success, v)
