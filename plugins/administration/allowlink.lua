@@ -23,6 +23,7 @@ function allowlink:on_message(message)
         input = input:match('^%-del (.-)$')
         delete = true
     end
+    message.text = input
     local output = mattata.check_links(message, false, false, true, false, delete)
     return mattata.send_reply(message, output)
 end
