@@ -30,6 +30,9 @@ function urbandictionary:on_inline_query(inline_query, configuration)
         return
     end
     local jdat = json.decode(jstr)
+    if #jdat.list == 0 then
+        return
+    end
     local results = {}
     local id = 1
     for n in pairs(jdat.list) do
@@ -75,8 +78,9 @@ function urbandictionary.get_result(input, n)
     local jdat = json.decode(jstr)
     if jdat.result_type == 'no_results' then
         return false, false
-    end
-    if not jdat.list[n].example then
+    elseif not jdat.list or #jdat.list == 0 then
+        return false, false
+    elseif not jdat.list[n].example then
         return false, false
     end
     local definition = mattata.escape_html(jdat.list[n].definition)

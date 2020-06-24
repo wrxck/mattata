@@ -14,7 +14,7 @@ function chatroulette:init(configuration)
 end
 
 function chatroulette:on_new_message(message, _, language)
-    if message.chat.type ~= 'private' or message.command or (message.is_media and not message.text) then -- we only want to process non-command, text messages in private chat
+    if message.chat.type ~= 'private' or message.text:match('^[/!#]') or (message.is_media and not message.text) then -- we only want to process non-command, text messages in private chat
         return false
     end
     local output

@@ -16,29 +16,25 @@ end
 function groups:on_message(message, configuration, language)
     local input = mattata.input(message.text)
     local output = {}
-    for k, v in pairs(configuration.groups) do
-        if k and v then
-            local title = k
-            local link = v
-            if input then
-                local validate = pcall(
-                    function()
-                        return title:match(input)
-                    end
-                )
-                if not validate then
-                    local output = 'Your search query contains a malformed Lua pattern! If you\'re not sure what this means, try searching without any symbols.'
-                    return mattata.send_reply(message, output)
+    for title, link in pairs(configuration.groups) do
+        if input then
+            local validate = pcall(
+                function()
+                    return title:lower():match(input:lower())
                 end
+            )
+            if not validate then
+                local output = 'Your search query contains a malformed Lua pattern! If you\'re not sure what this means, try searching without any symbols.'
+                return mattata.send_reply(message, output)
             end
-            if (input and title:match(input)) or not input then
-                local result = string.format('• <a href="%s">%s</a>', mattata.escape_html(link), mattata.escape_html(title))
-                table.insert(output, result)
-            end
+        end
+        if (input and title:lower():match(input:lower())) or not input then
+            local result = string.format('• <a href="%s">%s</a>', mattata.escape_html(link), mattata.escape_html(title))
+            table.insert(output, result)
         end
     end
     if not next(output) then
-        local output = 'No groups were found. If you\'d like your group to appear here, contact @wrxck0.'
+        local output = 'No groups were found. If you\'d like your group to appear here, contact @wrxck.'
         if input then
             output = string.format('No groups were found matching "%s"! Use /groups to view a complete list of available groups.', input)
         end

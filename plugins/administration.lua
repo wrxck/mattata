@@ -25,11 +25,9 @@ function administration.get_initial_keyboard(chat_id, page, language)
                 'administration:' .. chat_id .. ':toggle'
             )
         ):row(
-            mattata.row()
-            :callback_data_button(language['administration']['3'], 'antispam:' .. chat_id)
-            :callback_data_button(language['administration']['4'], 'administration:' .. chat_id .. ':warnings')
+            mattata.row():callback_data_button(language['administration']['3'], 'antispam:' .. chat_id)
         ):row(
-            mattata.row():callback_data_button(language['administration']['5'], 'administration:' .. chat_id .. ':voteban')
+            mattata.row():callback_data_button(language['administration']['4'], 'administration:' .. chat_id .. ':warnings')
         ):row(
             mattata.row()
             :callback_data_button(language['administration']['6'], 'administration:nil')
@@ -232,41 +230,6 @@ function administration.get_warnings(chat_id, language)
     return keyboard
 end
 
-function administration.get_voteban_keyboard(chat_id, language)
-    local keyboard = {
-        ['inline_keyboard'] = {}
-    }
-    local current_required_upvotes = mattata.get_setting(chat_id, 'required upvotes for vote bans') or configuration.administration.voteban.upvotes.default
-    local current_required_downvotes = mattata.get_setting(chat_id, 'required downvotes for vote bans') or configuration.administration.voteban.downvotes.default
-    table.insert(keyboard.inline_keyboard, {{
-        ['text'] = language['administration']['27'],
-        ['callback_data'] = 'administration:nil'
-    }})
-    mattata.insert_keyboard_row(
-        keyboard, '-',
-        'administration:' .. chat_id .. ':voteban_upvotes:' .. tonumber(current_required_upvotes) - 1,
-        tostring(current_required_upvotes),
-        'administration:nil', '+',
-        'administration:' .. chat_id .. ':voteban_upvotes:' .. tonumber(current_required_upvotes) + 1
-    )
-    table.insert(keyboard.inline_keyboard, {{
-        ['text'] = language['administration']['28'],
-        ['callback_data'] = 'administration:nil'
-    }})
-    mattata.insert_keyboard_row(
-        keyboard, '-',
-        'administration:' .. chat_id .. ':voteban_downvotes:' .. tonumber(current_required_downvotes) - 1,
-        tostring(current_required_downvotes),
-        'administration:nil', '+',
-        'administration:' .. chat_id .. ':voteban_downvotes:' .. tonumber(current_required_downvotes) + 1
-    )
-    table.insert( keyboard.inline_keyboard, {{
-        ['text'] = language['administration']['9'],
-        ['callback_data'] = 'administration:' .. chat_id .. ':page:1'
-    }})
-    return keyboard
-end
-
 function administration.del_chat(message, language)
     local title = message.text:match('^/chats del (.-)$')
     if not title then
@@ -290,31 +253,7 @@ function administration.on_callback_query(_, callback_query, message, _, languag
         return mattata.answer_callback_query(callback_query.id, language['administration']['31'])
     end
     local keyboard
-    if callback_query.data:match('^%-%d+:voteban$') then
-        keyboard = administration.get_voteban_keyboard(callback_query.data:match('^(%-%d+):voteban$'), language)
-    elseif callback_query.data:match('^%-%d+:voteban_upvotes:.-$') then
-        local chat_id, required_upvotes = callback_query.data:match('^(%-%d+):voteban_upvotes:(.-)$')
-        if tonumber(required_upvotes) < configuration.voteban.upvotes.minimum then
-            return mattata.answer_callback_query(callback_query.id, string.format(language['administration']['32'], configuration.administration.voteban.upvotes.minimum))
-        elseif tonumber(required_upvotes) > configuration.voteban.upvotes.maximum then
-            return mattata.answer_callback_query(callback_query.id, string.format(language['administration']['33'], configuration.administration.voteban.upvotes.maximum))
-        elseif tonumber(required_upvotes) == nil then
-            return
-        end
-        redis:hset('chat:' .. chat_id .. ':settings', 'required upvotes for vote bans', tonumber(required_upvotes))
-        keyboard = administration.get_voteban_keyboard(chat_id, language)
-    elseif callback_query.data:match('^%-%d+:voteban_downvotes:.-$') then
-        local chat_id, required_downvotes = callback_query.data:match('^(%-%d+):voteban_downvotes:(.-)$')
-        if tonumber(required_downvotes) < configuration.administration.voteban.downvotes.minimum then
-            return mattata.answer_callback_query(callback_query.id, string.format(language['administration']['34'], configuration.voteban.downvotes.minimum))
-        elseif tonumber(required_downvotes) > configuration.administration.voteban.downvotes.maximum then
-            return mattata.answer_callback_query(callback_query.id, string.format(language['administration']['35'], configuration.voteban.downvotes.maximum))
-        elseif tonumber(required_downvotes) == nil then
-            return false
-        end
-        redis:hset('chat:' .. chat_id .. ':settings', 'required downvotes for vote bans', tonumber(required_downvotes))
-        keyboard = administration.get_voteban_keyboard(chat_id, language)
-    elseif callback_query.data:match('^%-%d+:warnings$') then
+    if callback_query.data:match('^%-%d+:warnings$') then
         local chat_id = callback_query.data:match('^(%-%d+):warnings$')
         keyboard = administration.get_warnings(chat_id, language)
     elseif callback_query.data:match('^%-%d+:max_warnings:.-$') then

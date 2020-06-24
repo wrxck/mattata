@@ -50,6 +50,12 @@ function antispam.on_member_join(_, message)
 end
 
 function antispam:on_new_message(message, configuration, language)
+    if message.chat.type == 'supergroup' then
+        local spamming = antispam.process_message(self, message, configuration, language)
+        if spamming then
+            return
+        end
+    end
     if message.from.id == 777000 then
         return false
     end
@@ -91,17 +97,20 @@ function antispam:on_new_message(message, configuration, language)
             end
         else
             local allowlisted = true
+            local blocked_link
             local links = mattata.check_links(message, true, true)
             if links and #links > 0 then
                 for _, link in pairs(links) do
                     if not redis:get('allowlisted_links:' .. message.chat.id .. ':' .. link) and not mattata.table_contains(configuration.administration.allowed_links, link:lower()) then
                         allowlisted = false
+                        blocked_link = link:lower()
                         break
                     end
                 end
             end
             if not allowlisted and not message.text:match('^[!/#]allowlink') and not message.text:match('^[!/#]wl') then
-                return mattata.send_reply(message, language['antispam']['14'])
+                local keyboard = mattata.inline_keyboard():row(mattata.row():callback_data_button('Allowlist it!', 'allowlink:' .. blocked_link))
+                return mattata.send_reply(message, language['antispam']['14'], nil, true, keyboard)
             end
         end
     end
@@ -153,6 +162,13 @@ function antispam.get_keyboard(chat_id, language)
         ['text'] = caption,
         ['callback_data'] = 'antispam:' .. chat_id .. ':' .. caption:lower()
     }})
+    local actions = {
+        language['antispam']['18'],
+        language['antispam']['19'],
+        language['antispam']['20']
+    }
+    local action = mattata.get_setting(chat_id, 'antispam action') or 1
+    action = math.floor(action)
     if status then
         for _, media in pairs(antispam.media_types) do
             local current = mattata.get_value(chat_id, media .. ' limit') or antispam.default_values[media]
@@ -184,6 +200,13 @@ function antispam.get_keyboard(chat_id, language)
             end
         end
     end
+    table.insert(keyboard.inline_keyboard, {{
+        ['text'] = language['antispam']['17'],
+        ['callback_data'] = 'antispam:nil'
+    }, {
+        ['text'] = actions[action],
+        ['callback_data'] = 'antispam:' .. chat_id .. ':action'
+    }})
     table.insert(keyboard.inline_keyboard, {{
         ['text'] = mattata.symbols.back .. ' ' .. language['antispam']['5'],
         ['callback_data'] = 'administration:' .. chat_id .. ':page:1'
@@ -222,8 +245,20 @@ function antispam:process_message(message, _, language)
     if not is_spamming then
         return false, 'This user is not spamming!'
     end
-    local action = mattata.get_setting(message.chat.id, 'ban not kick') and mattata.ban_chat_member or mattata.kick_chat_member
-    local success, error_message = action(message.chat.id, message.from.id)
+    local action = mattata.get_setting(message.chat.id, 'antispam action') or 1
+    action = math.floor(action)
+    local success, error_message
+    local output
+    if action == 1 then
+        success, error_message = mattata.kick_chat_member(message.chat.id, message.from.id)
+        output = language['antispam']['7']
+    elseif action == 2 then
+        success, error_message = mattata.ban_chat_member(message.chat.id, message.from.id)
+        output = 'Banned %s for hitting the configured antispam limit for [%s] media.'
+    else
+        success, error_message = mattata.restrict_chat_member(message.chat.id, message.from.id, os.time(), false, false, false, false, false, false, false, false)
+        output = 'Muted %s for hitting the configured antispam limit for [%s] media.'
+    end
     if not success then
         return false, error_message
     elseif mattata.get_setting(message.chat.id, 'log administrative actions') then
@@ -245,7 +280,7 @@ function antispam:process_message(message, _, language)
     return mattata.send_message(
         message,
         string.format(
-            language['antispam']['7'],
+            output,
             message.from.username and '@' .. message.from.username or message.from.first_name,
             media_type
         )
@@ -282,6 +317,13 @@ function antispam.on_callback_query(_, callback_query, message, _, language)
         redis:hdel('chat:' .. chat_id .. ':settings', 'antispam')
     elseif callback_query.data:match('^%-%d+:enable$') then
         redis:hset('chat:' .. chat_id .. ':settings', 'antispam', true)
+    elseif callback_query.data:match('^%-%d+:action$') then
+        local current = mattata.get_setting(chat_id, 'antispam action') or 1
+        local new = current + 1
+        if new > 3 then
+            new = 1
+        end
+        redis:hset('chat:' .. chat_id .. ':settings', 'antispam action', new)
     end
     local keyboard = antispam.get_keyboard(chat_id, language)
     return mattata.edit_message_reply_markup(message.chat.id, message.message_id, nil, keyboard)

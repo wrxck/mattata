@@ -15,7 +15,7 @@ function flickr:init(configuration)
     flickr.commands = mattata.commands(self.info.username):command('flickr').table
     flickr.help = '/flickr <query> - Searches Flickr for a photo matching the given search query and returns the most relevant result.'
     flickr.key = configuration.keys.flickr
-    flickr.url = 'https://api.flickr.com/services/rest/?method=flickr.photos.search&format=json&nojsoncallback=1&privacy_filter=1&safe_search=3&media=photos&sort=relevance&is_common=true&per_page=20&extras=url_s,url_q,url_m,url_n,url_z,url_c,url_l,url_o&api_key=%s&text='
+    flickr.url = 'https://api.flickr.com/services/rest/?method=flickr.photos.search&format=json&nojsoncallback=1&privacy_filter=1&safe_search=3&media=photos&sort=relevance&is_common=true&per_page=20&extras=url_s,url_q,url_m,url_n,url_z,url_c,url_l,url_o&api_key=%s&text=%s'
 end
 
 function flickr.on_inline_query(_, inline_query, _, language)

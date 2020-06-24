@@ -5,6 +5,7 @@ local configuration = require('configuration')
 local api = require('telegram-bot-lua.core').configure(configuration.bot_token)
 local https = require('ssl.https')
 local url = require('socket.url')
+local json = require('dkjson')
 local ltn12 = require('ltn12')
 local md5 = require('md5')
 
@@ -65,7 +66,7 @@ function ai.cleverbot(message, reply, language)
     local old_timeout = https.TIMEOUT
     https.TIMEOUT = 5
     local _, res, headers = https.request({
-        ['url'] = 'https://www.cleverbot.com/webservicemin?uc=UseOfficialCleverbotAPI&dl=en&flag=&user=&mode=1&alt=0&reac=&emo=&sou=website&xed=&',
+        ['url'] = 'https://www.cleverbot.com/webservicemin?uc=UseOfficialCleverbotAPI&dl=en&flag=&user=&mode=1&alt=0&reac=&emo=&sou=website&xed=&dl=' .. language .. '&',
         ['method'] = 'POST',
         ['headers'] = {
             ['Host'] = 'www.cleverbot.com',
@@ -231,7 +232,16 @@ while true do
                     ['message_id'] = message_id
                 }
                 redis:del(message)
-                api.send_reply(msg, output)
+                local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.keys.translate .. '&lang=' .. language .. '&text=' .. url.escape(output))
+                if res ~= 200 then
+                    return api.send_reply(msg, output)
+                end
+                local jdat = json.decode(jstr)
+                if not jdat.text then
+                    return api.send_reply(msg, output)
+                else
+                    api.send_reply(msg, jdat.text[1])
+                end
             end
         end
     end

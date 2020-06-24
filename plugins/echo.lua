@@ -16,8 +16,7 @@ function echo.on_message(_, message)
     if not input then
         return mattata.send_reply(message, echo.help)
     end
-    input = string.format('<pre>%s</pre>', mattata.escape_html(input))
-    return mattata.send_message(message.chat.id, input, 'html')
+    return mattata.send_message(message.chat.id, input)
 end
 
 return echo

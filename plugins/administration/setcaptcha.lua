@@ -34,6 +34,10 @@ function setcaptcha.on_callback_query(_, callback_query, message, configuration,
     local font_name = captchas[current] or captchas[1]
     local next_font_pos = current + 1
     local prev_font_pos = current - 1
+    local timeout = mattata.get_setting(chat_id, 'captcha timeout') or configuration.administration.captcha.timeout.default
+    timeout = math.floor(timeout)
+    local next_timeout = timeout + 1
+    local prev_timeout = timeout - 1
     if action == 'font' then
         if tonumber(new) < 1 then
             new = #captchas
@@ -84,29 +88,52 @@ function setcaptcha.on_callback_query(_, callback_query, message, configuration,
         if prev_size < configuration.administration.captcha.size.min then
             prev_size = configuration.administration.captcha.size.max
         end
+    elseif action == 'timeout' then
+        if tonumber(new) < configuration.administration.captcha.timeout.min then
+            new = configuration.administration.captcha.timeout.max
+        elseif tonumber(new) > configuration.administration.captcha.timeout.max then
+            new = configuration.administration.captcha.timeout.min
+        end
+        redis:hset('chat:' .. chat_id .. ':settings', 'captcha timeout', new)
+        timeout = new
+        next_timeout = new + 1
+        if next_timeout > configuration.administration.captcha.timeout.max then
+            next_timeout = configuration.administration.captcha.timeout.min
+        end
+        prev_timeout = new - 1
+        if prev_timeout < configuration.administration.captcha.timeout.min then
+            prev_timeout = configuration.administration.captcha.timeout.max
+        end
     end
     font_name = font_name:gsub('^%l', string.upper):gsub('%.[to]tf$', '')
     local keyboard = mattata.inline_keyboard():row(
         mattata.row():callback_data_button('CAPTCHA Length', 'setcaptcha')
     ):row(
         mattata.row()
-        :callback_data_button(utf8.char(11013), 'setcaptcha:length:' .. prev_length .. ':' .. chat_id)
+        :callback_data_button(mattata.symbols.back, 'setcaptcha:length:' .. prev_length .. ':' .. chat_id)
         :callback_data_button(length, 'setcaptcha')
-        :callback_data_button(utf8.char(10145), 'setcaptcha:length:' .. next_length .. ':' .. chat_id)
+        :callback_data_button(mattata.symbols.next, 'setcaptcha:length:' .. next_length .. ':' .. chat_id)
     ):row(
         mattata.row():callback_data_button('Font Size', 'setcaptcha')
     ):row(
         mattata.row()
-        :callback_data_button(utf8.char(11013), 'setcaptcha:size:' .. prev_size .. ':' .. chat_id)
+        :callback_data_button(mattata.symbols.back, 'setcaptcha:size:' .. prev_size .. ':' .. chat_id)
         :callback_data_button(size, 'setcaptcha')
-        :callback_data_button(utf8.char(10145), 'setcaptcha:size:' .. next_size .. ':' .. chat_id)
+        :callback_data_button(mattata.symbols.next, 'setcaptcha:size:' .. next_size .. ':' .. chat_id)
     ):row(
         mattata.row():callback_data_button('Font Family', 'setcaptcha')
     ):row(
         mattata.row()
-        :callback_data_button(utf8.char(11013), 'setcaptcha:font:' .. prev_font_pos .. ':' .. chat_id)
+        :callback_data_button(mattata.symbols.back, 'setcaptcha:font:' .. prev_font_pos .. ':' .. chat_id)
         :callback_data_button(font_name, 'setcaptcha')
-        :callback_data_button(utf8.char(10145), 'setcaptcha:font:' .. next_font_pos .. ':' .. chat_id)
+        :callback_data_button(mattata.symbols.next, 'setcaptcha:font:' .. next_font_pos .. ':' .. chat_id)
+    ):row(
+        mattata.row():callback_data_button('CAPTCHA Timeout (Minutes)', 'setcaptcha')
+    ):row(
+        mattata.row()
+        :callback_data_button(mattata.symbols.back, 'setcaptcha:timeout:' .. prev_timeout .. ':' .. chat_id)
+        :callback_data_button(timeout, 'setcaptcha')
+        :callback_data_button(mattata.symbols.next, 'setcaptcha:timeout:' .. next_timeout .. ':' .. chat_id)
     ):row(
         mattata.row():callback_data_button('Done', 'dismiss')
     )
@@ -132,6 +159,10 @@ function setcaptcha:on_message(message, configuration, language)
     font_file = math.floor(font_file)
     local font_name = configuration.administration.captcha.files[tonumber(font_file)]
     font_name = font_name:gsub('^%l', string.upper):gsub('%.[to]tf$', '')
+    local timeout = mattata.get_setting(message.chat.id, 'captcha timeout') or configuration.administration.captcha.timeout.default
+    timeout = math.floor(timeout)
+    local next_timeout = timeout + 1
+    local prev_timeout = timeout - 1
     local font_pos = 1
     for pos, font in pairs(captcha.files) do
         if font == font_file then
@@ -150,23 +181,30 @@ function setcaptcha:on_message(message, configuration, language)
         mattata.row():callback_data_button('CAPTCHA Length', 'setcaptcha')
     ):row(
         mattata.row()
-        :callback_data_button(utf8.char(11013), 'setcaptcha:length:' .. prev_length .. ':' .. message.chat.id)
+        :callback_data_button(mattata.symbols.back, 'setcaptcha:length:' .. prev_length .. ':' .. message.chat.id)
         :callback_data_button(length, 'setcaptcha')
-        :callback_data_button(utf8.char(10145), 'setcaptcha:length:' .. next_length .. ':' .. message.chat.id)
+        :callback_data_button(mattata.symbols.next, 'setcaptcha:length:' .. next_length .. ':' .. message.chat.id)
     ):row(
         mattata.row():callback_data_button('Font Size', 'setcaptcha')
     ):row(
         mattata.row()
-        :callback_data_button(utf8.char(11013), 'setcaptcha:size:' .. prev_size .. ':' .. message.chat.id)
+        :callback_data_button(mattata.symbols.back, 'setcaptcha:size:' .. prev_size .. ':' .. message.chat.id)
         :callback_data_button(size, 'setcaptcha')
-        :callback_data_button(utf8.char(10145), 'setcaptcha:size:' .. next_size .. ':' .. message.chat.id)
+        :callback_data_button(mattata.symbols.next, 'setcaptcha:size:' .. next_size .. ':' .. message.chat.id)
     ):row(
         mattata.row():callback_data_button('Font Family', 'setcaptcha')
     ):row(
         mattata.row()
-        :callback_data_button(utf8.char(11013), 'setcaptcha:font:' .. prev_font_pos .. ':' .. message.chat.id)
+        :callback_data_button(mattata.symbols.back, 'setcaptcha:font:' .. prev_font_pos .. ':' .. message.chat.id)
         :callback_data_button(font_name, 'setcaptcha')
-        :callback_data_button(utf8.char(10145), 'setcaptcha:font:' .. next_font_pos .. ':' .. message.chat.id)
+        :callback_data_button(mattata.symbols.next, 'setcaptcha:font:' .. next_font_pos .. ':' .. message.chat.id)
+    ):row(
+        mattata.row():callback_data_button('CAPTCHA Timeout (Minutes)', 'setcaptcha')
+    ):row(
+        mattata.row()
+        :callback_data_button(mattata.symbols.back, 'setcaptcha:timeout:' .. prev_timeout .. ':' .. message.chat.id)
+        :callback_data_button(timeout, 'setcaptcha')
+        :callback_data_button(mattata.symbols.next, 'setcaptcha:timeout:' .. next_timeout .. ':' .. message.chat.id)
     ):row(
         mattata.row():callback_data_button('Done', 'dismiss')
     )

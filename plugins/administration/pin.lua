@@ -47,7 +47,7 @@ function pin:on_message(message, configuration, language)
         end
         return
     end
-    local success = mattata.edit_message_text(message.chat.id, last_pin, input, true)
+    local success = mattata.edit_message_text(message.chat.id, last_pin, input, true, true)
     if not success then
         if not redis:hget('chat:' .. message.chat.id .. ':info', 'pin') then
             mattata.send_reply(message, language['pin']['4'])

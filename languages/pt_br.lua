@@ -116,7 +116,11 @@ return {
         ['13'] = '%s %s for sending Telegram invite link(s).',
         ['14'] = 'Hey, I noticed you\'ve got anti-link enabled and you\'re currently not allowing your users to mention a chat you\'ve just mentioned, if you\'d like to allowlist it, use /allowlink <links>.',
         ['15'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending media within their first few messages.\n#chat%s #user%s',
-        ['16'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending a URL within their first few messages.\n#chat%s #user%s'
+        ['16'] = 'Kicked %s <code>[%s]</code> from %s <code>[%s]</code> for sending a URL within their first few messages.\n#chat%s #user%s',
+        ['17'] = 'Action',
+        ['18'] = 'Kick',
+        ['19'] = 'Ban',
+        ['20'] = 'Mute'
     },
     ['appstore'] = {
         ['1'] = 'Ver no iTunes',

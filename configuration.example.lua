@@ -5,7 +5,7 @@
     | | | | | | (_| | |_| || (_| | || (_| |
     |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-    Configuration file for mattata v1.3
+    Configuration file for mattata v1.4
 
     Copyright 2020 Matthew Hesketh <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
@@ -19,7 +19,7 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     ['bot_token'] = '', -- In order for the bot to actually work, you MUST insert the Telegram
     -- bot API token you received from @BotFather.
     ['connected_message'] = 'Connected to the Telegram bot API!', -- The message to print when the bot is connected to the Telegram bot API
-    ['version'] = '1.3', -- the version of mattata, don't change this!
+    ['version'] = '1.4', -- the version of mattata, don't change this!
     -- The following two tokens will require you to have setup payments with @BotFather, and
     -- a Stripe account with @stripe!
     ['stripe_live_token'] = '', -- Payment token you receive from @BotFather.
@@ -54,6 +54,8 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     -- bug reports into. If it's not a private chat it should begin with a '-' symbol.
     ['counter_channel'] = nil, -- This needs to be the numerical identifier of the channel you wish
     -- to forward messages into, for use with the /counter command. It should begin with a '-' symbol.
+    -- The following directory values should NOT have a "/" at the end!
+    ['bot_directory'] = '/path/to/bot',
     ['download_location'] = '/path/to/downloads', -- The location to save all downloaded media to.
     ['fonts_directory'] = '/path/to/fonts', -- The location where fonts are stored for CAPTCHAs
     ['debug'] = true, -- Turn this on to print EVEN MORE information to the terminal.
@@ -153,6 +155,11 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
                 ['min'] = 20,
                 ['max'] = 50,
                 ['default'] = 40
+            },
+            ['timeout'] = {
+                ['min'] = 1,
+                ['max'] = 60,
+                ['default'] = 5
             }
         },
         ['allowed_links'] = {
@@ -161,6 +168,13 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
             'mattata',
             'admin',
             'admins'
+        },
+        ['aliases'] = {
+            ['length'] = {
+                ['min'] = 1,
+                ['max'] = 64
+            },
+            ['total'] = 150
         },
         ['store_chat_members'] = true,
         ['global_antispam'] = { -- normal antispam is processed in plugins/antispam.mattata
@@ -192,18 +206,6 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
             ['group_limit'] = 3,
             ['shortened_feds'] = {
                 ['name'] = 'uuid'
-            }
-        },
-        ['voteban'] = {
-            ['upvotes'] = {
-                ['maximum'] = 50,
-                ['minimum'] = 2,
-                ['default'] = 5
-            },
-            ['downvotes'] = {
-                ['maximum'] = 50,
-                ['minimum'] = 2,
-                ['default'] = 5
             }
         }
     },

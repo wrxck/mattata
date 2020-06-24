@@ -4,17 +4,13 @@
 ]]
 
 local translate = {}
-
 local mattata = require('mattata')
 local https = require('ssl.https')
 local url = require('socket.url')
 local json = require('dkjson')
 
 function translate:init()
-    translate.commands = mattata.commands(
-        self.info.username
-    ):command('translate')
-     :command('tl').table
+    translate.commands = mattata.commands(self.info.username):command('translate'):command('tl').table
     translate.help = [[/translate [locale] <text> - If a locale is given, the given text is translated into the said locale's language. If no locale is given then the given text is translated into the bot's configured language. If the command is used in reply to a message containing text, then the replied-to text is translated and the translation is returned. Alias: /tl.]]
 end
 
@@ -54,33 +50,27 @@ end
 
 function translate:on_message(message, configuration, language)
     local input = mattata.input(message.text)
-    local lang = configuration['language']
-    if message.reply
-    then
-        lang = input
-        or lang
+    local lang = mattata.get_user_language(message.from.id):match('^(..)')
+    if message.reply then
+        if input and input:match('^%a%a$') then
+            lang = input
+        end
         input = message.reply.text
-    elseif not input
-    then
-        return mattata.send_reply(
-            message,
-            translate.help
-        )
-    elseif input:match('^%a%a .-$')
-    then
+    elseif not input then
+        return mattata.send_reply(message, translate.help)
+    elseif input:match('^%a%a .-$') then
         lang, input = input:match('^(%a%a) (.-)$')
     end
-    local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration['keys']['translate'] .. '&lang=' .. lang .. '&text=' .. url.escape(input))
-    if res ~= 200
-    then
-        return mattata.send_reply(
-            message,
-            'An error occured. Are you sure you specified a valid locale?'
-        )
+    local jstr, res = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=' .. configuration.keys.translate .. '&lang=' .. lang .. '&text=' .. url.escape(input))
+    if res ~= 200 then
+        return mattata.send_reply(message, language.errors.connection)
+    elseif message.reply then
+        mattata.delete_message(message.chat.id, message.message_id)
+        message.message_id = message.reply.message_id
     end
     local jdat = json.decode(jstr)
-    return mattata.send_message(
-        message.chat.id,
+    return mattata.send_reply(
+        message,
         '<b>Translation (from ' .. jdat.lang:gsub('%-', ' to ') .. '):</b>\n' .. mattata.escape_html(jdat.text[1]),
         'html'
     )

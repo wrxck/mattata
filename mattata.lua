@@ -5,7 +5,7 @@
       | | | | | | (_| | |_| || (_| | || (_| |
       |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-      v1.3
+      v1.4
 
       Copyright 2020 Matthew Hesketh <matthew@matthewhesketh.com>
       See LICENSE for details
@@ -29,6 +29,10 @@ local administrative_plugin_list = {}
 local inline_plugin_list = {}
 
 function mattata:init()
+    if mattata.is_reloading then
+        configuration = require('configuration')
+        mattata.is_reloading = false
+    end
     self.info = api.info -- Set the bot's information to the object fetched from the Telegram bot API.
     mattata.info = api.info
     self.plugins = {} -- Make a table for the bot's plugins.
@@ -312,6 +316,18 @@ function mattata:on_message(message)
         }
     end
 
+    if message.text:match('^[/!#][%w_]+') and message.chat.type == 'supergroup' then
+        local command, input = message.text:lower():match('^[/!#]([%w_]+)(.*)$')
+        local all = redis:hgetall('chat:' .. message.chat.id .. ':aliases')
+        for alias, original in pairs(all) do
+            if command == alias then
+                message.text = '/' .. original .. input
+                message.is_alias = true
+                break
+            end
+        end
+    end
+
     -- This is the main loop which iterates over configured plugins and runs the appropriate functions.
     for _, plugin in ipairs(self.plugins) do
         if plugin.is_beta_plugin and mattata.is_global_admin(message.from.id) then
@@ -454,7 +470,7 @@ function mattata:on_callback_query(message, callback_query)
     if redis:get('global_blocklist:' .. callback_query.from.id) and not callback_query.data:match('^join_captcha') and not mattata.is_global_admin(callback_query.from.id) then
         return false, 'This user is globally blocklisted!'
     elseif message and message.exists then
-        if message.reply and message.chat.type ~= 'channel' and callback_query.from.id ~= message.reply.from.id and not callback_query.data:match('^game:') and not mattata.is_global_admin(callback_query.from.id) then
+        if message.reply and message.chat.type ~= 'channel' and callback_query.from.id ~= message.reply.from.id and not callback_query.data:match('^game:') and not callback_query.data:match('^report:') and not mattata.is_global_admin(callback_query.from.id) then
             local output = 'Only ' .. message.reply.from.first_name .. ' can use this!'
             return mattata.answer_callback_query(callback_query.id, output)
         end
@@ -691,6 +707,7 @@ function mattata.sort_message(message)
     message.is_media = mattata.is_media(message)
     message.media_type = mattata.media_type(message)
     message.file_id = mattata.file_id(message)
+    message.is_alias = false -- We sort this later.
     message.is_service_message, message.service_message = mattata.service_message(message)
     if message.caption_entities then
         message.entities = message.caption_entities

@@ -14,10 +14,11 @@ function setgrouplang:init()
 end
 
 setgrouplang.languages = {
+    ['ar_ar'] = 'Arabic 🇸🇦',
     ['en_gb'] = 'British English 🇬🇧',
     ['en_us'] = 'American English 🇺🇸',
     ['de_de'] = 'Deutsch 🇩🇪',
-    ['scottish'] = 'Scottish 🏴',
+    ['scottish'] = 'Scottish 🏴󠁧󠁢󠁳󠁣󠁴󠁿',
     ['pl_pl'] = 'Polski 🇵🇱',
     ['pt_br'] = 'Português do Brasil 🇧🇷',
     ['pt_pt'] = 'Português 🇵🇹',
@@ -25,6 +26,7 @@ setgrouplang.languages = {
 }
 
 setgrouplang.languages_short = {
+    ['ar_ar'] = '🇸🇦',
     ['en_gb'] = '🇬🇧',
     ['en_us'] = '🇺🇸',
     ['de_de'] = '🇩🇪',

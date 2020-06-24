@@ -13,7 +13,9 @@ local regex = require('rex_pcre')
 function sed:init()
     sed.commands = { '^%/?[sS]%/.-%/.-%/?$' }
     sed.help = '/s/pattern/substitution - Replaces all occurences, of text matching a given Lua pattern, with the given substitution.'
-    sed.compiled = re.compile[[
+end
+
+local compiled = re.compile[[
 invocation <- 's/' {~ pcre ~} '/' {~ replace ~} ('/' modifiers)? !.
 pcre <- ( [^\/] / slash / '\' )*
 replace <- ( [^\/%$] / percent / slash / capture / '\' / '$' )*
@@ -28,7 +30,6 @@ slash <- ('\' '/') -> '/'
 percent <- '%' -> '%%%%'
 capture <- ('$' {[0-9]+}) -> '%%%1'
 ]]
-end
 
 function sed:on_callback_query(callback_query, message, configuration, language)
     if not message.reply then
@@ -85,12 +86,12 @@ function sed:on_message(message, _, language)
     if not text then
         return false
     end
-    local pattern, replace, flags, matches, probability = sed.compiled:match(text)
+    local pattern, replace, flags, matches, probability = compiled:match(text)
     if not pattern then
         return false
     end
-    matches = matches and tonumber(matches) or matches
-    probability = probability and tonumber(probability) or probability
+    if matches then matches = tonumber(matches) end
+    if probability then probability = tonumber(probability) end
     if probability then
         if not matches then
             matches = function()

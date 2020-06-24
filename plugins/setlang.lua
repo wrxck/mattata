@@ -14,6 +14,7 @@ function setlang:init()
 end
 
 setlang.languages = {
+    ['ar_ar'] = 'Arabic 🇸🇦',
     ['en_gb'] = 'British English 🇬🇧',
     ['en_us'] = 'American English 🇺🇸',
     ['de_de'] = 'Deutsch 🇩🇪',
@@ -25,6 +26,7 @@ setlang.languages = {
 }
 
 setlang.languages_short = {
+    ['ar_ar'] = '🇸🇦',
     ['en_gb'] = '🇬🇧',
     ['en_us'] = '🇺🇸',
     ['de_de'] = '🇩🇪',

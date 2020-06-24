@@ -24,6 +24,7 @@ function reboot:on_message(message)
         end
         package.loaded['libs.utils'] = nil
         package.loaded['configuration'] = nil
+        mattata.is_reloading = true
         mattata.init(self)
         return mattata.edit_message_text(message.chat.id, success.result.message_id, 'Successfully reloaded')
     end

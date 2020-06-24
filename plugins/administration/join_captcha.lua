@@ -8,7 +8,7 @@ local mattata = require('mattata')
 local redis = require('libs.redis')
 local captcha_lib = require('captcha')
 
-function join_captcha.cron()
+function join_captcha.cron(_, configuration)
     local keys = redis:keys('chat:*:captcha:*')
     for _, key in pairs(keys) do
         local chat_id, user_id = key:match('^chat:(%-?%d+):captcha:(%d+)$')
@@ -19,6 +19,8 @@ function join_captcha.cron()
             local kicked_user = mattata.get_formatted_user(user_id, user.result.first_name, 'html')
             local action = mattata.get_setting(chat_id, 'ban not kick')
             local punishment = action and 'Banned' or 'Kicked'
+            local timeout = mattata.get_setting(chat_id, 'captcha timeout') or configuration.administration.captcha.timeout.default
+            timeout = math.floor(timeout)
             if punishment == 'Banned' then
                 action = mattata.ban_chat_member
             else action = mattata.kick_chat_member end
@@ -26,21 +28,21 @@ function join_captcha.cron()
             if not success then
                 mattata.wipe_redis_captcha(chat_id, user_id)
             else
-                local output = punishment .. ' ' .. kicked_user .. ' <code>[' .. user_id .. ']</code> %sbecause they didn\'t complete the CAPTCHA within 5 minutes!'
+                local output = punishment .. ' ' .. kicked_user .. ' <code>[' .. user_id .. ']</code> %sbecause they didn\'t complete the CAPTCHA within %s minutes!'
                 if mattata.get_setting(chat_id, 'log administrative actions') then
                     local chat = mattata.get_chat(chat_id)
                     local log_output = output
                     if chat then
                         local title = mattata.escape_html(chat.result.title)
                         title = 'from ' .. title .. ' <code>[' .. chat.result.id .. ']</code> '
-                        log_output = string.format(log_output, title)
+                        log_output = string.format(log_output, title, timeout)
                         log_output = log_output .. '\n#chat' .. tostring(chat.result.id):gsub('^%-100', '') .. ' #user' .. user_id
                     else
                         log_output = string.format(log_output, '')
                     end
                     mattata.send_message(mattata.get_log_chat(chat_id), log_output, 'html')
                 else
-                    output = string.format(output, '')
+                    output = string.format(output, '', timeout)
                     mattata.send_message(chat_id, output, 'html')
                 end
                 mattata.wipe_redis_captcha(chat_id, user_id)
@@ -111,6 +113,7 @@ function join_captcha.on_member_join(_, message, configuration)
     local current = mattata.get_setting(message.chat.id, 'captcha font') or 1
     current = math.floor(current)
     local font = captchas[current] or captchas[1]
+    local timeout = mattata.get_setting(message.chat.id, 'captcha timeout') or configuration.administration.captcha.timeout.default
     new_captcha:setlength(length)
     new_captcha:setfontsize(size)
     new_captcha:setpath(download_location)
@@ -143,7 +146,7 @@ function join_captcha.on_member_join(_, message, configuration)
     os.execute('rm ' .. generated_captcha)
     local restrict = mattata.restrict_chat_member(message.chat.id, message.new_chat_participant.id, 'forever', false, false, false, false, false, false, false, false)
     if restrict then
-        mattata.set_captcha(message.chat.id, message.new_chat_participant.id, correct, success.result.message_id)
+        mattata.set_captcha(message.chat.id, message.new_chat_participant.id, correct, success.result.message_id, math.floor(timeout * 60))
         mattata.delete_message(message.chat.id, message.message_id)
     else
         error('Could not restrict ChatMember!')

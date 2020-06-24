@@ -16,6 +16,8 @@ function report.on_callback_query(_, callback_query, message)
     local chat_id, user_id, message_id = callback_query.data:match('^(%-?%d+):(%d+):(%d*)$')
     if not chat_id or not user_id or not message_id then
         return false
+    elseif user_id ~= tostring(callback_query.from.id) then
+        return false
     elseif not mattata.is_group_admin(chat_id, callback_query.from.id) then
         return false
     end

@@ -8,7 +8,9 @@ local mattata = require('mattata')
 local redis = require('libs.redis')
 
 function ai:on_new_message(message)
-    if not message.text or message.is_command then
+    if not message.text or message.text:match('^[/!#]') then
+        return false
+    elseif redis:get('chatroulette:' .. message.from.id) then
         return false
     elseif message.text and message.reply and message.reply.text and message.reply.from.id == self.info.id and not message.reply.entities then
         return ai.on_message(self, message)
@@ -22,7 +24,9 @@ function ai:on_new_message(message)
             return ai.on_message(self, message)
         end
     end
-    if message.chat.type == 'private' and not message.is_command and not message.text:match('^[/!#]') and message.text then
+    if message.chat.type == 'private' and message.text then
+        return ai.on_message(self, message)
+    elseif math.random(30) == 30 and not message.reply then
         return ai.on_message(self, message)
     end
     return
