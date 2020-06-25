@@ -5,60 +5,30 @@
 
 local save = {}
 local mattata = require('mattata')
-local json = require('dkjson')
 local redis = require('libs.redis')
 
 function save:init()
-    save.commands = mattata.commands(self.info.username):command('save').table
-    save.help = '/save - Stores the replied-to message in mattata\'s database - of which a randomly-selected, saved message from the said user can be retrieved using /quote.'
+    save.commands = mattata.commands(self.info.username):command('save'):command('s').table
+    save.help = '/save - Stores the replied-to message in ' .. self.info.first_name .. '\'s database - of which a randomly-selected, saved message from the said user can be retrieved using /quote. Alias: /s.'
 end
 
-function save:on_message(message, configuration, language)
-    if not message.reply
-    or #message.reply.text < 1
-    then
-        return mattata.send_reply(
-            message,
-            save.help
-        )
-    elseif message.reply.forward_from
-    then
+function save.on_message(_, message, _, language)
+    if not message.reply or (not message.reply.text and not message.reply.voice) then
+        return mattata.send_reply(message, save.help)
+    elseif message.reply.forward_from then
         message.reply.from = message.reply.forward_from
     end
-    if redis:get('user:' .. message.reply.from.id .. ':opt_out')
-    then
-        redis:del('quotes:' .. message.reply.from.id)
-        return mattata.send_reply(
-            message,
-            language['save']['1']
-        )
+    if redis:get('user:' .. message.reply.from.id .. ':opt_out') then
+        redis:del('user:' .. message.reply.from.id .. ':quotes')
+        return mattata.send_reply(message, language['save']['1'])
     end
-    local quotes = redis:get('quotes:' .. message.reply.from.id)
-    if not quotes
-    then
-        quotes = {}
-    else
-        quotes = json.decode(quotes)
+    if message.reply.voice then
+        message.reply.text = '$voice:' .. message.reply.voice.file_id
     end
-    table.insert(
-        quotes,
-        message.reply.text
-    )
-    redis:set(
-        'quotes:' .. message.reply.from.id,
-        json.encode(quotes)
-    )
-    return mattata.send_reply(
-        message,
-        string.format(
-            language['save']['2'],
-            message.reply.from.username
-            and '@'
-            or '',
-            message.reply.from.username
-            or message.reply.from.first_name
-        )
-    )
+    redis:sadd('user:' .. message.reply.from.id .. ':quotes', message.reply.text)
+    local user = mattata.get_formatted_user(message.reply.from.id, message.reply.from.name, 'html')
+    local output = string.format(language['save']['2'], user)
+    return mattata.send_reply(message, output, 'html')
 end
 
 return save

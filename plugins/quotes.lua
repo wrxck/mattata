@@ -21,7 +21,13 @@ function quotes.get_quote(user, quote_number)
     if #all < quote_number then
         return 'Invalid quote number!'
     end
-    return all[quote_number]
+    local output = all[quote_number]
+    local voice = false
+    if output:match('^%$voice:.-$') then
+        output = output:match('^%$voice:(.-)$')
+        voice = true
+    end
+    return output, voice
 end
 
 function quotes.get_confirmation_keyboard(user, quote_number, page)
@@ -77,6 +83,9 @@ function quotes.get_keyboard(user, page, columns, per_page)
     local output = {}
     for k, v in pairs(toggleable) do
         quote = quote + 1
+        if v:match('^%$voice:.-$') then
+            v = '[Voice Message]'
+        end
         if quote >= start_res and quote <= end_res then
             table.insert(output, {
                 ['quote_number'] = k,
@@ -140,14 +149,6 @@ function quotes.get_keyboard(user, page, columns, per_page)
     if count <= 0 then
         return false
     end
-    table.insert(keyboard.inline_keyboard, {{
-        ['text'] = 'Delete All',
-        ['callback_data'] = string.format(
-            'quotes:%s:delete_all:%s',
-            user,
-            page
-        )
-    }})
     return keyboard
 end
 
@@ -159,10 +160,7 @@ function quotes.on_callback_query(_, callback_query, message)
     if tostring(callback_query.from.id) ~= tostring(user) then
         return mattata.answer_callback_query(callback_query.id, 'You are not allowed to use this!')
     end
-    if callback_type == 'delete_all' then
-        redis:del('user:' .. callback_query.from.id .. ':quotes')
-        return mattata.answer_callback_query(callback_query.id, 'Successfully deleted all of your quotes!')
-    elseif callback_type == 'back' or callback_type == 'page' then
+    if callback_type == 'back' or callback_type == 'page' then
         local success = mattata.edit_message_text(
             message.chat.id,
             message.message_id,
@@ -197,8 +195,7 @@ function quotes.on_callback_query(_, callback_query, message)
         return mattata.edit_message_reply_markup(
             message.chat.id,
             message.message_id,
-            nil,
-            quotes.get_keyboard(
+            nil, quotes.get_keyboard(
                 callback_query.from.id,
                 tonumber(page), 2, 10
             )
@@ -209,21 +206,18 @@ function quotes.on_callback_query(_, callback_query, message)
         callback_type,
         page
     )
-    local success = mattata.edit_message_text(
-        message.chat.id,
-        message.message_id,
-        quotes.get_quote(
-            callback_query.from.id,
-            callback_type
-        ), nil, false,
-        keyboard
-    )
+    local quote, voice = quotes.get_quote(callback_query.from.id, callback_type)
+    if voice then
+        local success = mattata.send_voice(message.chat.id, quote)
+        if success then
+            quote = 'Please listen to the voice message below:'
+        else
+            quote = 'I couldn\'t send that voice message as it\'s no longer on Telegram\'s servers. You might as well delete this!'
+        end
+    end
+    local success = mattata.edit_message_text(message.chat.id, message.message_id, quote, nil, false, keyboard)
     if not success then
-        return mattata.edit_message_text(
-            message.chat.id,
-            message.message_id,
-            'All quotes saved under your database entry have been deleted!'
-        )
+        return mattata.edit_message_text(message.chat.id, message.message_id, 'All quotes saved under your database entry have been deleted!')
     end
 end
 
