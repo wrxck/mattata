@@ -11,7 +11,7 @@ local configuration = require('configuration')
 
 function administration:init()
     administration.commands = mattata.commands(self.info.username):command('administration'):command('settings').table
-    administration.help = '/administration [chat] - Returns the administrative settings panel for the group you it is being executed from. Optionally, group admins may edit the settings using a @mention in PM to the bot, i.e. /administration @devTalk. Alias: /settings.'
+    administration.help = '/administration [chat] - Returns the administrative settings panel for the group it is being executed from. Optionally, group admins may edit the settings using a @mention in PM to the bot, i.e. /administration @devTalk. Alias: /settings.'
 end
 
 function administration.get_initial_keyboard(chat_id, page, language)
