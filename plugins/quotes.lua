@@ -59,14 +59,25 @@ function quotes.get_quotes(user)
     return all
 end
 
-function quotes.get_keyboard(user, page, columns, per_page)
-    page = page or 1
-    local toggleable = quotes.get_quotes(user)
-    if not toggleable then
+function quotes.get_pages(user, per_page)
+    local all = quotes.get_quotes(user)
+    if not all then
         return false
     end
-    local page_count = math.floor(#toggleable / per_page)
-    if page_count < #toggleable / per_page then
+    local page_count = math.floor(#all / per_page)
+    if page_count < #all / per_page then
+        page_count = page_count + 1
+    end
+    return all, page_count
+end
+
+function quotes.get_keyboard(all, user, page, columns, per_page)
+    page = page or 1
+    if not all then
+        return false
+    end
+    local page_count = math.floor(#all / per_page)
+    if page_count < #all / per_page then
         page_count = page_count + 1
     end
     if page < 1 then
@@ -76,12 +87,12 @@ function quotes.get_keyboard(user, page, columns, per_page)
     end
     local start_res = (page * per_page) - (per_page - 1)
     local end_res = start_res + (per_page - 1)
-    if end_res > #toggleable then
-        end_res = #toggleable
+    if end_res > #all then
+        end_res = #all
     end
     local quote = 0
     local output = {}
-    for k, v in pairs(toggleable) do
+    for k, v in pairs(all) do
         quote = quote + 1
         if v:match('^%$voice:.-$') then
             v = '[Voice Message]'
@@ -160,14 +171,22 @@ function quotes.on_callback_query(_, callback_query, message)
     if tostring(callback_query.from.id) ~= tostring(user) then
         return mattata.answer_callback_query(callback_query.id, 'You are not allowed to use this!')
     end
+    local all, page_count = quotes.get_pages(callback_query.from.id, 10)
+    page_count = page_count or 1
     if callback_type == 'back' or callback_type == 'page' then
+        page = tonumber(page)
+        if page > page_count then
+            page = 1
+        elseif page < 1 then
+            page = page_count
+        end
         local success = mattata.edit_message_text(
             message.chat.id,
             message.message_id,
             'Please select a quote:',
             nil, false,
             quotes.get_keyboard(
-                callback_query.from.id,
+                all, callback_query.from.id,
                 tonumber(page), 2, 10
             )
         )
@@ -180,7 +199,6 @@ function quotes.on_callback_query(_, callback_query, message)
         end
         return mattata.answer_callback_query(callback_query.id)
     elseif callback_type == 'delete' then
-        local all = redis:smembers('user:' .. callback_query.from.id .. ':quotes')
         if #all == 0 then
             return mattata.answer_callback_query(callback_query.id, 'All quotes saved under your database entry have already been deleted!')
         end
@@ -190,15 +208,22 @@ function quotes.on_callback_query(_, callback_query, message)
             return mattata.answer_callback_query(callback_query.id, 'This quote no longer exists!')
         end
         redis:srem('user:' .. callback_query.from.id .. ':quotes', quote)
-        return mattata.answer_callback_query(callback_query.id, 'That quote has been deleted from my database!')
-    elseif callback_type == 'back' then
-        return mattata.edit_message_reply_markup(
+        mattata.answer_callback_query(callback_query.id, 'That quote has been deleted from my database!')
+        all = quotes.get_quotes(callback_query.from.id) -- Update the quotes.
+        return mattata.edit_message_text(
             message.chat.id,
             message.message_id,
-            nil, quotes.get_keyboard(
-                callback_query.from.id,
+            'Please select a quote:',
+            nil, false,
+            quotes.get_keyboard(
+                all, callback_query.from.id,
                 tonumber(page), 2, 10
             )
+        )
+    elseif callback_type == 'back' then
+        return mattata.edit_message_reply_markup(
+            message.chat.id, message.message_id, nil,
+            quotes.get_keyboard(all, callback_query.from.id, tonumber(page), 2, 10)
         )
     end
     local keyboard = quotes.get_confirmation_keyboard(
@@ -222,7 +247,8 @@ function quotes.on_callback_query(_, callback_query, message)
 end
 
 function quotes.on_message(_, message)
-    local keyboard = quotes.get_keyboard(message.from.id, 1, 2, 10)
+    local all = quotes.get_pages(message.from.id, 10)
+    local keyboard = quotes.get_keyboard(all, message.from.id, 1, 2, 10)
     if not keyboard then
         return mattata.send_reply(message, 'You don\'t have any quotes saved in my database! Use /save in reply to one of your messages to save it!')
     end

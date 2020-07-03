@@ -309,19 +309,21 @@ function utils.increase_administrative_action(chat_id, user_id, action, increase
     return redis:hincrby(hash, action, increase_by)
 end
 
-function utils.is_allowlisted_link(link)
+function utils.is_allowlisted_link(link, chat_id)
     if link == 'username' or link == 'isiswatch' or link == 'mattata' or link == 'telegram' then
+        return true
+    elseif chat_id and redis:get('allowlisted_links:' .. chat_id .. ':' .. link:lower()) then
         return true
     end
     return false
 end
 
-function utils.is_valid(message) -- Performs basic checks on the message object to see if it's fit
+function utils.is_valid(message, offset) -- Performs basic checks on the message object to see if it's fit
 -- for its purpose. If it's valid, this function will return `true` - otherwise it will return `false`.
     if not message then -- If the `message` object is nil, then we'll ignore it.
         return false, 'No `message` object exists!'
-    elseif message.date < os.time() - 7 then -- We don't want to process old messages, so anything
-    -- older than the current system time (giving it a leeway of 7 seconds).
+    elseif message.date < os.time() - (offset or 10) then -- We don't want to process old messages, so anything
+    -- older than the current system time (giving it a leeway of 10 seconds, unless otherwise specified).
         return false, 'This `message` object is too old!'
     elseif not message.from then -- If the `message.from` object doesn't exist, this will likely
     -- break some more code further down the line!
@@ -470,46 +472,6 @@ function utils.is_user_fed_allowlisted(chat_id, user_id)
         return false
     end
     return redis:sismember('fedallowlist:' .. chat_id, user_id) and true or false
-end
-
-function utils.is_duplicate(tab, val)
-    local seen = {}
-    local duplicated = {}
-    for i = 1, #tab do
-        local element = tab[i]
-        if seen[element] then
-            duplicated[element] = true
-        else
-            seen[element] = true
-        end
-    end
-    if val and duplicated[val] then
-        return true
-    elseif val then
-        return false
-    end
-    return duplicated
-end
-
-function utils.is_valid_url(url, parts, any)
-    if not url:match('^[Hh][Tt][Tt][Pp][Ss]?://') and not any then
-        url = 'http://' .. url
-    end
-    -- Thanks to https://stackoverflow.com/questions/23590304/finding-a-url-in-a-string-lua-pattern
-    local url, protocol, subdomain, tld, colon, port, slash, path = string.match(url, '^(([%w_.~!*:@&+$/?%%#-]-)(%w[-.%w]*%.)(%w+)(:?)(%d*)(/?)([%w_.~!*:@&+$/?%%#=-]*))$')
-    if parts then
-        return {
-            ['url'] = url,
-            ['protocol'] = protocol,
-            ['subdomain'] = subdomain,
-            ['tld'] = tld,
-            ['colon'] = colon,
-            ['port'] = port,
-            ['slash'] = slash,
-            ['path'] = path
-        }
-    end
-    return url and true or false, url
 end
 
 return utils

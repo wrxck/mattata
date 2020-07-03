@@ -5,8 +5,8 @@ then
 else
     cd helpers/
     while true; do
-        lua ai.lua
-        echo "AI helper has stopped!"
+        lua transcribe.lua
+        echo "Transcribe helper has stopped!"
         sleep 3s
     done
 fi

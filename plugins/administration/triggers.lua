@@ -31,7 +31,32 @@ function triggers:on_new_message(message)
                 value = 'ay' .. string.rep('y', trail:len())
             end
             if value:len() > 4096 then
-                value = value:sub(1, 4096)
+                value = value:sub(1, 4093) .. '...'
+            end
+            if value:match('%b{}') then
+                for k, v in pairs(message.from) do
+                    if type(v) == 'string' then
+                        message.from[k] = v:gsub('%%', '%%%%')
+                    end
+                end
+                for k, v in pairs(message.chat) do
+                    if type(v) == 'string' then
+                        message.chat[k] = v:gsub('%%', '%%%%')
+                    end
+                end
+                local last_name = message.from.last_name or ''
+                local username = message.from.username and '@' .. message.from.username or ''
+                value = value:gsub('{name}', message.from.name):gsub('{firstname}', message.from.first_name):gsub('{userid}', message.from.id):gsub('{lastname}', last_name):gsub('{username}', username)
+                if message.chat.type == 'supergroup' then
+                    value = value:gsub('{title}', message.chat.title):gsub('{chatid}', message.chat.id)
+                    local user_count = ''
+                    if value:match('{usercount}') then
+                        user_count = mattata.get_chat_members_count(message.chat.id).result
+                    end
+                    local invite_link = redis:hget('chat:' .. message.chat.id .. ':info', 'link') or ''
+                    local chat_username = message.chat.username and '@' .. message.chat.username or ''
+                    value = value:gsub('{usercount}', user_count):gsub('{invitelink}', invite_link):gsub('{chatusername}', chat_username)
+                end
             end
             if not message.is_edited then
                 local success = mattata.send_message(message.chat.id, value)

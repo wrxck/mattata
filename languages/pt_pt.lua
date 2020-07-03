@@ -600,7 +600,7 @@ Sistema:
     },
     ['quote'] = {
         ['1'] = 'Este utilizador desativou a funcionalidade de armazenamento de dados.',
-        ['2'] = 'Não há citações guardadas para %s%s! Pode guardar um usando /save em resposta a uma mensagem que enviam.'
+        ['2'] = 'Não há citações guardadas para %s! Pode guardar um usando /save em resposta a uma mensagem que enviam.'
     },
     ['report'] = {
         ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
@@ -611,7 +611,7 @@ Sistema:
     },
     ['save'] = {
         ['1'] = 'Este utilizador desativou a funcionalidade de armazenamento de dados.',
-        ['2'] = 'Esta mensagem foi gravada na minha base de dados, e adicionado à lista de possíveis respostas para quando /quote è usado em resposta a %s%s!'
+        ['2'] = 'Esta mensagem foi gravada na minha base de dados, e adicionado à lista de possíveis respostas para quando /quote è usado em resposta a %s!'
     },
     ['sed'] = {
         ['1'] = '%s\n\n<i>%s não quis dizer isso!</i>',

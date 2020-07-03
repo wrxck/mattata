@@ -11,8 +11,8 @@ function spamwatch:init()
     spamwatch.help = '/spamwatch [user] - Returns SpamWatch information for the given user, either specified or replied-to. Alias: /sw.'
 end
 
-function spamwatch:on_new_message(message, configuration, language)
-    if message.chat.type == 'private' then
+function spamwatch:on_new_message(message)
+    if message.chat.type ~= 'supergroup' then
         return false
     elseif not mattata.get_setting(message.chat.id, 'ban spamwatch users') then
         return false
@@ -22,7 +22,7 @@ function spamwatch:on_new_message(message, configuration, language)
     return false
 end
 
-function spamwatch:on_message(message, configuration, language)
+function spamwatch:on_message(message)
     local input = message.reply and message.reply.from.id or mattata.input(message.text)
     if not input then
         return mattata.send_reply(message, spamwatch.help)

@@ -26,8 +26,6 @@ function ai:on_new_message(message)
     end
     if message.chat.type == 'private' and message.text then
         return ai.on_message(self, message)
-    elseif math.random(30) == 30 and not message.reply then
-        return ai.on_message(self, message)
     end
     return
 end

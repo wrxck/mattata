@@ -12,7 +12,7 @@ function id:init()
     id.help = '/id [chat] - Sends information about the given chat. Input is also accepted via reply. Only /user will display user statistics. Aliases: /user, /whoami.'
 end
 
-function id.resolve_chat(input, language, send_chat_action, current_group, show_user_stats)
+function id.resolve_chat(input, language, send_chat_action, current_group, show_user_stats, api_mode)
     local output = {}
     if not input then
         return false
@@ -21,6 +21,9 @@ function id.resolve_chat(input, language, send_chat_action, current_group, show_
     end
     local success = mattata.get_user(input, false, true) or mattata.get_chat(input)
     if not success or not success.result then
+        if api_mode then
+            return false
+        end
         return language['id']['1']
     end
     if success.result.type == 'private' then
@@ -28,7 +31,13 @@ function id.resolve_chat(input, language, send_chat_action, current_group, show_
         if success.result.last_name then
             name = name .. ' ' .. success.result.last_name
         end
-        table.insert(output, mattata.get_formatted_user(success.result.id, name, 'html') .. ' <code>[' .. success.result.id .. ']</code>')
+        local nickname = redis:hget('user:' .. success.result.id .. ':info', 'nickname')
+        if nickname then
+            nickname = ', AKA <em>' .. mattata.escape_html(nickname) .. '</em>'
+        else
+            nickname = ''
+        end
+        table.insert(output, mattata.get_formatted_user(success.result.id, name, 'html') .. nickname .. ' <code>[' .. success.result.id .. ']</code>')
         if success.result.username then
             table.insert(output, '@' .. success.result.username)
             local previous = redis:smembers('user:' .. success.result.id .. ':usernames')
@@ -72,18 +81,12 @@ function id.resolve_chat(input, language, send_chat_action, current_group, show_
             end
         end
     else
+        table.insert(output, mattata.escape_html(success.result.title) .. ' <code>[' .. success.result.id .. '</code> (' .. success.result.type .. ')')
+        table.insert(output, '@' .. success.result.username)
         if current_group ~= success.result.id then
-            table.insert(output, '<b>Title:</b> ' .. mattata.escape_html(success.result.title))
             if success.result.description and success.result.description ~= '' then
                 table.insert(output, '<b>Description:</b> <code>' .. mattata.escape_html(success.result.description) .. '</code>')
             end
-        else
-            table.insert(output, '<b>This group:</b>')
-        end
-        table.insert(output, '<b>ID:</b> ' .. success.result.id)
-        table.insert(output, '<b>Type:</b> ' .. success.result.type)
-        if success.result.username then
-            table.insert(output, '<b>Username:</b> @' .. success.result.username)
         end
     end
     return output
@@ -93,8 +96,10 @@ function id.get_fed_info(user_id)
     local banned_from = redis:keys('fedban:*:' .. user_id)
     local banned_amount = #banned_from
     local output = {}
-    table.insert(output, 'Banned from <code>' .. banned_amount .. '</code> Feds')
-    table.insert(output, '<em>/fbaninfo coming soon...</em>')
+    table.insert(output, 'Banned from <code>' .. banned_amount .. '</code> Fed(s)')
+    if banned_amount > 0 then
+        table.insert(output, '<em>Use /fbaninfo to see why you\'ve been banned!</em>')
+    end
     return output
 end
 

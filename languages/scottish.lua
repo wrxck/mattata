@@ -600,7 +600,7 @@ System:
     },
     ['quote'] = {
         ['1'] = 'This usar has opted out of data-storing functionality.',
-        ['2'] = 'There be no saved quotes for %s%s! Ye can save one by using /save in reply tae a message thei send.'
+        ['2'] = 'There be no saved quotes for %s! Ye can save one by using /save in reply tae a message thei send.'
     },
     ['report'] = {
         ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
@@ -611,7 +611,7 @@ System:
     },
     ['save'] = {
         ['1'] = 'This usar has opted out of data-storing functionality.',
-        ['2'] = 'That message has been saved in my database, and added tae the list of possible responses for when /quote is used in reply tae %s%s!'
+        ['2'] = 'That message has been saved in my database, and added tae the list of possible responses for when /quote is used in reply tae %s!'
     },
     ['sed'] = {
         ['1'] = '%s\n\n<i>%s didn\'t mean tae say thes!</i>',

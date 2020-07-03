@@ -657,7 +657,7 @@ System:
     },
     ['quote'] = {
         ['1'] = 'Ten użytkownik zrezygnował ze zbierania danych na jego temat',
-        ['2'] = 'Brak zapisanych cytatów użytkownika %s%s! Odpisz na wiadomość poleceniem /save aby zapisać.'
+        ['2'] = 'Brak zapisanych cytatów użytkownika %s! Odpisz na wiadomość poleceniem /save aby zapisać.'
     },
     ['randomsite'] = {
         ['1'] = 'Wygeneruj inną'
@@ -678,7 +678,7 @@ System:
     },
     ['save'] = {
         ['1'] = 'Ten użytkownik zrezygnował ze zbierania danych na jego temat',
-        ['2'] = 'Wiadomość zapisana w bazie danych i dodana do listy możliwych odpowiedzi gdy /quote jest użyte w odpowiedzi do %s%s!'
+        ['2'] = 'Wiadomość zapisana w bazie danych i dodana do listy możliwych odpowiedzi gdy /quote jest użyte w odpowiedzi do %s!'
     },
     ['sed'] = {
         ['1'] = '%s\n\n<i>%s nie miał(a) tego na myśli!</i>',

@@ -5,7 +5,7 @@
     | | | | | | (_| | |_| || (_| | || (_| |
     |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-    Configuration file for mattata v1.4.1
+    Configuration file for mattata v1.5
 
     Copyright 2020 Matthew Hesketh <matthew@matthewhesketh.com>
     This code is licensed under the MIT. See LICENSE for details.
@@ -19,7 +19,7 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     ['bot_token'] = '', -- In order for the bot to actually work, you MUST insert the Telegram
     -- bot API token you received from @BotFather.
     ['connected_message'] = 'Connected to the Telegram bot API!', -- The message to print when the bot is connected to the Telegram bot API
-    ['version'] = '1.4.1', -- the version of mattata, don't change this!
+    ['version'] = '1.5', -- the version of mattata, don't change this!
     -- The following two tokens will require you to have setup payments with @BotFather, and
     -- a Stripe account with @stripe!
     ['stripe_live_token'] = '', -- Payment token you receive from @BotFather.
@@ -109,7 +109,11 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
             ['client_secret'] = ''
         },
         ['spamwatch'] = '', -- https://t.me/SpamWatchSupport
-        ['wolframalpha'] = '' -- https://developer.wolframalpha.com/portal/myapps/
+        ['wolframalpha'] = '', -- https://developer.wolframalpha.com/portal/myapps/
+        ['movies'] = {
+            ['omdb'] = '', -- http://www.omdbapi.com/apikey.aspx
+            ['poster'] = '' -- https://www.myapifilms.com/token.do
+        }
     },
     ['errors'] = { -- Messages to provide a more user-friendly approach to errors.
         ['connection'] = 'Connection error.',
@@ -137,6 +141,11 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
         ['drawtext'] = 1000,
         ['help'] = {
             ['per_page'] = 4
+        },
+        ['nick'] = 128,
+        ['plugins'] = {
+            ['per_page'] = 18,
+            ['columns'] = 2
         }
     },
     ['administration'] = { -- Values used in administrative plugins

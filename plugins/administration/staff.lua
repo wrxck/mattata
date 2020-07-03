@@ -20,23 +20,9 @@ function staff.format_admin_list(output, chat_id)
         local user
         local branch = ' ├ '
         if admin.status == 'creator' then
-            creator = mattata.escape_html(admin.user.first_name)
-            if admin.user.username then
-                creator = string.format(
-                    '<a href="https://t.me/%s">%s</a>',
-                    admin.user.username,
-                    creator
-                )
-            end
+            creator = mattata.get_formatted_user(admin.user.id, admin.user.first_name, 'html')
         elseif admin.status == 'administrator' then
-            user = mattata.escape_html(admin.user.first_name)
-            if admin.user.username then
-                user = string.format(
-                    '<a href="https://t.me/%s">%s</a>',
-                    admin.user.username,
-                    user
-                )
-            end
+            user = mattata.get_formatted_user(admin.user.id, admin.user.first_name, 'html')
             admin_count = admin_count + 1
             if admin_count == #output.result then
                 branch = ' └ '

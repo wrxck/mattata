@@ -78,7 +78,7 @@ end
 
 function help:on_callback_query(callback_query, message, _, language)
     if callback_query.data == 'cmds' then
-        local arguments_list = mattata.get_help(false, message.chat.id)
+        local arguments_list = mattata.get_help(self, false, message.chat.id)
         local plugin_count = #arguments_list
         local page_count = math.floor(tonumber(plugin_count) / help.per_page)
         if math.floor(tonumber(plugin_count) / help.per_page) ~= tonumber(plugin_count) / help.per_page then
@@ -115,7 +115,7 @@ function help:on_callback_query(callback_query, message, _, language)
         )
     elseif callback_query.data:match('^results:%d*$') then
         local new_page = callback_query.data:match('^results:(%d*)$')
-        local arguments_list = mattata.get_help(false, message.chat.id)
+        local arguments_list = mattata.get_help(self, false, message.chat.id)
         local plugin_count = #arguments_list
         local page_count = math.floor(tonumber(plugin_count) / help.per_page)
         if math.floor(tonumber(plugin_count) / help.per_page) ~= tonumber(plugin_count) / help.per_page then
@@ -156,7 +156,7 @@ function help:on_callback_query(callback_query, message, _, language)
             )
         )
     elseif callback_query.data == 'acmds' then
-        local arguments_list = mattata.get_help(true, message.chat.id)
+        local arguments_list = mattata.get_help(self, true, message.chat.id)
         local plugin_count = #arguments_list
         local page_count = math.floor(tonumber(plugin_count) / help.per_page)
         if math.floor(tonumber(plugin_count) / help.per_page) ~= tonumber(plugin_count) / help.per_page then
@@ -190,7 +190,7 @@ function help:on_callback_query(callback_query, message, _, language)
         )
     elseif callback_query.data:match('^aresults:%d*$') then
         local new_page = callback_query.data:match('^aresults:(%d*)$')
-        local arguments_list = mattata.get_help(true, message.chat.id)
+        local arguments_list = mattata.get_help(self, true, message.chat.id)
         local plugin_count = #arguments_list
         local page_count = math.floor(tonumber(plugin_count) / help.per_page)
         if math.floor(tonumber(plugin_count) / help.per_page) ~= tonumber(plugin_count) / help.per_page then

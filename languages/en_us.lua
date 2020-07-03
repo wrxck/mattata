@@ -657,7 +657,7 @@ System:
     },
     ['quote'] = {
         ['1'] = 'This user has opted out of data-storing functionality.',
-        ['2'] = 'There are no saved quotes for %s%s! You can save one by using /save in reply to a message they send.'
+        ['2'] = 'There are no saved quotes for %s! You can save one by using /save in reply to a message they send.'
     },
     ['randomsite'] = {
         ['1'] = 'Generate Another'
@@ -678,7 +678,7 @@ System:
     },
     ['save'] = {
         ['1'] = 'This user has opted out of data-storing functionality.',
-        ['2'] = 'That message has been saved in my database, and added to the list of possible responses for when /quote is used in reply to %s%s!'
+        ['2'] = 'That message has been saved in my database, and added to the list of possible responses for when /quote is used in reply to %s!'
     },
     ['sed'] = {
         ['1'] = '%s\n\n<i>%s didn\'t mean to say this!</i>',

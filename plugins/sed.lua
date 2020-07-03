@@ -11,8 +11,8 @@ local re = require('re')
 local regex = require('rex_pcre')
 
 function sed:init()
-    sed.commands = { '^%/?[sS]%/.-%/.-%/?$' }
-    sed.help = '/s/pattern/substitution - Replaces all occurences, of text matching a given Lua pattern, with the given substitution.'
+    sed.commands = { '^[sS]/.-/.-/?.?$' }
+    sed.help = 's/pattern/substitution - Replaces all occurences, of text matching a given Lua pattern, with the given substitution.'
 end
 
 local compiled = re.compile[[
@@ -82,10 +82,11 @@ function sed:on_message(message, _, language)
         )
     end
     local input = message.reply.text
-    local text = message.text:match('^/?(.*)$')
+    local text = message.text:match('^[sS]/(.*)$')
     if not text then
         return false
     end
+    text = 's/' .. text
     local pattern, replace, flags, matches, probability = compiled:match(text)
     if not pattern then
         return false
@@ -142,17 +143,14 @@ function sed:on_message(message, _, language)
         false,
         message.reply.message_id,
         mattata.inline_keyboard():row(
-            mattata.row()
-            :callback_data_button(
-                language['sed']['7'],
+            mattata.row():callback_data_button(
+                utf8.char(128077),
                 'sed:yes'
-            )
-            :callback_data_button(
-                language['sed']['8'],
+            ):callback_data_button(
+                utf8.char(128078),
                 'sed:no'
-            )
-            :callback_data_button(
-                language['sed']['9'],
+            ):callback_data_button(
+                '¯\\_(ツ)_/¯',
                 'sed:maybe'
             )
         )

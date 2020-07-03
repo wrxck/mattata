@@ -60,8 +60,11 @@ function join_captcha.on_callback_query(_, callback_query, message)
         return mattata.answer_callback_query(callback_query.id, 'This isn\'t your CAPTCHA!')
     end
     local correct = mattata.get_captcha_text(chat_id, callback_query.from.id)
+    if not correct then
+        return mattata.answer_callback_query(callback_query.id, 'An error occurred. Please contact an admin if this keeps happening!', true)
+    end
     local message_id = mattata.get_captcha_id(chat_id, callback_query.from.id)
-    local default_permissions = mattata.get_chat(message.chat.id)
+    local default_permissions = mattata.get_chat(message.chat.id, true)
     if guess:lower() == correct:lower() then
         local success
         if not default_permissions then
@@ -120,8 +123,8 @@ function join_captcha.on_member_join(_, message, configuration)
     new_captcha:setformat('jpg')
     new_captcha:setfontsfolder(configuration.fonts_directory .. '/' .. font)
     local generated_captcha, correct = new_captcha:generate()
-    local username = message.new_chat_participant.username and '@' .. message.new_chat_participant.username or false
-    local msg = string.format('Hey, [%s](tg://user?id=%s)! Please enter the above CAPTCHA using the buttons below before you can speak! You will be removed in 5 minutes if you don\'t do this.\n_Click to expand the image on Android devices!_', username or mattata.escape_markdown(message.new_chat_participant.first_name), message.new_chat_participant.id)
+    local username = mattata.get_formatted_user(message.new_chat_participant.id, message.new_chat_participant.first_name)
+    local msg = string.format('Hey, %s! Please enter the above CAPTCHA using the buttons below before you can speak! You will be removed in 5 minutes if you don\'t do this.\n_Click to expand the image on Android devices!_', username)
     captchas = mattata.random_string(length, 5)
     table.insert(captchas, correct)
     table.sort(captchas)

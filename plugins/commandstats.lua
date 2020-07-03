@@ -12,6 +12,18 @@ function commandstats:init()
     commandstats.help = '/commandstats - Shows statistical information about the current chat\'s top ten commands (ordered by message count). Alias: /cmdstats.'
 end
 
+function commandstats:on_new_message(message)
+    if self.is_command then
+        local command = message.text:match('^([!/#][%w_]+)')
+        if command then
+            redis:incr('commandstats:' .. message.chat.id .. ':' .. command)
+            if not redis:sismember('chat:' .. message.chat.id .. ':commands', command) then
+                redis:sadd('chat:' .. message.chat.id .. ':commands', command)
+            end
+        end
+    end
+end
+
 function commandstats.reset_command_stats(chat_id)
     if not chat_id or tonumber(chat_id) == nil then
         return false
