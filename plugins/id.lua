@@ -82,7 +82,9 @@ function id.resolve_chat(input, language, send_chat_action, current_group, show_
         end
     else
         table.insert(output, mattata.escape_html(success.result.title) .. ' <code>[' .. success.result.id .. '</code> (' .. success.result.type .. ')')
-        table.insert(output, '@' .. success.result.username)
+        if success.result.username then
+            table.insert(output, '@' .. success.result.username)
+        end
         if current_group ~= success.result.id then
             if success.result.description and success.result.description ~= '' then
                 table.insert(output, '<b>Description:</b> <code>' .. mattata.escape_html(success.result.description) .. '</code>')
