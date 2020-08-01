@@ -16,8 +16,7 @@ end
 
 function slap:on_message(message, configuration)
     local input = mattata.input(message)
-    local victor = ''
-    local victim = ''
+    local victor, victor_id, victim, victim_id
     local slaps = configuration.slaps
     if message.chat.type ~= 'private' then
         local more = redis:smembers('slaps:' .. message.chat.id)
@@ -30,23 +29,32 @@ function slap:on_message(message, configuration)
     if not input then
         if message.reply then
             victor = message.from.first_name:gsub('%%', '%%%%')
+            victor_id = message.from.id
             victim = message.reply.from.first_name:gsub('%%', '%%%%')
+            victim_id = message.reply.from.id
         else
             victor = self.info.first_name:gsub('%%', '%%%%')
+            victor_id = self.info.id
             victim = message.from.first_name:gsub('%%', '%%%%')
+            victim_id = message.from.id
         end
     else
         victor = message.from.first_name:gsub('%%', '%%%%')
+        victor_id = message.from.id
         victim = input:gsub('%%', '%%%%')
+        victim_id = false
         local success = mattata.get_user(input)
         if success and success.result and success.result.type == 'private' then
             victim = success.result.first_name
             victim = victim:gsub('%%', '%%%%')
+            victim_id = success.result.id
         end
     end
-    local output = slaps[math.random(#slaps)]
+    victor = mattata.get_formatted_user(victor_id, victor, 'html')
+    victim = victim_id and mattata.get_formatted_user(victim_id, victim, 'html') or mattata.escape_html(victim)
+    local output = mattata.escape_html(slaps[math.random(#slaps)])
     output = output:gsub('{THEM}', victim):gsub('{ME}', victor)
-    return mattata.send_message(message.chat.id, output)
+    return mattata.send_message(message.chat.id, output, 'html')
 end
 
 return slap

@@ -619,10 +619,11 @@ Sistem:
         ['3'] = '%s\n\n<i>%s Yanılıyor mu bilmiyorlar mı ...</i>',
         ['4'] = 'Kahretsin, <i>Ne zamandır yanılıyorum?</i>',
         ['5'] = '"<code>%s</code>" Geçerli bir Lua kalıbı değil.',
-        ['6'] = '<b>Merhaba, %s, bunu mu demek istedin:</b>\n<i>%s</i>',
+        ['6'] = 'Hey %s, %s seems to think you meant:\n<i>%s</i>',
         ['7'] = 'Evet',
         ['8'] = 'Hayır',
-        ['9'] = 'Emin değilim'
+        ['9'] = 'Emin değilim',
+        ['10'] = 'Just edit your message, idiot.'
     },
     ['setgrouplang'] = {
         ['1'] = 'Bu grubun dili şu şekilde ayarlandı: %s!',

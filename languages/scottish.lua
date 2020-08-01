@@ -619,10 +619,11 @@ System:
         ['3'] = '%s\n\n<i>%s isn\'t sure if thei were mistaken...</i>',
         ['4'] = 'Screw ye, <i>when am A ever wrong?</i>',
         ['5'] = '"<code>%s</code>" isn\'t a valid Lua pattern.',
-        ['6'] = '<b>Hi, %s, did ye mean:</b>\n<i>%s</i>',
+        ['6'] = 'Hey %s, %s seems to think you meant:\n<i>%s</i>',
         ['7'] = 'Yes',
         ['8'] = 'No',
-        ['9'] = 'Not sure'
+        ['9'] = 'Not sure',
+        ['10'] = 'Just edit your message, idiot.'
     },
     ['setgrouplang'] = {
         ['1'] = 'This group\'s language has been set to %s!',

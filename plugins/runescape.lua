@@ -52,96 +52,73 @@ function runescape.get_skill_info(jdat)
         ['23'] = 'Summoning',
         ['24'] = 'Dungeoneering',
         ['25'] = 'Divination',
-        ['26'] = 'Invention'
+        ['26'] = 'Invention',
+        ['27'] = 'Archaeology'
     }
     local output = {}
     local longest_skill = 0
     local longest_rank = 0
     local longest_xp = 0
-    for k, v in pairs(jdat)
-    do
-        v.rank = v.rank
-        or 'N/A'
-        if v.id
-        then
-            local skill = tostring(v.id)
+    local skill, rank, xp
+    for _, v in pairs(jdat) do
+        v.rank = v.rank or 'N/A'
+        if v.id then
+            skill = tostring(v.id)
             skill = skills[skill]
-            if skill:len() > longest_skill
-            then
+            if skill:len() > longest_skill then
                 longest_skill = skill:len()
             end
         end
-        if v.rank
-        then
-            local rank = v.rank
-            if rank ~= 'N/A'
-            then
+        if v.rank then
+            rank = v.rank
+            if rank ~= 'N/A' then
                 rank = tonumber(rank)
                 rank = mattata.comma_value(rank)
             end
             rank = tostring(rank)
-            if rank:len() > longest_rank
-            then
+            if rank:len() > longest_rank then
                 longest_rank = rank:len()
             end
         end
-        if v.xp
-        then
+        if v.xp then
             v.xp = tonumber(v.xp) / 10
-            local xp = mattata.comma_value(v.xp)
+            xp = mattata.comma_value(v.xp)
             xp = tostring(xp)
-            if xp:len() > longest_xp
-            then
+            if xp:len() > longest_xp then
                 longest_xp = xp:len()
             end
         end
     end
-    if longest_skill < 5
-    then
+    if longest_skill < 5 then
         longest_skill = 5
     end
-    if longest_rank < 4
-    then
+    if longest_rank < 4 then
         longest_rank = 4
     end
-    if longest_xp < 2
-    then
+    if longest_xp < 2 then
         longest_xp = 2
     end
     local separator = '|-'
-    for i = 1, longest_skill
-    do
+    for _ = 1, longest_skill do
         separator = separator .. '-'
     end
     separator = separator .. '-|-------|-'
-    for i = 1, longest_rank
-    do
+    for _ = 1, longest_rank do
         separator = separator .. '-'
     end
     separator = separator .. '-|-'
-    for i = 1, longest_xp
-    do
+    for _ = 1, longest_xp do
         separator = separator .. '-'
     end
     separator = separator .. '-|'
-    table.insert(
-        output,
-        separator
-    )
+    table.insert(output, separator)
     local heading = ''
-    for k, v in pairs(jdat)
-    do
-        v.rank = v.rank
-        or 'N/A'
-        if v.id
-        and v.level
-        and v.rank
-        and v.xp
-        then
+    for k, v in pairs(jdat) do
+        v.rank = v.rank or 'N/A'
+        if v.id and v.level and v.rank and v.xp then
             local id = tostring(v.id)
-            local skill = skills[id]
-            if skill:len() < longest_skill
-            then
+            skill = skills[id]
+            if skill:len() < longest_skill then
                 repeat
                     skill = skill .. ' '
                 until skill:len() == longest_skill
@@ -150,57 +127,44 @@ function runescape.get_skill_info(jdat)
             repeat
                 level = level .. ' '
             until level:len() == 5
-            local rank = v.rank
-            if rank ~= 'N/A'
-            then
+            rank = v.rank
+            if rank ~= 'N/A' then
                 rank = tonumber(rank)
                 rank = mattata.comma_value(rank)
             end
             rank = tostring(rank)
-            if rank:len() < longest_rank
-            then
+            if rank:len() < longest_rank then
                 repeat
                     rank = rank .. ' '
                 until rank:len() == longest_rank
             end
-            local xp = mattata.comma_value(v.xp)
+            xp = mattata.comma_value(v.xp)
             xp = tostring(xp)
-            if xp:len() < longest_xp
-            then
+            if xp:len() < longest_xp then
                 repeat
                     xp = xp .. ' '
                 until xp:len() == longest_xp
             end
             local row = '| ' .. skill .. ' | ' .. level .. ' | ' .. rank .. ' | ' .. xp .. ' |'
-            table.insert(
-                output,
-                row
-            )
-            if k < #jdat
-            then
-                table.insert(
-                    output,
-                    separator
-                )
+            table.insert(output, row)
+            if k < #jdat then
+                table.insert(output, separator)
             else
                 skill = 'Skill'
-                if skill:len() < longest_skill
-                then
+                if skill:len() < longest_skill then
                     repeat
                         skill = skill .. ' '
                     until skill:len() == longest_skill
                 end
                 level = 'Level'
                 rank = 'Rank'
-                if rank:len() < longest_rank
-                then
+                if rank:len() < longest_rank then
                     repeat
                         rank = rank .. ' '
                     until rank:len() == longest_rank
                 end
                 xp = 'XP'
-                if xp:len() < longest_xp
-                then
+                if xp:len() < longest_xp then
                     repeat
                         xp = xp .. ' '
                     until xp:len() == longest_xp
@@ -209,51 +173,28 @@ function runescape.get_skill_info(jdat)
             end
         end
     end
-    table.insert(
-        output,
-        separator
-    )
-    return table.concat(
-        output,
-        '\n'
-    ), heading
+    table.insert(output, separator)
+    output = table.concat(output, '\n')
+    return output, heading
 end
 
-function runescape:on_message(message, configuration, language)
+function runescape.on_message(_, message, _, language)
     local input = mattata.input(message.text)
-    if not input
-    then
-        return mattata.send_reply(
-            message,
-            runescape.help
-        )
+    if not input then
+        return mattata.send_reply(message, runescape.help)
     end
     local jstr, res = https.request('https://apps.runescape.com/runemetrics/profile/profile?user=' .. url.escape(input))
-    if res ~= 200
-    then
-        return mattata.send_reply(
-            message,
-            language['errors']['connection']
-        )
+    if res ~= 200 then
+        return mattata.send_reply(message, language.errors.connection)
     end
     local jdat = json.decode(jstr)
-    if jdat.error
-    or not jdat.skillvalues
-    then
-        return mattata.send_reply(
-            message,
-            runescape.errors(
-                jdat.error,
-                language
-            )
-        )
+    if jdat.error or not jdat.skillvalues then
+        local error_message = runescape.errors(jdat.error, language)
+        return mattata.send_reply(message, error_message)
     end
     local output, heading = runescape.get_skill_info(jdat.skillvalues)
-    return mattata.send_message(
-        message.chat.id,
-        '```\n' .. heading .. '\n' .. output .. '\n```',
-        'markdown'
-    )
+    output = string.format('<pre>%s\n%s</pre>', mattata.escape_html(heading), mattata.escape_html(output))
+    return mattata.send_message(message.chat.id, output, 'html')
 end
 
 return runescape

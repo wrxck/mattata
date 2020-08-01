@@ -673,9 +673,6 @@ System:
         ['4'] = 'Click here to view the reported message.',
         ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
     },
-    ['rms'] = {
-        ['1'] = 'Holy GNU!' --!
-    },
     ['save'] = {
         ['1'] = 'Ten użytkownik zrezygnował ze zbierania danych na jego temat',
         ['2'] = 'Wiadomość zapisana w bazie danych i dodana do listy możliwych odpowiedzi gdy /quote jest użyte w odpowiedzi do %s!'
@@ -686,10 +683,11 @@ System:
         ['3'] = '%s\n\n<i>%s nie ma pewności czy się nie pomylił(a)...</i>',
         ['4'] = 'Odczep się, ja <i>nigdy</i> się nie mylę!',
         ['5'] = '"<code>%s</code>" isn\'t a valid Lua pattern.', --!
-        ['6'] = '<b>Hej, %s, miałeś na myśli:</b>\n<i>%s</i>',
+        ['6'] = 'Hey %s, %s seems to think you meant:\n<i>%s</i>',
         ['7'] = 'Tak',
         ['8'] = 'Nie',
-        ['9'] = 'Nie wiem'
+        ['9'] = 'Nie wiem',
+        ['10'] = 'Just edit your message, idiot.'
     },
     ['setgrouplang'] = {
         ['1'] = 'Język tej grupy został ustawiony na %s!',

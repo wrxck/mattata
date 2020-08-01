@@ -11,6 +11,23 @@ function reboot:init()
     reboot.commands = mattata.commands(self.info.username):command('reboot'):command('shutdown'):command('reload').table
 end
 
+function reboot:on_new_message(message)
+    if not mattata.is_global_admin(message.from.id) then
+        return false
+    elseif not message.text then
+        return false
+    elseif message.text:match('^.- && .-$') then
+        local first, second = message.text:match('^(.-) && (.-)$')
+        if not first:match('^[/!#]') then
+            message.text = first
+            mattata.on_message(self, message)
+        end
+        message.text = second
+        return mattata.on_message(self, message)
+    end
+    return
+end
+
 function reboot:on_message(message)
     if not mattata.is_global_admin(message.from.id) or message.date < (os.time() - 2) then
         return false

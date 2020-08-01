@@ -73,7 +73,7 @@ function ban:on_message(message, _, language)
         return mattata.send_reply(message, output)
     end
     mattata.increase_administrative_action(message.chat.id, user_object.id, 'bans')
-    reason = reason and ', for ' .. reason or ''
+    reason = reason and '\nReason: ' .. reason or ''
     local admin_username = mattata.get_formatted_user(message.from.id, message.from.first_name, 'html')
     local banned_username = mattata.get_formatted_user(user_object.id, user_object.first_name, 'html')
     local output

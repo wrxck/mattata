@@ -42,6 +42,7 @@ function mattata:init()
     self.beta_plugins = {}
     self.chats = {}
     self.users = {}
+    self.replies = {}
     for k, v in ipairs(configuration.plugins) do -- Iterate over all of the configured plugins.
         local true_path = v
         for _, p in pairs(configuration.administrative_plugins) do
@@ -105,7 +106,7 @@ function mattata:init()
     self.last_update = self.last_update or 0 -- If there is no last update known, make it 0 so the bot doesn't encounter any problems when it tries to add the necessary increment.
     self.last_backup = self.last_backup or os.date('%V')
     self.last_cron = self.last_cron or os.date('%M')
-    self.last_cache = self.last_cache or os.date('%H')
+    self.last_cache = self.last_cache or os.date('%d')
     local init_message = '<pre>' .. configuration.connected_message .. '\n\n' .. mattata.escape_html(info_message) .. '\n\n\tPlugins loaded: ' .. #configuration.plugins - #configuration.administrative_plugins .. '\n\tAdministrative plugins loaded: ' .. #configuration.administrative_plugins .. '</pre>'
     mattata.send_message(configuration.log_chat, init_message:gsub('\t', ''), 'html')
     for _, admin in pairs(configuration.admins) do
@@ -248,10 +249,11 @@ function mattata:run(_, token)
                 end
             end
         end
-        if self.last_cache ~= os.date('%H') then -- Reset the bot's cache.
-            self.last_cache = os.date('%H')
+        if self.last_cache ~= os.date('%d') then -- Reset the bot's cache.
+            self.last_cache = os.date('%d')
             self.chats = {}
             self.users = {}
+            self.replies = {}
         end
     end
     print(self.info.first_name .. ' is shutting down...')
@@ -305,6 +307,17 @@ function mattata:on_message(message)
             self.chats[tostring(message.chat.id)] = message.chat
             self.chats[tostring(message.chat.id)].disabled_plugins = redis:smembers('disabled_plugins:' .. message.chat.id) or {}
         end
+        if message.reply then
+            if not self.replies[tostring(message.chat.id)] then
+                self.replies[tostring(message.chat.id)] = {}
+            end
+            if not self.replies[tostring(message.chat.id)][tostring(message.message_id)] then
+                self.replies[tostring(message.chat.id)][tostring(message.message_id)] = message.reply
+            end
+            if self.replies[tostring(message.chat.id)][tostring(message.reply.message_id)] then
+                message.reply.reply = self.replies[tostring(message.chat.id)][tostring(message.reply.message_id)]
+            end
+        end
     end
     self.is_command = false
     self.is_command_done = false
@@ -354,9 +367,14 @@ function mattata:on_message(message)
                         self.is_command = true
                         message.command = plugin.commands[i]:match('([%w_%-]+)')
                         if plugin.on_message then
+                            local old_message = message.text
+                            if mattata.is_global_admin(message.from.id) and message.text:match('^.- && .-$') then
+                                message.text = message.text:match('^(.-) && .-$')
+                            end
                             local success, result = pcall(function()
                                 return plugin.on_message(self, message, configuration, language)
                             end)
+                            message.text = old_message
                             if not success then
                                 mattata.exception(self, result, string.format('%s: %s', message.from.id, message.text), configuration.log_chat)
                             end
@@ -477,6 +495,7 @@ function mattata:on_callback_query(message, callback_query)
         message = callback_query.message
         message.exists = true
         message = mattata.process_nicknames(message)
+        callback_query = mattata.process_nicknames(callback_query)
     end
     if not self.chats[tostring(message.chat.id)] then
         self.chats[tostring(message.chat.id)] = message.chat

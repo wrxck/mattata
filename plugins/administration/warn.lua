@@ -232,7 +232,7 @@ function warn:on_message(message, _, language)
         end
     end
     mattata.increase_administrative_action(message.chat.id, user.id, 'warns')
-    reason = reason and ', for ' .. reason or ''
+    reason = reason and ', for ' .. reason:gsub('^for ', '') or ''
     local admin_username = mattata.get_formatted_user(message.from.id, message.from.first_name, 'html')
     local warned_username = mattata.get_formatted_user(user.id, user.first_name, 'html')
     if mattata.get_setting(message.chat.id, 'log administrative actions') then

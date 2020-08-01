@@ -99,7 +99,7 @@ function fban:on_message(message, _, language)
         end
         redis:sadd('fedbans:' .. fed, tonumber(user_object.id))
     end
-    reason = reason and ', for ' .. reason or ''
+    reason = reason and '\nReason: ' .. reason or ''
     local admin_username = mattata.get_formatted_user(message.from.id, message.from.first_name, 'html')
     local banned_username = mattata.get_formatted_user(user_object.id, user_object.first_name, 'html')
     if mattata.get_setting(message.chat.id, 'log administrative actions') then

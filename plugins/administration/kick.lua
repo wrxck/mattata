@@ -73,7 +73,7 @@ function kick:on_message(message, _, language)
         return mattata.send_reply(message, language['kick']['5'])
     end
     mattata.increase_administrative_action(message.chat.id, user_object.id, 'kicks')
-    reason = reason and ', for ' .. reason or ''
+    reason = reason and '\nReason: ' .. reason or ''
     local admin_username = mattata.get_formatted_user(message.from.id, message.from.first_name, 'html')
     local kicked_username = mattata.get_formatted_user(user_object.id, user_object.first_name, 'html')
     if mattata.get_setting(message.chat.id, 'log administrative actions') then

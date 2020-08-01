@@ -75,11 +75,9 @@ function sed:on_message(message, _, language)
     if not message.reply then
         return false
     elseif message.reply.from.id == self.info.id then
-        return mattata.send_reply(
-            message,
-            language['sed']['4'],
-            'html'
-        )
+        return mattata.send_reply(message, language['sed']['4'], 'html')
+    elseif message.reply.from.id == message.from.id then
+        return mattata.send_reply(message, language['sed']['10'])
     end
     local input = message.reply.text
     local text = message.text:match('^[sS]/(.*)$')
@@ -131,11 +129,14 @@ function sed:on_message(message, _, language)
     if not result or result == '' then
         return false
     end
+    local user = mattata.get_formatted_user(message.reply.from.id, message.reply.from.first_name, 'html')
+    local from = mattata.get_formatted_user(message.from.id, message.from.first_name, 'html')
     return mattata.send_message(
         message.chat.id,
         string.format(
             language['sed']['6'],
-            mattata.escape_html(message.reply.from.first_name),
+            user,
+            from,
             mattata.escape_html(result)
         ),
         'html',

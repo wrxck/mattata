@@ -12,33 +12,52 @@ function copypasta:init(configuration)
     copypasta.limit = configuration.limits.copypasta
 end
 
+function copypasta.aestheticise(input)
+    if not input then
+        return false
+    end
+    local output = {}
+    for char in input:gmatch('.') do
+        local success, point = pcall(function()
+            return utf8.codepoint(char)
+        end)
+        if success and (point >= 33 and point <= 126) then
+            table.insert(output, utf8.char(point + 65248))
+        else
+            table.insert(output, char)
+        end
+    end
+    output = table.concat(output)
+    return output
+end
+
 function copypasta.format_message(input)
     local emoji = {
         128514, -- crying with laughter
-        128514, -- crying with laughter
+        128514,
+        128514,
         128076, -- ok hand
+        128076,
+        128166, -- water drops
+        128166,
+        128064, -- eyes
+        128064,
         9996, -- peace sign hand
         128158, -- rotating hearts
         128077, -- thumbs up
-        128076, -- ok hand
         128175, -- 100//
         127926, -- music symbol
-        128064, -- eyes
-        128514, -- crying with laughter
         128083, -- glasses
         128079, -- clapping hands
         128080, -- open hands
         127829, -- pizza slice
         128165, -- explosion
         127860, -- knife and fork
-        128166, -- water drops
-        128166, -- water drops
         127825, -- peach
         127814, -- aubergine
         128553, -- moaning face
         128527, -- smirking face
         128073, -- finger pointing to right
-        128064, -- eyes
         128069, -- tongue
         128553 -- moaning face
     }
@@ -47,20 +66,22 @@ function copypasta.format_message(input)
         local char = input:sub(i, i)
         math.random(os.time())
         if char == ' ' then
-            local rndtotal = math.random(#emoji)
-            local rndemoji = utf8.char(emoji[rndtotal])
+            local rnd_total = math.random(#emoji)
+            local rnd_emoji = utf8.char(emoji[rnd_total])
             if math.random(2) == 2
             then
-                rndtotal = math.random(#emoji)
-                rndemoji = rndemoji .. ' ' .. utf8.char(emoji[rndtotal])
+                rnd_total = math.random(#emoji)
+                rnd_emoji = rnd_emoji .. ' ' .. utf8.char(emoji[rnd_total])
             end
-            char = char .. rndemoji .. char
+            char = char .. rnd_emoji .. char
         elseif math.random(5) == 5 then
             char = char:lower()
         end
         table.insert(output, char)
     end
-    return table.concat(output)
+    output = table.concat(output)
+    output = copypasta.aestheticise(output)
+    return output
 end
 
 function copypasta.on_message(_, message, _, language)

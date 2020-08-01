@@ -8,7 +8,7 @@ local mattata = require('mattata')
 local redis = require('libs.redis')
 
 function afk:init()
-    afk.commands = mattata.commands(self.info.username):command('afk').table
+    afk.commands = mattata.commands(self.info.username):command('[Aa][Ff][Kk]').table
     afk.help = '/afk [note] - Mark yourself as away from keyboard, with an optional note that will be displayed to users who mention you whilst you\'re away. You must have an @username for this feature to work.'
 end
 

@@ -34,7 +34,6 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     ['beta_plugins'] = { -- An array of plugins that only the configured bot admins are able to use.
         'array_of_beta_plugins'
     },
-    ['blocklist_plugin_exceptions'] = {}, -- An array of plugins that will still process blocklisted users.
     ['permanent_plugins'] = { -- An array of plugins that can't be disabled with /plugins.
         'plugins',
         'help',
@@ -114,7 +113,8 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
         ['movies'] = {
             ['omdb'] = '', -- http://www.omdbapi.com/apikey.aspx
             ['poster'] = '' -- https://www.myapifilms.com/token.do
-        }
+        },
+        ['transcribe'] = '' -- https://wit.ai/v2
     },
     ['errors'] = { -- Messages to provide a more user-friendly approach to errors.
         ['connection'] = 'Connection error.',

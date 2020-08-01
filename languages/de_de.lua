@@ -655,10 +655,11 @@ System:
         ['3'] = '%s\n\n<i>%s ist sich nicht sicher obe er/sie missverstanden ist...</i>',
         ['4'] = 'Ach halt die Klappe, <i>wann habe ich jemals nicht recht?</i>',
         ['5'] = '"<code>%s</code>" ist kein gültiges Lua Muster.',
-        ['6'] = '<b>Hallo, %s, meintest du:</b>\n<i>%s</i>',
+        ['6'] = 'Hey %s, %s seems to think you meant:\n<i>%s</i>',
         ['7'] = 'Ja',
         ['8'] = 'Nein',
-        ['9'] = 'Bin nicht sicher'
+        ['9'] = 'Bin nicht sicher',
+        ['10'] = 'Just edit your message, idiot.'
     },
     ['setgrouplang'] = {
         ['1'] = 'Die Sprache in dieser Gruppe wurde eingstellet zu %s!',

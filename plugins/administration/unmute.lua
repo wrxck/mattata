@@ -71,7 +71,12 @@ function unmute:on_message(message, _, language)
     if not default_permissions then
         return mattata.send_reply(message, 'I couldn\'t get the default permissions for this group!')
     end
-    default_permissions = default_permissions.result.permissions
+    default_permissions = default_permissions.result.permissions or {
+        ['can_send_messages'] = true,
+        ['can_send_media_messages'] = true,
+        ['can_send_other_messages'] = true,
+        ['can_send_web_page_previews'] = true
+    }
     local success = mattata.restrict_chat_member(message.chat.id, user_object.id, os.time(), default_permissions) -- attempt to unmute the user in the group, restoring the user to the original group permissions
     if not success then
         return mattata.send_reply(message, 'I couldn\'t unmute that user in this group, because it appears I don\'t have permission to!')

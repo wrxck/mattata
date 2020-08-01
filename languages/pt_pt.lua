@@ -619,10 +619,11 @@ Sistema:
         ['3'] = '%s\n\n<i>%s não tem certeza se eles estavam errados...</i>',
         ['4'] = 'Vai-te lixar, <i>quando é que eu estou errado?</i>',
         ['5'] = '"<code>%s</code>" não é um modelo Lua válido.',
-        ['6'] = '<b>%s quis dizer:</b>\n<i>%s</i>',
+        ['6'] = 'Hey %s, %s seems to think you meant:\n<i>%s</i>',
         ['7'] = 'Sim',
         ['8'] = 'Não',
-        ['9'] = 'Não tenho certeza'
+        ['9'] = 'Não tenho certeza',
+        ['10'] = 'Just edit your message, idiot.'
     },
     ['setgrouplang'] = {
         ['1'] = 'This group\'s language has been set to %s!',

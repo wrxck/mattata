@@ -28,11 +28,9 @@ end
 function plugins.get_toggleable_plugins()
     local toggleable = {}
     for _, v in pairs(configuration.plugins) do
-        if not mattata.table_contains(configuration.administrative_plugins, v) then
-            if v ~= 'plugins' and v ~= 'about' and v ~= 'bash' and v ~= 'lua' and v ~= 'reboot'  and v ~= 'administration' then
-                v = v:gsub('_', ' ')
-                table.insert(toggleable, v)
-            end
+        if v ~= 'plugins' and v ~= 'about' and v ~= 'bash' and v ~= 'lua' and v ~= 'reboot'  and v ~= 'administration' then
+            v = v:gsub('_', ' ')
+            table.insert(toggleable, v)
         end
     end
     table.sort(toggleable)
