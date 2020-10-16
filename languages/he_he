@@ -130,7 +130,7 @@ return {
     ['authspotify'] = {
         ['1'] = 'נכנסת כבר עם חשבון זה.',
         ['2'] = 'מאמת, בבקשה המתן...',
-        ['3'] = 'A connection error occured. Are you sure you replied with the correct link? It should look like',
+        ['3'] = 'אירעה שגיאת חיבור. האם אתה בטוח שענית עם הקישור הנכון? זה צריך להיראות כמו',
         ['4'] = 'נכנסת בהצלחה עם חשבון spotify!'
     },
     ['avatar'] = {
@@ -142,13 +142,13 @@ return {
         ['6'] = 'User: %s\nPhoto: %s/%s\nUse /avatar %s [offset] to view a specific photo of this user'
     },
     ['ban'] = {
-        ['1'] = 'Which user would you like me to ban? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot ban this user because they are a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot ban this user because they have already left this chat.',
-        ['4'] = 'I cannot ban this user because they have already been banned from this chat.',
-        ['5'] = 'I need to have administrative permissions in order to ban this user. Please amend this issue, and try again.',
-        ['6'] = '%s <code>[%s]</code> has banned %s <code>[%s]</code> from %s <code>[%s]</code>%s.\n%s %s',
-        ['7'] = '%s has banned %s%s.'
+        ['1'] = 'ציין שם משתמש או id של המשתמש שאתה רוצה להרחיק.',
+        ['2'] = 'משתמש זה mod או מנהל בקבוצה זאת אני לא יכול להרחיק אותו.',
+        ['3'] = 'אני לא יכול להרחיק אותו הוא כבר יצא מהקבוצה.',
+        ['4'] = 'אני לא יכול להרחיק משתמש זה בגלל שהוא כבר הורחק.',
+        ['5'] = 'אני צריך הרשאה להרחיק משתמשים בשביל להרחיק משתמש זה.',
+        ['6'] = '%s <code>[%s]</code> הרחיק את %s <code>[%s]</code> מ %s <code>[%s]</code>%s.\n%s %s',
+        ['7'] = '%s הרחיק את %s%s.'
     },
     ['bash'] = {
         ['1'] = 'אנא ציין פקודה להפעלה!',
@@ -277,7 +277,7 @@ return {
         ['2'] = 'An error occured! The connection timed-out. Were you trying to make me lag?',
         ['3'] = 'You have selected "%s" – are you sure?',
         ['4'] = 'חזור',
-        ['5'] = 'I\'m sure',
+        ['5'] = 'אני בטוח',
         ['6'] = 'Please enter a snippet of code that you would like to run. You don\'t need to specify the language, we will do that afterwards!',
         ['7'] = 'Please select the language you would like to execute your code in:'
     },
@@ -307,7 +307,7 @@ return {
     },
     ['game'] = {
         ['1'] = 'Total wins: %s\nTotal losses: %s\nBalance: %s mattacoins',
-        ['2'] = 'Join Game',
+        ['2'] = 'הצטרף למשחק',
         ['3'] = 'This game has already ended!',
         ['4'] = 'It\'s not your turn!',
         ['5'] = 'You are not part of this game!',
@@ -548,8 +548,8 @@ System:
     ['myspotify'] = {
         ['1'] = 'פרופיל',
         ['2'] = 'עוקב',
-        ['3'] = 'Recently Played',
-        ['4'] = 'Currently Playing',
+        ['3'] = 'נוגן לאחרונה',
+        ['4'] = 'כרגע מנגן',
         ['5'] = 'Top Tracks',
         ['6'] = 'Top Artists',
         ['7'] = 'You don\'t appear to be following any artists!',
@@ -562,27 +562,27 @@ System:
         ['14'] = '<b>Recently Played</b>\n%s %s\n%s %s\n%s Listened to at %s:%s on %s/%s/%s.',
         ['15'] = 'The request has been accepted for processing, but the processing has not been completed.',
         ['16'] = 'You don\'t appear to be listening to anything right now!',
-        ['17'] = 'Currently Playing',
+        ['17'] = 'כרגע מנגן',
         ['18'] = 'An error occured whilst re-authorising your Spotify account!',
         ['19'] = 'Successfully re-authorised your Spotify account! Processing your original request...',
         ['20'] = 'Re-authorising your Spotify account, please wait...',
         ['21'] = 'You need to authorise mattata in order to connect your Spotify account. Click [here](https://accounts.spotify.com/en/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=user-library-read,playlist-read-private,playlist-read-collaborative,user-read-private,user-read-email,user-follow-read,user-top-read,user-read-playback-state,user-read-recently-played,user-read-currently-playing,user-modify-playback-state) and press the green "OKAY" button to link mattata to your Spotify account. After you\'ve done that, send the link you were redirected to (it should begin with "%s", followed by a unique code) in reply to this message.',
         ['22'] = 'פלייליסט',
-        ['23'] = 'Use Inline Mode',
+        ['23'] = 'תעבור לאינליין',
         ['24'] = 'מילים',
         ['25'] = 'No devices were found.',
         ['26'] = 'You don\'t appear to have any playlists.',
         ['27'] = 'Your Playlists',
         ['28'] = '%s %s [%s tracks]',
         ['29'] = '%s %s [%s]\nSpotify %s user\n\n<b>Devices:</b>\n%s',
-        ['30'] = 'Playing previous track...',
-        ['31'] = 'You are not a premium user!',
-        ['32'] = 'I could not find any devices.',
-        ['33'] = 'Playing next track...',
+        ['30'] = 'מנגן את השיר הקודם...',
+        ['31'] = 'אין לך פרימיום!',
+        ['32'] = 'אני לא מוצא מכשיר.',
+        ['33'] = 'מנגן את השיר הבא...',
         ['34'] = 'Resuming track...',
         ['35'] = 'Your device is temporarily unavailable...',
         ['36'] = 'No devices were found!',
-        ['37'] = 'Pausing track...',
+        ['37'] = 'עוצר ניגון...',
         ['38'] = 'עכשיו מנגן',
         ['39'] = 'Shuffling your music...',
         ['40'] = 'That\'s not a valid volume. Please specify a number between 0 and 100.',
@@ -612,8 +612,8 @@ System:
         ['11'] = 'קרא עוד.'
     },
     ['nick'] = {
-        ['1'] = 'Your nickname has now been forgotten!',
-        ['2'] = 'Your nickname has been set to "%s"!'
+        ['1'] = 'כינויך נשכח כעת!',
+        ['2'] = 'הכינוי שלך עכשיו הוא "%s"!'
     },
     ['ninegag'] = {
         ['1'] = 'קרא עוד'
@@ -623,7 +623,7 @@ System:
         ['2'] = 'You have opted-out of having data you send collected! Use /optin to opt-in.'
     },
     ['paste'] = {
-        ['1'] = 'Please select a service to upload your paste to:'
+        ['1'] = 'אנא בחר שירות שאליו תעלה את הpaste שלך:'
     },
     ['pay'] = {
         ['1'] = 'You currently have %s mattacoins. Earn more by winning games of Tic-Tac-Toe, using /game - You will win 100 mattacoins for every game you win, and you will lose 50 for every game you lose.',
@@ -643,7 +643,7 @@ System:
         ['6'] = 'Click here to see the pin, updated to contain the text you gave me.'
     },
     ['pokedex'] = {
-        ['1'] = 'Name: %s\nID: %s\nType: %s\nDescription: %s'
+        ['1'] = 'שם: %s\nID: %s\nType: %s\nDescription: %s'
     },
     ['prime'] = {
         ['1'] = 'Please enter a number between 1 and 99999.',
@@ -693,7 +693,7 @@ System:
         ['10'] = 'Just edit your message, idiot.'
     },
     ['setgrouplang'] = {
-        ['1'] = 'This group\'s language has been set to %s!',
+        ['1'] = 'השפה הקבוצתית מוגדרת ל %s!',
         ['2'] = 'This group\'s language is currently %s.\nPlease note that some strings may not be translated as of yet. If you\'d like to change your language, select one using the keyboard below:',
         ['3'] = 'The option to force users to use the same language in this group is currently disabled. This setting should be toggled from /administration but, to make things easier for you, I\'ve included a button below.',
         ['4'] = 'מופעל',
@@ -754,8 +754,8 @@ System:
         ['3'] = 'I cannot trust this user because they have already been kicked from this chat.'
     },
     ['unmute'] = {
-        ['1'] = 'Which user would you like me to unmute? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot unmute this user because they are not currently muted in this chat.',
+        ['1'] = 'ציין שם משתמש או id של מי שאתה רוצה לבטל לו את ההשתקה.',
+        ['2'] = 'אני לא יכול לבטל את ההשתקה למשתמש זה כי הוא לא בקבוצה.',
         ['3'] = 'I cannot unmute this user because they are a moderator or an administrator in this chat.',
         ['4'] = 'I cannot unmute this user because they have already left (or been kicked from) this chat.'
     },
@@ -773,7 +773,7 @@ System:
         ['5'] = 'Successfully downloaded the file to the server - it can be found at <code>%s</code>!'
     },
     ['version'] = {
-        ['1'] = '@%s AKA %s `[%s]` is running mattata %s, נוצר על ידי [Matthew Hesketh](https://t.me/wrxck). הקוד ב [GitHub](https://github.com/wrxck/mattata).'
+        ['1'] = '@%s AKA %s `[%s]` מריץ  mattata %s, נוצר על ידי [Matthew Hesketh](https://t.me/wrxck). הקוד ב [GitHub](https://github.com/wrxck/mattata).'
     },
     ['voteban'] = {
         ['1'] = 'Which user would you like to open up a vote-ban for? You can specify this user by their @username or numerical ID.',
