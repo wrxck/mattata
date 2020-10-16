@@ -209,10 +209,10 @@ return {
         ['12'] = 'I have successfully paired you with another user to chat to! Please remember to be kind to them! To end the chat, send /endchat.'
     },
     ['commandstats'] = {
-        ['1'] = 'No commands have been sent in this chat!',
-        ['2'] = '<b>Command statistics for:</b> %s\n\n%s\n<b>Total commands sent:</b> %s',
-        ['3'] = 'The command statistics for this chat have been reset!',
-        ['4'] = 'I could not reset the command statistics for this chat. Perhaps they have already been reset?'
+        ['1'] = 'לא נשלחו פקודות בקבוצה זאת!',
+        ['2'] = '<b>סטטיסטיקת פקודות ל:</b> %s\n\n%s\n<b>סך הכל פקודות שנשלחו:</b> %s',
+        ['3'] = 'סטטיסטיקת הפקודות בקבוצה זאת אופסה!',
+        ['4'] = 'לא הצלחתי לאפס את סטטיסטיקת הפקודה עבור קבוצה זאת. אולי הם כבר התאפסו?'
     },
     ['control'] = {
         ['1'] = 'Pfft, you wish!',
@@ -243,12 +243,12 @@ return {
         ['6'] = 'To create a new, custom command, use the following syntax:\n/custom new #trigger <value>. To list all current triggers, use /custom list. To delete a trigger, use /custom del #trigger.'
     },
     ['delete'] = {
-        ['1'] = 'I could not delete that message. Perhaps the message is too old or non-existent?'
+        ['1'] = 'לא יכולתי למחוק את ההודעה, אולי היא ישנה מדי או לא קיימת?'
     },
     ['demote'] = {
-        ['1'] = 'Which user would you like me to demote? You can specify this user by their @username or numerical ID.',
+        ['1'] = 'ציין שם משתמש או id של מי שאתה רוצה להסיר מניהול.',
         ['2'] = 'I cannot demote this user because they are not a moderator or an administrator in this chat.',
-        ['3'] = 'I cannot demote this user because they have already left this chat.',
+        ['3'] = 'אני לא יכול להסיר אותו מניהול הוא לא בקבוצה.',
         ['4'] = 'I cannot demote this user because they have already been kicked from this chat.'
     },
     ['dice'] = {
@@ -282,7 +282,7 @@ return {
         ['7'] = 'Please select the language you would like to execute your code in:'
     },
     ['facebook'] = {
-        ['1'] = 'An error occured!',
+        ['1'] = 'התרחשה שגיאה!',
         ['2'] = 'Please enter the name of the Facebook user you would like to get the profile picture of.',
         ['3'] = 'View @%s on Facebook'
     },
@@ -354,8 +354,8 @@ return {
         ['7'] = 'חיפוש',
         ['8'] = 'You are on page %s of %s!',
         ['9'] = [[
-I can perform many administrative actions in your groups, just add me as an administrator and send /administration to adjust the settings for your group.
-Here are some administrative commands and a brief comment regarding what they do:
+אני יכול לבצע פעולות ניהול רבות בקבוצות שלך, פשוט הוסף אותי כמנהל ושלח /administration כדי להתאים את ההגדרות עבור הקבוצה שלך.
+להלן כמה פקודות ניהוליות והערה קצרה לגבי מה שהם עושים:
 
 • /pin <text> - שלח הודעה בפורמט Markdown שניתן לערוך באמצעות אותה פקודה עם טקסט שונה, כדי לחסוך ממך הצורך להצמיד מחדש הודעה אם אינך יכול לערוך אותה (מה שקורה אם ההודעה ישנה יותר מ -48 שעות)
 
@@ -496,7 +496,7 @@ System:
         ['9'] = 'Click to send the result.'
     },
     ['lmgtfy'] = {
-        ['1'] = 'Let me Google that for you!'
+        ['1'] = 'תרשה לי לעשות גוגל בשבילך!'
     },
     ['location'] = {
         ['1'] = 'You don\'t have a location set. What would you like your new location to be?'
@@ -513,7 +513,7 @@ System:
         ['9'] = 'All done! From now on, any administrative actions in this chat will be logged into %s - to change the chat you want me to log administrative actions into, just send /logchat.'
     },
     ['lua'] = {
-        ['1'] = 'Please enter a string of Lua to execute!'
+        ['1'] = 'אנא הכנס מחרוזת של Lua לביצוע!'
     },
     ['lyrics'] = {
         ['1'] = 'ספוטפיי',
@@ -651,9 +651,9 @@ System:
         ['3'] = '%s is NOT a prime number...'
     },
     ['promote'] = {
-        ['1'] = 'I cannot promote this user because they are a moderator or an administrator of this chat.',
-        ['2'] = 'I cannot promote this user because they have already left this chat.',
-        ['3'] = 'I cannot promote this user because they have already been kicked from this chat.'
+        ['1'] = 'אני לא יכול להוסיף אותו כמנהל הוא כבר מנהל או mod.',
+        ['2'] = 'אני לא יכול להוסיף אותו כמנהל הוא לא בקבוצה.',
+        ['3'] = 'אני לא יכול להוסיף אותו כמנהל הוא נבעט מהקבוצה.'
     },
     ['quote'] = {
         ['1'] = 'This user has opted out of data-storing functionality.',
@@ -664,14 +664,14 @@ System:
     },
     ['randomword'] = {
         ['1'] = 'צור עוד',
-        ['2'] = 'Your random word is <b>%s</b>!'
+        ['2'] = 'המילה האקראית שלך היא <b>%s</b>!'
     },
     ['report'] = {
-        ['1'] = 'Please reply to the message you would like to report to the group\'s administrators.',
-        ['2'] = 'You can\'t report your own messages, are you just trying to be funny?',
-        ['3'] = '<b>%s needs help in %s!</b>',
-        ['4'] = 'Click here to view the reported message.',
-        ['5'] = 'I\'ve successfully reported that message to %s admin(s)!'
+        ['1'] = 'אתה צריך להשיב על ההודעה שאתה רוצה לדווח למנהלים.',
+        ['2'] = 'אתה לא יכול לדווח על הודעה שאתה שלחת',
+        ['3'] = '<b>%s צריך עזרה ב %s!</b>',
+        ['4'] = 'לחץ כאן בשביל לראות את ההודעה שדווחה.',
+        ['5'] = 'דווח בהצלחה ל %s מנהל(ים)!'
     },
     ['rms'] = {
         ['1'] = 'Holy GNU!'
@@ -686,11 +686,11 @@ System:
         ['3'] = '%s\n\n<i>%s isn\'t sure if they were mistaken...</i>',
         ['4'] = 'Screw you, <i>when am I ever wrong?</i>',
         ['5'] = '"<code>%s</code>" isn\'t a valid Lua pattern.',
-        ['6'] = 'Hey %s, %s seems to think you meant:\n<i>%s</i>',
+        ['6'] = 'היי %s, %s חושב שהתכוונת ל:\n<i>%s</i>',
         ['7'] = 'לא',
         ['8'] = 'כן',
-        ['9'] = 'Not sure',
-        ['10'] = 'Just edit your message, idiot.'
+        ['9'] = 'לא בטוח',
+        ['10'] = 'פשוט תערוך את ההודעה שלך.'
     },
     ['setgrouplang'] = {
         ['1'] = 'השפה הקבוצתית מוגדרת ל %s!',
@@ -720,18 +720,18 @@ System:
         ['1'] = 'שתף'
     },
     ['shorten'] = {
-        ['1'] = 'Please select a URL shortener using the buttons below:'
+        ['1'] = 'בחר שירות לקיצור קישורים מהכפתורים למטה:'
     },
     ['shsh'] = {
         ['1'] = 'I couldn\'t fetch any SHSH blobs for that ECID, please ensure it\'s valid and you have saved them using https://tsssaver.1conan.com.',
         ['2'] = 'SHSH blobs for that device are available for the following versions of iOS:\n',
-        ['3'] = 'Download .zip'
+        ['3'] = 'הורד .zip'
     },
     ['statistics'] = {
         ['1'] = 'לא נשלחו הודעות בקבוצה זאת!',
         ['2'] = '<b>סטטיסטיקה ל:</b> %s\n\n%s\n<b>סה"כ הודעות:</b> %s',
         ['3'] = 'הסטטיסטיקה לקבוצה זאת אופסה!',
-        ['4'] = 'I could not reset the statistics for this chat. Perhaps they have already been reset?'
+        ['4'] = 'לא הצלחתי לאפס את הסטטיסטיקה של הקבוצה הזו. אולי הם כבר התאפסו?'
     },
     ['steam'] = {
         ['1'] = 'Your Steam username has been set to "%s".',
