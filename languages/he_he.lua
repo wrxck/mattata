@@ -184,15 +184,15 @@ return {
     },
     ['channel'] = {
         ['1'] = 'אתה לא מורשה לעשות את זה!',
-        ['2'] = 'You don\'t appear to be an administrator in that chat anymore!',
-        ['3'] = 'I couldn\'t send your message, are you sure I still have permission to send messages in that chat?',
-        ['4'] = 'Your message has been sent!',
-        ['5'] = 'I was unable to retrieve a list of administrators for that chat!',
-        ['6'] = 'You don\'t appear to be an administrator in that chat!',
+        ['2'] = 'נראה שאתה לא מנהל בקבוצה זאת!',
+        ['3'] = 'אני לא יכולתי לשלוח את ההודעה שלך בטוח שיש לי עדיין הרשאה לזה?',
+        ['4'] = 'ההודעה שלך נשלחה!',
+        ['5'] = 'לא הצלחתי לשחזר את רשימת המנהלים בקבוצה זאת!',
+        ['6'] = 'לא נראה שאתה מנהל בקבוצה זאת!',
         ['7'] = 'Please specify the message to send, using the syntax /channel <channel> <message>.',
-        ['8'] = 'Are you sure you want to send this message? This is how it will look:',
-        ['9'] = 'Yes, I\'m sure!',
-        ['10'] = 'That message contains invalid Markdown formatting! Please correct your syntax and try again.'
+        ['8'] = 'אתה בטוח שאתה רוצה לשלוח את ההודעה זה נראה ככה:',
+        ['9'] = 'כן אני בטוח!',
+        ['10'] = 'פורמט markdown לא חוקי נסה לשלוח את ההודעה בפורמט markdown תקין'
     },
     ['chatroulette'] = {
         ['1'] = 'Hey! Please don\'t send messages longer than %s characters. We don\'t want to annoy the other user!',
@@ -235,11 +235,11 @@ return {
         ['1'] = 'I couldn\'t add a counter to that message!'
     },
     ['custom'] = {
-        ['1'] = 'Success! That message will now be sent every time somebody uses %s!',
-        ['2'] = 'The trigger "%s" does not exist!',
-        ['3'] = 'The trigger "%s" has been deleted!',
+        ['1'] = 'פקודה מותאמת אישית הוגדרה בהצלחה ותשלח כל פעם שמישהו יכתוב %s!',
+        ['2'] = 'הטריגר "%s" לא קיים!',
+        ['3'] = 'הטריגר "%s" נמחק!',
         ['4'] = 'You don\'t have any custom triggers set!',
-        ['5'] = 'Custom commands for %s:\n',
+        ['5'] = 'פקודה מותאמת אישית ל %s:\n',
         ['6'] = 'To create a new, custom command, use the following syntax:\n/custom new #trigger <value>. To list all current triggers, use /custom list. To delete a trigger, use /custom del #trigger.'
     },
     ['delete'] = {
@@ -264,7 +264,7 @@ return {
         ['1'] = '<b>Hello, %s!</b>\n\nIf you\'re feeling generous, you can contribute to the mattata project by making a monetary donation of any amount. This will go towards server costs and any time and resources used to develop mattata. This is an optional act, however it is greatly appreciated and your name will also be listed publically on mattata\'s GitHub page.\n\nIf you\'re still interested, you can donate <a href="https://paypal.me/wrxck">here</a>. Thank you for your continued support!'
     },
     ['duckduckgo'] = {
-        ['1'] = 'I\'m not sure what that is!'
+        ['1'] = 'אני לא בטוח מה זה!'
     },
     ['eightball'] = {
         ['1'] = 'כן.',
@@ -342,17 +342,17 @@ return {
         ['3'] = 'That\'s a %s, not a user!'
     },
     ['hackernews'] = {
-        ['1'] = 'Top Stories from Hacker News:'
+        ['1'] = 'כתבות מ Hacker News:'
     },
     ['help'] = {
-        ['1'] = 'No results found!',
-        ['2'] = 'There were no features found matching "%s", please try and be more specific!',
+        ['1'] = 'לא נמצאו תוצאות!',
+        ['2'] = 'לא נמצאו תוצאות ל "%s", בבקשה נסה שוב להיות יותר ספציפי!',
         ['3'] = '\n\nArguments: <required> [optional]\n\nSearch for a feature or get help with a command by using my inline search functionality - just mention me in any chat using the syntax @%s <search query>.',
         ['4'] = 'הקודם',
         ['5'] = 'הבא',
         ['6'] = 'חזור',
         ['7'] = 'חיפוש',
-        ['8'] = 'You are on page %s of %s!',
+        ['8'] = 'אתה בעמוד %s מתוך %s!',
         ['9'] = [[
 אני יכול לבצע פעולות ניהול רבות בקבוצות שלך, פשוט הוסף אותי כמנהל ושלח /administration כדי להתאים את ההגדרות עבור הקבוצה שלך.
 להלן כמה פקודות ניהוליות והערה קצרה לגבי מה שהם עושים:
@@ -502,12 +502,12 @@ System:
         ['1'] = 'You don\'t have a location set. What would you like your new location to be?'
     },
     ['logchat'] = {
-        ['1'] = 'Please enter the username or numerical ID of the chat you wish to log all administrative actions into.',
-        ['2'] = 'Checking to see whether that chat is valid...',
+        ['1'] = 'תכתוב את הid או היוזר של הערוץ ליוצן רישום.',
+        ['2'] = 'בודק אם אני מצליח לזהות את הערוץ...',
         ['3'] = 'I\'m sorry, it appears you\'ve either specified an invalid chat, or you\'ve specified a chat I haven\'t been added to yet. Please rectify this and try again.',
-        ['4'] = 'You can\'t set a user as your log chat!',
-        ['5'] = 'You don\'t appear to be an administrator in that chat!',
-        ['6'] = 'It seems I\'m already logging administrative actions into that chat! Use /logchat to specify a new one.',
+        ['4'] = 'אתה לא יכול להגדיר משתמש כיומן רישום!',
+        ['5'] = 'נראה שאתה לא מנהל !',
+        ['6'] = 'נראה שאני כבר מופעל ביומן רישום זה! תשתמש ב /logchat בשביל להגדיר אחד חדש.',
         ['7'] = 'That chat is valid, I\'m now going to try and send a test message to it, just to ensure I have permission to post!',
         ['8'] = 'Hello, World - this is a test message to check my posting permissions - if you\'re reading this, then everything went OK!',
         ['9'] = 'All done! From now on, any administrative actions in this chat will be logged into %s - to change the chat you want me to log administrative actions into, just send /logchat.'
@@ -517,7 +517,7 @@ System:
     },
     ['lyrics'] = {
         ['1'] = 'ספוטפיי',
-        ['2'] = 'Show Lyrics',
+        ['2'] = 'הצג מילים',
         ['3'] = 'Please enter a search query (that is, what song/artist/lyrics you want me to get lyrics for, i.e. "Green Day Basket Case" will return the lyrics for the song Basket Case by Green Day).'
     },
     ['minecraft'] = {
@@ -529,21 +529,21 @@ System:
         ['6'] = 'UUID',
         ['7'] = 'דמות',
         ['8'] = 'היסטוריה של השם משתמש',
-        ['9'] = 'Please select an option:',
+        ['9'] = 'בחר אחת מהאפשרויות:',
         ['10'] = 'Please enter the username of the Minecraft player you would like to view information about (i.e. sending "Notch" will view information about the player Notch).',
         ['11'] = 'Minecraft usernames are between 3 and 16 characters long.'
     },
     ['msglink'] = {
-        ['1'] = 'You can only use this command in supergroups and channels.',
-        ['2'] = 'This %s must be public, with a @username.',
+        ['1'] = 'אתה יכול להשתמש בפקודה זאת רק בסופר קבוצות וערוצים.',
+        ['2'] = 'זה %s חייב להיות ציבורי עם @שם משתמש.',
         ['3'] = 'Please reply to the message you\'d like to get a link for.'
     },
     ['mute'] = {
-        ['1'] = 'Which user would you like me to mute? You can specify this user by their @username or numerical ID.',
-        ['2'] = 'I cannot mute this user because they are already muted in this chat.',
-        ['3'] = 'I cannot mute this user because they are a moderator or an administrator in this chat.',
-        ['4'] = 'I cannot mute this user because they have already left (or been kicked from) this chat.',
-        ['5'] = 'I need to have administrative permissions in order to mute this user. Please amend this issue, and try again.'
+        ['1'] = 'איזה משתמש תרצה שאשתיק? אתה יכול לציין משתמש זה על ידי @שם משתמש שלהם או על ידי id.',
+        ['2'] = 'אני לא יכול להשתיק משתמש זה הוא כבר מושתק בקבוצה זאת.',
+        ['3'] = 'אני לא יכול להשתיק משתמש זה מכיוון שהוא mod או מנהל בקבוצה זו.',
+        ['4'] = 'אני לא יכול להשתיק משתמש זה בגלל שהוא לא בקבוצה.',
+        ['5'] = 'אני צריך הרשאה להרחקת משתמשים בשביל להשתיק אותו תוסיפו לי הרשאה להרחקת משתמשים ותנסו שוב.'
     },
     ['myspotify'] = {
         ['1'] = 'פרופיל',
@@ -591,7 +591,7 @@ System:
     },
     ['name'] = {
         ['1'] = 'The name I currently respond to is "%s" - to change this, use /name <text> (where <text> is what you want me to respond to).',
-        ['2'] = 'My new name needs to be between 2 and 32 characters long!',
+        ['2'] = 'השם החדש שלי צריך להיות באורך של 2 עד 32 תווים!',
         ['3'] = 'My name may only contain alphanumeric characters!',
         ['4'] = 'I will now respond to "%s", instead of "%s" - to change this, use /name <text> (where <text> is what you want me to respond to).'
     },
@@ -635,12 +635,12 @@ System:
         ['7'] = '%s mattacoins have been sent to %s. Your new balance is %s mattacoins.'
     },
     ['pin'] = {
-        ['1'] = 'You haven\'t set a pin before. Use /pin <text> to set one. Markdown formatting is supported.',
-        ['2'] = 'Here is the last message generated using /pin.',
+        ['1'] = 'לא הגדרת נעיצה קודם תשתמש ב /pin <טקסט>, בפורמט markdown בשביל להגדיר נעיצה.',
+        ['2'] = 'כאן ההודעה האחרונה שנוצרה על ידי /pin.',
         ['3'] = 'I found an existing pin in the database, but the message I sent it in seems to have been deleted, and I can\'t find it anymore. You can set a new one with /pin <text>. Markdown formatting is supported.',
         ['4'] = 'There was an error whilst updating your pin. Either the text you entered contained invalid Markdown syntax, or the pin has been deleted. I\'m now going to try and send you a new pin, which you\'ll be able to find below - if you need to modify it then, after ensuring the message still exists, use /pin <text>.',
-        ['5'] = 'I couldn\'t send that text because it contains invalid Markdown syntax.',
-        ['6'] = 'Click here to see the pin, updated to contain the text you gave me.'
+        ['5'] = 'פרורמט markdown לא חוקי.',
+        ['6'] = 'לחץ כאן בשביל לראות את הנעיצה המעודכנת לפי הטקסט שהגדרת.'
     },
     ['pokedex'] = {
         ['1'] = 'שם: %s\nID: %s\nType: %s\nDescription: %s'
@@ -681,10 +681,10 @@ System:
         ['2'] = 'That message has been saved in my database, and added to the list of possible responses for when /quote is used in reply to %s!'
     },
     ['sed'] = {
-        ['1'] = '%s\n\n<i>%s didn\'t mean to say this!</i>',
-        ['2'] = '%s\n\n<i>%s has admitted defeat.</i>',
-        ['3'] = '%s\n\n<i>%s isn\'t sure if they were mistaken...</i>',
-        ['4'] = 'Screw you, <i>when am I ever wrong?</i>',
+        ['1'] = '%s\n\n<i>%s לא התכוון לזה!</i>',
+        ['2'] = '%s\n\n<i>%s הודה בתבוסה.</i>',
+        ['3'] = '%s\n\n<i>%s לא בטוח אם הוא עשה ט...</i>',
+        ['4'] = ' <i>האם אני עשיתי טעות?</i>',
         ['5'] = '"<code>%s</code>" isn\'t a valid Lua pattern.',
         ['6'] = 'היי %s, %s חושב שהתכוונת ל:\n<i>%s</i>',
         ['7'] = 'לא',
@@ -757,7 +757,7 @@ System:
         ['1'] = 'ציין שם משתמש או id של מי שאתה רוצה לבטל לו את ההשתקה.',
         ['2'] = 'אני לא יכול לבטל את ההשתקה למשתמש זה כי הוא לא בקבוצה.',
         ['3'] = 'I cannot unmute this user because they are a moderator or an administrator in this chat.',
-        ['4'] = 'I cannot unmute this user because they have already left (or been kicked from) this chat.'
+        ['4'] = 'אני לא יכול לבטל את ההשתקה למשתמש זה כי הוא לא נמצא בקבוצה.'
     },
     ['untrust'] = {
         ['1'] = 'Which user would you like me to untrust? You can specify this user by their @username or numerical ID.',
