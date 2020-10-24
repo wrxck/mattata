@@ -71,7 +71,7 @@ return {
         ['28'] = 'Downvotes needed to dismiss:',
         ['29'] = 'Deleted %s, and its matching link from the database!',
         ['30'] = 'There were no entries found in the database matching "%s"!',
-        ['31'] = 'You\'re not an administrator in that chat!',
+        ['31'] = 'אתה לא מנהל בקבוצה הזאת!',
         ['32'] = 'The minimum number of upvotes required for a vote-ban is %s.',
         ['33'] = 'The maximum number of upvotes required for a vote-ban is %s.',
         ['34'] = 'The minimum number of downvotes required for a vote-ban is %s.',
@@ -261,7 +261,7 @@ return {
         ['1'] = 'Please enter the text you want to Doge-ify. Each sentence should be separated using slashes or new lines.'
     },
     ['donate'] = {
-        ['1'] = '<b>Hello, %s!</b>\n\nIf you\'re feeling generous, you can contribute to the mattata project by making a monetary donation of any amount. This will go towards server costs and any time and resources used to develop mattata. This is an optional act, however it is greatly appreciated and your name will also be listed publically on mattata\'s GitHub page.\n\nIf you\'re still interested, you can donate <a href="https://paypal.me/wrxck">here</a>. Thank you for your continued support!'
+        ['1'] = '<b>Hello, %s!</b>\n\n אם אתה יכול לתרום ולעזור בכיסוי עלויות השרתים וכל הזמן והמשאבים בפיתוח mattata אתה יכול לתרום <a href="https://paypal.me/wrxck">כאן</a>. תודה לך על התמיכה!'
     },
     ['duckduckgo'] = {
         ['1'] = 'אני לא בטוח מה זה!'
@@ -279,12 +279,12 @@ return {
         ['4'] = 'חזור',
         ['5'] = 'אני בטוח',
         ['6'] = 'Please enter a snippet of code that you would like to run. You don\'t need to specify the language, we will do that afterwards!',
-        ['7'] = 'Please select the language you would like to execute your code in:'
+        ['7'] = 'תבחר שפת תכנות:'
     },
     ['facebook'] = {
         ['1'] = 'התרחשה שגיאה!',
         ['2'] = 'Please enter the name of the Facebook user you would like to get the profile picture of.',
-        ['3'] = 'View @%s on Facebook'
+        ['3'] = 'צפה ב @%s בפייסבוק'
     },
     ['fact'] = {
         ['1'] = 'עובדה חדשה'
@@ -320,7 +320,7 @@ return {
         ['12'] = 'Waiting for opponent...',
         ['13'] = 'איקס עיגול',
         ['14'] = 'Click to send the game to your chat!',
-        ['15'] = 'Statistics for %s:\n',
+        ['15'] = 'סטטיסטיקה ל %s:\n',
         ['16'] = 'שחקו איקס עיגול!'
     },
     ['gblocklist'] = {
@@ -329,7 +329,7 @@ return {
         ['3'] = 'That\'s a %s, not a user!'
     },
     ['gif'] = {
-        ['1'] = 'Please enter a search query (that is, what you want me to search GIPHY for, i.e. "cat" will return a GIF of a cat).'
+        ['1'] = 'תחפש פה את הgif שתרצה (אני יחפש ב GIPHY נגיד , i.e. "cat" ואני יביא לך gifs של התוצאה ).'
     },
     ['godwords'] = {
         ['1'] = 'Please enter a numerical value, between 1 and 64!',
@@ -347,7 +347,7 @@ return {
     ['help'] = {
         ['1'] = 'לא נמצאו תוצאות!',
         ['2'] = 'לא נמצאו תוצאות ל "%s", בבקשה נסה שוב להיות יותר ספציפי!',
-        ['3'] = '\n\nArguments: <required> [optional]\n\nSearch for a feature or get help with a command by using my inline search functionality - just mention me in any chat using the syntax @%s <search query>.',
+        ['3'] = '\n\ <חובה> [לא חובה]\n\n בשביל לחפש בinline הקלד את זה בתבנית הזאת @%s <מה שאתה רוצה לחפש>.',
         ['4'] = 'הקודם',
         ['5'] = 'הבא',
         ['6'] = 'חזור',
@@ -493,7 +493,7 @@ System:
         ['6'] = '%s is currently listening to:\n',
         ['7'] = '%s last listened to:\n',
         ['8'] = 'לא ידוע',
-        ['9'] = 'Click to send the result.'
+        ['9'] = 'תלחץ כאן בשביל לשלוח את התוצאה.'
     },
     ['lmgtfy'] = {
         ['1'] = 'תרשה לי לעשות גוגל בשבילך!'
@@ -502,7 +502,7 @@ System:
         ['1'] = 'You don\'t have a location set. What would you like your new location to be?'
     },
     ['logchat'] = {
-        ['1'] = 'תכתוב את הid או היוזר של הערוץ ליוצן רישום.',
+        ['1'] = 'תכתוב את הid או היוזר של הערוץ ליומן רישום.',
         ['2'] = 'בודק אם אני מצליח לזהות את הערוץ...',
         ['3'] = 'I\'m sorry, it appears you\'ve either specified an invalid chat, or you\'ve specified a chat I haven\'t been added to yet. Please rectify this and try again.',
         ['4'] = 'אתה לא יכול להגדיר משתמש כיומן רישום!',
