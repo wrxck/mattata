@@ -249,7 +249,7 @@ return {
         ['1'] = 'ציין שם משתמש או id של מי שאתה רוצה להסיר מניהול.',
         ['2'] = 'I cannot demote this user because they are not a moderator or an administrator in this chat.',
         ['3'] = 'אני לא יכול להסיר אותו מניהול הוא לא בקבוצה.',
-        ['4'] = 'I cannot demote this user because they have already been kicked from this chat.'
+        ['4'] = 'אני לא יכול להסיר מניהול משתמש זה כי הוא לא בקבוצה.'
     },
     ['dice'] = {
         ['1'] = 'The minimum range is %s.',
@@ -273,7 +273,7 @@ return {
         ['4'] = 'Well, uh... I\'d ask again later, if I were you.'
     },
     ['exec'] = {
-        ['1'] = 'Please select the language you would like to execute your code in:',
+        ['1'] = 'תבחר שפת תכנות:',
         ['2'] = 'An error occured! The connection timed-out. Were you trying to make me lag?',
         ['3'] = 'You have selected "%s" – are you sure?',
         ['4'] = 'חזור',
@@ -294,7 +294,7 @@ return {
         ['2'] = 'I cannot Fed-ban this user because they are a moderator or an administrator in this chat.'
     },
     ['flickr'] = {
-        ['1'] = 'You searched for:',
+        ['1'] = 'אתה חיפשת:',
         ['2'] = 'Please enter a search query (that is, what you want me to search Flickr for, i.e. "Big Ben" will return a photograph of Big Ben in London).',
         ['3'] = 'עוד תוצאות'
     },
@@ -395,7 +395,7 @@ return {
         ['19'] = 'דירוג',
         ['20'] = 'לוג',
         ['21'] = 'הגדרות מנהלים',
-        ['22'] = 'Plugins',
+        ['22'] = 'מודלים',
         ['23'] = [[
 <b>שלום %s! אני %s, נעים להכיר אותך</b> %s
 
@@ -536,7 +536,7 @@ System:
     ['msglink'] = {
         ['1'] = 'אתה יכול להשתמש בפקודה זאת רק בסופר קבוצות וערוצים.',
         ['2'] = 'זה %s חייב להיות ציבורי עם @שם משתמש.',
-        ['3'] = 'Please reply to the message you\'d like to get a link for.'
+        ['3'] = 'בבקשה תשתמש בפקודה זאת בהשב על הודעה.'
     },
     ['mute'] = {
         ['1'] = 'איזה משתמש תרצה שאשתיק? אתה יכול לציין משתמש זה על ידי @שם משתמש שלהם או על ידי id.',
@@ -756,7 +756,7 @@ System:
     ['unmute'] = {
         ['1'] = 'ציין שם משתמש או id של מי שאתה רוצה לבטל לו את ההשתקה.',
         ['2'] = 'אני לא יכול לבטל את ההשתקה למשתמש זה כי הוא לא בקבוצה.',
-        ['3'] = 'I cannot unmute this user because they are a moderator or an administrator in this chat.',
+        ['3'] = 'אני לא יכול לבטל את ההשתקה למשתמש זה הוא מנהל או mod הוא לא יכול להיות מושתק.',
         ['4'] = 'אני לא יכול לבטל את ההשתקה למשתמש זה כי הוא לא נמצא בקבוצה.'
     },
     ['untrust'] = {
