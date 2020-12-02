@@ -643,7 +643,7 @@ System:
         ['6'] = 'לחץ כאן בשביל לראות את הנעיצה המעודכנת לפי הטקסט שהגדרת.'
     },
     ['pokedex'] = {
-        ['1'] = 'שם: %s\nID: %s\nType: %s\תיאור: %s'
+        ['1'] = 'שם: %s\nID: %s\nType: %s\n תיאור: %s'
     },
     ['prime'] = {
         ['1'] = 'Please enter a number between 1 and 99999.',
