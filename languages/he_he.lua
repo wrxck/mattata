@@ -10,7 +10,7 @@
 
 return {
     ['errors'] = {
-        ['connection'] = 'חיבור נכשל.',
+        ['connection'] = 'החיבור נכשל.',
         ['results'] = 'לא הצלחתי למצוא תוצאות לזה.',
         ['supergroup'] = 'אפשר להשתמש בפקודה הזאת רק בסופר קבוצות.',
         ['admin'] = 'אתה צריך להיות מנהל או עוזר מנהל בקבוצה זאת בשביל להשתמש בפקודה הזאת!.',
@@ -308,8 +308,8 @@ return {
     ['game'] = {
         ['1'] = 'Total wins: %s\nTotal losses: %s\nBalance: %s mattacoins',
         ['2'] = 'הצטרף למשחק',
-        ['3'] = 'This game has already ended!',
-        ['4'] = 'It\'s not your turn!',
+        ['3'] = 'המשחק הזה כבר נגמר!',
+        ['4'] = 'זה לא התור שלך!',
         ['5'] = 'You are not part of this game!',
         ['6'] = 'You cannot go here!',
         ['7'] = 'You are already part of this game!',
@@ -317,9 +317,9 @@ return {
         ['9'] = '%s [%s] is playing against %s [%s]\nIt is currently %s\'s turn!',
         ['10'] = '%s won the game against %s!',
         ['11'] = '%s drew the game against %s!',
-        ['12'] = 'Waiting for opponent...',
+        ['12'] = 'ממתין ליריב...',
         ['13'] = 'איקס עיגול',
-        ['14'] = 'Click to send the game to your chat!',
+        ['14'] = 'לחץ כאן בשביל לשלוח את המשחק לקבוצה!',
         ['15'] = 'סטטיסטיקה ל %s:\n',
         ['16'] = 'שחקו איקס עיגול!'
     },
@@ -643,7 +643,7 @@ System:
         ['6'] = 'לחץ כאן בשביל לראות את הנעיצה המעודכנת לפי הטקסט שהגדרת.'
     },
     ['pokedex'] = {
-        ['1'] = 'שם: %s\nID: %s\nType: %s\nDescription: %s'
+        ['1'] = 'שם: %s\nID: %s\nType: %s\תיאור: %s'
     },
     ['prime'] = {
         ['1'] = 'Please enter a number between 1 and 99999.',
@@ -791,7 +791,7 @@ System:
         ['13'] = 'A vote-ban has already been opened for this user!'
     },
     ['weather'] = {
-        ['1'] = 'You don\'t have a location set. Use /setloc <location> to set one.',
+        ['1'] = 'לא הגדרת מיקום. תשתמש בזה /setloc <מיקום> בשביל להגדיר מיקום.',
         ['2'] = 'It\'s currently %s (feels like %s) in %s. %s'
     },
     ['welcome'] = {
