@@ -88,17 +88,17 @@ return {
         ['45'] = 'שלחתי לך את המידע שביקשת באמצעות צ\'אט פרטי.',
         ['46'] = 'לבטל נעיצה מהערוץ המקושר?',
         ['47'] = 'לבטל נעיצות אחרות?',
-        ['48'] = 'Remove Pasted Code?',
+        ['48'] = 'למחוק קוד מודבק?',
         ['49'] = 'למחוק הודעות מבוטים מוטמעים?',
         ['50'] = 'בעט מדיה בכניסה?',
         ['51'] = 'לאפשר מודלים למנהלים?',
         ['52'] = 'בעט קישורים בכניסה?'
     },
     ['afk'] = {
-        ['1'] = 'Sorry, I\'m afraid this feature is only available to users with a public @username!',
+        ['1'] = 'הפקודה הזאת זמינה רק למשתמשים עם שם משתמש!',
         ['2'] = '%s has returned after being AFK for %s!',
         ['3'] = 'הערה',
-        ['4'] = '%s is now AFK.%s'
+        ['4'] = '%s עכשיו רחוק מהמקלדת.%s'
     },
     ['antispam'] = {
         ['1'] = 'השבת',
@@ -152,7 +152,7 @@ return {
     },
     ['bash'] = {
         ['1'] = 'אנא ציין פקודה להפעלה!',
-        ['2'] = 'Success!'
+        ['2'] = 'בוצע!'
     },
     ['blocklist'] = {
         ['1'] = 'Which user would you like me to blocklist? You can specify this user by their @username or numerical ID.',
@@ -275,7 +275,7 @@ return {
     ['exec'] = {
         ['1'] = 'תבחר שפת תכנות:',
         ['2'] = 'An error occured! The connection timed-out. Were you trying to make me lag?',
-        ['3'] = 'You have selected "%s" – are you sure?',
+        ['3'] = 'אתה בחרת ב "%s" – האם אתה בטוח בזה?',
         ['4'] = 'חזור',
         ['5'] = 'אני בטוח',
         ['6'] = 'Please enter a snippet of code that you would like to run. You don\'t need to specify the language, we will do that afterwards!',
@@ -639,7 +639,7 @@ System:
         ['2'] = 'כאן ההודעה האחרונה שנוצרה על ידי /pin.',
         ['3'] = 'I found an existing pin in the database, but the message I sent it in seems to have been deleted, and I can\'t find it anymore. You can set a new one with /pin <text>. Markdown formatting is supported.',
         ['4'] = 'There was an error whilst updating your pin. Either the text you entered contained invalid Markdown syntax, or the pin has been deleted. I\'m now going to try and send you a new pin, which you\'ll be able to find below - if you need to modify it then, after ensuring the message still exists, use /pin <text>.',
-        ['5'] = 'פרורמט markdown לא חוקי.',
+        ['5'] = 'פורמט markdown לא חוקי.',
         ['6'] = 'לחץ כאן בשביל לראות את הנעיצה המעודכנת לפי הטקסט שהגדרת.'
     },
     ['pokedex'] = {
