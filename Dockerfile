@@ -58,4 +58,4 @@ COPY --chown=nonroot:nonroot . ${PROJECT_DIR}
 USER ${USR}
 WORKDIR ${PROJECT_DIR}
 
-CMD ["lua -e \"require('mattata').run({}, require('configuration'))\""]
+CMD lua5.3 -e "require('mattata').run({}, require('configuration'))"
