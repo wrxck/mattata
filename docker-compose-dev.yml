@@ -1,0 +1,6 @@
+version: "3.9"
+
+services:
+  bot:
+    volumes:
+      - .:/home/nonroot/code/
