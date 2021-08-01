@@ -13,9 +13,11 @@ ENV PROJECT_DIR ${HOME}/code
 RUN addgroup -g 1000 ${USR}\
   && adduser -S -h ${HOME} -u 1000 -G ${USR} ${USR}
 
+# shared library
 RUN apk upgrade -U && apk add --no-cache\
-    # shared library
-    readline-dev
+    readline-dev\
+    # lua-captcha dependency
+    libgd
 
 # installs lua
 RUN apk upgrade -U && apk add --no-cache --virtual .build-deps\
@@ -55,10 +57,10 @@ RUN apk upgrade -U && apk add --no-cache --update --virtual .build-deps\
         curl-dev\
         expat-dev\
         gcc\
+        gd-dev\
         git\
         imagemagick\
         libc-dev\
-        gd-dev\
         lua-lzlib\
         musl-dev\
         openssl-dev\
