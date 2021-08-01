@@ -12,9 +12,15 @@ function about:init()
 end
 
 function about:on_message(message)
-    local developer = mattata.get_formatted_user(221714512, 'Matt', 'html')
-    local output = 'Created by %s. Powered by <code>mattata v%s</code> and %s. Latest stable source code available <a href="https://github.com/wrxck/mattata">on GitHub</a>.'
-    return mattata.send_message(message.chat.id, string.format(output, developer, self.version, utf8.char(10084)), 'html')
+    local author = mattata.get_formatted_user(221714512, 'Matt', 'html')
+    local maintainer = mattata.get_formatted_user(103053641, 'Italo', 'html')
+    local output = table.concat({
+        string.format('Created by %s.', author),
+        string.format('Maintained by %s.', maintainer),
+        string.format('Powered by <code>mattata v%s</code> and %s.', self.version, utf8.char(10084)),
+        string.format('Latest stable source code available <a href="%s">on GitHub</a>.', 'https://github.com/italomaia/mattata'),
+    }, ' ')
+    return mattata.send_message(message.chat.id, output, 'html')
 end
 
 return about
