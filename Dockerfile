@@ -50,18 +50,16 @@ RUN apk upgrade -U && apk add --no-cache --virtual .build-deps\
 
 # installs mattata dependencies
 RUN apk upgrade -U && apk add --no-cache --update --virtual .build-deps\
+        ca-certificates\
         coreutils\
         curl-dev\
-        curl\
         expat-dev\
         gcc\
         git\
         imagemagick\
-        libgd\
         libc-dev\
-        ca-certificates\
+        gd-dev\
         lua-lzlib\
-        make\
         musl-dev\
         openssl-dev\
         pcre-dev\
@@ -78,6 +76,7 @@ RUN apk upgrade -U && apk add --no-cache --update --virtual .build-deps\
     && luarocks install lbase64\
     && luarocks install lpeg\
     && luarocks install lrexlib-pcre\
+    && luarocks install lua-captcha\
     && luarocks install luafilesystem\
     && luarocks install luasec\
     && luarocks install luasocket\
