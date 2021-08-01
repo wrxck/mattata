@@ -9,10 +9,9 @@ Get yourself a host with docker and docker-compose installed and do the followin
 
 ```
 > git clone git@github.com:italomaia/mattata.git
-> cd mattata
-> # be sure to update variables
-> cp configuration.example.lua configuration.lua
-> docker-compose up
+> cp mattata/configuration.example.lua mattata/configuration.lua
+> # be sure to update variables and enable plugins
+> cd mattata && docker-compose up
 ```
 
 This will start a redis and your Mattata processes. Try interacting with your bot now.
