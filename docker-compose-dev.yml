@@ -4,3 +4,6 @@ services:
   app:
     volumes:
       - .:/home/nonroot/code/
+  redis:
+    volumes:
+      - /tmp/redis_tmp:/data

@@ -10,7 +10,11 @@ services:
     links:
       - redis
   redis:
+    command: redis-server --appendonly yes
     image: redis
+    volumes:
+      - redis_db:/data
 
 volumes:
   logvolume01: {}
+  redis_db: {}
