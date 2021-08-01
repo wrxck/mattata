@@ -367,7 +367,6 @@ local plugins = {
     'plugins',
     'setlang',
     'shorten',
-    'stackoverflow',
 }
 
 configuration.plugins = utils.load_plugin_list(plugins)
