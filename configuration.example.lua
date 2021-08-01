@@ -353,7 +353,22 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
 local utils = require('configuration_utils')
 
 -- list of plugins that should be loaded
-local plugins = {}
+local plugins = {
+    'about',
+    'administration',  -- not sure what it does
+    'calc',
+    'catfact',
+    'help',
+    'id',
+    'info',
+    'medium',
+    'meta',
+    'paste',
+    'plugins',
+    'setlang',
+    'shorten',
+    'stackoverflow',
+}
 
 configuration.plugins = utils.load_plugin_list(plugins)
 configuration.administrative_plugins = utils.load_plugin_list(nil, 'plugins/administration')
