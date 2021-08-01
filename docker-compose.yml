@@ -1,9 +1,10 @@
 version: "3.9"
 
 services:
-  bot:
-    build: .
-    image: bot:1.0
+  app:
+    build:
+      context: .
+    image: mattata/app:1.0
     volumes:
       - logvolume01:/var/log
     links:
