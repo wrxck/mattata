@@ -61,7 +61,6 @@ RUN apk upgrade -U && apk add --no-cache --update --virtual .build-deps\
         git\
         imagemagick\
         libc-dev\
-        lua-lzlib\
         musl-dev\
         openssl-dev\
         pcre-dev\
@@ -71,6 +70,9 @@ RUN apk upgrade -U && apk add --no-cache --update --virtual .build-deps\
         tesseract-ocr\
         unzip\
         wget\
+        zlib-dev\
+    # lzlib requires this
+    && ln -s /lib/libz.so /usr/lib/libz.so\
     && luarocks install --server=http://luarocks.org/dev openssl\
     && luarocks install dkjson\
     && luarocks install feedparser\
@@ -82,6 +84,7 @@ RUN apk upgrade -U && apk add --no-cache --update --virtual .build-deps\
     && luarocks install luafilesystem\
     && luarocks install luasec\
     && luarocks install luasocket\
+    && luarocks install lzlib\
     && luarocks install md5\
     && luarocks install multipart-post\
     && luarocks install redis-lua\
