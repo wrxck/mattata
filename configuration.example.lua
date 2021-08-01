@@ -350,40 +350,15 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     }
 }
 
-local get_plugins = function(extension, directory)
-    extension = extension and tostring(extension) or 'lua'
-    if extension:match('^%.') then
-        extension = extension:match('^%.(.-)$')
-    end
-    directory = directory and tostring(directory) or 'plugins'
-    if directory:match('/$') then
-        directory = directory:match('^(.-)/$')
-    end
-    local plugins = {}
-    local list = io.popen('ls ' .. directory .. '/')
-    local all = list:read('*all')
-    list:close()
-    for plugin in all:gmatch('[%w_-]+%.' .. extension .. ' ?') do
-        plugin = plugin:match('^([%w_-]+)%.' .. extension .. ' ?$')
-        table.insert(plugins, plugin)
-    end
-    return plugins
-end
+local utils = require('configuration_utils')
 
-local get_fonts = function()
-    local fonts = {}
-    local list = io.popen('ls fonts/')
-    local all = list:read('*all')
-    list:close()
-    for font in all:gmatch('%a+') do
-        table.insert(fonts, font)
-    end
-    return fonts
-end
+-- list of plugins that should be loaded
+local plugins = {}
 
-configuration.plugins = get_plugins()
-configuration.administrative_plugins = get_plugins(nil, 'plugins/administration')
-configuration.administration.captcha.files = get_fonts()
+configuration.plugins = utils.load_plugin_list(plugins)
+configuration.administrative_plugins = utils.load_plugin_list(nil, 'plugins/administration')
+configuration.administration.captcha.files = utils.load_font_list()
+
 for _, v in pairs(configuration.administrative_plugins) do
     table.insert(configuration.plugins, v)
 end
