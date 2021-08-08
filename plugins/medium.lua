@@ -19,17 +19,24 @@ function medium.on_message(_, message, _, language)
     if not input then
         return mattata.send_reply(message, medium.help)
     end
-    local jstr, res = https.request('https://medium.com/search?q=' .. url.escape(input))
-    if res ~= 200 then
+
+    local json_data = medium.fetch_json_data(input)
+    local post = json.encode(json_data.posts[1], {indent=true})
+    mattata.save_to_file(post, '/home/matt/matticatebot/medium.json')
+end
+
+function medium.fetch_json_data(input)
+    local html, http_status = https.request('https://medium.com/search?q=' .. url.escape(input))
+    if http_status ~= 200 then
         return mattata.send_reply(message, language.errors.connection)
     end
-    jstr = jstr:match('<!%[CDATA%[\nwindow%["obvInit"%]%(({.-}})%)\n// %]%]>')
-    if not jstr then
+
+    local json_str = html:match('<!%[CDATA%[\nwindow%["obvInit"%]%(({.-}})%)\n// %]%]>')
+    if not json_str then
         return mattata.send_reply(message, language.errors.results)
     end
-    local jdat = json.decode(jstr)
-    mattata.save_to_file(json.encode(jdat.posts[1], {indent=true}), '/home/matt/matticatebot/medium.json')
-    return
+
+    return json.decode(json_str)
 end
 
 return medium
