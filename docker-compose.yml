@@ -7,6 +7,7 @@ services:
     image: mattata/app:1.0
     volumes:
       - logvolume01:/var/log
+      - files:/media/files
     links:
       - redis
   redis:
@@ -18,3 +19,4 @@ services:
 volumes:
   logvolume01: {}
   redis_db: {}
+  files: {}

@@ -55,9 +55,9 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     ['counter_channel'] = nil, -- This needs to be the numerical identifier of the channel you wish
     -- to forward messages into, for use with the /counter command. It should begin with a '-' symbol.
     -- The following directory values should NOT have a "/" at the end!
-    ['bot_directory'] = '/path/to/bot',
-    ['download_location'] = '/path/to/downloads', -- The location to save all downloaded media to.
-    ['fonts_directory'] = '/path/to/fonts', -- The location where fonts are stored for CAPTCHAs
+    ['bot_directory'] = '/media/files/bot',
+    ['download_location'] = '/media/files/downloads', -- The location to save all downloaded media to.
+    ['fonts_directory'] = '/media/files/fonts', -- The location where fonts are stored for CAPTCHAs
     ['debug'] = true, -- Turn this on to print EVEN MORE information to the terminal.
     ['redis'] = { -- Configurable options for connecting the bot to redis. Do NOT modify
     -- these settings if you don't know what you're doing!
@@ -355,7 +355,6 @@ local utils = require('configuration_utils')
 -- list of plugins that should be loaded
 local plugins = {
     'about',
-    'administration',  -- not sure what it does
     'calc',
     'catfact',
     'help',

@@ -13,6 +13,13 @@ ENV PROJECT_DIR ${HOME}/code
 RUN addgroup -g 1000 ${USR}\
   && adduser -S -h ${HOME} -u 1000 -G ${USR} ${USR}
 
+# volumes paths; we do this so volumes are writable
+RUN mkdir /media/files\
+    && mkdir /media/files/bot\
+    && mkdir /media/files/fonts\
+    && mkdir /media/files/downloads\
+    && chown -R 1000:1000 /media/files
+
 # shared library
 RUN apk upgrade -U && apk add --no-cache\
     readline-dev\
