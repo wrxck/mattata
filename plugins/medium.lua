@@ -21,8 +21,25 @@ function medium.on_message(_, message, _, language)
     end
 
     local json_data = medium.fetch_json_data(input)
-    local post = json.encode(json_data.posts[1], {indent=true})
-    mattata.save_to_file(post, '/home/matt/matticatebot/medium.json')
+    local posts = json_data.posts
+    local lines = {}
+
+    for i=1, math.min(#posts, 3) do
+        local post = posts[i]
+        local line = medium.build_line(post)
+        table.insert(lines, line)
+    end
+
+    return mattata.send_reply(message, table.concat(lines, '\n\n'), 'markdown', true)
+end
+
+function medium.build_line(post)
+    local title = post.title
+    local preview = post.previewContent
+    local subtitle = preview.subtitle
+    local url = string.format('https://blog.discord.com/%s-%s', post.slug, post.id)
+
+    return string.format('[%s](%s) - %s', title, url, subtitle)
 end
 
 function medium.fetch_json_data(input)
