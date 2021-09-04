@@ -1,6 +1,7 @@
 # Mattata
 
 Mattata is a extensible Lua powered engine to control your telegram bot based on plugins.
+And this is a fork willing to keep the project alive. No idea what happened with the original author =T.
 
 ## Getting started
 
