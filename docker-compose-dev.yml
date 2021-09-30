@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  app:
+    volumes:
+      - .:/home/nonroot/code/
+  redis:
+    volumes:
+      - /tmp/redis_tmp:/data

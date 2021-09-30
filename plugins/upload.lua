@@ -13,9 +13,8 @@ end
 function upload:on_message(message, configuration, language)
     if not mattata.is_global_admin(message.from.id)
     then
-        return
-    elseif not message.reply
-    or not message.reply.document
+        return false
+    elseif not message.reply or not message.reply.document
     then
         return mattata.send_reply(
             message,
@@ -43,13 +42,14 @@ function upload:on_message(message, configuration, language)
         message.reply.document.file_name,
         configuration['download_location']
     )
-    if not success
-    then
+
+    if not success then
         return mattata.send_reply(
             message,
             language['upload']['4']
         )
     end
+
     return mattata.send_reply(
         message,
         string.format(

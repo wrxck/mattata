@@ -55,9 +55,9 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     ['counter_channel'] = nil, -- This needs to be the numerical identifier of the channel you wish
     -- to forward messages into, for use with the /counter command. It should begin with a '-' symbol.
     -- The following directory values should NOT have a "/" at the end!
-    ['bot_directory'] = '/path/to/bot',
-    ['download_location'] = '/path/to/downloads', -- The location to save all downloaded media to.
-    ['fonts_directory'] = '/path/to/fonts', -- The location where fonts are stored for CAPTCHAs
+    ['bot_directory'] = '/media/files/bot',
+    ['download_location'] = '/media/files/downloads', -- The location to save all downloaded media to.
+    ['fonts_directory'] = '/media/files/fonts', -- The location where fonts are stored for CAPTCHAs
     ['debug'] = true, -- Turn this on to print EVEN MORE information to the terminal.
     ['redis'] = { -- Configurable options for connecting the bot to redis. Do NOT modify
     -- these settings if you don't know what you're doing!
@@ -350,40 +350,28 @@ local configuration = { -- Rename this file to configuration.lua for the bot to 
     }
 }
 
-local get_plugins = function(extension, directory)
-    extension = extension and tostring(extension) or 'lua'
-    if extension:match('^%.') then
-        extension = extension:match('^%.(.-)$')
-    end
-    directory = directory and tostring(directory) or 'plugins'
-    if directory:match('/$') then
-        directory = directory:match('^(.-)/$')
-    end
-    local plugins = {}
-    local list = io.popen('ls ' .. directory .. '/')
-    local all = list:read('*all')
-    list:close()
-    for plugin in all:gmatch('[%w_-]+%.' .. extension .. ' ?') do
-        plugin = plugin:match('^([%w_-]+)%.' .. extension .. ' ?$')
-        table.insert(plugins, plugin)
-    end
-    return plugins
-end
+local utils = require('configuration_utils')
 
-local get_fonts = function()
-    local fonts = {}
-    local list = io.popen('ls fonts/')
-    local all = list:read('*all')
-    list:close()
-    for font in all:gmatch('%a+') do
-        table.insert(fonts, font)
-    end
-    return fonts
-end
+-- list of plugins that should be loaded
+local plugins = {
+    'about',
+    'calc',
+    'catfact',
+    'help',
+    'id',
+    'info',
+    'medium',
+    'meta',
+    'paste',
+    'plugins',
+    'setlang',
+    'shorten',
+}
 
-configuration.plugins = get_plugins()
-configuration.administrative_plugins = get_plugins(nil, 'plugins/administration')
-configuration.administration.captcha.files = get_fonts()
+configuration.plugins = utils.load_plugin_list(plugins)
+configuration.administrative_plugins = utils.load_plugin_list(nil, 'plugins/administration')
+configuration.administration.captcha.files = utils.load_font_list()
+
 for _, v in pairs(configuration.administrative_plugins) do
     table.insert(configuration.plugins, v)
 end

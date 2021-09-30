@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+    image: mattata/app:1.0
+    volumes:
+      - logvolume01:/var/log
+      - files:/media/files
+    links:
+      - redis
+  redis:
+    command: redis-server --appendonly yes
+    image: redis
+    volumes:
+      - redis_db:/data
+
+volumes:
+  logvolume01: {}
+  redis_db: {}
+  files: {}
