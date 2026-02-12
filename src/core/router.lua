@@ -1,13 +1,14 @@
 --[[
-    mattata v2.0 - Event Router
+    mattata v2.1 - Event Router
     Dispatches Telegram updates through middleware pipeline to plugins.
-    Handles messages, callback queries, inline queries, and other events.
+    Uses copas coroutines via telegram-bot-lua's async system for concurrent
+    update processing — each update runs in its own coroutine.
 ]]
 
 local router = {}
 
 local json = require('dkjson')
-local socket = require('socket')
+local copas = require('copas')
 local config = require('src.core.config')
 local logger = require('src.core.logger')
 local middleware_pipeline = require('src.core.middleware')
@@ -222,7 +223,6 @@ local function on_message(message)
 
     -- Dispatch command to matching plugin
     local cmd, args = extract_command(message.text, api.info.username)
-    local command_handled = false
 
     if cmd then
         local plugin = loader.get_by_command(cmd)
@@ -258,7 +258,6 @@ local function on_message(message)
                         ), 'html')
                     end
                 end
-                command_handled = true
             end
         end
     end
@@ -338,93 +337,74 @@ local function on_inline_query(inline_query)
     end
 end
 
--- Run cron jobs asynchronously in coroutines
-local function run_cron_async()
-    for _, plugin in ipairs(loader.get_plugins()) do
-        if plugin.cron then
-            local co = coroutine.create(function()
-                local ok, err = pcall(plugin.cron, api, ctx_base)
-                if not ok then
-                    logger.error('Plugin %s cron error: %s', plugin.name, tostring(err))
-                end
-            end)
-            coroutine.resume(co)
-        end
-    end
-end
-
--- Main polling loop
+-- Concurrent polling loop using telegram-bot-lua's async system
 function router.run()
-    local last_update = 0
-    local last_cron = os.date('%M')
-    local last_stats_flush = 0
     local polling = config.polling()
 
-    while true do
-        local success = api.get_updates(
-            polling.timeout,
-            last_update + 1,
-            polling.limit,
-            json.encode({
-                'message', 'edited_message', 'callback_query', 'inline_query',
-                'chat_join_request', 'chat_member', 'my_chat_member',
-                'message_reaction'
-            })
-        )
+    -- Register telegram-bot-lua handler callbacks
+    -- api.process_update() dispatches to these inside per-update copas coroutines
+    api.on_message = function(msg)
+        local ok, err = pcall(on_message, msg)
+        if not ok then logger.error('on_message error: %s', tostring(err)) end
+    end
 
-        if success and success.result then
-            for _, update in ipairs(success.result) do
-                last_update = update.update_id
-                local start_time = socket.gettime()
+    api.on_edited_message = function(msg)
+        msg.is_edited = true
+        local ok, err = pcall(on_message, msg)
+        if not ok then logger.error('on_edited_message error: %s', tostring(err)) end
+    end
 
-                if update.message or update.edited_message then
-                    local msg = update.message or update.edited_message
-                    if update.edited_message then
-                        msg.is_edited = true
-                    end
-                    local ok, err = pcall(on_message, msg)
-                    if not ok then
-                        logger.error('on_message error: %s', tostring(err))
-                    end
-                elseif update.callback_query then
-                    local ok, err = pcall(on_callback_query, update.callback_query)
-                    if not ok then
-                        logger.error('on_callback_query error: %s', tostring(err))
-                    end
-                elseif update.inline_query then
-                    local ok, err = pcall(on_inline_query, update.inline_query)
-                    if not ok then
-                        logger.error('on_inline_query error: %s', tostring(err))
-                    end
-                end
+    api.on_callback_query = function(cb)
+        local ok, err = pcall(on_callback_query, cb)
+        if not ok then logger.error('on_callback_query error: %s', tostring(err)) end
+    end
 
-                if config.debug() then
-                    logger.debug('Update #%d processed in %.3fs', update.update_id, socket.gettime() - start_time)
+    api.on_inline_query = function(iq)
+        local ok, err = pcall(on_inline_query, iq)
+        if not ok then logger.error('on_inline_query error: %s', tostring(err)) end
+    end
+
+    -- Cron: copas background thread, runs every 60s
+    copas.addthread(function()
+        while true do
+            copas.pause(60)
+            for _, plugin in ipairs(loader.get_plugins()) do
+                if plugin.cron then
+                    copas.addthread(function()
+                        local ok, err = pcall(plugin.cron, api, ctx_base)
+                        if not ok then
+                            logger.error('Plugin %s cron error: %s', plugin.name, tostring(err))
+                        end
+                    end)
                 end
             end
-        else
-            logger.error('Failed to retrieve updates from Telegram API')
         end
+    end)
 
-        -- Minutely cron jobs (async via coroutines)
-        if last_cron ~= os.date('%M') then
-            last_cron = os.date('%M')
-            run_cron_async()
+    -- Stats flush: copas background thread, runs every 300s
+    copas.addthread(function()
+        while true do
+            copas.pause(300)
+            local ok, err = pcall(mw_stats.flush, ctx_base.db, ctx_base.redis)
+            if not ok then logger.error('Stats flush error: %s', tostring(err)) end
         end
+    end)
 
-        -- Flush stats counters to PostgreSQL every 5 minutes
-        local now = os.time()
-        if now - last_stats_flush >= 300 then
-            last_stats_flush = now
-            local co = coroutine.create(function()
-                local ok, err = pcall(mw_stats.flush, ctx_base.db, ctx_base.redis)
-                if not ok then
-                    logger.error('Stats flush error: %s', tostring(err))
-                end
-            end)
-            coroutine.resume(co)
-        end
-    end
+    -- Start concurrent polling loop
+    -- api.run() -> api.async.run() which:
+    --   1. Swaps api.request to copas-based api.async.request
+    --   2. Spawns polling coroutine calling get_updates in a loop
+    --   3. For each update, spawns NEW coroutine -> api.process_update -> handlers above
+    --   4. Calls copas.loop()
+    api.run({
+        timeout = polling.timeout,
+        limit = polling.limit,
+        allowed_updates = {
+            'message', 'edited_message', 'callback_query', 'inline_query',
+            'chat_join_request', 'chat_member', 'my_chat_member',
+            'message_reaction'
+        }
+    })
 end
 
 return router

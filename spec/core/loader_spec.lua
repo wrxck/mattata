@@ -217,7 +217,7 @@ describe('core.loader', function()
         end)
 
         it('should successfully reload an existing plugin', function()
-            -- Set up a new version of the plugin in package.loaded
+            -- Use package.preload so reload() finds it after clearing package.loaded
             local new_ping = {
                 name = 'ping',
                 category = 'utility',
@@ -226,7 +226,7 @@ describe('core.loader', function()
                 description = 'Updated ping',
                 on_message = function() return 'updated' end,
             }
-            package.loaded['src.plugins.utility.ping'] = new_ping
+            package.preload['src.plugins.utility.ping'] = function() return new_ping end
 
             local ok = loader.reload('ping')
             assert.is_true(ok)
@@ -235,16 +235,18 @@ describe('core.loader', function()
             local p = loader.get_by_command('latency')
             assert.is_not_nil(p)
             assert.are.equal('ping', p.name)
+
+            package.preload['src.plugins.utility.ping'] = nil
         end)
 
         it('should re-index commands after reload', function()
-            -- Simulate reload with different commands
+            -- Use package.preload so reload() finds it after clearing package.loaded
             local new_ping = {
                 name = 'ping',
                 commands = { 'newping' },
                 on_message = function() end,
             }
-            package.loaded['src.plugins.utility.ping'] = new_ping
+            package.preload['src.plugins.utility.ping'] = function() return new_ping end
 
             loader.reload('ping')
 
@@ -252,6 +254,8 @@ describe('core.loader', function()
             assert.is_nil(loader.get_by_command('pong'))
             -- New command should work
             assert.is_not_nil(loader.get_by_command('newping'))
+
+            package.preload['src.plugins.utility.ping'] = nil
         end)
     end)
 

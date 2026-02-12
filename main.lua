@@ -5,7 +5,7 @@
   | | | | | | (_| | |_| || (_| | || (_| |
   |_| |_| |_|\__,_|\__|\__\__,_|\__\__,_|
 
-  v2.0
+  v2.1
 
   Copyright 2020-2026 Matthew Hesketh <matthew@matthewhesketh.com>
   See LICENSE for details
@@ -30,7 +30,7 @@ logger.info('mattata v%s starting...', config.VERSION)
 assert(config.bot_token(), 'BOT_TOKEN is required. Set it in .env or as an environment variable.')
 
 -- 3. Configure telegram-bot-lua
-local api = require('telegram-bot-lua.core').configure(config.bot_token())
+local api = require('telegram-bot-lua').configure(config.bot_token())
 local tools = require('telegram-bot-lua.tools')
 logger.info('Bot: @%s (%s) [%d]', api.info.username, api.info.first_name, api.info.id)
 

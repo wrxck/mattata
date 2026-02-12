@@ -1,0 +1,6 @@
+return {
+    _all = {
+        lua = 'lua',
+        ROOT = { 'spec/' }
+    }
+}

@@ -46,7 +46,7 @@ function plugin.on_message(api, message, ctx)
 
     math.randomseed(os.time() + os.clock() * 1000)
     local raw = quotes[math.random(#quotes)]
-    local quote, _, err = json.decode(raw)
+    local quote, _ = json.decode(raw)
     if not quote then
         return api.send_message(chat_id, 'Failed to read quote data.')
     end

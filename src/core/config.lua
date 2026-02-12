@@ -158,6 +158,6 @@ function config.log_chat()
 end
 
 -- Version constant
-config.VERSION = '2.0'
+config.VERSION = '2.1'
 
 return config

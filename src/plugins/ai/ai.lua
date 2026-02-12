@@ -12,7 +12,9 @@ plugin.commands = { 'ai', 'ask' }
 plugin.help = '/ai <prompt> - Send a prompt to the AI assistant and receive a response.'
 
 local MAX_HISTORY = 10
-local SYSTEM_PROMPT = 'You are a helpful assistant embedded in a Telegram bot called mattata. Be concise and direct in your responses. Use Telegram-compatible formatting (bold, italic, code) when helpful.'
+local SYSTEM_PROMPT = 'You are a helpful assistant embedded in a Telegram bot called mattata. '
+    .. 'Be concise and direct in your responses. '
+    .. 'Use Telegram-compatible formatting (bold, italic, code) when helpful.'
 
 -- Build a Redis key for conversation history
 local function history_key(chat_id, user_id)
@@ -242,7 +244,7 @@ function plugin.on_new_message(api, message, ctx)
     end
     table.insert(messages, { role = 'user', content = text })
 
-    local response, err = get_ai_response(ai_config, messages)
+    local response, _ = get_ai_response(ai_config, messages)
     if not response then
         return
     end

@@ -151,7 +151,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         return api.answer_callback_query(callback_query.id, 'This game has expired.')
     end
 
-    local game_state, _, err = json.decode(raw)
+    local game_state, _ = json.decode(raw)
     if not game_state then
         return api.answer_callback_query(callback_query.id, 'Failed to load game state.')
     end

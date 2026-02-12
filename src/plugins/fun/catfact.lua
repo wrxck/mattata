@@ -30,7 +30,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     local body = table.concat(response_body)
-    local data, _, err = json.decode(body)
+    local data, _ = json.decode(body)
     if not data or not data.fact then
         return api.send_message(message.chat.id, 'Failed to parse cat fact response. Try again later.')
     end

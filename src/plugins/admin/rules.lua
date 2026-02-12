@@ -13,7 +13,6 @@ plugin.admin_only = false
 
 function plugin.on_message(api, message, ctx)
     local tools = require('telegram-bot-lua.tools')
-    local permissions = require('src.core.permissions')
 
     -- If /rules is used with args and user is admin, set rules
     if message.args and (ctx.is_admin or ctx.is_global_admin) then

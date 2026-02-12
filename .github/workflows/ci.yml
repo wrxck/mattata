@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Lua 5.3
+        uses: leafo/gh-actions-lua@v11
+        with:
+          luaVersion: '5.3'
+
+      - name: Install LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+
+      - name: Install dependencies
+        run: |
+          luarocks install busted
+          luarocks install luacheck
+          luarocks install telegram-bot-lua
+          luarocks install pgmoon
+          luarocks install redis-lua
+          luarocks install dkjson
+          luarocks install luasocket
+          luarocks install luasec
+          luarocks install luautf8
+
+      - name: Lint
+        run: luacheck src/ spec/ main.lua
+
+      - name: Test
+        run: busted spec/
