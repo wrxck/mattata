@@ -312,9 +312,9 @@ function database.call(func_name, params, nparams)
     end
     params = params or {}
     nparams = nparams or params.n or #params
-    local pg, err = database.acquire()
+    local pg, acquire_err = database.acquire()
     if not pg then
-        return nil, 'Database not connected'
+        return nil, acquire_err or 'Database not connected'
     end
     local args = {}
     for i = 1, nparams do
