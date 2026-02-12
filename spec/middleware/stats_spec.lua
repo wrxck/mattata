@@ -172,14 +172,14 @@ describe('middleware.stats', function()
 
             stats_mw.flush(env.db, env.redis)
 
-            -- Should have executed SQL insert/upsert
-            local sql_count = 0
+            -- Should have called sp_flush_message_stats
+            local call_count = 0
             for _, q in ipairs(env.db.queries) do
-                if q.sql and q.sql:match('message_stats') then
-                    sql_count = sql_count + 1
+                if q.op == 'call' and q.func_name == 'sp_flush_message_stats' then
+                    call_count = call_count + 1
                 end
             end
-            assert.is_true(sql_count > 0)
+            assert.is_true(call_count > 0)
         end)
 
         it('should flush command stats to PostgreSQL', function()
@@ -188,13 +188,13 @@ describe('middleware.stats', function()
 
             stats_mw.flush(env.db, env.redis)
 
-            local sql_count = 0
+            local call_count = 0
             for _, q in ipairs(env.db.queries) do
-                if q.sql and q.sql:match('command_stats') then
-                    sql_count = sql_count + 1
+                if q.op == 'call' and q.func_name == 'sp_flush_command_stats' then
+                    call_count = call_count + 1
                 end
             end
-            assert.is_true(sql_count > 0)
+            assert.is_true(call_count > 0)
         end)
 
         it('should delete Redis keys after flushing', function()
@@ -213,14 +213,14 @@ describe('middleware.stats', function()
 
             stats_mw.flush(env.db, env.redis)
 
-            -- Should not have executed any message_stats SQL
-            local sql_count = 0
+            -- Should not have called sp_flush_message_stats
+            local call_count = 0
             for _, q in ipairs(env.db.queries) do
-                if q.sql and q.sql:match('message_stats') then
-                    sql_count = sql_count + 1
+                if q.op == 'call' and q.func_name == 'sp_flush_message_stats' then
+                    call_count = call_count + 1
                 end
             end
-            assert.are.equal(0, sql_count)
+            assert.are.equal(0, call_count)
         end)
 
         it('should handle empty stats gracefully', function()
@@ -229,7 +229,7 @@ describe('middleware.stats', function()
             end)
         end)
 
-        it('should use ON CONFLICT upsert SQL', function()
+        it('should call stored procedures for flush', function()
             local date = os.date('!%Y-%m-%d')
             env.redis.set('stats:msg:-100123:' .. date .. ':456', '10')
 
@@ -237,7 +237,7 @@ describe('middleware.stats', function()
 
             local found = false
             for _, q in ipairs(env.db.queries) do
-                if q.sql and q.sql:match('ON CONFLICT') then
+                if q.op == 'call' and q.func_name:match('^sp_flush_') then
                     found = true
                 end
             end

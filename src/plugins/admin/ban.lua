@@ -25,11 +25,11 @@ local function resolve_target(api, message, ctx)
         end
     end
     if not user_id then return nil, nil end
-    -- Strip 'for' prefix from reason
+    -- strip 'for' prefix from reason
     if reason and reason:lower():match('^for ') then
         reason = reason:sub(5)
     end
-    -- Resolve username to ID
+    -- resolve username to id
     if tonumber(user_id) == nil then
         user_id = user_id:match('^@?(.+)$')
         user_id = ctx.redis.get('username:' .. user_id:lower())
@@ -51,32 +51,21 @@ function plugin.on_message(api, message, ctx)
     end
     if user_id == api.info.id then return end
 
-    -- Check target isn't an admin
+    -- check target isn't an admin
     if permissions.is_group_admin(api, message.chat.id, user_id) then
         return api.send_message(message.chat.id, 'I can\'t ban an admin or moderator.')
     end
 
-    -- Attempt ban
+    -- attempt ban
     local success = api.ban_chat_member(message.chat.id, user_id)
     if not success then
         return api.send_message(message.chat.id, 'I don\'t have permission to ban users. Please make sure I\'m an admin with ban rights.')
     end
 
-    -- Log to database
+    -- log to database
     pcall(function()
-        ctx.db.insert('bans', {
-            chat_id = message.chat.id,
-            user_id = user_id,
-            banned_by = message.from.id,
-            reason = reason
-        })
-        ctx.db.insert('admin_actions', {
-            chat_id = message.chat.id,
-            admin_id = message.from.id,
-            target_id = user_id,
-            action = 'ban',
-            reason = reason
-        })
+        ctx.db.call('sp_insert_ban', { message.chat.id, user_id, message.from.id, reason })
+        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'ban', reason })
     end)
 
     local admin_name = tools.escape_html(message.from.first_name)
@@ -90,7 +79,7 @@ function plugin.on_message(api, message, ctx)
     )
     api.send_message(message.chat.id, output, 'html')
 
-    -- Clean up messages
+    -- clean up messages
     if message.reply then
         pcall(function() api.delete_message(message.chat.id, message.reply.message_id) end)
     end

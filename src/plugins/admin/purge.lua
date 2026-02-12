@@ -36,16 +36,11 @@ function plugin.on_message(api, message, ctx)
     end
 
     pcall(function()
-        ctx.db.insert('admin_actions', {
-            chat_id = message.chat.id,
-            admin_id = message.from.id,
-            action = 'purge',
-            reason = string.format('Purged %d messages (%d failed)', count, failed)
-        })
+        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, nil, 'purge', string.format('Purged %d messages (%d failed)', count, failed) })
     end)
 
     local status = api.send_message(message.chat.id, string.format('Purged <b>%d</b> message(s).', count), 'html')
-    -- Auto-delete the status message after a short delay
+    -- auto-delete the status message after a short delay
     if status and status.result then
         pcall(function()
             local socket = require('socket')

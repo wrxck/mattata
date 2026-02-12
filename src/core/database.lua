@@ -302,7 +302,49 @@ function database.upsert(table_name, data, conflict_keys, update_keys)
     return database.execute(sql, params)
 end
 
--- Get the raw pgmoon connection for advanced usage
+-- call a stored procedure: SELECT * FROM func_name(arg1, arg2, ...)
+-- func_name is validated to contain only safe characters (alphanumeric + underscore)
+-- nil values are inlined as NULL; non-nil values are escaped inline
+function database.call(func_name, params, nparams)
+    if not func_name:match('^[%w_]+$') then
+        logger.error('Invalid stored procedure name: %s', func_name)
+        return nil, 'Invalid stored procedure name'
+    end
+    params = params or {}
+    nparams = nparams or params.n or #params
+    local pg, acquire_err = database.acquire()
+    if not pg then
+        return nil, acquire_err or 'Database not connected'
+    end
+    local args = {}
+    for i = 1, nparams do
+        local v = params[i]
+        if v == nil then
+            args[i] = 'NULL'
+        elseif type(v) == 'number' then
+            args[i] = tostring(v)
+        elseif type(v) == 'boolean' then
+            args[i] = v and 'TRUE' or 'FALSE'
+        else
+            args[i] = pg:escape_literal(tostring(v))
+        end
+    end
+    local sql = string.format(
+        'SELECT * FROM %s(%s)',
+        func_name,
+        table.concat(args, ', ')
+    )
+    local result, query_err = pg:query(sql)
+    if not result then
+        logger.error('Query failed: %s\nSQL: %s', tostring(query_err), sql)
+        database.release(pg)
+        return nil, query_err
+    end
+    database.release(pg)
+    return result
+end
+
+-- get the raw pgmoon connection for advanced usage
 function database.connection()
     return database.acquire()
 end

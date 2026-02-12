@@ -43,7 +43,7 @@ function plugin.on_message(api, message, ctx)
     if permissions.is_group_admin(api, message.chat.id, user_id) then
         return api.send_message(message.chat.id, 'I can\'t kick an admin or moderator.')
     end
-    -- Kick = ban + immediate unban
+    -- kick = ban + immediate unban
     local success = api.ban_chat_member(message.chat.id, user_id)
     if not success then
         return api.send_message(message.chat.id, 'I don\'t have permission to kick users.')
@@ -51,10 +51,7 @@ function plugin.on_message(api, message, ctx)
     api.unban_chat_member(message.chat.id, user_id)
 
     pcall(function()
-        ctx.db.insert('admin_actions', {
-            chat_id = message.chat.id, admin_id = message.from.id,
-            target_id = user_id, action = 'kick', reason = reason
-        })
+        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'kick', reason })
     end)
 
     if reason and reason:lower():match('^for ') then reason = reason:sub(5) end

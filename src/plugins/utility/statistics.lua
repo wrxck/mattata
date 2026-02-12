@@ -20,25 +20,12 @@ function plugin.on_message(api, message, ctx)
         if not ctx.is_admin and not ctx.is_global_admin then
             return api.send_message(message.chat.id, 'You need to be an admin to reset statistics.')
         end
-        ctx.db.execute(
-            'DELETE FROM message_stats WHERE chat_id = $1',
-            { message.chat.id }
-        )
+        ctx.db.call('sp_reset_message_stats', { message.chat.id })
         return api.send_message(message.chat.id, 'Message statistics have been reset for this chat.')
     end
 
     -- Query top 10 users by message count
-    local result = ctx.db.execute(
-        [[SELECT ms.user_id, SUM(ms.message_count) AS total,
-                 u.first_name, u.last_name, u.username
-          FROM message_stats ms
-          LEFT JOIN users u ON ms.user_id = u.user_id
-          WHERE ms.chat_id = $1
-          GROUP BY ms.user_id, u.first_name, u.last_name, u.username
-          ORDER BY total DESC
-          LIMIT 10]],
-        { message.chat.id }
-    )
+    local result = ctx.db.call('sp_get_top_users', { message.chat.id })
 
     if not result or #result == 0 then
         return api.send_message(message.chat.id, 'No message statistics available for this chat yet.')
@@ -64,14 +51,8 @@ function plugin.on_message(api, message, ctx)
 
     -- Extended stats for /morestats
     if message.command == 'morestats' then
-        local total_result = ctx.db.execute(
-            'SELECT SUM(message_count) AS total FROM message_stats WHERE chat_id = $1',
-            { message.chat.id }
-        )
-        local unique_result = ctx.db.execute(
-            'SELECT COUNT(DISTINCT user_id) AS total FROM message_stats WHERE chat_id = $1',
-            { message.chat.id }
-        )
+        local total_result = ctx.db.call('sp_get_total_messages', { message.chat.id })
+        local unique_result = ctx.db.call('sp_get_unique_users', { message.chat.id })
         if total_result and total_result[1] then
             table.insert(lines, string.format(
                 '<i>All-time total: %s messages</i>',

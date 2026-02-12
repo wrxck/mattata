@@ -52,22 +52,16 @@ function permissions.is_group_mod(db, chat_id, user_id)
     if not chat_id or not user_id then
         return false
     end
-    local result = db.execute(
-        "SELECT 1 FROM chat_members WHERE chat_id = $1 AND user_id = $2 AND role = 'moderator'",
-        { chat_id, user_id }
-    )
+    local result = db.call('sp_check_group_moderator', { chat_id, user_id })
     return result and #result > 0
 end
 
--- Check if a user is trusted in a group
+-- check if a user is trusted in a group
 function permissions.is_trusted(db, chat_id, user_id)
     if not chat_id or not user_id then
         return false
     end
-    local result = db.execute(
-        "SELECT 1 FROM chat_members WHERE chat_id = $1 AND user_id = $2 AND role = 'trusted'",
-        { chat_id, user_id }
-    )
+    local result = db.call('sp_check_trusted_user', { chat_id, user_id })
     return result and #result > 0
 end
 

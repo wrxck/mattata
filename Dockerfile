@@ -31,14 +31,17 @@ RUN cd /tmp && \
     make && make install && \
     cd / && rm -rf /tmp/luarocks-3.9.2*
 
-# Install Lua dependencies
-RUN luarocks install telegram-bot-lua && \
-    luarocks install pgmoon && \
+# Install telegram-bot-lua v3.0 from source (v3.0 not yet published to luarocks)
+RUN cd /tmp && \
+    git clone --depth 1 https://github.com/wrxck/telegram-bot-lua.git && \
+    cd telegram-bot-lua && \
+    luarocks make telegram-bot-lua-3.0-0.rockspec && \
+    cd / && rm -rf /tmp/telegram-bot-lua
+
+# Install remaining Lua dependencies
+RUN luarocks install pgmoon && \
     luarocks install redis-lua && \
-    luarocks install dkjson && \
-    luarocks install luasocket && \
-    luarocks install luasec && \
-    luarocks install luautf8
+    luarocks install luaossl
 
 # Runtime stage
 FROM ubuntu:22.04

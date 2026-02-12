@@ -14,7 +14,7 @@ plugin.admin_only = false
 function plugin.on_message(api, message, ctx)
     local tools = require('telegram-bot-lua.tools')
 
-    -- Get Telegram admins
+    -- get telegram admins
     local admins = api.get_chat_administrators(message.chat.id)
     if not admins or not admins.result then
         return api.send_message(message.chat.id, 'I couldn\'t retrieve the admin list.')
@@ -22,7 +22,7 @@ function plugin.on_message(api, message, ctx)
 
     local output = '<b>Staff for ' .. tools.escape_html(message.chat.title or 'this chat') .. '</b>\n\n'
 
-    -- Creator
+    -- creator
     local creator_text = ''
     for _, admin in ipairs(admins.result) do
         if admin.status == 'creator' then
@@ -38,7 +38,7 @@ function plugin.on_message(api, message, ctx)
         output = output .. '<b>Owner:</b>\n' .. creator_text .. '\n\n'
     end
 
-    -- Admins
+    -- admins
     local admin_list = {}
     for _, admin in ipairs(admins.result) do
         if admin.status == 'administrator' and not admin.user.is_bot then
@@ -53,11 +53,8 @@ function plugin.on_message(api, message, ctx)
         output = output .. '<b>Admins (' .. #admin_list .. '):</b>\n' .. table.concat(admin_list, '\n') .. '\n\n'
     end
 
-    -- Moderators (from database)
-    local mods = ctx.db.execute(
-        "SELECT user_id FROM chat_members WHERE chat_id = $1 AND role = 'moderator'",
-        { message.chat.id }
-    )
+    -- moderators (from database)
+    local mods = ctx.db.call('sp_get_moderators', { message.chat.id })
     if mods and #mods > 0 then
         local mod_list = {}
         for _, mod in ipairs(mods) do

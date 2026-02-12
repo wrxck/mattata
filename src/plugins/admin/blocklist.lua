@@ -17,10 +17,7 @@ function plugin.on_message(api, message, ctx)
 
     -- /blocklist with no args: list blocked users
     if message.command == 'blocklist' and not message.args then
-        local result = ctx.db.execute(
-            'SELECT user_id, reason, created_at FROM group_blocklist WHERE chat_id = $1 ORDER BY created_at DESC',
-            { message.chat.id }
-        )
+        local result = ctx.db.call('sp_get_blocklist', { message.chat.id })
         if not result or #result == 0 then
             return api.send_message(message.chat.id, 'No users are blocklisted in this group.')
         end
@@ -64,13 +61,9 @@ function plugin.on_message(api, message, ctx)
             return api.send_message(message.chat.id, 'You can\'t blocklist an admin.')
         end
 
-        ctx.db.upsert('group_blocklist', {
-            chat_id = message.chat.id,
-            user_id = user_id,
-            reason = reason
-        }, { 'chat_id', 'user_id' }, { 'reason' })
+        ctx.db.call('sp_upsert_blocklist_entry', { message.chat.id, user_id, reason })
 
-        -- Also set Redis key for fast lookup
+        -- also set redis key for fast lookup
         ctx.redis.set('group_blocklist:' .. message.chat.id .. ':' .. user_id, '1')
 
         local target_info = api.get_chat(user_id)
@@ -98,10 +91,7 @@ function plugin.on_message(api, message, ctx)
             return api.send_message(message.chat.id, 'Please specify the user to unblock.')
         end
 
-        ctx.db.execute(
-            'DELETE FROM group_blocklist WHERE chat_id = $1 AND user_id = $2',
-            { message.chat.id, user_id }
-        )
+        ctx.db.call('sp_delete_blocklist_entry', { message.chat.id, user_id })
         ctx.redis.del('group_blocklist:' .. message.chat.id .. ':' .. user_id)
 
         local target_info = api.get_chat(user_id)

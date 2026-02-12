@@ -35,11 +35,7 @@ function plugin.on_message(api, message, ctx)
 
     local user_id = message.from.id
 
-    -- Check how many federations this user already owns
-    local existing = ctx.db.execute(
-        'SELECT COUNT(*) AS count FROM federations WHERE owner_id = $1',
-        { user_id }
-    )
+    local existing = ctx.db.call('sp_count_user_federations', { user_id })
     if existing and existing[1] and tonumber(existing[1].count) >= 5 then
         return api.send_message(
             message.chat.id,
@@ -48,10 +44,7 @@ function plugin.on_message(api, message, ctx)
         )
     end
 
-    local result = ctx.db.execute(
-        'INSERT INTO federations (name, owner_id) VALUES ($1, $2) RETURNING id',
-        { name, user_id }
-    )
+    local result = ctx.db.call('sp_create_federation', { name, user_id })
     if not result or #result == 0 then
         return api.send_message(
             message.chat.id,

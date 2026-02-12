@@ -57,13 +57,9 @@ function stats_mw.flush(db, redis)
             local chat_id, date, user_id = key:match('stats:msg:(%-?%d+):(%d%d%d%d%-%d%d%-%d%d):(%d+)')
             if chat_id and date and user_id then
                 pcall(function()
-                    db.execute(
-                        [[INSERT INTO message_stats (chat_id, user_id, date, message_count)
-                          VALUES ($1, $2, $3, $4)
-                          ON CONFLICT (chat_id, user_id, date) DO UPDATE SET
-                          message_count = message_stats.message_count + $4]],
-                        { tonumber(chat_id), tonumber(user_id), date, count }
-                    )
+                    db.call('sp_flush_message_stats', {
+                        tonumber(chat_id), tonumber(user_id), date, count
+                    })
                 end)
                 redis.del(key)
                 flushed = flushed + 1
@@ -80,13 +76,9 @@ function stats_mw.flush(db, redis)
             local command, chat_id, date = key:match('stats:cmd:([%w_]+):(%-?%d+):(%d%d%d%d%-%d%d%-%d%d)')
             if command and chat_id and date then
                 pcall(function()
-                    db.execute(
-                        [[INSERT INTO command_stats (chat_id, command, date, use_count)
-                          VALUES ($1, $2, $3, $4)
-                          ON CONFLICT (chat_id, command, date) DO UPDATE SET
-                          use_count = command_stats.use_count + $4]],
-                        { tonumber(chat_id), command, date, count }
-                    )
+                    db.call('sp_flush_command_stats', {
+                        tonumber(chat_id), command, date, count
+                    })
                 end)
                 redis.del(key)
                 flushed = flushed + 1
