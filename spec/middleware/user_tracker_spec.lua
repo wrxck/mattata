@@ -49,12 +49,12 @@ describe('middleware.user_tracker', function()
 
             user_tracker.run(ctx, message)
 
-            -- Should NOT have done any upserts
-            local upsert_count = 0
+            -- Should NOT have done any calls
+            local call_count = 0
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'upsert' then upsert_count = upsert_count + 1 end
+                if q.op == 'call' then call_count = call_count + 1 end
             end
-            assert.are.equal(0, upsert_count)
+            assert.are.equal(0, call_count)
         end)
 
         it('should still update username mapping when debounced', function()
@@ -70,10 +70,10 @@ describe('middleware.user_tracker', function()
         it('should upsert on first message (no dedup key)', function()
             user_tracker.run(ctx, message)
 
-            -- Should have upserted user
+            -- Should have called sp_upsert_user
             local user_upserted = false
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'upsert' and q.table_name == 'users' then
+                if q.op == 'call' and q.func_name == 'sp_upsert_user' then
                     user_upserted = true
                 end
             end
@@ -95,11 +95,12 @@ describe('middleware.user_tracker', function()
 
             local found = false
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'upsert' and q.table_name == 'users' then
+                if q.op == 'call' and q.func_name == 'sp_upsert_user' then
                     found = true
-                    assert.are.equal(message.from.id, q.data.user_id)
-                    assert.are.equal('testuser', q.data.username)
-                    assert.are.equal('Test', q.data.first_name)
+                    -- params: user_id, username, first_name, last_name, language_code, is_bot, last_seen
+                    assert.are.equal(message.from.id, q.params[1])
+                    assert.are.equal('testuser', q.params[2])
+                    assert.are.equal('Test', q.params[3])
                 end
             end
             assert.is_true(found)
@@ -110,8 +111,8 @@ describe('middleware.user_tracker', function()
             user_tracker.run(ctx, message)
 
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'upsert' and q.table_name == 'users' then
-                    assert.is_nil(q.data.username)
+                if q.op == 'call' and q.func_name == 'sp_upsert_user' then
+                    assert.is_nil(q.params[2])
                 end
             end
         end)
@@ -121,24 +122,19 @@ describe('middleware.user_tracker', function()
             user_tracker.run(ctx, message)
 
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'upsert' and q.table_name == 'users' then
-                    assert.are.equal('testuser', q.data.username)
+                if q.op == 'call' and q.func_name == 'sp_upsert_user' then
+                    assert.are.equal('testuser', q.params[2])
                 end
             end
         end)
 
-        it('should use correct conflict and update keys', function()
+        it('should pass all required fields', function()
             user_tracker.run(ctx, message)
 
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'upsert' and q.table_name == 'users' then
-                    assert.are.same({ 'user_id' }, q.conflict_keys)
-                    -- Update keys should include username, first_name, etc.
-                    local has_username = false
-                    for _, k in ipairs(q.update_keys) do
-                        if k == 'username' then has_username = true end
-                    end
-                    assert.is_true(has_username)
+                if q.op == 'call' and q.func_name == 'sp_upsert_user' then
+                    -- 7 params: user_id, username, first_name, last_name, language_code, is_bot, last_seen
+                    assert.are.equal(7, q.params.n or #q.params)
                 end
             end
         end)
@@ -150,10 +146,10 @@ describe('middleware.user_tracker', function()
 
             local found = false
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'upsert' and q.table_name == 'chats' then
+                if q.op == 'call' and q.func_name == 'sp_upsert_chat' then
                     found = true
-                    assert.are.equal(message.chat.id, q.data.chat_id)
-                    assert.are.equal('Test Group', q.data.title)
+                    assert.are.equal(message.chat.id, q.params[1])
+                    assert.are.equal('Test Group', q.params[2])
                 end
             end
             assert.is_true(found)
@@ -164,7 +160,7 @@ describe('middleware.user_tracker', function()
             user_tracker.run(ctx, message)
 
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'upsert' and q.table_name == 'chats' then
+                if q.op == 'call' and q.func_name == 'sp_upsert_chat' then
                     assert.fail('should not upsert chat for private messages')
                 end
             end
@@ -175,10 +171,10 @@ describe('middleware.user_tracker', function()
 
             local found = false
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'upsert' and q.table_name == 'chat_members' then
+                if q.op == 'call' and q.func_name == 'sp_upsert_chat_member' then
                     found = true
-                    assert.are.equal(message.chat.id, q.data.chat_id)
-                    assert.are.equal(message.from.id, q.data.user_id)
+                    assert.are.equal(message.chat.id, q.params[1])
+                    assert.are.equal(message.from.id, q.params[2])
                 end
             end
             assert.is_true(found)

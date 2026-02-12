@@ -63,6 +63,21 @@ function mock_db.new()
         return { data_row }
     end
 
+    -- Stored procedure call: records func_name, params, and a synthetic sql for has_query
+    function db.call(func_name, params)
+        local sql = 'SELECT * FROM ' .. func_name .. '(...)'
+        table.insert(db.queries, { op = 'call', func_name = func_name, params = params, sql = sql })
+        if db.next_result then
+            local r = db.next_result
+            db.next_result = nil
+            return r
+        end
+        if #db.result_queue > 0 then
+            return table.remove(db.result_queue, 1)
+        end
+        return {}
+    end
+
     function db.set_next_result(result)
         db.next_result = result
     end
