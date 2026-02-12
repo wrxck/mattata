@@ -1,0 +1,100 @@
+# Contributing to mattata
+
+## Plugin Development
+
+### Plugin Contract
+
+Every plugin must export a table with these fields:
+
+```lua
+local plugin = {}
+plugin.name = 'mycommand'           -- Unique identifier
+plugin.category = 'utility'          -- admin, utility, fun, media, ai
+plugin.description = 'Short desc'    -- For help text
+plugin.commands = { 'cmd', 'alias' } -- Without / prefix
+plugin.help = '/cmd [args] - Usage.' -- Full usage text
+
+-- Optional flags
+plugin.group_only = false            -- Restrict to groups
+plugin.admin_only = false            -- Require group admin
+plugin.global_admin_only = false     -- Require bot owner
+plugin.permanent = false             -- Cannot be disabled
+```
+
+### Handler Functions
+
+```lua
+-- Command handler (when /cmd matches)
+function plugin.on_message(api, message, ctx) end
+
+-- Callback query handler (buttons with data "pluginname:data")
+function plugin.on_callback_query(api, callback_query, message, ctx) end
+
+-- Passive handler (runs on every message, no command needed)
+function plugin.on_new_message(api, message, ctx) end
+
+-- New member handler
+function plugin.on_member_join(api, message, ctx) end
+
+-- Inline query handler
+function plugin.on_inline_query(api, inline_query, ctx) end
+
+-- Cron job (runs every minute)
+function plugin.cron(api, ctx) end
+```
+
+### Context Object (`ctx`)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `ctx.api` | table | Telegram Bot API |
+| `ctx.db` | table | PostgreSQL (query, execute, insert, upsert) |
+| `ctx.redis` | table | Redis client proxy |
+| `ctx.session` | table | Session/cache manager |
+| `ctx.config` | table | Configuration reader |
+| `ctx.i18n` | table | Language manager |
+| `ctx.permissions` | table | Permission checks |
+| `ctx.lang` | table | Current language strings |
+| `ctx.is_group` | bool | Is group chat |
+| `ctx.is_admin` | bool | Is user group admin |
+| `ctx.is_global_admin` | bool | Is user bot owner |
+
+### Adding a Plugin
+
+1. Create your plugin in the appropriate category directory
+2. Add the plugin name to the category's `src/plugins/<category>/init.lua`
+3. Test with `/reload` (admin only)
+
+### Database Migrations
+
+If your plugin needs database tables, add a migration file to `src/db/migrations/`:
+
+```lua
+local migration = {}
+function migration.up()
+    return [[
+        CREATE TABLE IF NOT EXISTS my_table (
+            id SERIAL PRIMARY KEY,
+            ...
+        )
+    ]]
+end
+return migration
+```
+
+### Code Style
+
+- Use 4 spaces for indentation
+- Local variables in `snake_case`
+- Module tables as `local plugin = {}`
+- Always return the plugin table
+- Wrap API calls that might fail in `pcall`
+- Use `require('telegram-bot-lua.tools').escape_html()` for user input in HTML messages
+
+## Language Translations
+
+Language files are in `src/languages/`. To add a new language:
+
+1. Copy `en_gb.lua` as a template
+2. Translate all string values
+3. Add the language code to `src/languages/init.lua`
