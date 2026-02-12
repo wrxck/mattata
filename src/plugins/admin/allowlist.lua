@@ -15,11 +15,8 @@ function plugin.on_message(api, message, ctx)
     local tools = require('telegram-bot-lua.tools')
 
     if not message.args then
-        -- List allowlisted users
-        local result = ctx.db.execute(
-            "SELECT user_id FROM chat_members WHERE chat_id = $1 AND role = 'allowlisted'",
-            { message.chat.id }
-        )
+        -- list allowlisted users
+        local result = ctx.db.call('sp_get_allowlisted_users', { message.chat.id })
         if not result or #result == 0 then
             return api.send_message(message.chat.id, 'No users are allowlisted.\nUsage: /allowlist add <user>')
         end
@@ -37,7 +34,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, 'Usage: /allowlist <add|remove> <user>')
     end
 
-    -- Resolve target user
+    -- resolve target user
     local user_id
     if message.reply and message.reply.from then
         user_id = message.reply.from.id
@@ -53,11 +50,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     if action == 'add' then
-        ctx.db.upsert('chat_members', {
-            chat_id = message.chat.id,
-            user_id = user_id,
-            role = 'allowlisted'
-        }, { 'chat_id', 'user_id' }, { 'role' })
+        ctx.db.call('sp_set_member_role', { message.chat.id, user_id, 'allowlisted' })
 
         local target_info = api.get_chat(user_id)
         local target_name = target_info and target_info.result and tools.escape_html(target_info.result.first_name) or tostring(user_id)
@@ -67,10 +60,7 @@ function plugin.on_message(api, message, ctx)
         ), 'html')
 
     elseif action == 'remove' or action == 'del' or action == 'delete' then
-        ctx.db.execute(
-            "UPDATE chat_members SET role = 'member' WHERE chat_id = $1 AND user_id = $2 AND role = 'allowlisted'",
-            { message.chat.id, user_id }
-        )
+        ctx.db.call('sp_remove_allowlisted', { message.chat.id, user_id })
         local target_info = api.get_chat(user_id)
         local target_name = target_info and target_info.result and tools.escape_html(target_info.result.first_name) or tostring(user_id)
         api.send_message(message.chat.id, string.format(

@@ -113,10 +113,7 @@ function plugin.on_message(api, message, ctx)
 
     if not input or input == '' then
         -- Try stored location
-        local result = ctx.db.execute(
-            'SELECT latitude, longitude, address FROM user_locations WHERE user_id = $1',
-            { message.from.id }
-        )
+        local result = ctx.db.call('sp_get_user_location', { message.from.id })
         if result and result[1] then
             lat = tonumber(result[1].latitude)
             lon = tonumber(result[1].longitude)

@@ -25,11 +25,8 @@ local VALID_TYPES = {
 
 function plugin.on_message(api, message, ctx)
     if not message.args then
-        -- Show current antispam settings
-        local settings = ctx.db.execute(
-            "SELECT key, value FROM chat_settings WHERE chat_id = $1 AND key LIKE 'antispam_%'",
-            { message.chat.id }
-        )
+        -- show current antispam settings
+        local settings = ctx.db.call('sp_get_chat_settings_like', { message.chat.id, 'antispam_%' })
         local output = '<b>Antispam settings:</b>\n\n'
         if settings and #settings > 0 then
             for _, row in ipairs(settings) do
@@ -54,10 +51,7 @@ function plugin.on_message(api, message, ctx)
 
     local setting_key = 'antispam_' .. msg_type
     if limit == 'off' or limit == 'disable' or limit == '0' then
-        ctx.db.execute(
-            "DELETE FROM chat_settings WHERE chat_id = $1 AND key = $2",
-            { message.chat.id, setting_key }
-        )
+        ctx.db.call('sp_delete_chat_setting', { message.chat.id, setting_key })
         return api.send_message(message.chat.id, string.format('Antispam limit for <b>%s</b> has been removed.', msg_type), 'html')
     end
 
@@ -66,11 +60,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, 'Limit must be a number between 1 and 100.')
     end
 
-    ctx.db.upsert('chat_settings', {
-        chat_id = message.chat.id,
-        key = setting_key,
-        value = tostring(limit)
-    }, { 'chat_id', 'key' }, { 'value' })
+    ctx.db.call('sp_upsert_chat_setting', { message.chat.id, setting_key, tostring(limit) })
 
     api.send_message(message.chat.id, string.format(
         'Antispam limit for <b>%s</b> set to <b>%d</b> message(s) per 5 seconds.',

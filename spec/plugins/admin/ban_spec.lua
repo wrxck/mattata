@@ -144,9 +144,9 @@ describe('plugins.admin.ban', function()
             -- Check that reason was logged to DB
             local found = false
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'insert' and q.table_name == 'bans' then
+                if q.op == 'call' and q.func_name == 'sp_insert_ban' then
                     found = true
-                    assert.are.equal('spamming links', q.data.reason)
+                    assert.are.equal('spamming links', q.params[4])
                 end
             end
             assert.is_true(found)
@@ -161,9 +161,9 @@ describe('plugins.admin.ban', function()
             ban_plugin.on_message(env.api, message, ctx)
             local found = false
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'insert' and q.table_name == 'bans' then
+                if q.op == 'call' and q.func_name == 'sp_insert_ban' then
                     found = true
-                    assert.are.equal('being disruptive', q.data.reason)
+                    assert.are.equal('being disruptive', q.params[4])
                 end
             end
             assert.is_true(found)
@@ -174,9 +174,9 @@ describe('plugins.admin.ban', function()
             ban_plugin.on_message(env.api, message, ctx)
             local found = false
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'insert' and q.table_name == 'bans' then
+                if q.op == 'call' and q.func_name == 'sp_insert_ban' then
                     found = true
-                    assert.are.equal('spamming', q.data.reason)
+                    assert.are.equal('spamming', q.params[4])
                 end
             end
             assert.is_true(found)
@@ -237,11 +237,11 @@ describe('plugins.admin.ban', function()
             ban_plugin.on_message(env.api, message, ctx)
             local found = false
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'insert' and q.table_name == 'bans' then
+                if q.op == 'call' and q.func_name == 'sp_insert_ban' then
                     found = true
-                    assert.are.equal(message.chat.id, q.data.chat_id)
-                    assert.are.equal(222222, q.data.user_id)
-                    assert.are.equal(message.from.id, q.data.banned_by)
+                    assert.are.equal(message.chat.id, q.params[1])
+                    assert.are.equal(222222, q.params[2])
+                    assert.are.equal(message.from.id, q.params[3])
                 end
             end
             assert.is_true(found)
@@ -252,11 +252,11 @@ describe('plugins.admin.ban', function()
             ban_plugin.on_message(env.api, message, ctx)
             local found = false
             for _, q in ipairs(env.db.queries) do
-                if q.op == 'insert' and q.table_name == 'admin_actions' then
+                if q.op == 'call' and q.func_name == 'sp_log_admin_action' then
                     found = true
-                    assert.are.equal('ban', q.data.action)
-                    assert.are.equal(message.from.id, q.data.admin_id)
-                    assert.are.equal(222222, q.data.target_id)
+                    assert.are.equal('ban', q.params[4])
+                    assert.are.equal(message.from.id, q.params[2])
+                    assert.are.equal(222222, q.params[3])
                 end
             end
             assert.is_true(found)

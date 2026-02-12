@@ -32,7 +32,7 @@ local LANGUAGES = {
 
 function plugin.on_message(api, message, ctx)
     if not message.args then
-        -- Show inline keyboard with available languages
+        -- show inline keyboard with available languages
         local keyboard = { inline_keyboard = {} }
         local row = {}
         for i, lang in ipairs(LANGUAGES) do
@@ -54,7 +54,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, 'Please provide a valid language code.')
     end
 
-    -- Validate the language code
+    -- validate the language code
     local valid = false
     for _, lang in ipairs(LANGUAGES) do
         if lang.code == lang_code then
@@ -66,17 +66,8 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, 'Invalid language code. Use /setgrouplang to see available options.')
     end
 
-    ctx.db.upsert('chat_settings', {
-        chat_id = message.chat.id,
-        key = 'group_language',
-        value = lang_code
-    }, { 'chat_id', 'key' }, { 'value' })
-
-    ctx.db.upsert('chat_settings', {
-        chat_id = message.chat.id,
-        key = 'force_group_language',
-        value = 'true'
-    }, { 'chat_id', 'key' }, { 'value' })
+    ctx.db.call('sp_upsert_chat_setting', { message.chat.id, 'group_language', lang_code })
+    ctx.db.call('sp_upsert_chat_setting', { message.chat.id, 'force_group_language', 'true' })
 
     api.send_message(message.chat.id, string.format('Group language set to <b>%s</b>.', lang_code), 'html')
 end
@@ -90,19 +81,10 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
     local lang_code = callback_query.data
     if not lang_code then return end
 
-    ctx.db.upsert('chat_settings', {
-        chat_id = message.chat.id,
-        key = 'group_language',
-        value = lang_code
-    }, { 'chat_id', 'key' }, { 'value' })
+    ctx.db.call('sp_upsert_chat_setting', { message.chat.id, 'group_language', lang_code })
+    ctx.db.call('sp_upsert_chat_setting', { message.chat.id, 'force_group_language', 'true' })
 
-    ctx.db.upsert('chat_settings', {
-        chat_id = message.chat.id,
-        key = 'force_group_language',
-        value = 'true'
-    }, { 'chat_id', 'key' }, { 'value' })
-
-    -- Find language name
+    -- find language name
     local lang_name = lang_code
     for _, lang in ipairs(LANGUAGES) do
         if lang.code == lang_code then

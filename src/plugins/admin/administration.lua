@@ -14,7 +14,7 @@ plugin.admin_only = true
 
 local json = require('dkjson')
 
--- Toggleable settings with display names and keys
+-- toggleable settings with display names and keys
 local SETTINGS = {
     { key = 'antilink_enabled', name = 'Anti-Link', description = 'Delete Telegram invite links from non-admins' },
     { key = 'wordfilter_enabled', name = 'Word Filter', description = 'Filter messages matching patterns' },
@@ -31,10 +31,7 @@ local SETTINGS = {
 }
 
 local function is_setting_enabled(ctx, chat_id, key)
-    local result = ctx.db.execute(
-        "SELECT value FROM chat_settings WHERE chat_id = $1 AND key = $2",
-        { chat_id, key }
-    )
+    local result = ctx.db.call('sp_get_chat_setting', { chat_id, key })
     return result and #result > 0 and result[1].value == 'true'
 end
 
@@ -59,7 +56,7 @@ local function build_keyboard(ctx, chat_id, page)
         })
     end
 
-    -- Navigation row
+    -- navigation row
     if total_pages > 1 then
         local nav_row = {}
         if page > 1 then
@@ -81,7 +78,7 @@ local function build_keyboard(ctx, chat_id, page)
         table.insert(keyboard.inline_keyboard, nav_row)
     end
 
-    -- Close button
+    -- close button
     table.insert(keyboard.inline_keyboard, {
         {
             text = 'Close',
@@ -119,7 +116,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
 
     if not data then return end
 
-    -- Only admins can change settings
+    -- only admins can change settings
     if not permissions.is_group_admin(api, message.chat.id, callback_query.from.id) then
         return api.answer_callback_query(callback_query.id, 'Only admins can change settings.')
     end
@@ -148,25 +145,18 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         end
         page = tonumber(page) or 1
 
-        -- Toggle the setting
+        -- toggle the setting
         local currently_enabled = is_setting_enabled(ctx, message.chat.id, key)
         if currently_enabled then
-            ctx.db.execute(
-                "UPDATE chat_settings SET value = 'false' WHERE chat_id = $1 AND key = $2",
-                { message.chat.id, key }
-            )
+            ctx.db.call('sp_disable_chat_setting', { message.chat.id, key })
         else
-            ctx.db.upsert('chat_settings', {
-                chat_id = message.chat.id,
-                key = key,
-                value = 'true'
-            }, { 'chat_id', 'key' }, { 'value' })
+            ctx.db.call('sp_upsert_chat_setting', { message.chat.id, key, 'true' })
         end
 
-        -- Invalidate cache for the toggled setting
+        -- invalidate cache for the toggled setting
         require('src.core.session').invalidate_setting(message.chat.id, key)
 
-        -- Find the setting name for the callback response
+        -- find the setting name for the callback response
         local setting_name = key
         for _, s in ipairs(SETTINGS) do
             if s.key == key then
@@ -176,7 +166,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         end
         local new_state = not currently_enabled
 
-        -- Rebuild keyboard with updated state
+        -- rebuild keyboard with updated state
         local text = build_message(ctx, message.chat.id)
         local keyboard = build_keyboard(ctx, message.chat.id, page)
         api.edit_message_text(message.chat.id, message.message_id, text, 'html', false, json.encode(keyboard))

@@ -37,27 +37,18 @@ local function resolve_user(message, ctx)
 end
 
 local function get_chat_federation(db, chat_id)
-    local result = db.execute(
-        'SELECT f.id, f.name, f.owner_id FROM federations f JOIN federation_chats fc ON f.id = fc.federation_id WHERE fc.chat_id = $1',
-        { chat_id }
-    )
+    local result = db.call('sp_get_chat_federation', { chat_id })
     if result and #result > 0 then return result[1] end
     return nil
 end
 
 local function is_fed_admin(db, fed_id, user_id)
-    local result = db.execute(
-        'SELECT 1 FROM federation_admins WHERE federation_id = $1 AND user_id = $2',
-        { fed_id, user_id }
-    )
+    local result = db.call('sp_check_federation_admin', { fed_id, user_id })
     return result and #result > 0
 end
 
 local function is_allowlisted(db, fed_id, user_id)
-    local result = db.execute(
-        'SELECT 1 FROM federation_allowlist WHERE federation_id = $1 AND user_id = $2',
-        { fed_id, user_id }
-    )
+    local result = db.call('sp_check_federation_allowlist', { fed_id, user_id })
     return result and #result > 0
 end
 
@@ -93,7 +84,7 @@ function plugin.on_message(api, message, ctx)
         )
     end
 
-    -- Don't allow banning the federation owner
+    -- don't allow banning the federation owner
     if target_id == fed.owner_id then
         return api.send_message(
             message.chat.id,
@@ -102,7 +93,6 @@ function plugin.on_message(api, message, ctx)
         )
     end
 
-    -- Check allowlist
     if is_allowlisted(ctx.db, fed.id, target_id) then
         return api.send_message(
             message.chat.id,
@@ -114,7 +104,6 @@ function plugin.on_message(api, message, ctx)
         )
     end
 
-    -- Extract reason (everything after the user identifier)
     local reason
     if message.reply and message.reply.from and message.args and message.args ~= '' then
         reason = message.args
@@ -122,34 +111,18 @@ function plugin.on_message(api, message, ctx)
         reason = message.args:match('^%S+%s+(.*)')
     end
 
-    -- Check if already banned
-    local existing_ban = ctx.db.execute(
-        'SELECT 1 FROM federation_bans WHERE federation_id = $1 AND user_id = $2',
-        { fed.id, target_id }
-    )
+    local existing_ban = ctx.db.call('sp_check_federation_ban_exists', { fed.id, target_id })
     if existing_ban and #existing_ban > 0 then
-        -- Update reason if provided
         if reason then
-            ctx.db.execute(
-                'UPDATE federation_bans SET reason = $1, banned_by = $2, banned_at = NOW() WHERE federation_id = $3 AND user_id = $4',
-                { reason, from_id, fed.id, target_id }
-            )
+            ctx.db.call('sp_update_federation_ban', { reason, from_id, fed.id, target_id })
         end
     else
-        ctx.db.execute(
-            'INSERT INTO federation_bans (federation_id, user_id, reason, banned_by) VALUES ($1, $2, $3, $4)',
-            { fed.id, target_id, reason, from_id }
-        )
+        ctx.db.call('sp_insert_federation_ban', { fed.id, target_id, reason, from_id })
     end
 
-    -- Invalidate Redis cache
     ctx.redis.del(string.format('fban:%s:%s', fed.id, target_id))
 
-    -- Get all chats in the federation and ban the user
-    local chats = ctx.db.execute(
-        'SELECT chat_id FROM federation_chats WHERE federation_id = $1',
-        { fed.id }
-    )
+    local chats = ctx.db.call('sp_get_federation_chats', { fed.id })
 
     local success_count = 0
     local fail_count = 0

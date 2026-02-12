@@ -20,23 +20,12 @@ function plugin.on_message(api, message, ctx)
         if not ctx.is_admin and not ctx.is_global_admin then
             return api.send_message(message.chat.id, 'You need to be an admin to reset command statistics.')
         end
-        ctx.db.execute(
-            'DELETE FROM command_stats WHERE chat_id = $1',
-            { message.chat.id }
-        )
+        ctx.db.call('sp_reset_command_stats', { message.chat.id })
         return api.send_message(message.chat.id, 'Command statistics have been reset for this chat.')
     end
 
     -- Query top 10 commands by usage
-    local result = ctx.db.execute(
-        [[SELECT command, SUM(use_count) AS total
-          FROM command_stats
-          WHERE chat_id = $1
-          GROUP BY command
-          ORDER BY total DESC
-          LIMIT 10]],
-        { message.chat.id }
-    )
+    local result = ctx.db.call('sp_get_top_commands', { message.chat.id })
 
     if not result or #result == 0 then
         return api.send_message(message.chat.id, 'No command statistics available for this chat yet.')

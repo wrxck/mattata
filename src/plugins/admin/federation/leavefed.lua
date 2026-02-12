@@ -18,11 +18,7 @@ plugin.admin_only = true
 function plugin.on_message(api, message, ctx)
     local chat_id = message.chat.id
 
-    -- Check if the chat is in a federation
-    local existing = ctx.db.execute(
-        'SELECT f.id, f.name FROM federations f JOIN federation_chats fc ON f.id = fc.federation_id WHERE fc.chat_id = $1',
-        { chat_id }
-    )
+    local existing = ctx.db.call('sp_get_chat_federation_joined', { chat_id })
     if not existing or #existing == 0 then
         return api.send_message(
             chat_id,
@@ -33,10 +29,7 @@ function plugin.on_message(api, message, ctx)
 
     local fed = existing[1]
 
-    ctx.db.execute(
-        'DELETE FROM federation_chats WHERE federation_id = $1 AND chat_id = $2',
-        { fed.id, chat_id }
-    )
+    ctx.db.call('sp_leave_federation', { fed.id, chat_id })
 
     return api.send_message(
         chat_id,

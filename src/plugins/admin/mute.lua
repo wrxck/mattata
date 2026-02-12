@@ -62,10 +62,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     pcall(function()
-        ctx.db.insert('admin_actions', {
-            chat_id = message.chat.id, admin_id = message.from.id,
-            target_id = user_id, action = 'mute', reason = reason
-        })
+        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'mute', reason })
     end)
 
     if reason and reason:lower():match('^for ') then reason = reason:sub(5) end

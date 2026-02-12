@@ -22,8 +22,8 @@ function plugin.on_message(api, message, ctx)
     }
 
     -- Database stats
-    local user_count = ctx.db.query('SELECT COUNT(*) AS count FROM users')
-    local chat_count = ctx.db.query('SELECT COUNT(*) AS count FROM chats')
+    local user_count = ctx.db.call('sp_count_users', {})
+    local chat_count = ctx.db.call('sp_count_chats', {})
     if user_count and user_count[1] then
         table.insert(lines, 'Users tracked: <code>' .. user_count[1].count .. '</code>')
     end

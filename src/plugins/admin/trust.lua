@@ -33,19 +33,10 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, 'That user is already trusted.')
     end
 
-    ctx.db.upsert('chat_members', {
-        chat_id = message.chat.id,
-        user_id = user_id,
-        role = 'trusted'
-    }, { 'chat_id', 'user_id' }, { 'role' })
+    ctx.db.call('sp_set_member_role', { message.chat.id, user_id, 'trusted' })
 
     pcall(function()
-        ctx.db.insert('admin_actions', {
-            chat_id = message.chat.id,
-            admin_id = message.from.id,
-            target_id = user_id,
-            action = 'trust'
-        })
+        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'trust', nil })
     end)
 
     local admin_name = tools.escape_html(message.from.first_name)

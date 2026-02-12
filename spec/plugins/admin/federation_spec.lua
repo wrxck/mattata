@@ -400,10 +400,10 @@ describe('plugins.admin.federation', function()
             env.db.set_next_result({})
             message.args = '222222'
             fbaninfo.on_message(env.api, message, ctx)
-            -- Verify it queried without chat_id constraint
+            -- Verify it used the "all" stored procedure (not group-scoped)
             local found_private_query = false
             for _, q in ipairs(env.db.queries) do
-                if q.sql and q.sql:match('federation_bans') and not q.sql:match('fc%.chat_id') then
+                if q.op == 'call' and q.func_name == 'sp_get_fban_info_all' then
                     found_private_query = true
                 end
             end

@@ -28,11 +28,7 @@ function plugin.on_message(api, message, ctx)
     fed_id = fed_id:match('^(%S+)')
     local chat_id = message.chat.id
 
-    -- Check if the chat is already in a federation
-    local existing = ctx.db.execute(
-        'SELECT f.id, f.name FROM federations f JOIN federation_chats fc ON f.id = fc.federation_id WHERE fc.chat_id = $1',
-        { chat_id }
-    )
+    local existing = ctx.db.call('sp_get_chat_federation_joined', { chat_id })
     if existing and #existing > 0 then
         return api.send_message(
             chat_id,
@@ -44,11 +40,7 @@ function plugin.on_message(api, message, ctx)
         )
     end
 
-    -- Check if the federation exists
-    local fed = ctx.db.execute(
-        'SELECT id, name FROM federations WHERE id = $1',
-        { fed_id }
-    )
+    local fed = ctx.db.call('sp_get_federation_basic', { fed_id })
     if not fed or #fed == 0 then
         return api.send_message(
             chat_id,
@@ -59,10 +51,7 @@ function plugin.on_message(api, message, ctx)
 
     fed = fed[1]
 
-    local result = ctx.db.execute(
-        'INSERT INTO federation_chats (federation_id, chat_id, joined_by) VALUES ($1, $2, $3)',
-        { fed.id, chat_id, message.from.id }
-    )
+    local result = ctx.db.call('sp_join_federation', { fed.id, chat_id, message.from.id })
     if not result then
         return api.send_message(
             chat_id,

@@ -16,11 +16,8 @@ function plugin.on_message(api, message, ctx)
 
     if message.command == 'get' then
         if not message.args then
-            -- List all saved notes
-            local notes = ctx.db.execute(
-                'SELECT note_name FROM saved_notes WHERE chat_id = $1 ORDER BY note_name',
-                { message.chat.id }
-            )
+            -- list all saved notes
+            local notes = ctx.db.call('sp_list_notes', { message.chat.id })
             if not notes or #notes == 0 then
                 return api.send_message(message.chat.id, 'No notes saved. An admin can save notes with /save <name> in reply to a message.')
             end
@@ -32,10 +29,7 @@ function plugin.on_message(api, message, ctx)
         end
 
         local name = message.args:lower():match('^(%S+)')
-        local note = ctx.db.execute(
-            'SELECT content, content_type, file_id FROM saved_notes WHERE chat_id = $1 AND note_name = $2',
-            { message.chat.id, name }
-        )
+        local note = ctx.db.call('sp_get_note', { message.chat.id, name })
         if not note or #note == 0 then
             return api.send_message(message.chat.id, string.format('Note <code>%s</code> not found.', tools.escape_html(name)), 'html')
         end
@@ -94,7 +88,7 @@ function plugin.on_message(api, message, ctx)
             file_id = message.reply.sticker.file_id
         end
     else
-        -- If no reply, save the text after the note name
+        -- if no reply, save the text after the note name
         local _, rest = message.args:match('^(%S+)%s+(.+)$')
         if rest then
             content = rest
@@ -103,14 +97,7 @@ function plugin.on_message(api, message, ctx)
         end
     end
 
-    ctx.db.upsert('saved_notes', {
-        chat_id = message.chat.id,
-        note_name = name,
-        content = content,
-        content_type = content_type,
-        file_id = file_id,
-        created_by = message.from.id
-    }, { 'chat_id', 'note_name' }, { 'content', 'content_type', 'file_id', 'created_by' })
+    ctx.db.call('sp_upsert_note', { message.chat.id, name, content, content_type, file_id, message.from.id })
 
     api.send_message(message.chat.id, string.format(
         'Note <code>%s</code> has been saved. Use /get %s to retrieve it.',

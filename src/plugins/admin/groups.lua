@@ -17,14 +17,9 @@ function plugin.on_message(api, message, ctx)
     local search = message.args and message.args:lower() or nil
     local result
     if search then
-        result = ctx.db.execute(
-            "SELECT chat_id, title, username FROM chats WHERE chat_type IN ('group', 'supergroup') AND LOWER(title) LIKE $1 ORDER BY title LIMIT 50",
-            { '%' .. search .. '%' }
-        )
+        result = ctx.db.call('sp_search_groups', { '%' .. search .. '%' })
     else
-        result = ctx.db.execute(
-            "SELECT chat_id, title, username FROM chats WHERE chat_type IN ('group', 'supergroup') ORDER BY title LIMIT 50"
-        )
+        result = ctx.db.call('sp_list_groups', {})
     end
 
     if not result or #result == 0 then
