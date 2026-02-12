@@ -1,7 +1,8 @@
 package = 'mattata'
-version = '2.0-0'
+version = '2.1-0'
 source = {
-    url = 'git://github.com/wrxck/mattata.git'
+    url = 'git://github.com/wrxck/mattata.git',
+    tag = 'v2.1.0'
 }
 description = {
     summary = 'A feature-rich Telegram bot written in Lua',
