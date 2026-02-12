@@ -43,7 +43,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     local body = table.concat(response_body)
-    local data, _, err = json.decode(body)
+    local data, _ = json.decode(body)
     if not data or not data.results or #data.results == 0 then
         return api.send_message(message.chat.id, 'No GIFs found for that query.')
     end

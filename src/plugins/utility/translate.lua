@@ -13,7 +13,6 @@ plugin.help = '/translate [lang] <text> - Translate text to the specified langua
 
 local https = require('ssl.https')
 local json = require('dkjson')
-local url = require('socket.url')
 local ltn12 = require('ltn12')
 local tools = require('telegram-bot-lua.tools')
 
@@ -82,29 +81,6 @@ local function translate_text(text, target, source)
         translated = data.translatedText,
         source_lang = data.detectedLanguage and data.detectedLanguage.language or source
     }
-end
-
-local function detect_language(text)
-    local request_body = json.encode({ q = text })
-    local body = {}
-    local _, code = https.request({
-        url = BASE_URL .. '/detect',
-        method = 'POST',
-        headers = {
-            ['Content-Type'] = 'application/json',
-            ['Content-Length'] = tostring(#request_body)
-        },
-        source = ltn12.source.string(request_body),
-        sink = ltn12.sink.table(body)
-    })
-    if code ~= 200 then
-        return 'auto'
-    end
-    local data = json.decode(table.concat(body))
-    if data and data[1] and data[1].language then
-        return data[1].language
-    end
-    return 'auto'
 end
 
 function plugin.on_message(api, message, ctx)

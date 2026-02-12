@@ -7,4 +7,6 @@ downloads/
 pgdata/
 redisdata/
 *.md
+*.rockspec
 LICENSE
+spec/

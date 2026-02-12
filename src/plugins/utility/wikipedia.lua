@@ -16,6 +16,8 @@ local url = require('socket.url')
 local ltn12 = require('ltn12')
 local tools = require('telegram-bot-lua.tools')
 
+local search_wikipedia_fallback
+
 local function search_wikipedia(query, lang)
     lang = lang or 'en'
     local encoded = url.escape(query)
@@ -44,7 +46,7 @@ local function search_wikipedia(query, lang)
     return data
 end
 
-function search_wikipedia_fallback(query, lang)
+search_wikipedia_fallback = function(query, lang)
     lang = lang or 'en'
     local encoded = url.escape(query)
     local search_url = string.format(

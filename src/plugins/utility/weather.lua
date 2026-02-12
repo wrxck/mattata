@@ -76,7 +76,10 @@ end
 
 local function get_weather(lat, lon)
     local request_url = string.format(
-        'https://api.open-meteo.com/v1/forecast?latitude=%.6f&longitude=%.6f&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m&temperature_unit=celsius&wind_speed_unit=kmh',
+        'https://api.open-meteo.com/v1/forecast?latitude=%.6f&longitude=%.6f'
+        .. '&current=temperature_2m,relative_humidity_2m,apparent_temperature'
+        .. ',weather_code,wind_speed_10m,wind_direction_10m'
+        .. '&temperature_unit=celsius&wind_speed_unit=kmh',
         lat, lon
     )
     local body = {}

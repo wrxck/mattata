@@ -81,7 +81,7 @@ function permissions.check_bot_can(api, chat_id, permission)
     -- Check cache first
     local cache_key = string.format('bot_perm:%s', permission)
     local cached = session.get_cached_setting(chat_id, cache_key, function()
-        local member, err = api.get_chat_member(chat_id, api.info.id)
+        local member, _ = api.get_chat_member(chat_id, api.info.id)
         if not member or not member.result then
             return nil
         end

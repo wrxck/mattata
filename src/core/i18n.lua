@@ -5,7 +5,6 @@
 
 local i18n = {}
 
-local config = require('src.core.config')
 local logger = require('src.core.logger')
 
 local languages = {}

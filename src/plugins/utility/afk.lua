@@ -98,7 +98,7 @@ function plugin.on_new_message(api, message, ctx)
 
     -- Check if the sender was AFK and auto-return them
     -- Skip if they just sent the /afk command itself
-    if not (message.command == 'afk') then
+    if message.command ~= 'afk' then
         local afk_data = session.get_afk(message.from.id)
         if afk_data then
             session.clear_afk(message.from.id)
