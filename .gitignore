@@ -1,0 +1,35 @@
+# Environment
+.env
+
+# Lua compiled
+*.luac
+
+# LuaRocks
+/lua_modules/
+/.luarocks/
+
+# Downloads & temp
+/downloads/
+/tmp/
+*.tmp
+
+# Backups
+/backups/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+pgdata/
+redisdata/
+
+# Old v1 config (use .env now)
+configuration.lua
