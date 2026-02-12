@@ -1,0 +1,10 @@
+.git
+.env
+.vscode
+.idea
+backups/
+downloads/
+pgdata/
+redisdata/
+*.md
+LICENSE
