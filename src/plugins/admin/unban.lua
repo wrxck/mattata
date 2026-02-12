@@ -35,10 +35,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, 'I couldn\'t unban that user.')
     end
     pcall(function()
-        ctx.db.insert('admin_actions', {
-            chat_id = message.chat.id, admin_id = message.from.id,
-            target_id = user_id, action = 'unban'
-        })
+        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'unban', nil })
     end)
     local admin_name = tools.escape_html(message.from.first_name)
     local target_info = api.get_chat(user_id)

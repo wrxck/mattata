@@ -14,10 +14,7 @@ plugin.admin_only = true
 function plugin.on_message(api, message, ctx)
     local tools = require('telegram-bot-lua.tools')
 
-    local triggers = ctx.db.execute(
-        'SELECT id, pattern, response, created_by, created_at FROM triggers WHERE chat_id = $1 ORDER BY created_at',
-        { message.chat.id }
-    )
+    local triggers = ctx.db.call('sp_get_triggers_full', { message.chat.id })
 
     if not triggers or #triggers == 0 then
         return api.send_message(message.chat.id, 'No triggers are set. Use /addtrigger <pattern> <response> to add one.')

@@ -47,26 +47,20 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, 'I can\'t warn an admin or moderator.')
     end
 
-    -- Increment warning count
+    -- increment warning count
     local hash = string.format('chat:%s:%s', message.chat.id, user_id)
     local amount = ctx.redis.hincrby(hash, 'warnings', 1)
     local max_warnings = tonumber(ctx.session.get_setting(message.chat.id, 'max warnings')) or DEFAULT_MAX_WARNINGS
 
-    -- Auto-ban if threshold reached
+    -- auto-ban if threshold reached
     if tonumber(amount) >= max_warnings then
         api.ban_chat_member(message.chat.id, user_id)
     end
 
-    -- Log to database
+    -- log to database
     pcall(function()
-        ctx.db.insert('warnings', {
-            chat_id = message.chat.id, user_id = user_id,
-            warned_by = message.from.id, reason = reason
-        })
-        ctx.db.insert('admin_actions', {
-            chat_id = message.chat.id, admin_id = message.from.id,
-            target_id = user_id, action = 'warn', reason = reason
-        })
+        ctx.db.call('sp_insert_warning', { message.chat.id, user_id, message.from.id, reason })
+        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'warn', reason })
     end)
 
     if reason and reason:lower():match('^for ') then reason = reason:sub(5) end

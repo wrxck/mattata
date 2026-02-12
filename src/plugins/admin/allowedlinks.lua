@@ -14,10 +14,7 @@ plugin.admin_only = true
 function plugin.on_message(api, message, ctx)
     local tools = require('telegram-bot-lua.tools')
 
-    local result = ctx.db.execute(
-        'SELECT link FROM allowed_links WHERE chat_id = $1 ORDER BY link',
-        { message.chat.id }
-    )
+    local result = ctx.db.call('sp_get_allowed_links', { message.chat.id })
 
     if not result or #result == 0 then
         return api.send_message(message.chat.id, 'No links are allowlisted. Use /allowlink <link> to add one.')

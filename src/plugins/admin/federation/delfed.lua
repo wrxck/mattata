@@ -29,10 +29,7 @@ function plugin.on_message(api, message, ctx)
 
     fed_id = fed_id:match('^(%S+)')
 
-    local fed = ctx.db.execute(
-        'SELECT id, name, owner_id FROM federations WHERE id = $1',
-        { fed_id }
-    )
+    local fed = ctx.db.call('sp_get_federation', { fed_id })
     if not fed or #fed == 0 then
         return api.send_message(
             message.chat.id,
@@ -94,10 +91,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
     end
 
     if data.action == 'confirm' then
-        local fed = ctx.db.execute(
-            'SELECT name, owner_id FROM federations WHERE id = $1',
-            { data.fed_id }
-        )
+        local fed = ctx.db.call('sp_get_federation_owner', { data.fed_id })
         if not fed or #fed == 0 then
             api.answer_callback_query(callback_query.id, 'Federation no longer exists.')
             return api.edit_message_text(
@@ -112,10 +106,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
             return api.answer_callback_query(callback_query.id, 'Only the federation owner can delete it.')
         end
 
-        ctx.db.execute(
-            'DELETE FROM federations WHERE id = $1',
-            { data.fed_id }
-        )
+        ctx.db.call('sp_delete_federation', { data.fed_id })
 
         api.answer_callback_query(callback_query.id, 'Federation deleted.')
         return api.edit_message_text(

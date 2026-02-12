@@ -16,10 +16,7 @@ function plugin.on_message(api, message, ctx)
 
     -- View current nickname
     if not input or input == '' then
-        local result = ctx.db.execute(
-            'SELECT nickname FROM users WHERE user_id = $1',
-            { message.from.id }
-        )
+        local result = ctx.db.call('sp_get_nickname', { message.from.id })
         if result and result[1] and result[1].nickname then
             return api.send_message(
                 message.chat.id,
@@ -32,10 +29,7 @@ function plugin.on_message(api, message, ctx)
 
     -- Delete nickname
     if input == '--delete' or input == '-d' then
-        ctx.db.execute(
-            'UPDATE users SET nickname = NULL WHERE user_id = $1',
-            { message.from.id }
-        )
+        ctx.db.call('sp_clear_nickname', { message.from.id })
         return api.send_message(message.chat.id, 'Your nickname has been removed.')
     end
 
@@ -45,10 +39,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     -- Set nickname
-    ctx.db.execute(
-        'UPDATE users SET nickname = $1 WHERE user_id = $2',
-        { input, message.from.id }
-    )
+    ctx.db.call('sp_set_nickname', { message.from.id, input })
     return api.send_message(
         message.chat.id,
         string.format('Your nickname has been set to: <b>%s</b>', tools.escape_html(input)),

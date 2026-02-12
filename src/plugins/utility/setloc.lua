@@ -19,10 +19,7 @@ function plugin.on_message(api, message, ctx)
     local input = message.args
     if not input or input == '' then
         -- Show current location
-        local result = ctx.db.execute(
-            'SELECT latitude, longitude, address FROM user_locations WHERE user_id = $1',
-            { message.from.id }
-        )
+        local result = ctx.db.call('sp_get_user_location', { message.from.id })
         if result and result[1] then
             return api.send_message(
                 message.chat.id,
@@ -60,13 +57,7 @@ function plugin.on_message(api, message, ctx)
     local address = result.display_name or input
 
     -- Upsert into user_locations
-    ctx.db.execute(
-        [[INSERT INTO user_locations (user_id, latitude, longitude, address, updated_at)
-          VALUES ($1, $2, $3, $4, NOW())
-          ON CONFLICT (user_id) DO UPDATE
-          SET latitude = $2, longitude = $3, address = $4, updated_at = NOW()]],
-        { message.from.id, lat, lng, address }
-    )
+    ctx.db.call('sp_upsert_user_location', { message.from.id, lat, lng, address })
 
     return api.send_message(
         message.chat.id,

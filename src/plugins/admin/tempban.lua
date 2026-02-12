@@ -70,10 +70,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     pcall(function()
-        ctx.db.insert('bans', {
-            chat_id = message.chat.id, user_id = user_id,
-            banned_by = message.from.id, expires_at = os.date('!%Y-%m-%d %H:%M:%S', until_date)
-        })
+        ctx.db.call('sp_insert_tempban', { message.chat.id, user_id, message.from.id, os.date('!%Y-%m-%d %H:%M:%S', until_date) })
     end)
 
     local admin_name = tools.escape_html(message.from.first_name)

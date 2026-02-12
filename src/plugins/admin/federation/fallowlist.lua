@@ -36,19 +36,13 @@ local function resolve_user(message, ctx)
 end
 
 local function get_chat_federation(db, chat_id)
-    local result = db.execute(
-        'SELECT f.id, f.name, f.owner_id FROM federations f JOIN federation_chats fc ON f.id = fc.federation_id WHERE fc.chat_id = $1',
-        { chat_id }
-    )
+    local result = db.call('sp_get_chat_federation', { chat_id })
     if result and #result > 0 then return result[1] end
     return nil
 end
 
 local function is_fed_admin(db, fed_id, user_id)
-    local result = db.execute(
-        'SELECT 1 FROM federation_admins WHERE federation_id = $1 AND user_id = $2',
-        { fed_id, user_id }
-    )
+    local result = db.call('sp_check_federation_admin', { fed_id, user_id })
     return result and #result > 0
 end
 
@@ -80,19 +74,10 @@ function plugin.on_message(api, message, ctx)
         )
     end
 
-    -- Check if already allowlisted
-    local existing = ctx.db.execute(
-        'SELECT 1 FROM federation_allowlist WHERE federation_id = $1 AND user_id = $2',
-        { fed.id, target_id }
-    )
+    local existing = ctx.db.call('sp_check_federation_allowlist', { fed.id, target_id })
 
     if existing and #existing > 0 then
-        -- Remove from allowlist
-        ctx.db.execute(
-            'DELETE FROM federation_allowlist WHERE federation_id = $1 AND user_id = $2',
-            { fed.id, target_id }
-        )
-        -- Invalidate Redis cache
+        ctx.db.call('sp_delete_federation_allowlist', { fed.id, target_id })
         ctx.redis.del(string.format('fallowlist:%s:%s', fed.id, target_id))
 
         return api.send_message(
@@ -104,12 +89,7 @@ function plugin.on_message(api, message, ctx)
             'html'
         )
     else
-        -- Add to allowlist
-        ctx.db.execute(
-            'INSERT INTO federation_allowlist (federation_id, user_id) VALUES ($1, $2)',
-            { fed.id, target_id }
-        )
-        -- Invalidate Redis cache
+        ctx.db.call('sp_insert_federation_allowlist', { fed.id, target_id })
         ctx.redis.del(string.format('fallowlist:%s:%s', fed.id, target_id))
 
         return api.send_message(

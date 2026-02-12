@@ -37,30 +37,15 @@ end
 function plugin.on_message(api, message, ctx)
     local target_id, target_name = resolve_user(message, ctx)
     if not target_id then
-        -- Default to the sender if no user specified
         target_id = message.from.id
         target_name = message.from.first_name
     end
 
-    -- Find all federations this chat belongs to (or all federations if in private)
     local bans
     if ctx.is_group then
-        bans = ctx.db.execute(
-            [[SELECT fb.reason, fb.banned_by, fb.banned_at, f.name, f.id
-              FROM federation_bans fb
-              JOIN federations f ON fb.federation_id = f.id
-              JOIN federation_chats fc ON f.id = fc.federation_id
-              WHERE fb.user_id = $1 AND fc.chat_id = $2]],
-            { target_id, message.chat.id }
-        )
+        bans = ctx.db.call('sp_get_fban_info_group', { target_id, message.chat.id })
     else
-        bans = ctx.db.execute(
-            [[SELECT fb.reason, fb.banned_by, fb.banned_at, f.name, f.id
-              FROM federation_bans fb
-              JOIN federations f ON fb.federation_id = f.id
-              WHERE fb.user_id = $1]],
-            { target_id }
-        )
+        bans = ctx.db.call('sp_get_fban_info_all', { target_id })
     end
 
     if not bans or #bans == 0 then

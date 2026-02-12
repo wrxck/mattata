@@ -36,19 +36,13 @@ local function resolve_user(message, ctx)
 end
 
 local function get_chat_federation(db, chat_id)
-    local result = db.execute(
-        'SELECT f.id, f.name, f.owner_id FROM federations f JOIN federation_chats fc ON f.id = fc.federation_id WHERE fc.chat_id = $1',
-        { chat_id }
-    )
+    local result = db.call('sp_get_chat_federation', { chat_id })
     if result and #result > 0 then return result[1] end
     return nil
 end
 
 local function is_fed_admin(db, fed_id, user_id)
-    local result = db.execute(
-        'SELECT 1 FROM federation_admins WHERE federation_id = $1 AND user_id = $2',
-        { fed_id, user_id }
-    )
+    local result = db.call('sp_check_federation_admin', { fed_id, user_id })
     return result and #result > 0
 end
 
@@ -84,11 +78,7 @@ function plugin.on_message(api, message, ctx)
         )
     end
 
-    -- Check if the user is actually banned
-    local ban = ctx.db.execute(
-        'SELECT 1 FROM federation_bans WHERE federation_id = $1 AND user_id = $2',
-        { fed.id, target_id }
-    )
+    local ban = ctx.db.call('sp_check_federation_ban_exists', { fed.id, target_id })
     if not ban or #ban == 0 then
         return api.send_message(
             message.chat.id,
@@ -101,20 +91,11 @@ function plugin.on_message(api, message, ctx)
         )
     end
 
-    -- Remove the ban record
-    ctx.db.execute(
-        'DELETE FROM federation_bans WHERE federation_id = $1 AND user_id = $2',
-        { fed.id, target_id }
-    )
+    ctx.db.call('sp_delete_federation_ban', { fed.id, target_id })
 
-    -- Invalidate Redis cache
     ctx.redis.del(string.format('fban:%s:%s', fed.id, target_id))
 
-    -- Unban in all federation chats
-    local chats = ctx.db.execute(
-        'SELECT chat_id FROM federation_chats WHERE federation_id = $1',
-        { fed.id }
-    )
+    local chats = ctx.db.call('sp_get_federation_chats', { fed.id })
 
     local success_count = 0
     local fail_count = 0

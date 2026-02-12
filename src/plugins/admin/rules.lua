@@ -14,20 +14,14 @@ plugin.admin_only = false
 function plugin.on_message(api, message, ctx)
     local tools = require('telegram-bot-lua.tools')
 
-    -- If /rules is used with args and user is admin, set rules
+    -- if /rules is used with args and user is admin, set rules
     if message.args and (ctx.is_admin or ctx.is_global_admin) then
-        ctx.db.upsert('rules', {
-            chat_id = message.chat.id,
-            rules_text = message.args
-        }, { 'chat_id' }, { 'rules_text' })
+        ctx.db.call('sp_upsert_rules', { message.chat.id, message.args })
         return api.send_message(message.chat.id, 'The rules have been updated.')
     end
 
-    -- Retrieve rules
-    local result = ctx.db.execute(
-        'SELECT rules_text FROM rules WHERE chat_id = $1',
-        { message.chat.id }
-    )
+    -- retrieve rules
+    local result = ctx.db.call('sp_get_rules', { message.chat.id })
     if not result or #result == 0 or not result[1].rules_text then
         return api.send_message(message.chat.id, 'No rules have been set for this group. An admin can set them with /rules <text>.')
     end

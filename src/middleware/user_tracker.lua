@@ -30,42 +30,37 @@ function user_tracker.run(ctx, message)
     -- Set dedup key with 60s TTL
     ctx.redis.setex(dedup_key, 60, '1')
 
-    -- Upsert user to PostgreSQL
+    -- upsert user to postgresql
+    local now = os.date('!%Y-%m-%d %H:%M:%S')
     pcall(function()
-        ctx.db.upsert('users', {
-            user_id = user_id,
-            username = user.username and user.username:lower() or nil,
-            first_name = user.first_name,
-            last_name = user.last_name,
-            language_code = user.language_code,
-            is_bot = user.is_bot or false,
-            last_seen = os.date('!%Y-%m-%d %H:%M:%S')
-        }, { 'user_id' }, {
-            'username', 'first_name', 'last_name', 'language_code', 'last_seen'
+        ctx.db.call('sp_upsert_user', {
+            user_id,
+            user.username and user.username:lower() or nil,
+            user.first_name,
+            user.last_name,
+            user.language_code,
+            user.is_bot or false,
+            now
         })
     end)
 
-    -- Upsert chat to PostgreSQL (for groups)
+    -- upsert chat to postgresql (for groups)
     if chat_id and message.chat.type ~= 'private' then
         pcall(function()
-            ctx.db.upsert('chats', {
-                chat_id = chat_id,
-                title = message.chat.title,
-                chat_type = message.chat.type,
-                username = message.chat.username and message.chat.username:lower() or nil
-            }, { 'chat_id' }, {
-                'title', 'chat_type', 'username'
+            ctx.db.call('sp_upsert_chat', {
+                chat_id,
+                message.chat.title,
+                message.chat.type,
+                message.chat.username and message.chat.username:lower() or nil
             })
         end)
 
-        -- Track user<->chat membership
+        -- track user<->chat membership
         pcall(function()
-            ctx.db.upsert('chat_members', {
-                chat_id = chat_id,
-                user_id = user_id,
-                last_seen = os.date('!%Y-%m-%d %H:%M:%S')
-            }, { 'chat_id', 'user_id' }, {
-                'last_seen'
+            ctx.db.call('sp_upsert_chat_member', {
+                chat_id,
+                user_id,
+                now
             })
         end)
     end

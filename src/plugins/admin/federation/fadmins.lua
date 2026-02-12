@@ -17,10 +17,7 @@ plugin.group_only = true
 plugin.admin_only = false
 
 local function get_chat_federation(db, chat_id)
-    local result = db.execute(
-        'SELECT f.id, f.name, f.owner_id FROM federations f JOIN federation_chats fc ON f.id = fc.federation_id WHERE fc.chat_id = $1',
-        { chat_id }
-    )
+    local result = db.call('sp_get_chat_federation', { chat_id })
     if result and #result > 0 then return result[1] end
     return nil
 end
@@ -41,10 +38,7 @@ function plugin.on_message(api, message, ctx)
         fed.owner_id
     )
 
-    local admins = ctx.db.execute(
-        'SELECT fa.user_id, fa.promoted_at FROM federation_admins fa WHERE fa.federation_id = $1 ORDER BY fa.promoted_at ASC',
-        { fed.id }
-    )
+    local admins = ctx.db.call('sp_get_federation_admins', { fed.id })
 
     if admins and #admins > 0 then
         output = output .. string.format('\n\n<b>Admins (%d):</b>', #admins)

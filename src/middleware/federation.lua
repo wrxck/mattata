@@ -25,10 +25,7 @@ function federation.run(ctx, message)
 
     -- Check if this chat belongs to a federation (cached)
     local fed_id = session.get_cached_setting(chat_id, 'federation_id', function()
-        local result = ctx.db.execute(
-            'SELECT federation_id FROM federation_chats WHERE chat_id = $1 LIMIT 1',
-            { chat_id }
-        )
+        local result = ctx.db.call('sp_get_chat_federation_id', { chat_id })
         if result and #result > 0 then
             return result[1].federation_id
         end
@@ -45,10 +42,7 @@ function federation.run(ctx, message)
     local ban_key = string.format('fban:%s:%s', fed_id, user_id)
     local is_banned = ctx.redis.get(ban_key)
     if is_banned == nil then
-        local ban = ctx.db.execute(
-            'SELECT reason FROM federation_bans WHERE federation_id = $1 AND user_id = $2',
-            { fed_id, user_id }
-        )
+        local ban = ctx.db.call('sp_check_federation_ban', { fed_id, user_id })
         if ban and #ban > 0 then
             ctx.redis.setex(ban_key, 300, ban[1].reason or 'Federation ban')
             is_banned = ban[1].reason or 'Federation ban'
@@ -63,10 +57,7 @@ function federation.run(ctx, message)
         local allowlist_key = string.format('fallowlist:%s:%s', fed_id, user_id)
         local is_allowed = ctx.redis.get(allowlist_key)
         if is_allowed == nil then
-            local allowed = ctx.db.execute(
-                'SELECT 1 FROM federation_allowlist WHERE federation_id = $1 AND user_id = $2',
-                { fed_id, user_id }
-            )
+            local allowed = ctx.db.call('sp_check_federation_allowlist', { fed_id, user_id })
             is_allowed = (allowed and #allowed > 0) and '1' or '0'
             ctx.redis.setex(allowlist_key, 300, is_allowed)
         end

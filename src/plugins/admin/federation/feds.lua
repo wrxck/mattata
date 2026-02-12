@@ -17,10 +17,7 @@ plugin.group_only = false
 plugin.admin_only = false
 
 local function get_chat_federation(db, chat_id)
-    local result = db.execute(
-        'SELECT f.id, f.name, f.owner_id FROM federations f JOIN federation_chats fc ON f.id = fc.federation_id WHERE fc.chat_id = $1',
-        { chat_id }
-    )
+    local result = db.call('sp_get_chat_federation', { chat_id })
     if result and #result > 0 then return result[1] end
     return nil
 end
@@ -30,10 +27,7 @@ function plugin.on_message(api, message, ctx)
     local fed
 
     if fed_id and fed_id ~= '' then
-        local result = ctx.db.execute(
-            'SELECT id, name, owner_id, created_at FROM federations WHERE id = $1',
-            { fed_id }
-        )
+        local result = ctx.db.call('sp_get_federation', { fed_id })
         if not result or #result == 0 then
             return api.send_message(
                 message.chat.id,
@@ -51,11 +45,7 @@ function plugin.on_message(api, message, ctx)
                 'html'
             )
         end
-        -- Fetch created_at since get_chat_federation doesn't include it
-        local full = ctx.db.execute(
-            'SELECT created_at FROM federations WHERE id = $1',
-            { fed.id }
-        )
+        local full = ctx.db.call('sp_get_federation', { fed.id })
         if full and #full > 0 then
             fed.created_at = full[1].created_at
         end
@@ -67,23 +57,11 @@ function plugin.on_message(api, message, ctx)
         )
     end
 
-    -- Get counts
-    local admin_count = ctx.db.execute(
-        'SELECT COUNT(*) AS count FROM federation_admins WHERE federation_id = $1',
-        { fed.id }
-    )
-    local chat_count = ctx.db.execute(
-        'SELECT COUNT(*) AS count FROM federation_chats WHERE federation_id = $1',
-        { fed.id }
-    )
-    local ban_count = ctx.db.execute(
-        'SELECT COUNT(*) AS count FROM federation_bans WHERE federation_id = $1',
-        { fed.id }
-    )
-
-    local admins = (admin_count and admin_count[1]) and tonumber(admin_count[1].count) or 0
-    local chats = (chat_count and chat_count[1]) and tonumber(chat_count[1].count) or 0
-    local bans = (ban_count and ban_count[1]) and tonumber(ban_count[1].count) or 0
+    local counts = ctx.db.call('sp_get_federation_counts', { fed.id })
+    local counts_row = (counts and counts[1]) or {}
+    local admins = tonumber(counts_row.admin_count) or 0
+    local chats = tonumber(counts_row.chat_count) or 0
+    local bans = tonumber(counts_row.ban_count) or 0
 
     local output = string.format(
         '<b>Federation Info</b>\n\nName: <b>%s</b>\nID: <code>%s</code>\nOwner: <code>%s</code>\nAdmins: %d\nChats: %d\nBans: %d',

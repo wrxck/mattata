@@ -32,18 +32,10 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, 'That user is not trusted.')
     end
 
-    ctx.db.execute(
-        "UPDATE chat_members SET role = 'member' WHERE chat_id = $1 AND user_id = $2",
-        { message.chat.id, user_id }
-    )
+    ctx.db.call('sp_reset_member_role', { message.chat.id, user_id })
 
     pcall(function()
-        ctx.db.insert('admin_actions', {
-            chat_id = message.chat.id,
-            admin_id = message.from.id,
-            target_id = user_id,
-            action = 'untrust'
-        })
+        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'untrust', nil })
     end)
 
     local admin_name = tools.escape_html(message.from.first_name)

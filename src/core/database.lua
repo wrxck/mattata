@@ -302,7 +302,27 @@ function database.upsert(table_name, data, conflict_keys, update_keys)
     return database.execute(sql, params)
 end
 
--- Get the raw pgmoon connection for advanced usage
+-- call a stored procedure: SELECT * FROM func_name($1, $2, ...)
+-- func_name is validated to contain only safe characters (alphanumeric + underscore)
+function database.call(func_name, params)
+    if not func_name:match('^[%w_]+$') then
+        logger.error('Invalid stored procedure name: %s', func_name)
+        return nil, 'Invalid stored procedure name'
+    end
+    params = params or {}
+    local placeholders = {}
+    for i = 1, #params do
+        placeholders[i] = '$' .. i
+    end
+    local sql = string.format(
+        'SELECT * FROM %s(%s)',
+        func_name,
+        table.concat(placeholders, ', ')
+    )
+    return database.execute(sql, params)
+end
+
+-- get the raw pgmoon connection for advanced usage
 function database.connection()
     return database.acquire()
 end

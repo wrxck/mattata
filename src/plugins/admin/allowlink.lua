@@ -25,9 +25,9 @@ function plugin.on_message(api, message, ctx)
         args = args:gsub('^%S+%s+', '')
     end
 
-    -- Normalise the link - extract the relevant part
+    -- normalise the link - extract the relevant part
     local link = args:match('^%s*(.-)%s*$')
-    -- Strip protocol and domain prefixes
+    -- strip protocol and domain prefixes
     link = link:gsub('^https?://', '')
     link = link:gsub('^[Tt]%.?[Mm][Ee]/', '')
     link = link:gsub('^[Tt][Ee][Ll][Ee][Gg][Rr][Aa][Mm]%.?[Mm][Ee]/', '')
@@ -39,34 +39,22 @@ function plugin.on_message(api, message, ctx)
     end
 
     if is_remove then
-        ctx.db.execute(
-            'DELETE FROM allowed_links WHERE chat_id = $1 AND link = $2',
-            { message.chat.id, link }
-        )
-        -- Also try with lowercase
-        ctx.db.execute(
-            'DELETE FROM allowed_links WHERE chat_id = $1 AND link = $2',
-            { message.chat.id, link:lower() }
-        )
+        ctx.db.call('sp_delete_allowed_link', { message.chat.id, link })
+        -- also try with lowercase
+        ctx.db.call('sp_delete_allowed_link', { message.chat.id, link:lower() })
         return api.send_message(message.chat.id, string.format(
             'Link <code>%s</code> has been removed from the allowed list.',
             tools.escape_html(link)
         ), 'html')
     end
 
-    -- Check if already allowed
-    local existing = ctx.db.execute(
-        'SELECT 1 FROM allowed_links WHERE chat_id = $1 AND link = $2',
-        { message.chat.id, link }
-    )
+    -- check if already allowed
+    local existing = ctx.db.call('sp_check_allowed_link', { message.chat.id, link })
     if existing and #existing > 0 then
         return api.send_message(message.chat.id, 'That link is already allowed.')
     end
 
-    ctx.db.insert('allowed_links', {
-        chat_id = message.chat.id,
-        link = link
-    })
+    ctx.db.call('sp_insert_allowed_link', { message.chat.id, link })
 
     api.send_message(message.chat.id, string.format(
         'Link <code>%s</code> has been added to the allowed list.',

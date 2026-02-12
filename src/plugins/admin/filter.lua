@@ -31,23 +31,17 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, 'Please provide a pattern to filter.')
     end
 
-    -- Validate regex pattern
+    -- validate regex pattern
     local ok = pcall(string.match, '', pattern)
     if not ok then
         return api.send_message(message.chat.id, 'Invalid pattern. Please provide a valid Lua pattern.')
     end
 
-    -- Check for duplicate
-    local existing = ctx.db.execute(
-        'SELECT id FROM filters WHERE chat_id = $1 AND pattern = $2',
-        { message.chat.id, pattern }
-    )
+    -- check for duplicate
+    local existing = ctx.db.call('sp_get_filter', { message.chat.id, pattern })
     if existing and #existing > 0 then
-        -- Update the action if filter already exists
-        ctx.db.execute(
-            'UPDATE filters SET action = $1 WHERE chat_id = $2 AND pattern = $3',
-            { action, message.chat.id, pattern }
-        )
+        -- update the action if filter already exists
+        ctx.db.call('sp_update_filter_action', { action, message.chat.id, pattern })
         require('src.core.session').invalidate_cached_list(message.chat.id, 'filters')
         return api.send_message(message.chat.id, string.format(
             'Filter <code>%s</code> updated with action: <b>%s</b>.',
@@ -55,14 +49,9 @@ function plugin.on_message(api, message, ctx)
         ), 'html')
     end
 
-    ctx.db.insert('filters', {
-        chat_id = message.chat.id,
-        pattern = pattern,
-        action = action,
-        created_by = message.from.id
-    })
+    ctx.db.call('sp_insert_filter', { message.chat.id, pattern, action, message.from.id })
 
-    -- Invalidate filter cache
+    -- invalidate filter cache
     require('src.core.session').invalidate_cached_list(message.chat.id, 'filters')
 
     api.send_message(message.chat.id, string.format(
