@@ -1,6 +1,7 @@
 --[[
-    mattata v2.0 - Mock Telegram Bot API
+    mattata v2.1 - Mock Telegram Bot API
     Records all calls and returns configurable responses for testing.
+    Includes async/handler stubs for copas-based concurrency support.
 ]]
 
 local mock_api = {}
@@ -178,6 +179,32 @@ function mock_api.new()
             end
             return { ok = true, result = { status = 'member', user = { id = uid } } }
         end
+    end
+
+    -- Handler stubs (overwritten by router.run() in production)
+    api.on_message = function() end
+    api.on_edited_message = function() end
+    api.on_callback_query = function() end
+    api.on_inline_query = function() end
+
+    -- Async stubs (telegram-bot-lua async system)
+    api.async = {
+        run = function() end,
+        stop = function() end,
+        all = function(fns) return {} end,
+        spawn = function(fn) if fn then fn() end end,
+        sleep = function() end,
+        is_running = function() return false end,
+    }
+
+    -- api.run stub — no-op (prevents tests from entering copas.loop)
+    function api.run(opts)
+        record('run', opts)
+    end
+
+    -- process_update stub
+    function api.process_update(update)
+        record('process_update', update)
     end
 
     function api.reset()
