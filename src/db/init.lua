@@ -45,16 +45,38 @@ function migrations.run(db)
                 local sql = mod.up()
                 local migration_ok = true
                 local migration_err = nil
-                -- Split on semicolons and execute each statement
-                for statement in sql:gmatch('[^;]+') do
-                    statement = statement:match('^%s*(.-)%s*$')
-                    if statement ~= '' then
-                        local result, err = db.query(statement)
-                        if not result and err then
-                            migration_ok = false
-                            migration_err = err
-                            break
+                -- Split on semicolons, respecting $$-delimited blocks
+                local statements = {}
+                local current = ''
+                local in_dollar = false
+                local i = 1
+                while i <= #sql do
+                    if sql:sub(i, i + 1) == '$$' then
+                        in_dollar = not in_dollar
+                        current = current .. '$$'
+                        i = i + 2
+                    elseif sql:sub(i, i) == ';' and not in_dollar then
+                        local trimmed = current:match('^%s*(.-)%s*$')
+                        if trimmed ~= '' then
+                            statements[#statements + 1] = trimmed
                         end
+                        current = ''
+                        i = i + 1
+                    else
+                        current = current .. sql:sub(i, i)
+                        i = i + 1
+                    end
+                end
+                local trimmed = current:match('^%s*(.-)%s*$')
+                if trimmed ~= '' then
+                    statements[#statements + 1] = trimmed
+                end
+                for _, statement in ipairs(statements) do
+                    local result, err = db.query(statement)
+                    if not result and err then
+                        migration_ok = false
+                        migration_err = err
+                        break
                     end
                 end
 

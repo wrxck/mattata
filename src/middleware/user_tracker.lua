@@ -33,7 +33,7 @@ function user_tracker.run(ctx, message)
     -- upsert user to postgresql
     local now = os.date('!%Y-%m-%d %H:%M:%S')
     pcall(function()
-        ctx.db.call('sp_upsert_user', {
+        ctx.db.call('sp_upsert_user', table.pack(
             user_id,
             user.username and user.username:lower() or nil,
             user.first_name,
@@ -41,18 +41,18 @@ function user_tracker.run(ctx, message)
             user.language_code,
             user.is_bot or false,
             now
-        })
+        ))
     end)
 
     -- upsert chat to postgresql (for groups)
     if chat_id and message.chat.type ~= 'private' then
         pcall(function()
-            ctx.db.call('sp_upsert_chat', {
+            ctx.db.call('sp_upsert_chat', table.pack(
                 chat_id,
                 message.chat.title,
                 message.chat.type,
                 message.chat.username and message.chat.username:lower() or nil
-            })
+            ))
         end)
 
         -- track user<->chat membership

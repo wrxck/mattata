@@ -910,7 +910,7 @@ CREATE OR REPLACE FUNCTION sp_get_admin_federations(
     JOIN federation_admins fa ON f.id = fa.federation_id
     WHERE fa.user_id = p_user_id AND f.owner_id != p_user_id
     ORDER BY fa.promoted_at ASC;
-$$ LANGUAGE sql
+$$ LANGUAGE sql;
 
     ]]
 end
