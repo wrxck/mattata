@@ -8,7 +8,6 @@ blocklist.name = 'blocklist'
 
 local config = require('src.core.config')
 local session = require('src.core.session')
-local logger = require('src.core.logger')
 
 function blocklist.run(ctx, message)
     if not message.from then

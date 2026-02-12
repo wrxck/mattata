@@ -11,14 +11,6 @@ plugin.help = '/filter <pattern> [action] - Adds a filter. Actions: delete (defa
 plugin.group_only = true
 plugin.admin_only = true
 
-local VALID_ACTIONS = {
-    delete = true,
-    warn = true,
-    ban = true,
-    kick = true,
-    mute = true
-}
-
 function plugin.on_message(api, message, ctx)
     local tools = require('telegram-bot-lua.tools')
 

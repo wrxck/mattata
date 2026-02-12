@@ -50,7 +50,6 @@ function plugin.on_message(api, message, ctx)
     end
 
     -- Show main help menu
-    local bot_name = ctx.config.bot_name()
     local name = tools.escape_html(message.from.first_name)
     local output = string.format(
         'Hey %s! I\'m <b>%s</b>, a feature-rich Telegram bot.\n\nUse the buttons below to navigate my commands, or type <code>/help &lt;command&gt;</code> for details on a specific command.',

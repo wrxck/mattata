@@ -52,16 +52,6 @@ local function convert(amount, from, to)
     }
 end
 
-local function get_supported_currencies()
-    local body = {}
-    local _, code = https.request({
-        url = 'https://api.frankfurter.app/currencies',
-        sink = ltn12.sink.table(body)
-    })
-    if code ~= 200 then return nil end
-    return json.decode(table.concat(body))
-end
-
 local function format_number(n)
     if n >= 1 then
         return string.format('%.2f', n)

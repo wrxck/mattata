@@ -175,8 +175,8 @@ describe('plugins.admin.federation', function()
         end)
 
         it('should require federation admin/owner permission', function()
-            env.db.set_next_result({ { id = 'fed-1', name = 'Fed', owner_id = 999 } })
-            env.db.set_next_result({})  -- not a fed admin
+            env.db.queue_result({ { id = 'fed-1', name = 'Fed', owner_id = 999 } })
+            env.db.queue_result({})  -- not a fed admin
             message.from.id = 111111
             fban.on_message(env.api, message, ctx)
             test_helper.assert_sent_message_matches(env.api, 'federation owner or a federation admin')
@@ -288,8 +288,8 @@ describe('plugins.admin.federation', function()
         end)
 
         it('should require federation admin permission', function()
-            env.db.set_next_result({ { id = 'fed-1', name = 'Fed', owner_id = 999 } })
-            env.db.set_next_result({})  -- not a fed admin
+            env.db.queue_result({ { id = 'fed-1', name = 'Fed', owner_id = 999 } })
+            env.db.queue_result({})  -- not a fed admin
             message.from.id = 111111
             unfban.on_message(env.api, message, ctx)
             test_helper.assert_sent_message_matches(env.api, 'federation owner or a federation admin')

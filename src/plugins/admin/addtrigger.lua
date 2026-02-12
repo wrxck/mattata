@@ -15,7 +15,10 @@ function plugin.on_message(api, message, ctx)
     local tools = require('telegram-bot-lua.tools')
 
     if not message.args then
-        return api.send_message(message.chat.id, 'Usage: /addtrigger <pattern> <response>\n\nThe pattern is a Lua pattern that will be matched against incoming messages. When matched, the response is sent.')
+        return api.send_message(message.chat.id,
+            'Usage: /addtrigger <pattern> <response>\n\n'
+            .. 'The pattern is a Lua pattern that will be matched against incoming messages. '
+            .. 'When matched, the response is sent.')
     end
 
     -- If used with /deltrigger, handle deletion

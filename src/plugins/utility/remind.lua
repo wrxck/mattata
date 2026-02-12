@@ -145,7 +145,14 @@ function plugin.on_message(api, message, ctx)
     if not input or input == '' then
         return api.send_message(
             message.chat.id,
-            'Usage: <code>/remind &lt;duration&gt; &lt;message&gt;</code>\n\nDurations: <code>30m</code>, <code>2h</code>, <code>1d</code>, <code>2h30m</code>\nMax: 7 days. Max 4 reminders per chat.\n\nExamples:\n<code>/remind 30m check the oven</code>\n<code>/remind 2h30m meeting with John</code>\n<code>/remind 1d renew subscription</code>',
+            'Usage: <code>/remind &lt;duration&gt; &lt;message&gt;</code>\n\n'
+            .. 'Durations: <code>30m</code>, <code>2h</code>, <code>1d</code>, '
+            .. '<code>2h30m</code>\n'
+            .. 'Max: 7 days. Max 4 reminders per chat.\n\n'
+            .. 'Examples:\n'
+            .. '<code>/remind 30m check the oven</code>\n'
+            .. '<code>/remind 2h30m meeting with John</code>\n'
+            .. '<code>/remind 1d renew subscription</code>',
             'html'
         )
     end
@@ -257,7 +264,7 @@ function plugin.cron(api, ctx)
                         tools.escape_html(first_name),
                         tools.escape_html(text)
                     )
-                    local ok, err = pcall(function()
+                    pcall(function()
                         api.send_message(tonumber(chat_id), output, 'html')
                     end)
                 end

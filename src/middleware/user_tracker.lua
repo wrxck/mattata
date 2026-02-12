@@ -7,8 +7,6 @@
 local user_tracker = {}
 user_tracker.name = 'user_tracker'
 
-local logger = require('src.core.logger')
-
 function user_tracker.run(ctx, message)
     if not message.from then
         return ctx, true

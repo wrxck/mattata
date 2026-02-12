@@ -25,7 +25,10 @@ function plugin.on_message(api, message, ctx)
         local status = (enabled and #enabled > 0 and enabled[1].value == 'true') and 'enabled' or 'disabled'
         local timeout_val = (timeout and #timeout > 0) and timeout[1].value or '300'
         return api.send_message(message.chat.id, string.format(
-            '<b>Captcha settings:</b>\nStatus: %s\nTimeout: %s seconds\n\nUsage:\n<code>/setcaptcha on</code> - Enable captcha\n<code>/setcaptcha off</code> - Disable captcha\n<code>/setcaptcha timeout &lt;seconds&gt;</code> - Set timeout',
+            '<b>Captcha settings:</b>\nStatus: %s\nTimeout: %s seconds\n\n'
+            .. 'Usage:\n<code>/setcaptcha on</code> - Enable captcha\n'
+            .. '<code>/setcaptcha off</code> - Disable captcha\n'
+            .. '<code>/setcaptcha timeout &lt;seconds&gt;</code> - Set timeout',
             status, timeout_val
         ), 'html')
     end

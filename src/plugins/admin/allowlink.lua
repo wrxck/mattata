@@ -39,7 +39,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     if is_remove then
-        local result = ctx.db.execute(
+        ctx.db.execute(
             'DELETE FROM allowed_links WHERE chat_id = $1 AND link = $2',
             { message.chat.id, link }
         )

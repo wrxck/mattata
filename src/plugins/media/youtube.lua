@@ -48,7 +48,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     local body = table.concat(response_body)
-    local data, _, err = json.decode(body)
+    local data, _ = json.decode(body)
     if not data or not data.items or #data.items == 0 then
         return api.send_message(message.chat.id, 'No results found for that query.')
     end

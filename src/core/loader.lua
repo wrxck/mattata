@@ -7,23 +7,17 @@
 local loader = {}
 
 local logger = require('src.core.logger')
-local config = require('src.core.config')
 
 local plugins = {}          -- ordered list of all loaded plugins
 local by_command = {}        -- command -> plugin lookup
 local by_name = {}           -- name -> plugin lookup
 local categories = {}        -- category -> list of plugin names
 
-local api, db, redis
-
 local PERMANENT_PLUGINS = { 'help', 'about', 'plugins' }
 
 local CATEGORIES = { 'admin', 'utility', 'fun', 'media', 'ai' }
 
-function loader.init(api_ref, db_ref, redis_ref)
-    api = api_ref
-    db = db_ref
-    redis = redis_ref
+function loader.init(_, _, _)
     plugins = {}
     by_command = {}
     by_name = {}

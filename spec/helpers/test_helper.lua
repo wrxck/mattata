@@ -5,6 +5,7 @@
 
 local test_helper = {}
 
+local assert = require('luassert')
 local mock_api = require('spec.helpers.mock_api')
 local mock_db = require('spec.helpers.mock_db')
 local mock_redis = require('spec.helpers.mock_redis')

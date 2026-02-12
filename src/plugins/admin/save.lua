@@ -13,7 +13,6 @@ plugin.admin_only = false
 
 function plugin.on_message(api, message, ctx)
     local tools = require('telegram-bot-lua.tools')
-    local permissions = require('src.core.permissions')
 
     if message.command == 'get' then
         if not message.args then

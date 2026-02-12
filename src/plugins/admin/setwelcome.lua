@@ -25,7 +25,11 @@ function plugin.on_message(api, message, ctx)
     end
 
     if not message.args then
-        return api.send_message(message.chat.id, 'Please provide the welcome message text.\n\nPlaceholders: <code>$name</code>, <code>$title</code>, <code>$id</code>, <code>$username</code>, <code>$mention</code>', 'html')
+        return api.send_message(message.chat.id,
+            'Please provide the welcome message text.\n\n'
+            .. 'Placeholders: <code>$name</code>, <code>$title</code>, '
+            .. '<code>$id</code>, <code>$username</code>, <code>$mention</code>',
+            'html')
     end
 
     ctx.db.upsert('welcome_messages', {
