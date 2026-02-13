@@ -61,10 +61,11 @@ describe('middleware.captcha', function()
 
     describe('pending captcha', function()
         before_each(function()
-            -- Set up a pending captcha
+            -- Set up a pending captcha (hash for data + sentinel key for EXISTS fast path)
             local hash = string.format('chat:%s:captcha:%s', message.chat.id, message.from.id)
             env.redis.hset(hash, 'text', 'ABCD')
             env.redis.hset(hash, 'id', '42')
+            env.redis.set('captcha:' .. message.chat.id .. ':' .. message.from.id, '1')
         end)
 
         it('should block regular messages from unverified users', function()

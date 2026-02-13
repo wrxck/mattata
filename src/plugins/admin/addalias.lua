@@ -25,7 +25,7 @@ function plugin.on_message(api, message, ctx)
             output = output .. string.format('/<code>%s</code> -> /<code>%s</code>\n',
                 tools.escape_html(alias), tools.escape_html(original))
         end
-        return api.send_message(message.chat.id, output, 'html')
+        return api.send_message(message.chat.id, output, { parse_mode = 'html' })
     end
 
     local alias, command = message.args:lower():match('^(%S+)%s+(%S+)$')
@@ -46,7 +46,7 @@ function plugin.on_message(api, message, ctx)
     api.send_message(message.chat.id, string.format(
         'Alias created: /<code>%s</code> -> /<code>%s</code>',
         tools.escape_html(alias), tools.escape_html(command)
-    ), 'html')
+    ), { parse_mode = 'html' })
 end
 
 return plugin

@@ -68,7 +68,7 @@ function plugin.on_message(api, message, ctx)
         output = output .. '<b>Moderators (' .. #mod_list .. '):</b>\n' .. table.concat(mod_list, '\n') .. '\n'
     end
 
-    api.send_message(message.chat.id, output, 'html')
+    api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

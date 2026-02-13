@@ -35,7 +35,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, 'I couldn\'t unban that user.')
     end
     pcall(function()
-        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'unban', nil })
+        ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, user_id, 'unban', nil))
     end)
     local admin_name = tools.escape_html(message.from.first_name)
     local target_info = api.get_chat(user_id)
@@ -43,7 +43,7 @@ function plugin.on_message(api, message, ctx)
     return api.send_message(message.chat.id, string.format(
         '<a href="tg://user?id=%d">%s</a> has unbanned <a href="tg://user?id=%d">%s</a>.',
         message.from.id, admin_name, user_id, target_name
-    ), 'html')
+    ), { parse_mode = 'html' })
 end
 
 return plugin

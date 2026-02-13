@@ -25,7 +25,7 @@ function plugin.on_message(api, message, ctx)
             output = output .. string.format('%d. <code>%s</code> [%s]\n', i, tools.escape_html(f.pattern), f.action)
         end
         output = output .. '\nUse /unfilter <pattern> to remove a filter.'
-        return api.send_message(message.chat.id, output, 'html')
+        return api.send_message(message.chat.id, output, { parse_mode = 'html' })
     end
 
     local pattern = message.args:match('^%s*(.-)%s*$')
@@ -35,7 +35,7 @@ function plugin.on_message(api, message, ctx)
         api.send_message(message.chat.id, string.format(
             'Filter <code>%s</code> has been removed.',
             tools.escape_html(pattern)
-        ), 'html')
+        ), { parse_mode = 'html' })
     else
         -- try by index number
         local index = tonumber(pattern)
@@ -46,7 +46,7 @@ function plugin.on_message(api, message, ctx)
                 return api.send_message(message.chat.id, string.format(
                     'Filter <code>%s</code> has been removed.',
                     tools.escape_html(filters[index].pattern)
-                ), 'html')
+                ), { parse_mode = 'html' })
             end
         end
         api.send_message(message.chat.id, 'That filter doesn\'t exist. Use /unfilter without arguments to see all filters.')

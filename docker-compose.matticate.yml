@@ -1,0 +1,13 @@
+services:
+  bot:
+    build: .
+    env_file: .env.matticate
+    networks:
+      - databases
+    restart: unless-stopped
+    volumes:
+      - ./downloads-matticate:/app/downloads
+
+networks:
+  databases:
+    external: true

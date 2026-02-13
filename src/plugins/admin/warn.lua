@@ -59,8 +59,8 @@ function plugin.on_message(api, message, ctx)
 
     -- log to database
     pcall(function()
-        ctx.db.call('sp_insert_warning', { message.chat.id, user_id, message.from.id, reason })
-        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'warn', reason })
+        ctx.db.call('sp_insert_warning', table.pack(message.chat.id, user_id, message.from.id, reason))
+        ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, user_id, 'warn', reason))
     end)
 
     if reason and reason:lower():match('^for ') then reason = reason:sub(5) end
@@ -89,7 +89,7 @@ function plugin.on_message(api, message, ctx)
             'Remove 1', string.format('warn:remove:%s:%s', message.chat.id, user_id)
         )
     )
-    api.send_message(message.chat.id, output, 'html', true, false, nil, keyboard)
+    api.send_message(message.chat.id, output, { parse_mode = 'html', link_preview_options = { is_disabled = true }, reply_markup = keyboard })
     if message.reply then
         pcall(function() api.delete_message(message.chat.id, message.reply.message_id) end)
     end
@@ -103,28 +103,28 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
     if callback_query.data:match('^reset:%-?%d+:%d+$') then
         local chat_id, user_id = callback_query.data:match('^reset:(%-?%d+):(%d+)$')
         if not permissions.is_group_admin(api, tonumber(chat_id), callback_query.from.id) then
-            return api.answer_callback_query(callback_query.id, 'You need to be an admin.')
+            return api.answer_callback_query(callback_query.id, { text = 'You need to be an admin.' })
         end
         ctx.redis.hdel(string.format('chat:%s:%s', chat_id, user_id), 'warnings')
         local name = callback_query.from.username and ('@' .. callback_query.from.username) or tools.escape_html(callback_query.from.first_name)
         return api.edit_message_text(message.chat.id, message.message_id,
-            '<pre>Warnings reset by ' .. name .. '!</pre>', 'html')
+            '<pre>Warnings reset by ' .. name .. '!</pre>', { parse_mode = 'html' })
 
     elseif callback_query.data:match('^remove:%-?%d+:%d+$') then
         local chat_id, user_id = callback_query.data:match('^remove:(%-?%d+):(%d+)$')
         if not permissions.is_group_admin(api, tonumber(chat_id), callback_query.from.id) then
-            return api.answer_callback_query(callback_query.id, 'You need to be an admin.')
+            return api.answer_callback_query(callback_query.id, { text = 'You need to be an admin.' })
         end
         local hash = string.format('chat:%s:%s', chat_id, user_id)
         local amount = ctx.redis.hincrby(hash, 'warnings', -1)
         if tonumber(amount) < 0 then
             ctx.redis.hincrby(hash, 'warnings', 1)
-            return api.answer_callback_query(callback_query.id, 'No warnings to remove!')
+            return api.answer_callback_query(callback_query.id, { text = 'No warnings to remove!' })
         end
         local max_warnings = tonumber(ctx.session.get_setting(tonumber(chat_id), 'max warnings')) or DEFAULT_MAX_WARNINGS
         local name = callback_query.from.username and ('@' .. callback_query.from.username) or tools.escape_html(callback_query.from.first_name)
         return api.edit_message_text(message.chat.id, message.message_id,
-            string.format('<pre>Warning removed by %s! [%s/%s]</pre>', name, amount, max_warnings), 'html')
+            string.format('<pre>Warning removed by %s! [%s/%s]</pre>', name, amount, max_warnings), { parse_mode = 'html' })
     end
 end
 

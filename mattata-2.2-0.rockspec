@@ -1,7 +1,8 @@
 package = 'mattata'
-version = '2.0-0'
+version = '2.2-0'
 source = {
-    url = 'git://github.com/wrxck/mattata.git'
+    url = 'git://github.com/wrxck/mattata.git',
+    tag = 'v2.2.0'
 }
 description = {
     summary = 'A feature-rich Telegram bot written in Lua',
@@ -24,6 +25,7 @@ build = {
         ['mattata.core.middleware'] = 'src/core/middleware.lua',
         ['mattata.core.database'] = 'src/core/database.lua',
         ['mattata.core.redis'] = 'src/core/redis.lua',
+        ['mattata.core.http'] = 'src/core/http.lua',
         ['mattata.core.i18n'] = 'src/core/i18n.lua',
         ['mattata.core.logger'] = 'src/core/logger.lua',
         ['mattata.core.permissions'] = 'src/core/permissions.lua',

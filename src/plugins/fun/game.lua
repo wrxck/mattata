@@ -126,7 +126,7 @@ function plugin.on_message(api, message, ctx)
     local status = format_status(game_state, nil)
     local keyboard = build_keyboard(api, board, false)
 
-    local result = api.send_message(message.chat.id, status, 'html', true, false, nil, keyboard)
+    local result = api.send_message(message.chat.id, status, { parse_mode = 'html', link_preview_options = { is_disabled = true }, reply_markup = keyboard })
     if result and result.result and result.result.message_id then
         local key = game_key(message.chat.id, result.result.message_id)
         ctx.redis.setex(key, 3600, json.encode(game_state))
@@ -142,18 +142,18 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
 
     local idx = tonumber(data:match('^move:(%d+)$'))
     if not idx or idx < 1 or idx > 9 then
-        return api.answer_callback_query(callback_query.id, 'Invalid move.')
+        return api.answer_callback_query(callback_query.id, { text = 'Invalid move.' })
     end
 
     local key = game_key(message.chat.id, message.message_id)
     local raw = ctx.redis.get(key)
     if not raw then
-        return api.answer_callback_query(callback_query.id, 'This game has expired.')
+        return api.answer_callback_query(callback_query.id, { text = 'This game has expired.' })
     end
 
     local game_state, _ = json.decode(raw)
     if not game_state then
-        return api.answer_callback_query(callback_query.id, 'Failed to load game state.')
+        return api.answer_callback_query(callback_query.id, { text = 'Failed to load game state.' })
     end
 
     local user_id = callback_query.from.id
@@ -162,7 +162,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
     -- If no opponent yet, the first person who clicks (that isn't X) becomes O
     if not game_state.o_id then
         if user_id == game_state.x_id then
-            return api.answer_callback_query(callback_query.id, 'Waiting for an opponent to join. Another user must click a cell.')
+            return api.answer_callback_query(callback_query.id, { text = 'Waiting for an opponent to join. Another user must click a cell.' })
         end
         game_state.o_id = user_id
         game_state.o_name = user_name
@@ -172,14 +172,14 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
     local expected_id = game_state.turn == X and game_state.x_id or game_state.o_id
     if user_id ~= expected_id then
         if user_id ~= game_state.x_id and user_id ~= game_state.o_id then
-            return api.answer_callback_query(callback_query.id, 'You are not a player in this game.')
+            return api.answer_callback_query(callback_query.id, { text = 'You are not a player in this game.' })
         end
-        return api.answer_callback_query(callback_query.id, 'It\'s not your turn.')
+        return api.answer_callback_query(callback_query.id, { text = 'It\'s not your turn.' })
     end
 
     -- Check cell is empty
     if game_state.board[idx] ~= EMPTY then
-        return api.answer_callback_query(callback_query.id, 'That cell is already taken.')
+        return api.answer_callback_query(callback_query.id, { text = 'That cell is already taken.' })
     end
 
     -- Make the move
@@ -192,7 +192,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         local keyboard = build_keyboard(api, game_state.board, true)
         ctx.redis.del(key)
         api.answer_callback_query(callback_query.id)
-        return api.edit_message_text(message.chat.id, message.message_id, status, 'html', true, keyboard)
+        return api.edit_message_text(message.chat.id, message.message_id, status, { parse_mode = 'html', link_preview_options = { is_disabled = true }, reply_markup = keyboard })
     end
 
     -- Switch turns
@@ -202,7 +202,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
 
     ctx.redis.setex(key, 3600, json.encode(game_state))
     api.answer_callback_query(callback_query.id)
-    return api.edit_message_text(message.chat.id, message.message_id, status, 'html', true, keyboard)
+    return api.edit_message_text(message.chat.id, message.message_id, status, { parse_mode = 'html', link_preview_options = { is_disabled = true }, reply_markup = keyboard })
 end
 
 return plugin

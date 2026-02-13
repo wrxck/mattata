@@ -25,28 +25,28 @@ function plugin.on_message(api, message, ctx)
             for _, note in ipairs(notes) do
                 output = output .. '- <code>' .. tools.escape_html(note.note_name) .. '</code>\n'
             end
-            return api.send_message(message.chat.id, output, 'html')
+            return api.send_message(message.chat.id, output, { parse_mode = 'html' })
         end
 
         local name = message.args:lower():match('^(%S+)')
         local note = ctx.db.call('sp_get_note', { message.chat.id, name })
         if not note or #note == 0 then
-            return api.send_message(message.chat.id, string.format('Note <code>%s</code> not found.', tools.escape_html(name)), 'html')
+            return api.send_message(message.chat.id, string.format('Note <code>%s</code> not found.', tools.escape_html(name)), { parse_mode = 'html' })
         end
 
         local n = note[1]
         if n.content_type == 'photo' and n.file_id then
-            api.send_photo(message.chat.id, n.file_id, n.content)
+            api.send_photo(message.chat.id, n.file_id, { caption = n.content })
         elseif n.content_type == 'document' and n.file_id then
-            api.send_document(message.chat.id, n.file_id, n.content)
+            api.send_document(message.chat.id, n.file_id, { caption = n.content })
         elseif n.content_type == 'video' and n.file_id then
-            api.send_video(message.chat.id, n.file_id, nil, nil, nil, n.content)
+            api.send_video(message.chat.id, n.file_id, { caption = n.content })
         elseif n.content_type == 'audio' and n.file_id then
-            api.send_audio(message.chat.id, n.file_id, n.content)
+            api.send_audio(message.chat.id, n.file_id, { caption = n.content })
         elseif n.content_type == 'sticker' and n.file_id then
             api.send_sticker(message.chat.id, n.file_id)
         else
-            api.send_message(message.chat.id, n.content, 'html')
+            api.send_message(message.chat.id, n.content, { parse_mode = 'html' })
         end
         return
     end
@@ -97,12 +97,12 @@ function plugin.on_message(api, message, ctx)
         end
     end
 
-    ctx.db.call('sp_upsert_note', { message.chat.id, name, content, content_type, file_id, message.from.id })
+    ctx.db.call('sp_upsert_note', table.pack(message.chat.id, name, content, content_type, file_id, message.from.id))
 
     api.send_message(message.chat.id, string.format(
         'Note <code>%s</code> has been saved. Use /get %s to retrieve it.',
         tools.escape_html(name), tools.escape_html(name)
-    ), 'html')
+    ), { parse_mode = 'html' })
 end
 
 return plugin

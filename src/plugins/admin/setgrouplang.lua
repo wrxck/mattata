@@ -45,8 +45,7 @@ function plugin.on_message(api, message, ctx)
                 row = {}
             end
         end
-        local json = require('dkjson')
-        return api.send_message(message.chat.id, '<b>Select the group language:</b>', 'html', false, false, nil, json.encode(keyboard))
+        return api.send_message(message.chat.id, '<b>Select the group language:</b>', { parse_mode = 'html', reply_markup = keyboard })
     end
 
     local lang_code = message.args:lower():match('^(%S+)$')
@@ -69,34 +68,37 @@ function plugin.on_message(api, message, ctx)
     ctx.db.call('sp_upsert_chat_setting', { message.chat.id, 'group_language', lang_code })
     ctx.db.call('sp_upsert_chat_setting', { message.chat.id, 'force_group_language', 'true' })
 
-    api.send_message(message.chat.id, string.format('Group language set to <b>%s</b>.', lang_code), 'html')
+    api.send_message(message.chat.id, string.format('Group language set to <b>%s</b>.', lang_code), { parse_mode = 'html' })
 end
 
 function plugin.on_callback_query(api, callback_query, message, ctx)
     local permissions = require('src.core.permissions')
     if not permissions.is_group_admin(api, message.chat.id, callback_query.from.id) then
-        return api.answer_callback_query(callback_query.id, 'Only admins can change the group language.')
+        return api.answer_callback_query(callback_query.id, { text = 'Only admins can change the group language.' })
     end
 
     local lang_code = callback_query.data
     if not lang_code then return end
 
-    ctx.db.call('sp_upsert_chat_setting', { message.chat.id, 'group_language', lang_code })
-    ctx.db.call('sp_upsert_chat_setting', { message.chat.id, 'force_group_language', 'true' })
-
-    -- find language name
-    local lang_name = lang_code
+    -- Validate the language code against the allowed list
+    local lang_name = nil
     for _, lang in ipairs(LANGUAGES) do
         if lang.code == lang_code then
             lang_name = lang.name
             break
         end
     end
+    if not lang_name then
+        return api.answer_callback_query(callback_query.id, { text = 'Invalid language.' })
+    end
+
+    ctx.db.call('sp_upsert_chat_setting', { message.chat.id, 'group_language', lang_code })
+    ctx.db.call('sp_upsert_chat_setting', { message.chat.id, 'force_group_language', 'true' })
 
     api.edit_message_text(message.chat.id, message.message_id, string.format(
         'Group language set to <b>%s</b> (%s).', lang_name, lang_code
-    ), 'html')
-    api.answer_callback_query(callback_query.id, 'Language updated!')
+    ), { parse_mode = 'html' })
+    api.answer_callback_query(callback_query.id, { text = 'Language updated!' })
 end
 
 return plugin
