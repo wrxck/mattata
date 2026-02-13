@@ -359,61 +359,6 @@ local function on_inline_query(inline_query)
     dispatch_event('on_inline_query', inline_query, ctx)
 end
 
--- Handle chat join request
-local function on_chat_join_request(request)
-    if not request or not request.from then return end
-    if session.is_globally_blocklisted(request.from.id) then return end
-    dispatch_event('on_chat_join_request', request, build_ctx({ from = request.from, chat = request.chat }))
-end
-
--- Handle chat member status change (not the bot itself)
-local function on_chat_member(update)
-    if not update or not update.from then return end
-    dispatch_event('on_chat_member_update', update, build_ctx({ from = update.from, chat = update.chat }))
-end
-
--- Handle bot's own chat member status change
-local function on_my_chat_member(update)
-    if not update or not update.from then return end
-    dispatch_event('on_my_chat_member', update, build_ctx({ from = update.from, chat = update.chat }))
-end
-
--- Handle message reaction updates
-local function on_message_reaction(update)
-    if not update then return end
-    dispatch_event('on_reaction', update, build_ctx({ from = update.user or update.actor_chat, chat = update.chat }))
-end
-
--- Handle anonymous reaction count updates (no user info)
-local function on_message_reaction_count(update)
-    if not update then return end
-    dispatch_event('on_reaction_count', update, build_ctx({ from = nil, chat = update.chat }))
-end
-
--- Handle chat boost updates
-local function on_chat_boost(update)
-    if not update or not update.chat then return end
-    dispatch_event('on_chat_boost', update, build_ctx({ from = nil, chat = update.chat }))
-end
-
--- Handle removed chat boost updates
-local function on_removed_chat_boost(update)
-    if not update or not update.chat then return end
-    dispatch_event('on_removed_chat_boost', update, build_ctx({ from = nil, chat = update.chat }))
-end
-
--- Handle poll state updates
-local function on_poll(poll)
-    if not poll then return end
-    dispatch_event('on_poll', poll, build_ctx({ from = nil, chat = { type = 'private' } }))
-end
-
--- Handle poll answer updates
-local function on_poll_answer(poll_answer)
-    if not poll_answer then return end
-    dispatch_event('on_poll_answer', poll_answer, build_ctx({ from = poll_answer.user, chat = { type = 'private' } }))
-end
-
 -- Handle chat join request updates
 local function on_chat_join_request(request)
     if not request or not request.from or not request.chat then return end
@@ -573,7 +518,6 @@ function router.run()
         on_chat_member = on_chat_member,
         on_my_chat_member = on_my_chat_member,
         on_message_reaction = on_message_reaction,
-        on_message_reaction_count = on_message_reaction_count,
         on_chat_boost = on_chat_boost,
         on_removed_chat_boost = on_removed_chat_boost,
         on_poll = on_poll,

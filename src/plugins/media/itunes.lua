@@ -25,7 +25,7 @@ function plugin.on_message(api, message, ctx)
         query
     )
 
-    local data, code = http.get_json(api_url)
+    local data, _ = http.get_json(api_url)
 
     if not data then
         return api.send_message(message.chat.id, 'Failed to search iTunes. Please try again later.')

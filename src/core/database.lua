@@ -178,7 +178,7 @@ function database.execute(sql, params)
             -- Release the dead connection's permit before reconnect
             if pool_semaphore then pool_semaphore:give(1) end
             local new_pg
-            new_pg, _ = create_connection()
+            new_pg = create_connection()
             if new_pg then
                 -- Re-acquire a permit for the new connection
                 if pool_semaphore then
@@ -342,7 +342,7 @@ function database.call(func_name, params, nparams)
             pcall(function() pg:disconnect() end)
             if pool_semaphore then pool_semaphore:give(1) end
             local new_pg
-            new_pg, _ = create_connection()
+            new_pg = create_connection()
             if new_pg then
                 if pool_semaphore then
                     local ok, sem_err = pool_semaphore:take(1, 30)

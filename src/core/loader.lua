@@ -14,7 +14,6 @@ local by_name = {}           -- name -> plugin lookup
 local categories = {}        -- category -> list of plugin names
 local by_event = {}          -- event_name -> list of plugins with that handler
 
-local PERMANENT_PLUGINS = { 'help', 'about', 'plugins' }
 local PERMANENT_SET = { help = true, about = true, plugins = true }
 
 -- Event handler names to index for fast dispatch

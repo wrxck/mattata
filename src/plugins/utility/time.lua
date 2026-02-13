@@ -19,7 +19,7 @@ local tools = require('telegram-bot-lua.tools')
 local function geocode(query)
     local encoded = url.escape(query)
     local request_url = 'https://nominatim.openstreetmap.org/search?q=' .. encoded .. '&format=json&limit=1&addressdetails=1'
-    local data, code = http.get_json(request_url)
+    local data, _ = http.get_json(request_url)
     if not data then
         return nil, 'Geocoding request failed.'
     end
@@ -38,7 +38,7 @@ local function get_timezone(lat, lon)
         'https://timeapi.io/api/TimeZone/coordinate?latitude=%.6f&longitude=%.6f',
         lat, lon
     )
-    local data, code = http.get_json(request_url)
+    local data, _ = http.get_json(request_url)
     if not data or not data.timeZone then
         return nil, 'Timezone lookup failed.'
     end

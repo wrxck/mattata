@@ -57,7 +57,7 @@ function plugin.on_message(api, message, ctx)
         url.escape(fm_user),
         url.escape(api_key)
     )
-    local data, status = http.get_json(api_url)
+    local data, _ = http.get_json(api_url)
     if not data then
         return api.send_message(message.chat.id, 'Failed to connect to Last.fm. Please try again later.')
     end
@@ -95,7 +95,7 @@ function plugin.on_message(api, message, ctx)
         url.escape(fm_user),
         url.escape(api_key)
     )
-    local user_data, user_status = http.get_json(user_url)
+    local user_data, _ = http.get_json(user_url)
     if user_data then
         if user_data.user and user_data.user.playcount then
             table.insert(lines, string.format('\nTotal scrobbles: <code>%s</code>', user_data.user.playcount))

@@ -77,7 +77,9 @@ function plugin.on_message(api, message, ctx)
         end
         local question, answer = rest:match('^(.-)%s*|%s*(.+)$')
         if not question or question == '' or not answer or answer == '' then
-            return api.send_message(chat_id, 'Please separate the question and answer with a pipe character (|).\nExample: <code>/customcaptcha set What colour is the sky? | blue</code>', { parse_mode = 'html' })
+            local err_text = 'Please separate the question and answer with a pipe character (|).\n'
+                .. 'Example: <code>/customcaptcha set What colour is the sky? | blue</code>'
+            return api.send_message(chat_id, err_text, { parse_mode = 'html' })
         end
         question = question:match('^%s*(.-)%s*$')
         answer = answer:match('^%s*(.-)%s*$')
