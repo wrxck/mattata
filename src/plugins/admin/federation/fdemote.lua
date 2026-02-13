@@ -45,7 +45,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'This chat is not part of any federation.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -53,7 +53,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Only the federation owner can demote admins.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -62,7 +62,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Please specify a user to demote by replying to their message or providing a user ID/username.\nUsage: <code>/fdemote [user]</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -74,7 +74,7 @@ function plugin.on_message(api, message, ctx)
                 '<b>%s</b> is not a federation admin.',
                 tools.escape_html(target_name)
             ),
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -87,7 +87,7 @@ function plugin.on_message(api, message, ctx)
             tools.escape_html(target_name),
             tools.escape_html(fed.name)
         ),
-        'html'
+        { parse_mode = 'html' }
     )
 end
 

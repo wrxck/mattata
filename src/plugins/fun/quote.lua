@@ -7,8 +7,8 @@ local plugin = {}
 plugin.name = 'quote'
 plugin.category = 'fun'
 plugin.description = 'Save and retrieve random quotes'
-plugin.commands = { 'quote', 'q', 'save' }
-plugin.help = '/save - Save the replied message as a quote.\n/quote - Retrieve a random saved quote from this chat.'
+plugin.commands = { 'quote', 'q', 'addquote' }
+plugin.help = '/addquote - Save the replied message as a quote.\n/quote - Retrieve a random saved quote from this chat.'
 
 function plugin.on_message(api, message, ctx)
     local tools = require('telegram-bot-lua.tools')
@@ -17,10 +17,10 @@ function plugin.on_message(api, message, ctx)
     local chat_id = message.chat.id
     local key = 'quotes:' .. chat_id
 
-    if message.command == 'save' then
+    if message.command == 'addquote' then
         -- Save a quote from a reply
         if not message.reply then
-            return api.send_message(chat_id, 'Please use /save in reply to a message you want to save as a quote.')
+            return api.send_message(chat_id, 'Please use /addquote in reply to a message you want to save as a quote.')
         end
         local quote_text = message.reply.text
         if not quote_text or quote_text == '' then
@@ -41,7 +41,7 @@ function plugin.on_message(api, message, ctx)
     -- Retrieve a random quote
     local quotes = redis.smembers(key)
     if not quotes or #quotes == 0 then
-        return api.send_message(chat_id, 'No quotes saved in this chat yet. Use /save in reply to a message to save one.')
+        return api.send_message(chat_id, 'No quotes saved in this chat yet. Use /addquote in reply to a message to save one.')
     end
 
     math.randomseed(os.time() + os.clock() * 1000)
@@ -56,7 +56,7 @@ function plugin.on_message(api, message, ctx)
         tools.escape_html(quote.text),
         tools.escape_html(quote.author)
     )
-    return api.send_message(chat_id, output, 'html')
+    return api.send_message(chat_id, output, { parse_mode = 'html' })
 end
 
 return plugin

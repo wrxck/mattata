@@ -11,8 +11,7 @@ plugin.commands = { 'urbandictionary', 'urban', 'ud' }
 plugin.help = '/ud <word> - Look up a word on Urban Dictionary.'
 
 function plugin.on_message(api, message, ctx)
-    local https = require('ssl.https')
-    local json = require('dkjson')
+    local http = require('src.core.http')
     local url = require('socket.url')
     local tools = require('telegram-bot-lua.tools')
 
@@ -23,12 +22,10 @@ function plugin.on_message(api, message, ctx)
 
     local encoded = url.escape(input)
     local api_url = 'https://api.urbandictionary.com/v0/define?term=' .. encoded
-    local body, status = https.request(api_url)
-    if not body or status ~= 200 then
+    local data, _ = http.get_json(api_url)
+    if not data then
         return api.send_message(message.chat.id, 'Failed to connect to Urban Dictionary. Please try again later.')
     end
-
-    local data = json.decode(body)
     if not data or not data.list or #data.list == 0 then
         return api.send_message(message.chat.id, 'No definitions found for "' .. tools.escape_html(input) .. '".')
     end
@@ -66,7 +63,7 @@ function plugin.on_message(api, message, ctx)
         ))
     end
 
-    return api.send_message(message.chat.id, table.concat(lines, '\n'), 'html')
+    return api.send_message(message.chat.id, table.concat(lines, '\n'), { parse_mode = 'html' })
 end
 
 return plugin

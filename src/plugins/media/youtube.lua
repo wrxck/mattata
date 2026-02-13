@@ -11,11 +11,9 @@ plugin.commands = { 'youtube', 'yt' }
 plugin.help = '/youtube <query> - Search YouTube and return the top result with title, channel, and views.'
 
 function plugin.on_message(api, message, ctx)
-    local https = require('ssl.https')
-    local json = require('dkjson')
+    local http = require('src.core.http')
     local url = require('socket.url')
     local tools = require('telegram-bot-lua.tools')
-    local ltn12 = require('ltn12')
 
     local api_key = ctx.config.get('YOUTUBE_API_KEY')
     if not api_key then
@@ -23,7 +21,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     if not message.args or message.args == '' then
-        return api.send_message(message.chat.id, 'Please specify a search query, e.g. <code>/yt never gonna give you up</code>.', 'html')
+        return api.send_message(message.chat.id, 'Please specify a search query, e.g. <code>/yt never gonna give you up</code>.', { parse_mode = 'html' })
     end
 
     -- Step 1: Search for videos
@@ -33,22 +31,11 @@ function plugin.on_message(api, message, ctx)
         query, api_key
     )
 
-    local response_body = {}
-    local res, code = https.request({
-        url = search_url,
-        method = 'GET',
-        sink = ltn12.sink.table(response_body),
-        headers = {
-            ['Accept'] = 'application/json'
-        }
-    })
+    local data, _ = http.get_json(search_url)
 
-    if not res or code ~= 200 then
+    if not data then
         return api.send_message(message.chat.id, 'Failed to search YouTube. Please try again later.')
     end
-
-    local body = table.concat(response_body)
-    local data, _ = json.decode(body)
     if not data or not data.items or #data.items == 0 then
         return api.send_message(message.chat.id, 'No results found for that query.')
     end
@@ -68,19 +55,10 @@ function plugin.on_message(api, message, ctx)
         video_id, api_key
     )
 
-    local stats_body = {}
-    local stats_res, stats_code = https.request({
-        url = stats_url,
-        method = 'GET',
-        sink = ltn12.sink.table(stats_body),
-        headers = {
-            ['Accept'] = 'application/json'
-        }
-    })
+    local stats_data, _ = http.get_json(stats_url)
 
     local views = 'N/A'
-    if stats_res and stats_code == 200 then
-        local stats_data = json.decode(table.concat(stats_body))
+    if stats_data then
         if stats_data and stats_data.items and #stats_data.items > 0 then
             local stats = stats_data.items[1].statistics
             if stats and stats.viewCount then
@@ -99,7 +77,7 @@ function plugin.on_message(api, message, ctx)
         views
     )
 
-    return api.send_message(message.chat.id, output, 'html', true)
+    return api.send_message(message.chat.id, output, { parse_mode = 'html', link_preview_options = { is_disabled = true } })
 end
 
 return plugin

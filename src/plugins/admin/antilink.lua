@@ -25,7 +25,7 @@ function plugin.on_message(api, message, ctx)
         local status = (enabled and #enabled > 0 and enabled[1].value == 'true') and 'enabled' or 'disabled'
         return api.send_message(message.chat.id, string.format(
             'Anti-link is currently <b>%s</b>.\nUsage: /antilink <on|off>', status
-        ), 'html')
+        ), { parse_mode = 'html' })
     end
 
     local arg = message.args:lower()
@@ -44,7 +44,7 @@ end
 
 function plugin.on_new_message(api, message, ctx)
     if not ctx.is_group or not message.text or message.text == '' then return end
-    if ctx.is_admin or ctx.is_global_admin then return end
+    if ctx.is_global_admin or ctx:check_admin() then return end
     if not require('src.core.permissions').can_delete(api, message.chat.id) then return end
 
     -- check if antilink is enabled (cached)
@@ -86,7 +86,7 @@ function plugin.on_new_message(api, message, ctx)
                 api.send_message(message.chat.id, string.format(
                     '<a href="tg://user?id=%d">%s</a>, invite links are not allowed in this group.',
                     message.from.id, tools.escape_html(message.from.first_name)
-                ), 'html')
+                ), { parse_mode = 'html' })
                 return
             end
         end

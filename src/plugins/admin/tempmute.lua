@@ -60,9 +60,23 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, 'I can\'t mute an admin.')
     end
 
-    local until_date = os.time() + duration
-    local perms = { can_send_messages = false }
-    local success = api.restrict_chat_member(message.chat.id, user_id, perms, until_date)
+    local perms = {
+        can_send_messages = false,
+        can_send_audios = false,
+        can_send_documents = false,
+        can_send_photos = false,
+        can_send_videos = false,
+        can_send_video_notes = false,
+        can_send_voice_notes = false,
+        can_send_polls = false,
+        can_send_other_messages = false,
+        can_add_web_page_previews = false,
+        can_invite_users = false,
+        can_change_info = false,
+        can_pin_messages = false,
+        can_manage_topics = false
+    }
+    local success = api.restrict_chat_member(message.chat.id, user_id, perms, { until_date = os.time() + duration })
     if not success then
         return api.send_message(message.chat.id, 'I don\'t have permission to mute users.')
     end
@@ -72,7 +86,7 @@ function plugin.on_message(api, message, ctx)
     return api.send_message(message.chat.id, string.format(
         '<a href="tg://user?id=%d">%s</a> has temporarily muted <a href="tg://user?id=%d">%s</a> for %s.',
         message.from.id, admin_name, user_id, target_name, duration_str or 'unknown'
-    ), 'html')
+    ), { parse_mode = 'html' })
 end
 
 return plugin

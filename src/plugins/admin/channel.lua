@@ -13,27 +13,21 @@ plugin.admin_only = true
 
 function plugin.on_message(api, message, ctx)
     if not message.args then
-        local result = ctx.db.execute(
-            "SELECT value FROM chat_settings WHERE chat_id = $1 AND key = 'linked_channel'",
-            { message.chat.id }
-        )
+        local result = ctx.db.call('sp_get_chat_setting', { message.chat.id, 'linked_channel' })
         if result and #result > 0 and result[1].value then
             local channel_info = api.get_chat(tonumber(result[1].value))
             local channel_name = channel_info and channel_info.result and channel_info.result.title or result[1].value
             return api.send_message(message.chat.id, string.format(
                 'This group is linked to channel: <b>%s</b> (<code>%s</code>)\nUse /channel off to disconnect.',
                 require('telegram-bot-lua.tools').escape_html(channel_name), result[1].value
-            ), 'html')
+            ), { parse_mode = 'html' })
         end
         return api.send_message(message.chat.id, 'No channel is linked. Use /channel <channel_id|@channel> to link one.')
     end
 
     local arg = message.args:lower()
     if arg == 'off' or arg == 'disable' or arg == 'none' then
-        ctx.db.execute(
-            "DELETE FROM chat_settings WHERE chat_id = $1 AND key = 'linked_channel'",
-            { message.chat.id }
-        )
+        ctx.db.call('sp_delete_chat_setting', { message.chat.id, 'linked_channel' })
         return api.send_message(message.chat.id, 'Channel has been disconnected from this group.')
     end
 
@@ -54,7 +48,7 @@ function plugin.on_message(api, message, ctx)
         value = channel_id
     }, { 'chat_id', 'key' }, { 'value' })
 
-    api.send_message(message.chat.id, string.format('Channel <code>%s</code> has been linked to this group.', channel_id), 'html')
+    api.send_message(message.chat.id, string.format('Channel <code>%s</code> has been linked to this group.', channel_id), { parse_mode = 'html' })
 end
 
 return plugin

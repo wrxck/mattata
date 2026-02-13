@@ -9,6 +9,7 @@ return {
         'youtube',
         'spotify',
         'itunes',
-        'sticker'
+        'sticker',
+        'qr'
     }
 }

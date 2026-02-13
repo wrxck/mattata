@@ -178,7 +178,7 @@ function database.execute(sql, params)
             -- Release the dead connection's permit before reconnect
             if pool_semaphore then pool_semaphore:give(1) end
             local new_pg
-            new_pg, _ = create_connection()
+            new_pg = create_connection()
             if new_pg then
                 -- Re-acquire a permit for the new connection
                 if pool_semaphore then
@@ -336,8 +336,48 @@ function database.call(func_name, params, nparams)
     )
     local result, query_err = pg:query(sql)
     if not result then
+        -- Attempt reconnect on connection failure
+        if query_err and (query_err:match('closed') or query_err:match('broken') or query_err:match('timeout')) then
+            logger.warn('Connection lost during call to %s, reconnecting...', func_name)
+            pcall(function() pg:disconnect() end)
+            if pool_semaphore then pool_semaphore:give(1) end
+            local new_pg
+            new_pg = create_connection()
+            if new_pg then
+                if pool_semaphore then
+                    local ok, sem_err = pool_semaphore:take(1, 30)
+                    if not ok then
+                        pcall(function() new_pg:disconnect() end)
+                        logger.error('Reconnect semaphore acquire failed: %s', tostring(sem_err))
+                        return nil, 'Pool exhausted during reconnect'
+                    end
+                end
+                -- Re-escape params with new connection
+                local new_args = {}
+                for i = 1, nparams do
+                    local v = params[i]
+                    if v == nil then
+                        new_args[i] = 'NULL'
+                    elseif type(v) == 'number' then
+                        new_args[i] = tostring(v)
+                    elseif type(v) == 'boolean' then
+                        new_args[i] = v and 'TRUE' or 'FALSE'
+                    else
+                        new_args[i] = new_pg:escape_literal(tostring(v))
+                    end
+                end
+                local new_sql = string.format('SELECT * FROM %s(%s)', func_name, table.concat(new_args, ', '))
+                result, query_err = new_pg:query(new_sql)
+                if result then
+                    database.release(new_pg)
+                    return result
+                end
+                database.release(new_pg)
+            end
+        else
+            database.release(pg)
+        end
         logger.error('Query failed: %s\nSQL: %s', tostring(query_err), sql)
-        database.release(pg)
         return nil, query_err
     end
     database.release(pg)

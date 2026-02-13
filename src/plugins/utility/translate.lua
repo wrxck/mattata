@@ -11,9 +11,8 @@ plugin.description = 'Translate text between languages'
 plugin.commands = { 'translate', 'tl' }
 plugin.help = '/translate [lang] <text> - Translate text to the specified language (default: en). Reply to a message to translate it, or provide text directly.'
 
-local https = require('ssl.https')
+local http = require('src.core.http')
 local json = require('dkjson')
-local ltn12 = require('ltn12')
 local tools = require('telegram-bot-lua.tools')
 
 local BASE_URL = 'https://libretranslate.com'
@@ -56,21 +55,11 @@ local function translate_text(text, target, source)
         target = target,
         format = 'text'
     })
-    local body = {}
-    local _, code = https.request({
-        url = BASE_URL .. '/translate',
-        method = 'POST',
-        headers = {
-            ['Content-Type'] = 'application/json',
-            ['Content-Length'] = tostring(#request_body)
-        },
-        source = ltn12.source.string(request_body),
-        sink = ltn12.sink.table(body)
-    })
+    local body, code = http.post(BASE_URL .. '/translate', request_body, 'application/json')
     if code ~= 200 then
         return nil, 'Translation service returned an error (HTTP ' .. tostring(code) .. '). The public instance may be rate-limited; try again shortly.'
     end
-    local data = json.decode(table.concat(body))
+    local data = json.decode(body)
     if not data then
         return nil, 'Failed to parse translation response.'
     end
@@ -124,7 +113,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Please provide text to translate.\nUsage: <code>/translate [lang] text</code>\nOr reply to a message with <code>/translate [lang]</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -141,7 +130,7 @@ function plugin.on_message(api, message, ctx)
         tools.escape_html(result.translated)
     )
 
-    return api.send_message(message.chat.id, output, 'html')
+    return api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

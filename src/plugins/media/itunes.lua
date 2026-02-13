@@ -11,14 +11,12 @@ plugin.commands = { 'itunes' }
 plugin.help = '/itunes <query> - Search iTunes for a track and return song info with pricing.'
 
 function plugin.on_message(api, message, ctx)
-    local https = require('ssl.https')
-    local json = require('dkjson')
+    local http = require('src.core.http')
     local url = require('socket.url')
     local tools = require('telegram-bot-lua.tools')
-    local ltn12 = require('ltn12')
 
     if not message.args or message.args == '' then
-        return api.send_message(message.chat.id, 'Please specify a search query, e.g. <code>/itunes imagine dragons believer</code>.', 'html')
+        return api.send_message(message.chat.id, 'Please specify a search query, e.g. <code>/itunes imagine dragons believer</code>.', { parse_mode = 'html' })
     end
 
     local query = url.escape(message.args)
@@ -27,22 +25,11 @@ function plugin.on_message(api, message, ctx)
         query
     )
 
-    local response_body = {}
-    local res, code = https.request({
-        url = api_url,
-        method = 'GET',
-        sink = ltn12.sink.table(response_body),
-        headers = {
-            ['Accept'] = 'application/json'
-        }
-    })
+    local data, _ = http.get_json(api_url)
 
-    if not res or code ~= 200 then
+    if not data then
         return api.send_message(message.chat.id, 'Failed to search iTunes. Please try again later.')
     end
-
-    local body = table.concat(response_body)
-    local data, _ = json.decode(body)
     if not data or not data.results or #data.results == 0 then
         return api.send_message(message.chat.id, 'No results found for that query.')
     end
@@ -80,14 +67,14 @@ function plugin.on_message(api, message, ctx)
     if artwork_url ~= '' then
         -- Use higher resolution artwork
         local hires_url = artwork_url:gsub('100x100', '600x600')
-        local success = api.send_photo(message.chat.id, hires_url, output, 'html')
+        local success = api.send_photo(message.chat.id, hires_url, { caption = output, parse_mode = 'html' })
         if success then
             return success
         end
     end
 
     -- Fallback to text-only
-    return api.send_message(message.chat.id, output, 'html', true)
+    return api.send_message(message.chat.id, output, { parse_mode = 'html', link_preview_options = { is_disabled = true } })
 end
 
 return plugin

@@ -11,9 +11,8 @@ plugin.description = 'Convert between currencies'
 plugin.commands = { 'currency', 'convert', 'cash' }
 plugin.help = '/currency <amount> <from> to <to> - Convert between currencies.\nExample: /currency 10 USD to EUR'
 
-local https = require('ssl.https')
-local json = require('dkjson')
-local ltn12 = require('ltn12')
+local http = require('src.core.http')
+
 local tools = require('telegram-bot-lua.tools')
 
 local function convert(amount, from, to)
@@ -21,17 +20,9 @@ local function convert(amount, from, to)
         'https://api.frankfurter.app/latest?amount=%.2f&from=%s&to=%s',
         amount, from:upper(), to:upper()
     )
-    local body = {}
-    local _, code = https.request({
-        url = request_url,
-        sink = ltn12.sink.table(body)
-    })
-    if code ~= 200 then
-        return nil, 'Currency conversion request failed. Check that the currency codes are valid.'
-    end
-    local data = json.decode(table.concat(body))
+    local data, _ = http.get_json(request_url)
     if not data then
-        return nil, 'Failed to parse conversion response.'
+        return nil, 'Currency conversion request failed. Check that the currency codes are valid.'
     end
     if data.message then
         return nil, 'API error: ' .. tostring(data.message)
@@ -68,7 +59,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Please provide a conversion query.\nUsage: <code>/currency 10 USD to EUR</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -104,7 +95,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Invalid format. Please use:\n<code>/currency 10 USD to EUR</code>\n<code>/currency USD EUR</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -123,7 +114,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             string.format('<b>%s %s</b> = <b>%s %s</b>', format_number(amount), tools.escape_html(from), format_number(amount), tools.escape_html(to)),
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -141,7 +132,7 @@ function plugin.on_message(api, message, ctx)
         tools.escape_html(result.date)
     )
 
-    return api.send_message(message.chat.id, output, 'html')
+    return api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

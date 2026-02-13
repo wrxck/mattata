@@ -23,7 +23,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             chat_id,
             'This chat is not part of any federation.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -37,7 +37,7 @@ function plugin.on_message(api, message, ctx)
             'This chat has left the federation <b>%s</b>.',
             tools.escape_html(fed.name)
         ),
-        'html'
+        { parse_mode = 'html' }
     )
 end
 

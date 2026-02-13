@@ -31,7 +31,7 @@ function plugin.on_message(api, message, ctx)
     local template = slaps[math.random(#slaps)]
     local output = template:gsub('{ME}', tools.escape_html(sender_name)):gsub('{THEM}', tools.escape_html(target_name))
 
-    return api.send_message(message.chat.id, output, 'html')
+    return api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

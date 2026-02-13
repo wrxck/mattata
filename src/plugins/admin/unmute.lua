@@ -40,7 +40,11 @@ function plugin.on_message(api, message, ctx)
         can_send_voice_notes = true,
         can_send_polls = true,
         can_send_other_messages = true,
-        can_add_web_page_previews = true
+        can_add_web_page_previews = true,
+        can_invite_users = true,
+        can_change_info = false,
+        can_pin_messages = false,
+        can_manage_topics = false
     }
     local success = api.restrict_chat_member(message.chat.id, user_id, perms)
     if not success then
@@ -52,7 +56,7 @@ function plugin.on_message(api, message, ctx)
     return api.send_message(message.chat.id, string.format(
         '<a href="tg://user?id=%d">%s</a> has unmuted <a href="tg://user?id=%d">%s</a>.',
         message.from.id, admin_name, user_id, target_name
-    ), 'html')
+    ), { parse_mode = 'html' })
 end
 
 return plugin

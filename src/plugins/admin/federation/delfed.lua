@@ -6,7 +6,6 @@
 ]]
 
 local tools = require('telegram-bot-lua.tools')
-local json = require('dkjson')
 
 local plugin = {}
 plugin.name = 'delfed'
@@ -23,7 +22,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Please specify the federation ID.\nUsage: <code>/delfed &lt;federation_id&gt;</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -33,8 +32,7 @@ function plugin.on_message(api, message, ctx)
     if not fed or #fed == 0 then
         return api.send_message(
             message.chat.id,
-            'Federation not found. Please check the ID and try again.',
-            'html'
+            'Federation not found. Please check the ID and try again.'
         )
     end
 
@@ -43,18 +41,14 @@ function plugin.on_message(api, message, ctx)
     if fed.owner_id ~= message.from.id then
         return api.send_message(
             message.chat.id,
-            'Only the federation owner can delete it.',
-            'html'
+            'Only the federation owner can delete it.'
         )
     end
 
-    local callback_data_yes = json.encode({ plugin = 'delfed', action = 'confirm', fed_id = fed.id })
-    local callback_data_no = json.encode({ plugin = 'delfed', action = 'cancel' })
-
     local keyboard = {
         inline_keyboard = { {
-            { text = 'Yes, delete it', callback_data = callback_data_yes },
-            { text = 'No, cancel', callback_data = callback_data_no }
+            { text = 'Yes, delete it', callback_data = 'delfed:confirm:' .. fed.id },
+            { text = 'No, cancel', callback_data = 'delfed:cancel' }
         } }
     }
 
@@ -64,51 +58,49 @@ function plugin.on_message(api, message, ctx)
             'Are you sure you want to delete the federation <b>%s</b>?\n\nThis will remove all bans, chats, and admins associated with it. This action cannot be undone.',
             tools.escape_html(fed.name)
         ),
-        'html',
-        nil, nil, nil, nil,
-        json.encode(keyboard)
+        { parse_mode = 'html', reply_markup = keyboard }
     )
 end
 
 function plugin.on_callback_query(api, callback_query, message, ctx)
-    local data = json.decode(callback_query.data)
-    if not data or data.plugin ~= 'delfed' then
-        return
+    local data = callback_query.data
+    if not data then return end
+
+    -- Verify the button was pressed by the original command user
+    if message.from and callback_query.from.id ~= message.from.id then
+        return api.answer_callback_query(callback_query.id, { text = 'This button is not for you.' })
     end
 
-    if callback_query.from.id ~= message.reply_to_message_from_id and callback_query.from.id ~= (message.from and message.from.id) then
-        return api.answer_callback_query(callback_query.id, 'This button is not for you.')
-    end
-
-    if data.action == 'cancel' then
-        api.answer_callback_query(callback_query.id, 'Deletion cancelled.')
+    if data == 'cancel' then
+        api.answer_callback_query(callback_query.id, { text = 'Deletion cancelled.' })
         return api.edit_message_text(
             message.chat.id,
             message.message_id,
             'Federation deletion cancelled.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
-    if data.action == 'confirm' then
-        local fed = ctx.db.call('sp_get_federation_owner', { data.fed_id })
+    local fed_id = data:match('^confirm:(.+)$')
+    if fed_id then
+        local fed = ctx.db.call('sp_get_federation_owner', { fed_id })
         if not fed or #fed == 0 then
-            api.answer_callback_query(callback_query.id, 'Federation no longer exists.')
+            api.answer_callback_query(callback_query.id, { text = 'Federation no longer exists.' })
             return api.edit_message_text(
                 message.chat.id,
                 message.message_id,
                 'This federation no longer exists.',
-                'html'
+                { parse_mode = 'html' }
             )
         end
 
         if fed[1].owner_id ~= callback_query.from.id then
-            return api.answer_callback_query(callback_query.id, 'Only the federation owner can delete it.')
+            return api.answer_callback_query(callback_query.id, { text = 'Only the federation owner can delete it.' })
         end
 
-        ctx.db.call('sp_delete_federation', { data.fed_id })
+        ctx.db.call('sp_delete_federation', { fed_id })
 
-        api.answer_callback_query(callback_query.id, 'Federation deleted.')
+        api.answer_callback_query(callback_query.id, { text = 'Federation deleted.' })
         return api.edit_message_text(
             message.chat.id,
             message.message_id,
@@ -116,7 +108,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
                 'Federation <b>%s</b> has been deleted.',
                 tools.escape_html(fed[1].name)
             ),
-            'html'
+            { parse_mode = 'html' }
         )
     end
 end

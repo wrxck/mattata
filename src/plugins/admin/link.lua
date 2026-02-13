@@ -35,10 +35,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     -- Try to get stored link first
-    local stored = ctx.db.execute(
-        "SELECT value FROM chat_settings WHERE chat_id = $1 AND key = 'invite_link'",
-        { message.chat.id }
-    )
+    local stored = ctx.db.call('sp_get_chat_setting', { message.chat.id, 'invite_link' })
     if stored and #stored > 0 and stored[1].value then
         return api.send_message(message.chat.id, stored[1].value)
     end

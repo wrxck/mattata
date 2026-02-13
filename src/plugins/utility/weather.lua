@@ -8,13 +8,11 @@ local plugin = {}
 plugin.name = 'weather'
 plugin.category = 'utility'
 plugin.description = 'Get current weather for a location'
-plugin.commands = { 'weather', 'w' }
+plugin.commands = { 'weather' }
 plugin.help = '/weather [location] - Get current weather for a location. If no location is given, your saved location is used (set with /setloc).'
 
-local https = require('ssl.https')
-local json = require('dkjson')
+local http = require('src.core.http')
 local url = require('socket.url')
-local ltn12 = require('ltn12')
 local tools = require('telegram-bot-lua.tools')
 
 -- WMO weather codes to human-readable descriptions
@@ -52,19 +50,11 @@ local WMO_CODES = {
 local function geocode(query)
     local encoded = url.escape(query)
     local request_url = 'https://nominatim.openstreetmap.org/search?q=' .. encoded .. '&format=json&limit=1&addressdetails=1'
-    local body = {}
-    local _, code = https.request({
-        url = request_url,
-        sink = ltn12.sink.table(body),
-        headers = {
-            ['User-Agent'] = 'mattata-telegram-bot/2.0'
-        }
-    })
-    if code ~= 200 then
+    local data, _ = http.get_json(request_url)
+    if not data then
         return nil, 'Geocoding request failed.'
     end
-    local data = json.decode(table.concat(body))
-    if not data or #data == 0 then
+    if #data == 0 then
         return nil, 'Location not found. Please check the spelling and try again.'
     end
     return {
@@ -82,17 +72,9 @@ local function get_weather(lat, lon)
         .. '&temperature_unit=celsius&wind_speed_unit=kmh',
         lat, lon
     )
-    local body = {}
-    local _, code = https.request({
-        url = request_url,
-        sink = ltn12.sink.table(body)
-    })
-    if code ~= 200 then
-        return nil, 'Weather API request failed.'
-    end
-    local data = json.decode(table.concat(body))
+    local data, _ = http.get_json(request_url)
     if not data or not data.current then
-        return nil, 'Failed to parse weather data.'
+        return nil, 'Weather API request failed.'
     end
     return data.current
 end
@@ -122,7 +104,7 @@ function plugin.on_message(api, message, ctx)
             return api.send_message(
                 message.chat.id,
                 'Please specify a location or set your default with /setloc.\nUsage: <code>/weather London</code>',
-                'html'
+                { parse_mode = 'html' }
             )
         end
     else
@@ -162,7 +144,7 @@ function plugin.on_message(api, message, ctx)
         wind_speed, wind_dir
     )
 
-    return api.send_message(message.chat.id, output, 'html')
+    return api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

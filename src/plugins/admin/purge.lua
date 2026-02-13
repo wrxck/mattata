@@ -1,5 +1,6 @@
 --[[
-    mattata v2.0 - Purge Plugin
+    mattata v2.1 - Purge Plugin
+    Batch-deletes messages using delete_messages API for efficiency.
 ]]
 
 local plugin = {}
@@ -10,6 +11,8 @@ plugin.commands = { 'purge' }
 plugin.help = '/purge - Deletes all messages from the replied-to message up to the command message.'
 plugin.group_only = true
 plugin.admin_only = true
+
+local BATCH_SIZE = 100
 
 function plugin.on_message(api, message, ctx)
     local permissions = require('src.core.permissions')
@@ -26,25 +29,40 @@ function plugin.on_message(api, message, ctx)
     local count = 0
     local failed = 0
 
+    -- Batch into groups of up to 100 and use delete_messages
+    local batch = {}
     for msg_id = start_id, end_id do
-        local success = api.delete_message(message.chat.id, msg_id)
+        table.insert(batch, msg_id)
+        if #batch >= BATCH_SIZE then
+            local success = api.delete_messages(message.chat.id, batch)
+            if success then
+                count = count + #batch
+            else
+                failed = failed + #batch
+            end
+            batch = {}
+        end
+    end
+    -- Delete remaining messages
+    if #batch > 0 then
+        local success = api.delete_messages(message.chat.id, batch)
         if success then
-            count = count + 1
+            count = count + #batch
         else
-            failed = failed + 1
+            failed = failed + #batch
         end
     end
 
     pcall(function()
-        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, nil, 'purge', string.format('Purged %d messages (%d failed)', count, failed) })
+        ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, nil, 'purge', string.format('Purged %d messages (%d failed)', count, failed)))
     end)
 
-    local status = api.send_message(message.chat.id, string.format('Purged <b>%d</b> message(s).', count), 'html')
-    -- auto-delete the status message after a short delay
+    local status = api.send_message(message.chat.id, string.format('Purged <b>%d</b> message(s).', count), { parse_mode = 'html' })
+    -- Auto-delete the status message after a short delay using copas (non-blocking)
     if status and status.result then
         pcall(function()
-            local socket = require('socket')
-            socket.sleep(3)
+            local copas = require('copas')
+            copas.pause(3)
             api.delete_message(message.chat.id, status.result.message_id)
         end)
     end
