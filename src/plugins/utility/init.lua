@@ -32,6 +32,12 @@ return {
         'xkcd',
         'pokedex',
         'lastfm',
-        'plugins'
+        'plugins',
+        'inline',
+        'rss',
+        'paste',
+        'bookmark',
+        'schedule',
+        'growth'
     }
 }

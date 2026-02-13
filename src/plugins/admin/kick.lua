@@ -51,7 +51,7 @@ function plugin.on_message(api, message, ctx)
     api.unban_chat_member(message.chat.id, user_id)
 
     pcall(function()
-        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'kick', reason })
+        ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, user_id, 'kick', reason))
     end)
 
     if reason and reason:lower():match('^for ') then reason = reason:sub(5) end
@@ -62,7 +62,7 @@ function plugin.on_message(api, message, ctx)
     api.send_message(message.chat.id, string.format(
         '<a href="tg://user?id=%d">%s</a> has kicked <a href="tg://user?id=%d">%s</a>.%s',
         message.from.id, admin_name, user_id, target_name, reason_text
-    ), 'html')
+    ), { parse_mode = 'html' })
     if message.reply then
         pcall(function() api.delete_message(message.chat.id, message.reply.message_id) end)
     end

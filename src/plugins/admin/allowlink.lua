@@ -45,7 +45,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, string.format(
             'Link <code>%s</code> has been removed from the allowed list.',
             tools.escape_html(link)
-        ), 'html')
+        ), { parse_mode = 'html' })
     end
 
     -- check if already allowed
@@ -59,7 +59,7 @@ function plugin.on_message(api, message, ctx)
     api.send_message(message.chat.id, string.format(
         'Link <code>%s</code> has been added to the allowed list.',
         tools.escape_html(link)
-    ), 'html')
+    ), { parse_mode = 'html' })
 end
 
 return plugin

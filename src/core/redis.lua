@@ -62,14 +62,9 @@ local function acquire()
             return nil, 'Redis pool exhausted'
         end
     end
-    -- Try pooled connections, discard dead ones
-    while #pool > 0 do
-        local conn = table.remove(pool)
-        local ok = pcall(function() conn:ping() end)
-        if ok then
-            return conn
-        end
-        logger.warn('Discarding dead pooled Redis connection')
+    -- Return pooled connection (dead connections handled by safe_call retry)
+    if #pool > 0 then
+        return table.remove(pool)
     end
     -- Create fresh connection
     local conn, err = create_connection()
@@ -194,6 +189,10 @@ end
 
 function redis_mod.incrby(key, amount)
     return safe_call('incrby', key, amount)
+end
+
+function redis_mod.getset(key, value)
+    return safe_call('getset', key, value)
 end
 
 function redis_mod.hget(key, field)

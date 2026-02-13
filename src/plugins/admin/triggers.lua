@@ -31,7 +31,7 @@ function plugin.on_message(api, message, ctx)
     end
     output = output .. string.format('\n<i>Total: %d trigger(s)</i>', #triggers)
 
-    api.send_message(message.chat.id, output, 'html')
+    api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

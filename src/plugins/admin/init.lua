@@ -45,6 +45,10 @@ return {
         'pin',
         'allowedlinks',
         'allowlink',
+        'slowmode',
+        'autodelete',
+        'topic',
+        'customcaptcha',
         -- Federation sub-package
         'federation.newfed',
         'federation.delfed',

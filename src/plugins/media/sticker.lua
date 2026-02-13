@@ -35,12 +35,12 @@ local function handle_sticker(api, message)
         string.format('Size: %dx%d', sticker.width or 0, sticker.height or 0)
     }
 
-    return api.send_message(message.chat.id, table.concat(lines, '\n'), 'html')
+    return api.send_message(message.chat.id, table.concat(lines, '\n'), { parse_mode = 'html' })
 end
 
 local function handle_addsticker(api, message)
     if not message.reply then
-        return api.send_message(message.chat.id, 'Please reply to a sticker or image with an emoji, e.g. <code>/addsticker [emoji]</code>.', 'html')
+        return api.send_message(message.chat.id, 'Please reply to a sticker or image with an emoji, e.g. <code>/addsticker [emoji]</code>.', { parse_mode = 'html' })
     end
 
     local emoji = message.args and message.args:match('^(%S+)') or nil
@@ -89,7 +89,7 @@ local function handle_addsticker(api, message)
         return api.send_message(message.chat.id, string.format(
             'Sticker added to <a href="https://t.me/addstickers/%s">the pack</a>.',
             set_name
-        ), 'html')
+        ), { parse_mode = 'html' })
     end
 
     -- Set might not exist yet, try to create it
@@ -99,7 +99,7 @@ local function handle_addsticker(api, message)
         return api.send_message(message.chat.id, string.format(
             'Sticker pack created! <a href="https://t.me/addstickers/%s">View pack</a>.',
             set_name
-        ), 'html')
+        ), { parse_mode = 'html' })
     end
 
     return api.send_message(message.chat.id, 'Failed to add the sticker. Make sure you have started a private chat with me first.')

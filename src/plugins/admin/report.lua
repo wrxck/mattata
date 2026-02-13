@@ -54,7 +54,7 @@ function plugin.on_message(api, message, ctx)
         table.concat(mentions, ', ')
     )
 
-    api.send_message(message.chat.id, output, 'html', false, false, message.reply.message_id)
+    api.send_message(message.chat.id, output, { parse_mode = 'html', reply_parameters = { message_id = message.reply.message_id } })
 end
 
 return plugin

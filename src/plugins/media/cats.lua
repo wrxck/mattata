@@ -11,26 +11,13 @@ plugin.commands = { 'cat', 'cats' }
 plugin.help = '/cat - Sends a random cat image.'
 
 function plugin.on_message(api, message, ctx)
-    local https = require('ssl.https')
-    local json = require('dkjson')
-    local ltn12 = require('ltn12')
+    local http = require('src.core.http')
 
-    local response_body = {}
-    local res, code = https.request({
-        url = 'https://api.thecatapi.com/v1/images/search',
-        method = 'GET',
-        sink = ltn12.sink.table(response_body),
-        headers = {
-            ['Accept'] = 'application/json'
-        }
-    })
+    local data, code = http.get_json('https://api.thecatapi.com/v1/images/search')
 
-    if not res or code ~= 200 then
+    if not data then
         return api.send_message(message.chat.id, 'Failed to fetch a cat image. Please try again later.')
     end
-
-    local body = table.concat(response_body)
-    local data, _ = json.decode(body)
     if not data or #data == 0 then
         return api.send_message(message.chat.id, 'No cat images found. Please try again later.')
     end

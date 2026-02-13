@@ -43,6 +43,29 @@ function plugin.on_new_message(api, message, ctx)
         return api.send_message(message.chat.id, 'Invalid pattern: ' .. tostring(err))
     end
 
+    -- Reject patterns that could cause catastrophic backtracking
+    if #pattern > 128 then
+        return api.send_message(message.chat.id, 'Pattern too long (max 128 characters).')
+    end
+    local wq_count = 0
+    do
+        local i = 1
+        while i <= #pattern do
+            if pattern:sub(i, i) == '%' then
+                i = i + 2
+            elseif pattern:sub(i, i) == '.' and i < #pattern then
+                local nc = pattern:sub(i + 1, i + 1)
+                if nc == '+' or nc == '*' or nc == '-' then wq_count = wq_count + 1 end
+                i = i + 1
+            else
+                i = i + 1
+            end
+        end
+    end
+    if wq_count > 3 then
+        return api.send_message(message.chat.id, 'Pattern too complex (too many wildcard repetitions).')
+    end
+
     local original = message.reply.text
     local result
     if flags and flags:find('g') then
@@ -60,7 +83,7 @@ function plugin.on_new_message(api, message, ctx)
     return api.send_message(
         message.chat.id,
         string.format('<b>%s</b> meant to say:\n%s', name, tools.escape_html(result)),
-        'html'
+        { parse_mode = 'html' }
     )
 end
 

@@ -12,8 +12,6 @@ plugin.help = '/administration - Opens the administration settings panel. Alias:
 plugin.group_only = true
 plugin.admin_only = true
 
-local json = require('dkjson')
-
 -- toggleable settings with display names and keys
 local SETTINGS = {
     { key = 'antilink_enabled', name = 'Anti-Link', description = 'Delete Telegram invite links from non-admins' },
@@ -107,7 +105,7 @@ end
 function plugin.on_message(api, message, ctx)
     local text = build_message(ctx, message.chat.id)
     local keyboard = build_keyboard(ctx, message.chat.id, 1)
-    api.send_message(message.chat.id, text, 'html', false, false, nil, json.encode(keyboard))
+    api.send_message(message.chat.id, text, { parse_mode = 'html', reply_markup = keyboard })
 end
 
 function plugin.on_callback_query(api, callback_query, message, ctx)
@@ -118,7 +116,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
 
     -- only admins can change settings
     if not permissions.is_group_admin(api, message.chat.id, callback_query.from.id) then
-        return api.answer_callback_query(callback_query.id, 'Only admins can change settings.')
+        return api.answer_callback_query(callback_query.id, { text = 'Only admins can change settings.' })
     end
 
     if data == 'noop' then
@@ -133,7 +131,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         local page = tonumber(data:match('^page:(%d+)$'))
         local text = build_message(ctx, message.chat.id)
         local keyboard = build_keyboard(ctx, message.chat.id, page)
-        api.edit_message_text(message.chat.id, message.message_id, text, 'html', false, json.encode(keyboard))
+        api.edit_message_text(message.chat.id, message.message_id, text, { parse_mode = 'html', reply_markup = keyboard })
         return api.answer_callback_query(callback_query.id)
     end
 
@@ -169,11 +167,11 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         -- rebuild keyboard with updated state
         local text = build_message(ctx, message.chat.id)
         local keyboard = build_keyboard(ctx, message.chat.id, page)
-        api.edit_message_text(message.chat.id, message.message_id, text, 'html', false, json.encode(keyboard))
+        api.edit_message_text(message.chat.id, message.message_id, text, { parse_mode = 'html', reply_markup = keyboard })
 
-        return api.answer_callback_query(callback_query.id, string.format(
+        return api.answer_callback_query(callback_query.id, { text = string.format(
             '%s is now %s.', setting_name, new_state and 'enabled' or 'disabled'
-        ))
+        ) })
     end
 end
 

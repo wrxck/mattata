@@ -24,7 +24,7 @@ function plugin.on_message(api, message, ctx)
         for _, name in ipairs(no_delete) do
             output = output .. '- <code>' .. tools.escape_html(name) .. '</code>\n'
         end
-        return api.send_message(message.chat.id, output, 'html')
+        return api.send_message(message.chat.id, output, { parse_mode = 'html' })
     end
 
     local plugin_name = message.args:lower():match('^(%S+)$')
@@ -39,13 +39,13 @@ function plugin.on_message(api, message, ctx)
         api.send_message(message.chat.id, string.format(
             'Commands from <code>%s</code> will now be auto-deleted.',
             tools.escape_html(plugin_name)
-        ), 'html')
+        ), { parse_mode = 'html' })
     else
         ctx.redis.sadd(key, plugin_name)
         api.send_message(message.chat.id, string.format(
             'Commands from <code>%s</code> will no longer be auto-deleted.',
             tools.escape_html(plugin_name)
-        ), 'html')
+        ), { parse_mode = 'html' })
     end
 end
 
