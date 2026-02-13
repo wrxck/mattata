@@ -11,8 +11,7 @@ plugin.commands = { 'lastfm', 'np', 'fmset' }
 plugin.help = '/np - Show your currently playing or most recent track.\n/fmset <username> - Link your Last.fm account.\n/lastfm [username] - View recent tracks for a Last.fm user.'
 
 function plugin.on_message(api, message, ctx)
-    local https = require('ssl.https')
-    local json = require('dkjson')
+    local http = require('src.core.http')
     local url = require('socket.url')
     local tools = require('telegram-bot-lua.tools')
     local config = require('src.core.config')
@@ -34,7 +33,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             string.format('Your Last.fm username has been set to <b>%s</b>.', tools.escape_html(username)),
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -58,12 +57,10 @@ function plugin.on_message(api, message, ctx)
         url.escape(fm_user),
         url.escape(api_key)
     )
-    local body, status = https.request(api_url)
-    if not body or status ~= 200 then
+    local data, status = http.get_json(api_url)
+    if not data then
         return api.send_message(message.chat.id, 'Failed to connect to Last.fm. Please try again later.')
     end
-
-    local data = json.decode(body)
     if not data or not data.recenttracks or not data.recenttracks.track then
         return api.send_message(message.chat.id, 'User not found or no recent tracks available.')
     end
@@ -98,10 +95,9 @@ function plugin.on_message(api, message, ctx)
         url.escape(fm_user),
         url.escape(api_key)
     )
-    local user_body, user_status = https.request(user_url)
-    if user_body and user_status == 200 then
-        local user_data = json.decode(user_body)
-        if user_data and user_data.user and user_data.user.playcount then
+    local user_data, user_status = http.get_json(user_url)
+    if user_data then
+        if user_data.user and user_data.user.playcount then
             table.insert(lines, string.format('\nTotal scrobbles: <code>%s</code>', user_data.user.playcount))
         end
     end
@@ -110,7 +106,7 @@ function plugin.on_message(api, message, ctx)
         api.row():url_button('View on Last.fm', 'https://www.last.fm/user/' .. url.escape(fm_user))
     )
 
-    return api.send_message(message.chat.id, table.concat(lines, '\n'), 'html', true, false, nil, keyboard)
+    return api.send_message(message.chat.id, table.concat(lines, '\n'), { parse_mode = 'html', link_preview_options = { is_disabled = true }, reply_markup = keyboard })
 end
 
 return plugin

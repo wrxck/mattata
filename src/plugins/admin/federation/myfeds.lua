@@ -30,7 +30,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'You do not own or administrate any federations.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -64,7 +64,7 @@ function plugin.on_message(api, message, ctx)
         end
     end
 
-    return api.send_message(message.chat.id, output, 'html')
+    return api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

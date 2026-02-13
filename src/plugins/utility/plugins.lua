@@ -87,9 +87,9 @@ function plugin.send_plugin_page(api, chat_id, message_id, page, ctx)
     local text = 'Toggle plugins on or off for this chat. Permanent plugins (help, about, plugins) cannot be disabled.'
 
     if message_id then
-        return api.edit_message_text(chat_id, message_id, text, nil, true, keyboard)
+        return api.edit_message_text(chat_id, message_id, text, { link_preview_options = { is_disabled = true }, reply_markup = keyboard })
     else
-        return api.send_message(chat_id, text, nil, true, false, nil, keyboard)
+        return api.send_message(chat_id, text, { link_preview_options = { is_disabled = true }, reply_markup = keyboard })
     end
 end
 
@@ -100,7 +100,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
 
     -- Check admin permission
     if not permissions.is_group_admin(api, message.chat.id, callback_query.from.id) then
-        return api.answer_callback_query(callback_query.id, 'You need to be an admin to manage plugins.')
+        return api.answer_callback_query(callback_query.id, { text = 'You need to be an admin to manage plugins.' })
     end
 
     if data == 'noop' then
@@ -120,19 +120,19 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
     if plugin_name then
         return_page = tonumber(return_page)
         if loader.is_permanent(plugin_name) then
-            return api.answer_callback_query(callback_query.id, 'This plugin cannot be toggled.')
+            return api.answer_callback_query(callback_query.id, { text = 'This plugin cannot be toggled.' })
         end
         local target = loader.get_by_name(plugin_name)
         if not target then
-            return api.answer_callback_query(callback_query.id, 'Plugin not found.')
+            return api.answer_callback_query(callback_query.id, { text = 'Plugin not found.' })
         end
         local is_disabled = ctx.session.is_plugin_disabled(message.chat.id, plugin_name)
         if is_disabled then
             ctx.session.enable_plugin(message.chat.id, plugin_name)
-            api.answer_callback_query(callback_query.id, plugin_name .. ' has been enabled.')
+            api.answer_callback_query(callback_query.id, { text = plugin_name .. ' has been enabled.' })
         else
             ctx.session.disable_plugin(message.chat.id, plugin_name)
-            api.answer_callback_query(callback_query.id, plugin_name .. ' has been disabled.')
+            api.answer_callback_query(callback_query.id, { text = plugin_name .. ' has been disabled.' })
         end
         return plugin.send_plugin_page(api, message.chat.id, message.message_id, return_page, ctx)
     end

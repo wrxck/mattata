@@ -15,7 +15,7 @@ function plugin.on_message(api, message, ctx)
     if message.command == 'pong' then
         return api.send_message(message.chat.id, 'You really have to go the extra mile, don\'t you?')
     end
-    return api.send_message(message.chat.id, string.format('Pong! <code>%dms</code>', latency), 'html')
+    return api.send_message(message.chat.id, string.format('Pong! <code>%dms</code>', latency), { parse_mode = 'html' })
 end
 
 return plugin

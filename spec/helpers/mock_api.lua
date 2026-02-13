@@ -18,8 +18,8 @@ function mock_api.new()
         table.insert(api.calls, { method = method, args = {...} })
     end
 
-    function api.send_message(chat_id, text, parse_mode, ...)
-        record('send_message', chat_id, text, parse_mode, ...)
+    function api.send_message(chat_id, text, opts)
+        record('send_message', chat_id, text, opts)
         return { ok = true, result = { message_id = #api.calls, chat = { id = chat_id } } }
     end
 
@@ -32,8 +32,8 @@ function mock_api.new()
         return { ok = true, result = { status = 'member', user = { id = user_id } } }
     end
 
-    function api.ban_chat_member(chat_id, user_id, until_date)
-        record('ban_chat_member', chat_id, user_id, until_date)
+    function api.ban_chat_member(chat_id, user_id, opts)
+        record('ban_chat_member', chat_id, user_id, opts)
         return { ok = true, result = true }
     end
 
@@ -42,9 +42,29 @@ function mock_api.new()
         return { ok = true, result = true }
     end
 
-    function api.restrict_chat_member(chat_id, user_id, perms_or_until, maybe_perms)
-        record('restrict_chat_member', chat_id, user_id, perms_or_until, maybe_perms)
+    function api.restrict_chat_member(chat_id, user_id, permissions, opts)
+        record('restrict_chat_member', chat_id, user_id, permissions, opts)
         return { ok = true, result = true }
+    end
+
+    function api.send_photo(chat_id, photo, opts)
+        record('send_photo', chat_id, photo, opts)
+        return { ok = true, result = { message_id = #api.calls, chat = { id = chat_id } } }
+    end
+
+    function api.send_document(chat_id, document, opts)
+        record('send_document', chat_id, document, opts)
+        return { ok = true, result = { message_id = #api.calls, chat = { id = chat_id } } }
+    end
+
+    function api.send_video(chat_id, video, opts)
+        record('send_video', chat_id, video, opts)
+        return { ok = true, result = { message_id = #api.calls, chat = { id = chat_id } } }
+    end
+
+    function api.send_audio(chat_id, audio, opts)
+        record('send_audio', chat_id, audio, opts)
+        return { ok = true, result = { message_id = #api.calls, chat = { id = chat_id } } }
     end
 
     function api.delete_message(chat_id, message_id)
@@ -52,14 +72,19 @@ function mock_api.new()
         return { ok = true, result = true }
     end
 
-    function api.pin_chat_message(chat_id, message_id, disable_notification)
-        record('pin_chat_message', chat_id, message_id, disable_notification)
+    function api.pin_chat_message(chat_id, message_id, opts)
+        record('pin_chat_message', chat_id, message_id, opts)
         return { ok = true, result = true }
     end
 
-    function api.unpin_chat_message(chat_id, message_id)
-        record('unpin_chat_message', chat_id, message_id)
+    function api.unpin_chat_message(chat_id, opts)
+        record('unpin_chat_message', chat_id, opts)
         return { ok = true, result = true }
+    end
+
+    function api.send_dice(chat_id, opts)
+        record('send_dice', chat_id, opts)
+        return { ok = true, result = { message_id = #api.calls, dice = { value = 4 } } }
     end
 
     function api.get_chat(chat_id)
@@ -67,18 +92,18 @@ function mock_api.new()
         return { ok = true, result = { id = chat_id, first_name = 'Test User' } }
     end
 
-    function api.edit_message_text(chat_id, message_id, text, parse_mode, ...)
-        record('edit_message_text', chat_id, message_id, text, parse_mode, ...)
+    function api.edit_message_text(chat_id, message_id, text, opts)
+        record('edit_message_text', chat_id, message_id, text, opts)
         return { ok = true, result = { message_id = message_id } }
     end
 
-    function api.edit_message_reply_markup(chat_id, message_id, inline_message_id, keyboard)
-        record('edit_message_reply_markup', chat_id, message_id, inline_message_id, keyboard)
+    function api.edit_message_reply_markup(chat_id, message_id, opts)
+        record('edit_message_reply_markup', chat_id, message_id, opts)
         return { ok = true, result = { message_id = message_id } }
     end
 
-    function api.answer_callback_query(callback_id, text)
-        record('answer_callback_query', callback_id, text)
+    function api.answer_callback_query(callback_id, opts)
+        record('answer_callback_query', callback_id, opts)
         return { ok = true }
     end
 
@@ -186,6 +211,15 @@ function mock_api.new()
     api.on_edited_message = function() end
     api.on_callback_query = function() end
     api.on_inline_query = function() end
+    api.on_chat_join_request = function() end
+    api.on_chat_member = function() end
+    api.on_my_chat_member = function() end
+    api.on_message_reaction = function() end
+    api.on_message_reaction_count = function() end
+    api.on_chat_boost = function() end
+    api.on_removed_chat_boost = function() end
+    api.on_poll = function() end
+    api.on_poll_answer = function() end
 
     -- Async stubs (telegram-bot-lua async system)
     api.async = {

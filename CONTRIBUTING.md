@@ -39,6 +39,30 @@ function plugin.on_member_join(api, message, ctx) end
 -- Inline query handler
 function plugin.on_inline_query(api, inline_query, ctx) end
 
+-- Reaction changes
+function plugin.on_reaction(api, update, ctx) end
+
+-- Member status changes (join, leave, promoted, etc.)
+function plugin.on_chat_member_update(api, update, ctx) end
+
+-- Bot's own membership changes
+function plugin.on_my_chat_member(api, update, ctx) end
+
+-- Join request received
+function plugin.on_chat_join_request(api, update, ctx) end
+
+-- Poll state change
+function plugin.on_poll(api, update, ctx) end
+
+-- User voted on poll
+function plugin.on_poll_answer(api, update, ctx) end
+
+-- Chat boost received
+function plugin.on_chat_boost(api, update, ctx) end
+
+-- Chat boost removed
+function plugin.on_removed_chat_boost(api, update, ctx) end
+
 -- Cron job (runs every minute)
 function plugin.cron(api, ctx) end
 ```
@@ -48,7 +72,8 @@ function plugin.cron(api, ctx) end
 | Field | Type | Description |
 |-------|------|-------------|
 | `ctx.api` | table | Telegram Bot API |
-| `ctx.db` | table | PostgreSQL (query, execute, insert, upsert) |
+| `ctx.db` | table | PostgreSQL via stored procedures — use `ctx.db.call('sp_name', {args})` |
+| `ctx.http` | table | Async HTTP client — `ctx.http.get(url)`, `ctx.http.post(url, body)` |
 | `ctx.redis` | table | Redis client proxy |
 | `ctx.session` | table | Session/cache manager |
 | `ctx.config` | table | Configuration reader |
@@ -67,7 +92,7 @@ function plugin.cron(api, ctx) end
 
 ### Database Migrations
 
-If your plugin needs database tables, add a migration file to `src/db/migrations/`:
+If your plugin needs database tables or stored procedures, add a migration file to `src/db/migrations/`:
 
 ```lua
 local migration = {}
@@ -76,10 +101,28 @@ function migration.up()
         CREATE TABLE IF NOT EXISTS my_table (
             id SERIAL PRIMARY KEY,
             ...
-        )
+        );
+
+        CREATE OR REPLACE FUNCTION sp_my_operation(p_id BIGINT, p_value TEXT)
+        RETURNS VOID AS $$
+        BEGIN
+            INSERT INTO my_table (id, value) VALUES (p_id, p_value)
+            ON CONFLICT (id) DO UPDATE SET value = p_value;
+        END;
+        $$ LANGUAGE plpgsql;
     ]]
 end
 return migration
+```
+
+All database operations should use stored procedures via `ctx.db.call()` rather than raw SQL:
+
+```lua
+-- Good: stored procedure
+ctx.db.call('sp_my_operation', {user_id, value})
+
+-- Avoid: raw SQL
+ctx.db.query('INSERT INTO my_table ...')
 ```
 
 ### Code Style

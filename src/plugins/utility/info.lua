@@ -31,7 +31,7 @@ function plugin.on_message(api, message, ctx)
         table.insert(lines, 'Groups tracked: <code>' .. chat_count[1].count .. '</code>')
     end
 
-    return api.send_message(message.chat.id, table.concat(lines, '\n'), 'html')
+    return api.send_message(message.chat.id, table.concat(lines, '\n'), { parse_mode = 'html' })
 end
 
 return plugin

@@ -26,13 +26,16 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, 'You can\'t import from the same chat.')
     end
 
+    -- Verify the calling user is a member of the source chat
+    local member = api.get_chat_member(source_id, message.from.id)
+    if not member or not member.result or member.result.status == 'left' or member.result.status == 'kicked' then
+        return api.send_message(message.chat.id, 'You must be a member of the source chat to import from it.')
+    end
+
     local imported = {}
 
     -- Import chat_settings
-    local settings = ctx.db.execute(
-        'SELECT key, value FROM chat_settings WHERE chat_id = $1',
-        { source_id }
-    )
+    local settings = ctx.db.call('sp_get_all_chat_settings', { source_id })
     if settings and #settings > 0 then
         for _, s in ipairs(settings) do
             ctx.db.upsert('chat_settings', {
@@ -45,16 +48,10 @@ function plugin.on_message(api, message, ctx)
     end
 
     -- Import filters
-    local filters = ctx.db.execute(
-        'SELECT pattern, action, response FROM filters WHERE chat_id = $1',
-        { source_id }
-    )
+    local filters = ctx.db.call('sp_get_filters_full', { source_id })
     if filters and #filters > 0 then
         for _, f in ipairs(filters) do
-            local existing = ctx.db.execute(
-                'SELECT 1 FROM filters WHERE chat_id = $1 AND pattern = $2',
-                { message.chat.id, f.pattern }
-            )
+            local existing = ctx.db.call('sp_get_filter', { message.chat.id, f.pattern })
             if not existing or #existing == 0 then
                 ctx.db.insert('filters', {
                     chat_id = message.chat.id,
@@ -69,16 +66,10 @@ function plugin.on_message(api, message, ctx)
     end
 
     -- Import triggers
-    local triggers = ctx.db.execute(
-        'SELECT pattern, response, is_media, file_id FROM triggers WHERE chat_id = $1',
-        { source_id }
-    )
+    local triggers = ctx.db.call('sp_get_triggers', { source_id })
     if triggers and #triggers > 0 then
         for _, t in ipairs(triggers) do
-            local existing = ctx.db.execute(
-                'SELECT 1 FROM triggers WHERE chat_id = $1 AND pattern = $2',
-                { message.chat.id, t.pattern }
-            )
+            local existing = ctx.db.call('sp_check_trigger_exists', { message.chat.id, t.pattern })
             if not existing or #existing == 0 then
                 ctx.db.insert('triggers', {
                     chat_id = message.chat.id,
@@ -94,10 +85,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     -- Import rules
-    local rules = ctx.db.execute(
-        'SELECT rules_text FROM rules WHERE chat_id = $1',
-        { source_id }
-    )
+    local rules = ctx.db.call('sp_get_rules', { source_id })
     if rules and #rules > 0 then
         ctx.db.upsert('rules', {
             chat_id = message.chat.id,
@@ -107,10 +95,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     -- Import welcome message
-    local welcome = ctx.db.execute(
-        'SELECT message, parse_mode FROM welcome_messages WHERE chat_id = $1',
-        { source_id }
-    )
+    local welcome = ctx.db.call('sp_get_welcome_message_full', { source_id })
     if welcome and #welcome > 0 then
         ctx.db.upsert('welcome_messages', {
             chat_id = message.chat.id,
@@ -121,16 +106,10 @@ function plugin.on_message(api, message, ctx)
     end
 
     -- Import allowed links
-    local links = ctx.db.execute(
-        'SELECT link FROM allowed_links WHERE chat_id = $1',
-        { source_id }
-    )
+    local links = ctx.db.call('sp_get_allowed_links', { source_id })
     if links and #links > 0 then
         for _, l in ipairs(links) do
-            local existing = ctx.db.execute(
-                'SELECT 1 FROM allowed_links WHERE chat_id = $1 AND link = $2',
-                { message.chat.id, l.link }
-            )
+            local existing = ctx.db.call('sp_check_allowed_link', { message.chat.id, l.link })
             if not existing or #existing == 0 then
                 ctx.db.insert('allowed_links', {
                     chat_id = message.chat.id,
@@ -148,7 +127,7 @@ function plugin.on_message(api, message, ctx)
     api.send_message(message.chat.id, string.format(
         'Successfully imported from <code>%d</code>:\n- %s',
         source_id, table.concat(imported, '\n- ')
-    ), 'html')
+    ), { parse_mode = 'html' })
 end
 
 return plugin

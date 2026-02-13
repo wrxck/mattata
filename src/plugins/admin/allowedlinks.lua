@@ -26,7 +26,7 @@ function plugin.on_message(api, message, ctx)
     end
     output = output .. string.format('\n<i>Total: %d link(s)</i>\nUse /allowlink <link> to add more.', #result)
 
-    api.send_message(message.chat.id, output, 'html')
+    api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

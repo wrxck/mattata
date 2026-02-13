@@ -45,7 +45,7 @@ function plugin.on_message(api, message, ctx)
     table.insert(lines, '')
     table.insert(lines, string.format('<i>Total (top 10): %d command uses</i>', total_usage))
 
-    return api.send_message(message.chat.id, table.concat(lines, '\n'), 'html')
+    return api.send_message(message.chat.id, table.concat(lines, '\n'), { parse_mode = 'html' })
 end
 
 return plugin

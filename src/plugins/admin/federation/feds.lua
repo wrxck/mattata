@@ -32,7 +32,7 @@ function plugin.on_message(api, message, ctx)
             return api.send_message(
                 message.chat.id,
                 'Federation not found. Please check the ID and try again.',
-                'html'
+                { parse_mode = 'html' }
             )
         end
         fed = result[1]
@@ -42,7 +42,7 @@ function plugin.on_message(api, message, ctx)
             return api.send_message(
                 message.chat.id,
                 'This chat is not part of any federation. Provide a federation ID to look up.\nUsage: <code>/feds &lt;federation_id&gt;</code>',
-                'html'
+                { parse_mode = 'html' }
             )
         end
         local full = ctx.db.call('sp_get_federation', { fed.id })
@@ -53,7 +53,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Please specify a federation ID.\nUsage: <code>/feds &lt;federation_id&gt;</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -77,7 +77,7 @@ function plugin.on_message(api, message, ctx)
         output = output .. string.format('\nCreated: %s', tools.escape_html(tostring(fed.created_at)))
     end
 
-    return api.send_message(message.chat.id, output, 'html')
+    return api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

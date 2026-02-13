@@ -14,14 +14,8 @@ plugin.admin_only = true
 function plugin.on_message(api, message, ctx)
     if not message.args then
         -- Show current captcha status
-        local enabled = ctx.db.execute(
-            "SELECT value FROM chat_settings WHERE chat_id = $1 AND key = 'captcha_enabled'",
-            { message.chat.id }
-        )
-        local timeout = ctx.db.execute(
-            "SELECT value FROM chat_settings WHERE chat_id = $1 AND key = 'captcha_timeout'",
-            { message.chat.id }
-        )
+        local enabled = ctx.db.call('sp_get_chat_setting', { message.chat.id, 'captcha_enabled' })
+        local timeout = ctx.db.call('sp_get_chat_setting', { message.chat.id, 'captcha_timeout' })
         local status = (enabled and #enabled > 0 and enabled[1].value == 'true') and 'enabled' or 'disabled'
         local timeout_val = (timeout and #timeout > 0) and timeout[1].value or '300'
         return api.send_message(message.chat.id, string.format(
@@ -30,7 +24,7 @@ function plugin.on_message(api, message, ctx)
             .. '<code>/setcaptcha off</code> - Disable captcha\n'
             .. '<code>/setcaptcha timeout &lt;seconds&gt;</code> - Set timeout',
             status, timeout_val
-        ), 'html')
+        ), { parse_mode = 'html' })
     end
 
     local args = message.args:lower()

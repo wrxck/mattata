@@ -36,15 +36,15 @@ function plugin.on_message(api, message, ctx)
     end
 
     pcall(function()
-        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, nil, 'purge', string.format('Purged %d messages (%d failed)', count, failed) })
+        ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, nil, 'purge', string.format('Purged %d messages (%d failed)', count, failed)))
     end)
 
-    local status = api.send_message(message.chat.id, string.format('Purged <b>%d</b> message(s).', count), 'html')
+    local status = api.send_message(message.chat.id, string.format('Purged <b>%d</b> message(s).', count), { parse_mode = 'html' })
     -- auto-delete the status message after a short delay
     if status and status.result then
         pcall(function()
-            local socket = require('socket')
-            socket.sleep(3)
+            local copas = require('copas')
+            copas.pause(3)
             api.delete_message(message.chat.id, status.result.message_id)
         end)
     end
