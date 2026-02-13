@@ -114,12 +114,17 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         return api.edit_message_text(message.chat.id, message.message_id, output, 'html', true, keyboard)
 
     elseif data == 'links' then
+        local cfg = require('src.core.config')
+        local channel_url = cfg.get('CHANNEL_URL', 'https://t.me/mattata')
+        local support_url = cfg.get('SUPPORT_URL', 'https://t.me/mattataSupport')
+        local github_url = cfg.get('GITHUB_URL', 'https://github.com/wrxck/mattata')
+        local dev_url = cfg.get('DEV_URL', 'https://t.me/mattataDev')
         local keyboard = api.inline_keyboard():row(
-            api.row():url_button('Development', 'https://t.me/mattataDev')
-                :url_button('Channel', 'https://t.me/mattata')
+            api.row():url_button('Development', dev_url)
+                :url_button('Channel', channel_url)
         ):row(
-            api.row():url_button('GitHub', 'https://github.com/wrxck/mattata')
-                :url_button('Support', 'https://t.me/mattataSupport')
+            api.row():url_button('GitHub', github_url)
+                :url_button('Support', support_url)
         ):row(
             api.row():callback_data_button('Back', 'help:back')
         )
