@@ -81,12 +81,18 @@ function plugin.on_member_join(api, message, ctx)
         if new_member.is_bot then goto continue end
 
         -- Restrict the new member
-        api.restrict_chat_member(message.chat.id, new_member.id, os.time() + timeout, {
+        api.restrict_chat_member(message.chat.id, new_member.id, {
             can_send_messages = false,
-            can_send_media_messages = false,
+            can_send_audios = false,
+            can_send_documents = false,
+            can_send_photos = false,
+            can_send_videos = false,
+            can_send_video_notes = false,
+            can_send_voice_notes = false,
+            can_send_polls = false,
             can_send_other_messages = false,
             can_add_web_page_previews = false
-        })
+        }, { until_date = os.time() + timeout })
 
         -- Generate captcha
         local question, answer = generate_captcha()
@@ -143,9 +149,15 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
 
     if selected == captcha.text then
         -- Correct answer - unrestrict user
-        api.restrict_chat_member(chat_id, user_id, 0, {
+        api.restrict_chat_member(chat_id, user_id, {
             can_send_messages = true,
-            can_send_media_messages = true,
+            can_send_audios = true,
+            can_send_documents = true,
+            can_send_photos = true,
+            can_send_videos = true,
+            can_send_video_notes = true,
+            can_send_voice_notes = true,
+            can_send_polls = true,
             can_send_other_messages = true,
             can_add_web_page_previews = true
         })

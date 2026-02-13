@@ -285,11 +285,15 @@ local function on_callback_query(callback_query)
     if not callback_query or not callback_query.from then return end
     if not callback_query.data then return end
 
-    local message = callback_query.message or {
-        chat = {},
-        message_id = callback_query.inline_message_id,
-        from = callback_query.from
-    }
+    local message = callback_query.message
+    if not message then
+        message = {
+            chat = { id = callback_query.from.id, type = 'private' },
+            message_id = callback_query.inline_message_id,
+            from = callback_query.from
+        }
+        callback_query.is_inline = true
+    end
 
     -- Parse plugin_name:data format
     local plugin_name, cb_data = callback_query.data:match('^(.-):(.*)$')

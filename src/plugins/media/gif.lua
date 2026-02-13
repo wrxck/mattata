@@ -10,13 +10,16 @@ plugin.description = 'Search for GIFs using Tenor'
 plugin.commands = { 'gif', 'tenor' }
 plugin.help = '/gif <query> - Search for a GIF and send it.'
 
-local TENOR_KEY = 'AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ'
-
 function plugin.on_message(api, message, ctx)
     local https = require('ssl.https')
     local json = require('dkjson')
     local url = require('socket.url')
     local ltn12 = require('ltn12')
+
+    local tenor_key = ctx.config.get('TENOR_API_KEY')
+    if not tenor_key or tenor_key == '' then
+        return api.send_message(message.chat.id, 'The Tenor API key is not configured. Please set <code>TENOR_API_KEY</code> in the bot configuration.', 'html')
+    end
 
     if not message.args or message.args == '' then
         return api.send_message(message.chat.id, 'Please specify a search query, e.g. <code>/gif funny cats</code>.', 'html')
@@ -25,7 +28,7 @@ function plugin.on_message(api, message, ctx)
     local query = url.escape(message.args)
     local api_url = string.format(
         'https://tenor.googleapis.com/v2/search?q=%s&key=%s&limit=1&media_filter=gif',
-        query, TENOR_KEY
+        query, tenor_key
     )
 
     local response_body = {}

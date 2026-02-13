@@ -1,5 +1,5 @@
 --[[
-    mattata v2.0 - Blocklist Middleware
+    mattata v2.1 - Blocklist Middleware
     Checks global bans, group bans, and SpamWatch. Stops if blocked.
 ]]
 
@@ -8,6 +8,52 @@ blocklist.name = 'blocklist'
 
 local config = require('src.core.config')
 local session = require('src.core.session')
+local logger = require('src.core.logger')
+
+-- SpamWatch async check with Redis caching
+local function check_spamwatch(ctx, user_id, token)
+    -- Check cache first (positive = banned, negative = not banned)
+    local ban_cached = ctx.redis.get('spamwatch:ban:' .. user_id)
+    if ban_cached then
+        return true
+    end
+    local safe_cached = ctx.redis.get('spamwatch:safe:' .. user_id)
+    if safe_cached then
+        return false
+    end
+
+    -- Async HTTPS check
+    local ok, result = pcall(function()
+        local https = require('ssl.https')
+        local ltn12 = require('ltn12')
+        local response_body = {}
+        local _, code = https.request({
+            url = 'https://api.spamwat.ch/banlist/' .. tostring(user_id),
+            method = 'GET',
+            sink = ltn12.sink.table(response_body),
+            headers = {
+                ['Authorization'] = 'Bearer ' .. token,
+                ['Accept'] = 'application/json'
+            }
+        })
+        return code
+    end)
+
+    if ok then
+        if result == 200 then
+            -- User is banned on SpamWatch, cache for 1 hour
+            ctx.redis.setex('spamwatch:ban:' .. user_id, 3600, '1')
+            return true
+        else
+            -- Not banned (or error), cache safe status for 1 hour
+            ctx.redis.setex('spamwatch:safe:' .. user_id, 3600, '1')
+            return false
+        end
+    else
+        logger.warn('SpamWatch API error for user %s: %s', tostring(user_id), tostring(result))
+        return false
+    end
+end
 
 function blocklist.run(ctx, message)
     if not message.from then
@@ -61,10 +107,15 @@ function blocklist.run(ctx, message)
     -- SpamWatch check (if configured)
     local spamwatch_token = config.get('SPAMWATCH_TOKEN')
     if spamwatch_token and spamwatch_token ~= '' then
-        local cached = ctx.redis.get('not_blocklisted:' .. user_id)
-        if not cached then
-            -- Check will be done asynchronously in future; for now just mark as not checked
-            ctx.spamwatch_checked = false
+        local is_banned = check_spamwatch(ctx, user_id, spamwatch_token)
+        if is_banned then
+            ctx.is_spamwatch_banned = true
+            if ctx.is_group then
+                pcall(function()
+                    ctx.api.ban_chat_member(message.chat.id, user_id)
+                end)
+            end
+            return ctx, false
         end
     end
 
