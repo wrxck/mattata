@@ -30,7 +30,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     local api_url = string.format('https://api.github.com/repos/%s/%s', owner, repo)
-    local data, code = http.get_json(api_url, {
+    local data, _ = http.get_json(api_url, {
         ['Accept'] = 'application/vnd.github.v3+json'
     })
     if not data then

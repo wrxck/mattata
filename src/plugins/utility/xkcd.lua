@@ -21,7 +21,7 @@ function plugin.on_message(api, message, ctx)
         api_url = string.format('https://xkcd.com/%s/info.0.json', input)
     elseif input and input:lower() == 'random' then
         -- Fetch latest to get the max number, then pick random
-        local latest, latest_code = http.get_json('https://xkcd.com/info.0.json')
+        local latest, _ = http.get_json('https://xkcd.com/info.0.json')
         if latest and latest.num then
             local random_num = math.random(1, latest.num)
             api_url = string.format('https://xkcd.com/%d/info.0.json', random_num)
@@ -33,7 +33,7 @@ function plugin.on_message(api, message, ctx)
         api_url = 'https://xkcd.com/info.0.json'
     end
 
-    local data, code = http.get_json(api_url)
+    local data, _ = http.get_json(api_url)
     if not data then
         return api.send_message(message.chat.id, 'Comic not found. Please check the number and try again.')
     end

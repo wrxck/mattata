@@ -21,7 +21,7 @@ function plugin.on_message(api, message, ctx)
 
     local query = input:lower():gsub('%s+', '-')
     local api_url = 'https://pokeapi.co/api/v2/pokemon/' .. query
-    local data, code = http.get_json(api_url)
+    local data, _ = http.get_json(api_url)
     if not data then
         return api.send_message(message.chat.id, 'Pokemon not found. Please check the name or ID and try again.')
     end

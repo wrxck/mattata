@@ -37,14 +37,14 @@ function plugin.on_message(api, message, ctx)
 
     local arg = message.args:lower()
     if arg == 'on' or arg == 'enable' then
-        local ok, err = pcall(ctx.db.call, 'sp_upsert_chat_setting', { message.chat.id, 'reactions_enabled', 'true' })
+        local ok, _ = pcall(ctx.db.call, 'sp_upsert_chat_setting', { message.chat.id, 'reactions_enabled', 'true' })
         if not ok then
             return api.send_message(message.chat.id, 'Failed to update setting. Please try again.')
         end
         session.invalidate_setting(message.chat.id, 'reactions_enabled')
         return api.send_message(message.chat.id, 'Reaction karma has been enabled for this group.')
     elseif arg == 'off' or arg == 'disable' then
-        local ok, err = pcall(ctx.db.call, 'sp_upsert_chat_setting', { message.chat.id, 'reactions_enabled', 'false' })
+        local ok, _ = pcall(ctx.db.call, 'sp_upsert_chat_setting', { message.chat.id, 'reactions_enabled', 'false' })
         if not ok then
             return api.send_message(message.chat.id, 'Failed to update setting. Please try again.')
         end
