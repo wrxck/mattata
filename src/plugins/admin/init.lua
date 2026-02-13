@@ -54,6 +54,7 @@ return {
         'customtitle',
         'joinrequest',
         'chatpermissions',
+        'bulkops',
         -- Federation sub-package
         'federation.newfed',
         'federation.delfed',

@@ -38,6 +38,8 @@ return {
         'paste',
         'bookmark',
         'schedule',
-        'growth'
+        'growth',
+        'poll',
+        'boosts'
     }
 }

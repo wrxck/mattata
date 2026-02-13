@@ -18,6 +18,7 @@ return {
         'quote',
         'game',
         'poll',
-        'reactions'
+        'reactions',
+        'react'
     }
 }
