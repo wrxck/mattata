@@ -49,6 +49,11 @@ return {
         'autodelete',
         'topic',
         'customcaptcha',
+        'unpinall',
+        'chatinfo',
+        'customtitle',
+        'joinrequest',
+        'chatpermissions',
         'bulkops',
         -- Federation sub-package
         'federation.newfed',
