@@ -18,7 +18,7 @@ function plugin.on_message(api, message, ctx)
             return api.send_message(message.chat.id, string.format(
                 'Admin actions are being logged to <code>%s</code>.\nUse /logchat off to disable.',
                 result[1].value
-            ), 'html')
+            ), { parse_mode = 'html' })
         end
         return api.send_message(message.chat.id, 'No log chat is set. Use /logchat <chat_id> to set one.')
     end
@@ -35,14 +35,14 @@ function plugin.on_message(api, message, ctx)
     end
 
     -- verify bot can send to the log chat
-    local test = api.send_message(log_chat_id, 'This chat has been set as the log chat for admin actions.', nil, nil, nil, nil, nil)
+    local test = api.send_message(log_chat_id, 'This chat has been set as the log chat for admin actions.')
     if not test then
         return api.send_message(message.chat.id, 'I can\'t send messages to that chat. Make sure I\'m a member there.')
     end
 
     ctx.db.call('sp_upsert_chat_setting', { message.chat.id, 'log_chat', tostring(log_chat_id) })
 
-    api.send_message(message.chat.id, string.format('Log chat set to <code>%d</code>.', log_chat_id), 'html')
+    api.send_message(message.chat.id, string.format('Log chat set to <code>%d</code>.', log_chat_id), { parse_mode = 'html' })
 end
 
 return plugin

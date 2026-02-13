@@ -54,7 +54,11 @@ function plugin.on_message(api, message, ctx)
         can_send_voice_notes = false,
         can_send_polls = false,
         can_send_other_messages = false,
-        can_add_web_page_previews = false
+        can_add_web_page_previews = false,
+        can_invite_users = false,
+        can_change_info = false,
+        can_pin_messages = false,
+        can_manage_topics = false
     }
     local success = api.restrict_chat_member(message.chat.id, user_id, perms)
     if not success then
@@ -62,7 +66,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     pcall(function()
-        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'mute', reason })
+        ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, user_id, 'mute', reason))
     end)
 
     if reason and reason:lower():match('^for ') then reason = reason:sub(5) end
@@ -73,7 +77,7 @@ function plugin.on_message(api, message, ctx)
     return api.send_message(message.chat.id, string.format(
         '<a href="tg://user?id=%d">%s</a> has muted <a href="tg://user?id=%d">%s</a>%s.',
         message.from.id, admin_name, user_id, target_name, reason_text
-    ), 'html')
+    ), { parse_mode = 'html' })
 end
 
 return plugin

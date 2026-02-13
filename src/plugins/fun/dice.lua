@@ -33,7 +33,7 @@ function plugin.on_message(api, message, ctx)
             'Invalid dice type. Valid types: ' .. table.concat(valid, ', ')
         )
     end
-    return api.send_dice(message.chat.id, emoji, false, message.message_id)
+    return api.send_dice(message.chat.id, { emoji = emoji, reply_parameters = { message_id = message.message_id } })
 end
 
 return plugin

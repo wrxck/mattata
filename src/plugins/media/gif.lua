@@ -11,10 +11,8 @@ plugin.commands = { 'gif', 'tenor' }
 plugin.help = '/gif <query> - Search for a GIF and send it.'
 
 function plugin.on_message(api, message, ctx)
-    local https = require('ssl.https')
-    local json = require('dkjson')
+    local http = require('src.core.http')
     local url = require('socket.url')
-    local ltn12 = require('ltn12')
 
     local tenor_key = ctx.config.get('TENOR_API_KEY')
     if not tenor_key or tenor_key == '' then
@@ -22,7 +20,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     if not message.args or message.args == '' then
-        return api.send_message(message.chat.id, 'Please specify a search query, e.g. <code>/gif funny cats</code>.', 'html')
+        return api.send_message(message.chat.id, 'Please specify a search query, e.g. <code>/gif funny cats</code>.', { parse_mode = 'html' })
     end
 
     local query = url.escape(message.args)
@@ -31,22 +29,11 @@ function plugin.on_message(api, message, ctx)
         query, tenor_key
     )
 
-    local response_body = {}
-    local res, code = https.request({
-        url = api_url,
-        method = 'GET',
-        sink = ltn12.sink.table(response_body),
-        headers = {
-            ['Accept'] = 'application/json'
-        }
-    })
+    local data, code = http.get_json(api_url)
 
-    if not res or code ~= 200 then
+    if not data then
         return api.send_message(message.chat.id, 'Failed to search Tenor. Please try again later.')
     end
-
-    local body = table.concat(response_body)
-    local data, _ = json.decode(body)
     if not data or not data.results or #data.results == 0 then
         return api.send_message(message.chat.id, 'No GIFs found for that query.')
     end

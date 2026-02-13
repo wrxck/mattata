@@ -48,7 +48,7 @@ function plugin.on_message(api, message, ctx)
     return api.send_message(
         message.chat.id,
         string.format('Press the button below to share <code>%s</code>.', tools.escape_html(share_url)),
-        'html', true, false, nil, keyboard
+        { parse_mode = 'html', link_preview_options = { is_disabled = true }, reply_markup = keyboard }
     )
 end
 

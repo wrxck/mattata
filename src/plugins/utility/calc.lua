@@ -11,7 +11,7 @@ plugin.commands = { 'calc', 'calculate', 'calculator' }
 plugin.help = '/calc <expression> - Evaluate a mathematical expression.'
 
 function plugin.on_message(api, message, ctx)
-    local https = require('ssl.https')
+    local http = require('src.core.http')
     local url = require('socket.url')
     local tools = require('telegram-bot-lua.tools')
 
@@ -22,7 +22,7 @@ function plugin.on_message(api, message, ctx)
 
     local encoded = url.escape(input)
     local api_url = 'https://api.mathjs.org/v4/?expr=' .. encoded
-    local body, status = https.request(api_url)
+    local body, status = http.get(api_url)
     if not body or status ~= 200 then
         return api.send_message(message.chat.id, 'Failed to evaluate that expression. Please check the syntax and try again.')
     end
@@ -36,7 +36,7 @@ function plugin.on_message(api, message, ctx)
     return api.send_message(
         message.chat.id,
         string.format('<b>Expression:</b> <code>%s</code>\n<b>Result:</b> <code>%s</code>', tools.escape_html(input), tools.escape_html(result)),
-        'html'
+        { parse_mode = 'html' }
     )
 end
 

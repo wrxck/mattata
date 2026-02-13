@@ -7,7 +7,6 @@
 
 local router = {}
 
-local json = require('dkjson')
 local copas = require('copas')
 local config = require('src.core.config')
 local logger = require('src.core.logger')
@@ -45,12 +44,10 @@ function router.init(api_ref, tools_ref, loader_ref, ctx_base_ref)
 end
 
 -- Build a fresh context for each update
--- Admin check is lazy — only resolved when ctx:check_admin() is called
+-- Uses metatable __index to inherit ctx_base without copying.
+-- Admin check is lazy — only resolved when ctx:check_admin() is called.
 local function build_ctx(message)
-    local ctx = {}
-    for k, v in pairs(ctx_base) do
-        ctx[k] = v
-    end
+    local ctx = setmetatable({}, { __index = ctx_base })
     ctx.is_group = message.chat and message.chat.type ~= 'private'
     ctx.is_supergroup = message.chat and message.chat.type == 'supergroup'
     ctx.is_private = message.chat and message.chat.type == 'private'
@@ -76,10 +73,18 @@ local function build_ctx(message)
         return admin_value
     end
 
-    -- For backward compat: admin plugins that check ctx.is_admin will still
-    -- need to call ctx:check_admin() first. The router does this for admin_only plugins.
     ctx.is_mod = false
     return ctx
+end
+
+-- Generic event dispatcher: iterates pre-indexed plugins for a given event
+local function dispatch_event(event_name, update, ctx)
+    for _, plugin in ipairs(loader.get_by_event(event_name)) do
+        local ok, err = pcall(plugin[event_name], api, update, ctx)
+        if not ok then
+            logger.error('Plugin %s.%s error: %s', plugin.name, event_name, tostring(err))
+        end
+    end
 end
 
 -- Sort/normalise a message object (ported from v1 mattata.sort_message)
@@ -112,13 +117,24 @@ local function sort_message(message)
     -- Detect service messages
     message.is_service_message = (message.new_chat_members or message.left_chat_member
         or message.new_chat_title or message.new_chat_photo or message.pinned_message
-        or message.group_chat_created or message.supergroup_chat_created) and true or false
+        or message.group_chat_created or message.supergroup_chat_created
+        or message.forum_topic_created or message.forum_topic_closed
+        or message.forum_topic_reopened or message.forum_topic_edited
+        or message.video_chat_started or message.video_chat_ended
+        or message.video_chat_participants_invited
+        or message.message_auto_delete_timer_changed
+        or message.write_access_allowed) and true or false
+    -- Detect forum topics
+    message.is_topic = message.is_topic_message or false
+    message.thread_id = message.message_thread_id
     -- Entity-based text mentions -> ID substitution
     if message.entities then
         for _, entity in ipairs(message.entities) do
             if entity.type == 'text_mention' and entity.user then
                 local name = message.text:sub(entity.offset + 1, entity.offset + entity.length)
-                message.text = message.text:gsub(name, tostring(entity.user.id), 1)
+                -- Escape Lua pattern special characters in the display name
+                local escaped = name:gsub('([%(%)%.%%%+%-%*%?%[%^%$%]])', '%%%1')
+                message.text = message.text:gsub(escaped, tostring(entity.user.id), 1)
             end
         end
     end
@@ -148,7 +164,7 @@ local function extract_command(text, bot_username)
     return cmd, args
 end
 
--- Resolve aliases for a chat (with Redis caching)
+-- Resolve aliases for a chat (single HGET lookup per command)
 local function resolve_alias(message, redis_mod)
     if not message.text:match('^[/!#][%w_]+') then return message end
     if not message.chat or message.chat.type == 'private' then return message end
@@ -156,34 +172,11 @@ local function resolve_alias(message, redis_mod)
     local command, rest = message.text:lower():match('^[/!#]([%w_]+)(.*)')
     if not command then return message end
 
-    -- Cache alias lookups with TTL instead of hgetall on every message
-    local cache_key = 'cache:aliases:' .. message.chat.id
-    local cached_aliases = redis_mod.get(cache_key)
-    local aliases
-    if cached_aliases then
-        local ok, decoded = pcall(json.decode, cached_aliases)
-        if ok and decoded then
-            aliases = decoded
-        end
-    end
-
-    if not aliases then
-        aliases = redis_mod.hgetall('chat:' .. message.chat.id .. ':aliases')
-        if type(aliases) == 'table' then
-            pcall(function()
-                redis_mod.setex(cache_key, 300, json.encode(aliases))
-            end)
-        end
-    end
-
-    if type(aliases) == 'table' then
-        for alias, original in pairs(aliases) do
-            if command == alias then
-                message.text = '/' .. original .. (rest or '')
-                message.is_alias = true
-                break
-            end
-        end
+    -- Direct lookup: O(1) hash field access instead of decode-all + iterate
+    local original = redis_mod.hget('chat:' .. message.chat.id .. ':aliases', command)
+    if original then
+        message.text = '/' .. original .. (rest or '')
+        message.is_alias = true
     end
     return message
 end
@@ -255,23 +248,33 @@ local function on_message(message)
                             tools.escape_html(tostring(err)),
                             message.from.id,
                             tools.escape_html(message.text or '')
-                        ), 'html')
+                        ), { parse_mode = 'html' })
                     end
                 end
             end
         end
     end
 
-    -- Run passive handlers (on_new_message) for all non-disabled plugins
-    for _, plugin in ipairs(loader.get_plugins()) do
-        if plugin.on_new_message and not session.is_plugin_disabled(message.chat.id, plugin.name) then
+    -- Build disabled set once for this chat (1 SMEMBERS vs N SISMEMBER calls)
+    local disabled_set = {}
+    local disabled_list = session.get_disabled_plugins(message.chat.id)
+    for _, name in ipairs(disabled_list) do
+        disabled_set[name] = true
+    end
+
+    -- Run passive handlers using pre-built event index (only plugins with on_new_message)
+    for _, plugin in ipairs(loader.get_by_event('on_new_message')) do
+        if not disabled_set[plugin.name] then
             local ok, err = pcall(plugin.on_new_message, api, message, ctx)
             if not ok then
                 logger.error('Plugin %s.on_new_message error: %s', plugin.name, tostring(err))
             end
         end
-        -- Handle member join events
-        if message.new_chat_members and plugin.on_member_join then
+    end
+
+    -- Handle member join events (only check if message has new_chat_members)
+    if message.new_chat_members then
+        for _, plugin in ipairs(loader.get_by_event('on_member_join')) do
             local ok, err = pcall(plugin.on_member_join, api, message, ctx)
             if not ok then
                 logger.error('Plugin %s.on_member_join error: %s', plugin.name, tostring(err))
@@ -326,19 +329,64 @@ end
 local function on_inline_query(inline_query)
     if not inline_query or not inline_query.from then return end
     if session.is_globally_blocklisted(inline_query.from.id) then return end
-
     local ctx = build_ctx({ from = inline_query.from, chat = { type = 'private' } })
-    local lang_code = session.get_setting(inline_query.from.id, 'language') or 'en_gb'
-    ctx.lang = i18n.get(lang_code)
+    ctx.lang = i18n.get(session.get_setting(inline_query.from.id, 'language') or 'en_gb')
+    dispatch_event('on_inline_query', inline_query, ctx)
+end
 
-    for _, plugin in ipairs(loader.get_plugins()) do
-        if plugin.on_inline_query then
-            local ok, err = pcall(plugin.on_inline_query, api, inline_query, ctx)
-            if not ok then
-                logger.error('Plugin %s.on_inline_query error: %s', plugin.name, tostring(err))
-            end
-        end
-    end
+-- Handle chat join request
+local function on_chat_join_request(request)
+    if not request or not request.from then return end
+    if session.is_globally_blocklisted(request.from.id) then return end
+    dispatch_event('on_chat_join_request', request, build_ctx({ from = request.from, chat = request.chat }))
+end
+
+-- Handle chat member status change (not the bot itself)
+local function on_chat_member(update)
+    if not update or not update.from then return end
+    dispatch_event('on_chat_member_update', update, build_ctx({ from = update.from, chat = update.chat }))
+end
+
+-- Handle bot's own chat member status change
+local function on_my_chat_member(update)
+    if not update or not update.from then return end
+    dispatch_event('on_my_chat_member', update, build_ctx({ from = update.from, chat = update.chat }))
+end
+
+-- Handle message reaction updates
+local function on_message_reaction(update)
+    if not update then return end
+    dispatch_event('on_reaction', update, build_ctx({ from = update.user or update.actor_chat, chat = update.chat }))
+end
+
+-- Handle anonymous reaction count updates (no user info)
+local function on_message_reaction_count(update)
+    if not update then return end
+    dispatch_event('on_reaction_count', update, build_ctx({ from = nil, chat = update.chat }))
+end
+
+-- Handle chat boost updates
+local function on_chat_boost(update)
+    if not update or not update.chat then return end
+    dispatch_event('on_chat_boost', update, build_ctx({ from = nil, chat = update.chat }))
+end
+
+-- Handle removed chat boost updates
+local function on_removed_chat_boost(update)
+    if not update or not update.chat then return end
+    dispatch_event('on_removed_chat_boost', update, build_ctx({ from = nil, chat = update.chat }))
+end
+
+-- Handle poll state updates
+local function on_poll(poll)
+    if not poll then return end
+    dispatch_event('on_poll', poll, build_ctx({ from = nil, chat = { type = 'private' } }))
+end
+
+-- Handle poll answer updates
+local function on_poll_answer(poll_answer)
+    if not poll_answer then return end
+    dispatch_event('on_poll_answer', poll_answer, build_ctx({ from = poll_answer.user, chat = { type = 'private' } }))
 end
 
 -- Concurrent polling loop using telegram-bot-lua's async system
@@ -358,29 +406,39 @@ function router.run()
         if not ok then logger.error('on_edited_message error: %s', tostring(err)) end
     end
 
-    api.on_callback_query = function(cb)
-        local ok, err = pcall(on_callback_query, cb)
-        if not ok then logger.error('on_callback_query error: %s', tostring(err)) end
+    -- Table-driven registration for simple event handlers
+    local event_handlers = {
+        on_callback_query = on_callback_query,
+        on_inline_query = on_inline_query,
+        on_chat_join_request = on_chat_join_request,
+        on_chat_member = on_chat_member,
+        on_my_chat_member = on_my_chat_member,
+        on_message_reaction = on_message_reaction,
+        on_message_reaction_count = on_message_reaction_count,
+        on_chat_boost = on_chat_boost,
+        on_removed_chat_boost = on_removed_chat_boost,
+        on_poll = on_poll,
+        on_poll_answer = on_poll_answer,
+    }
+
+    for event_name, handler in pairs(event_handlers) do
+        api[event_name] = function(data)
+            local ok, err = pcall(handler, data)
+            if not ok then logger.error('%s error: %s', event_name, tostring(err)) end
+        end
     end
 
-    api.on_inline_query = function(iq)
-        local ok, err = pcall(on_inline_query, iq)
-        if not ok then logger.error('on_inline_query error: %s', tostring(err)) end
-    end
-
-    -- Cron: copas background thread, runs every 60s
+    -- Cron: copas background thread, runs every 60s (uses event index)
     copas.addthread(function()
         while true do
             copas.pause(60)
-            for _, plugin in ipairs(loader.get_plugins()) do
-                if plugin.cron then
-                    copas.addthread(function()
-                        local ok, err = pcall(plugin.cron, api, ctx_base)
-                        if not ok then
-                            logger.error('Plugin %s cron error: %s', plugin.name, tostring(err))
-                        end
-                    end)
-                end
+            for _, plugin in ipairs(loader.get_by_event('cron')) do
+                copas.addthread(function()
+                    local ok, err = pcall(plugin.cron, api, ctx_base)
+                    if not ok then
+                        logger.error('Plugin %s cron error: %s', plugin.name, tostring(err))
+                    end
+                end)
             end
         end
     end)
@@ -406,7 +464,9 @@ function router.run()
         allowed_updates = {
             'message', 'edited_message', 'callback_query', 'inline_query',
             'chat_join_request', 'chat_member', 'my_chat_member',
-            'message_reaction'
+            'message_reaction', 'message_reaction_count',
+            'chat_boost', 'removed_chat_boost',
+            'poll', 'poll_answer'
         }
     })
 end

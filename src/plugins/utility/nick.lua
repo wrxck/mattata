@@ -21,7 +21,7 @@ function plugin.on_message(api, message, ctx)
             return api.send_message(
                 message.chat.id,
                 string.format('Your nickname is: <b>%s</b>', tools.escape_html(result[1].nickname)),
-                'html'
+                { parse_mode = 'html' }
             )
         end
         return api.send_message(message.chat.id, 'You don\'t have a nickname set. Use /nick <name> to set one.')
@@ -43,7 +43,7 @@ function plugin.on_message(api, message, ctx)
     return api.send_message(
         message.chat.id,
         string.format('Your nickname has been set to: <b>%s</b>', tools.escape_html(input)),
-        'html'
+        { parse_mode = 'html' }
     )
 end
 

@@ -11,8 +11,7 @@ plugin.commands = { 'github', 'gh' }
 plugin.help = '/gh <owner/repo> - View information about a GitHub repository.'
 
 function plugin.on_message(api, message, ctx)
-    local https = require('ssl.https')
-    local json = require('dkjson')
+    local http = require('src.core.http')
     local tools = require('telegram-bot-lua.tools')
 
     local input = message.args
@@ -31,18 +30,12 @@ function plugin.on_message(api, message, ctx)
     end
 
     local api_url = string.format('https://api.github.com/repos/%s/%s', owner, repo)
-    local body, status = https.request({
-        url = api_url,
-        headers = {
-            ['User-Agent'] = 'mattata-bot',
-            ['Accept'] = 'application/vnd.github.v3+json'
-        }
+    local data, code = http.get_json(api_url, {
+        ['Accept'] = 'application/vnd.github.v3+json'
     })
-    if not body or status ~= 200 then
+    if not data then
         return api.send_message(message.chat.id, 'Repository not found or GitHub API is unavailable.')
     end
-
-    local data = json.decode(body)
     if not data or data.message then
         return api.send_message(message.chat.id, 'Repository not found: ' .. (data and data.message or 'unknown error'))
     end
@@ -76,7 +69,7 @@ function plugin.on_message(api, message, ctx)
         api.row():url_button('View on GitHub', data.html_url or ('https://github.com/' .. owner .. '/' .. repo))
     )
 
-    return api.send_message(message.chat.id, table.concat(lines, '\n'), 'html', true, false, nil, keyboard)
+    return api.send_message(message.chat.id, table.concat(lines, '\n'), { parse_mode = 'html', link_preview_options = { is_disabled = true }, reply_markup = keyboard })
 end
 
 return plugin

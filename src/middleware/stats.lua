@@ -47,42 +47,60 @@ end
 -- Cron job: flush Redis stats counters to PostgreSQL
 -- Called from the stats flush plugin every 5 minutes
 function stats_mw.flush(db, redis)
-    -- Flush message stats
+    -- Flush message stats (atomic read+reset with GETSET)
     local msg_keys = redis.scan('stats:msg:*')
     local flushed = 0
     for _, key in ipairs(msg_keys) do
-        local count = tonumber(redis.get(key))
+        -- Atomically read and reset to 0 (no counts lost between read and clear)
+        local count = tonumber(redis.getset(key, '0'))
         if count and count > 0 then
             -- Parse key: stats:msg:{chat_id}:{date}:{user_id}
             local chat_id, date, user_id = key:match('stats:msg:(%-?%d+):(%d%d%d%d%-%d%d%-%d%d):(%d+)')
             if chat_id and date and user_id then
-                pcall(function()
+                local ok = pcall(function()
                     db.call('sp_flush_message_stats', {
                         tonumber(chat_id), tonumber(user_id), date, count
                     })
                 end)
-                redis.del(key)
+                if ok then
+                    redis.del(key)
+                else
+                    -- DB flush failed — restore the count so it's retried next cycle
+                    redis.incrby(key, count)
+                end
                 flushed = flushed + 1
+            else
+                redis.del(key)
             end
+        else
+            redis.del(key)
         end
     end
 
-    -- Flush command stats
+    -- Flush command stats (atomic read+reset with GETSET)
     local cmd_keys = redis.scan('stats:cmd:*')
     for _, key in ipairs(cmd_keys) do
-        local count = tonumber(redis.get(key))
+        local count = tonumber(redis.getset(key, '0'))
         if count and count > 0 then
             -- Parse key: stats:cmd:{command}:{chat_id}:{date}
             local command, chat_id, date = key:match('stats:cmd:([%w_]+):(%-?%d+):(%d%d%d%d%-%d%d%-%d%d)')
             if command and chat_id and date then
-                pcall(function()
+                local ok = pcall(function()
                     db.call('sp_flush_command_stats', {
                         tonumber(chat_id), command, date, count
                     })
                 end)
-                redis.del(key)
+                if ok then
+                    redis.del(key)
+                else
+                    redis.incrby(key, count)
+                end
                 flushed = flushed + 1
+            else
+                redis.del(key)
             end
+        else
+            redis.del(key)
         end
     end
 

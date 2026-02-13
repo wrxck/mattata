@@ -10,10 +10,8 @@ plugin.description = 'Look up Wikipedia articles'
 plugin.commands = { 'wikipedia', 'wiki', 'w' }
 plugin.help = '/wiki <query> - Search Wikipedia for an article.'
 
-local https = require('ssl.https')
-local json = require('dkjson')
+local http = require('src.core.http')
 local url = require('socket.url')
-local ltn12 = require('ltn12')
 local tools = require('telegram-bot-lua.tools')
 
 local search_wikipedia_fallback
@@ -21,26 +19,15 @@ local search_wikipedia_fallback
 local function search_wikipedia(query, lang)
     lang = lang or 'en'
     local encoded = url.escape(query)
-    -- Use the REST API summary endpoint via search
     local search_url = string.format(
         'https://%s.wikipedia.org/api/rest_v1/page/summary/%s?redirect=true',
         lang, encoded
     )
-    local body = {}
-    local _, code = https.request({
-        url = search_url,
-        sink = ltn12.sink.table(body),
-        headers = {
-            ['User-Agent'] = 'mattata-telegram-bot/2.0',
-            ['Accept'] = 'application/json'
-        }
-    })
-    -- If direct lookup fails, try the search API
-    if code ~= 200 then
+    local data, code = http.get_json(search_url, { ['Accept'] = 'application/json' })
+    if not data then
         return search_wikipedia_fallback(query, lang)
     end
-    local data = json.decode(table.concat(body))
-    if not data or data.type == 'not_found' or data.type == 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found' then
+    if data.type == 'not_found' or data.type == 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found' then
         return search_wikipedia_fallback(query, lang)
     end
     return data
@@ -53,19 +40,11 @@ search_wikipedia_fallback = function(query, lang)
         'https://%s.wikipedia.org/w/api.php?action=opensearch&search=%s&limit=1&format=json',
         lang, encoded
     )
-    local body = {}
-    local _, code = https.request({
-        url = search_url,
-        sink = ltn12.sink.table(body),
-        headers = {
-            ['User-Agent'] = 'mattata-telegram-bot/2.0'
-        }
-    })
-    if code ~= 200 then
+    local data, code = http.get_json(search_url)
+    if not data then
         return nil, 'Wikipedia search failed (HTTP ' .. tostring(code) .. ').'
     end
-    local data = json.decode(table.concat(body))
-    if not data or not data[2] or #data[2] == 0 then
+    if not data[2] or #data[2] == 0 then
         return nil, 'No Wikipedia articles found for that query.'
     end
     -- Fetch the summary for the first result
@@ -75,21 +54,9 @@ search_wikipedia_fallback = function(query, lang)
         'https://%s.wikipedia.org/api/rest_v1/page/summary/%s?redirect=true',
         lang, title_encoded
     )
-    body = {}
-    _, code = https.request({
-        url = summary_url,
-        sink = ltn12.sink.table(body),
-        headers = {
-            ['User-Agent'] = 'mattata-telegram-bot/2.0',
-            ['Accept'] = 'application/json'
-        }
-    })
-    if code ~= 200 then
-        return nil, 'Failed to retrieve article summary.'
-    end
-    local summary = json.decode(table.concat(body))
+    local summary, summary_code = http.get_json(summary_url, { ['Accept'] = 'application/json' })
     if not summary then
-        return nil, 'Failed to parse article summary.'
+        return nil, 'Failed to retrieve article summary.'
     end
     return summary
 end
@@ -100,7 +67,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Please provide a search term.\nUsage: <code>/wiki search term</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -117,7 +84,7 @@ function plugin.on_message(api, message, ctx)
             tools.escape_html(data.extract or 'This is a disambiguation page.'),
             tools.escape_html(data.content_urls and data.content_urls.desktop and data.content_urls.desktop.page or '')
         )
-        return api.send_message(message.chat.id, output, 'html', true)
+        return api.send_message(message.chat.id, output, { parse_mode = 'html', link_preview_options = { is_disabled = true } })
     end
 
     local title = data.title or input
@@ -145,7 +112,7 @@ function plugin.on_message(api, message, ctx)
         table.insert(lines, '<a href="' .. tools.escape_html(page_url) .. '">Read more on Wikipedia</a>')
     end
 
-    return api.send_message(message.chat.id, table.concat(lines, '\n'), 'html', true)
+    return api.send_message(message.chat.id, table.concat(lines, '\n'), { parse_mode = 'html', link_preview_options = { is_disabled = true } })
 end
 
 return plugin

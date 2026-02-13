@@ -64,7 +64,7 @@ function plugin.on_message(api, message, ctx)
             :callback_data_button('Settings', 'help:settings')
     )
 
-    return api.send_message(message.chat.id, output, 'html', true, false, nil, keyboard)
+    return api.send_message(message.chat.id, output, { parse_mode = 'html', link_preview_options = { is_disabled = true }, reply_markup = keyboard })
 end
 
 function plugin.on_callback_query(api, callback_query, message, ctx)
@@ -94,7 +94,8 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         ):row(
             api.row():callback_data_button('Back', 'help:back')
         )
-        return api.edit_message_text(message.chat.id, message.message_id, output, 'html', true, keyboard)
+        api.answer_callback_query(callback_query.id)
+        return api.edit_message_text(message.chat.id, message.message_id, output, { parse_mode = 'html', link_preview_options = { is_disabled = true }, reply_markup = keyboard })
 
     elseif data:match('^acmds:%d+$') then
         local page = tonumber(data:match('^acmds:(%d+)$'))
@@ -111,32 +112,40 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         ):row(
             api.row():callback_data_button('Back', 'help:back')
         )
-        return api.edit_message_text(message.chat.id, message.message_id, output, 'html', true, keyboard)
+        api.answer_callback_query(callback_query.id)
+        return api.edit_message_text(message.chat.id, message.message_id, output, { parse_mode = 'html', link_preview_options = { is_disabled = true }, reply_markup = keyboard })
 
     elseif data == 'links' then
+        local cfg = require('src.core.config')
+        local channel_url = cfg.get('CHANNEL_URL', 'https://t.me/mattata')
+        local support_url = cfg.get('SUPPORT_URL', 'https://t.me/mattataSupport')
+        local github_url = cfg.get('GITHUB_URL', 'https://github.com/wrxck/mattata')
+        local dev_url = cfg.get('DEV_URL', 'https://t.me/mattataDev')
         local keyboard = api.inline_keyboard():row(
-            api.row():url_button('Development', 'https://t.me/mattataDev')
-                :url_button('Channel', 'https://t.me/mattata')
+            api.row():url_button('Development', dev_url)
+                :url_button('Channel', channel_url)
         ):row(
-            api.row():url_button('GitHub', 'https://github.com/wrxck/mattata')
-                :url_button('Support', 'https://t.me/mattataSupport')
+            api.row():url_button('GitHub', github_url)
+                :url_button('Support', support_url)
         ):row(
             api.row():callback_data_button('Back', 'help:back')
         )
-        return api.edit_message_text(message.chat.id, message.message_id, 'Useful links:', nil, true, keyboard)
+        api.answer_callback_query(callback_query.id)
+        return api.edit_message_text(message.chat.id, message.message_id, 'Useful links:', { link_preview_options = { is_disabled = true }, reply_markup = keyboard })
 
     elseif data == 'settings' then
         local permissions = require('src.core.permissions')
         if message.chat.type == 'supergroup' and not permissions.is_group_admin(api, message.chat.id, callback_query.from.id) then
-            return api.answer_callback_query(callback_query.id, 'You need to be an admin to change settings.')
+            return api.answer_callback_query(callback_query.id, { text = 'You need to be an admin to change settings.' })
         end
         local keyboard = api.inline_keyboard():row(
-            api.row():callback_data_button('Administration', 'administration:' .. message.chat.id .. ':page:1')
-                :callback_data_button('Plugins', 'plugins:' .. message.chat.id .. ':page:1')
+            api.row():callback_data_button('Administration', 'administration:page:1')
+                :callback_data_button('Plugins', 'plugins:page:1')
         ):row(
             api.row():callback_data_button('Back', 'help:back')
         )
-        return api.edit_message_reply_markup(message.chat.id, message.message_id, nil, keyboard)
+        api.answer_callback_query(callback_query.id)
+        return api.edit_message_reply_markup(message.chat.id, message.message_id, { reply_markup = keyboard })
 
     elseif data == 'back' then
         local name = tools.escape_html(callback_query.from.first_name)
@@ -151,7 +160,8 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
             api.row():callback_data_button('Links', 'help:links')
                 :callback_data_button('Settings', 'help:settings')
         )
-        return api.edit_message_text(message.chat.id, message.message_id, output, 'html', true, keyboard)
+        api.answer_callback_query(callback_query.id)
+        return api.edit_message_text(message.chat.id, message.message_id, output, { parse_mode = 'html', link_preview_options = { is_disabled = true }, reply_markup = keyboard })
 
     elseif data == 'noop' then
         return api.answer_callback_query(callback_query.id)

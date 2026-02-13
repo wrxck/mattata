@@ -17,7 +17,7 @@ function plugin.on_message(api, message, ctx)
         local status = (enabled and #enabled > 0 and enabled[1].value == 'true') and 'enabled' or 'disabled'
         return api.send_message(message.chat.id, string.format(
             'Word filter is currently <b>%s</b>.\nUsage: /wordfilter <on|off>', status
-        ), 'html')
+        ), { parse_mode = 'html' })
     end
 
     local arg = message.args:lower()
@@ -36,7 +36,7 @@ end
 
 function plugin.on_new_message(api, message, ctx)
     if not ctx.is_group or not message.text or message.text == '' then return end
-    if ctx.is_admin or ctx.is_global_admin then return end
+    if ctx.is_global_admin or ctx:check_admin() then return end
     if not require('src.core.permissions').can_delete(api, message.chat.id) then return end
 
     -- check if wordfilter is enabled (cached)
@@ -58,10 +58,12 @@ function plugin.on_new_message(api, message, ctx)
 
     local text = message.text:lower()
     for _, f in ipairs(filters) do
-        local match = pcall(function()
+        -- Skip patterns that could cause catastrophic backtracking
+        if #f.pattern > 128 then goto continue end
+        local ok, matched = pcall(function()
             return text:match(f.pattern:lower())
         end)
-        if match and text:match(f.pattern:lower()) then
+        if ok and matched then
             -- execute action
             if f.action == 'delete' then
                 api.delete_message(message.chat.id, message.message_id)
@@ -72,7 +74,7 @@ function plugin.on_new_message(api, message, ctx)
                 api.send_message(message.chat.id, string.format(
                     '<a href="tg://user?id=%d">%s</a> has been warned for using a filtered word.',
                     message.from.id, require('telegram-bot-lua.tools').escape_html(message.from.first_name)
-                ), 'html')
+                ), { parse_mode = 'html' })
             elseif f.action == 'ban' then
                 api.delete_message(message.chat.id, message.message_id)
                 api.ban_chat_member(message.chat.id, message.from.id)
@@ -92,11 +94,16 @@ function plugin.on_new_message(api, message, ctx)
                     can_send_voice_notes = false,
                     can_send_polls = false,
                     can_send_other_messages = false,
-                    can_add_web_page_previews = false
+                    can_add_web_page_previews = false,
+                    can_invite_users = false,
+                    can_change_info = false,
+                    can_pin_messages = false,
+                    can_manage_topics = false
                 }, { until_date = os.time() + 3600 })
             end
             return
         end
+        ::continue::
     end
 end
 
