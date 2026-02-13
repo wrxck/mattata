@@ -37,8 +37,8 @@ local FLIP_MAP = {
 
 local function flip_text(text)
     local chars = {}
-    -- Iterate through UTF-8 characters
-    for char in text:gmatch('.') do
+    -- Iterate through UTF-8 codepoints (not bytes)
+    for char in text:gmatch('[\1-\127\194-\244][\128-\191]*') do
         table.insert(chars, FLIP_MAP[char] or char)
     end
     -- Reverse the order

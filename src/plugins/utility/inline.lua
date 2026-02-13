@@ -52,7 +52,7 @@ local function handle_wiki(query)
         'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=%s&format=json&utf8=1&srlimit=5',
         encoded
     )
-    local data, code = http.get_json(api_url)
+    local data, _ = http.get_json(api_url)
     if not data or not data.query or not data.query.search or #data.query.search == 0 then
         return { article(1, 'No results', 'No Wikipedia articles found for "' .. query .. '".',
             'No Wikipedia articles found for "' .. tools.escape_html(query) .. '".') }
@@ -78,7 +78,7 @@ end
 local function handle_ud(query)
     local encoded = url.escape(query)
     local api_url = 'https://api.urbandictionary.com/v0/define?term=' .. encoded
-    local data, code = http.get_json(api_url)
+    local data, _ = http.get_json(api_url)
     if not data or not data.list or #data.list == 0 then
         return { article(1, 'No results', 'No definitions found for "' .. query .. '".',
             'No Urban Dictionary definitions found for "' .. tools.escape_html(query) .. '".') }
@@ -154,7 +154,7 @@ local function handle_translate(text)
         tools.escape_html(source_lang:upper()),
         tools.escape_html(translated)
     )
-    local desc = truncate(translated, 100)
+    local _ = truncate(translated, 100)
     return { article(1, translated, source_lang:upper() .. ' -> EN', message_text) }
 end
 

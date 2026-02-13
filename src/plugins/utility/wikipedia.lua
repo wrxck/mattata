@@ -23,7 +23,7 @@ local function search_wikipedia(query, lang)
         'https://%s.wikipedia.org/api/rest_v1/page/summary/%s?redirect=true',
         lang, encoded
     )
-    local data, code = http.get_json(search_url, { ['Accept'] = 'application/json' })
+    local data, _ = http.get_json(search_url, { ['Accept'] = 'application/json' })
     if not data then
         return search_wikipedia_fallback(query, lang)
     end
@@ -54,7 +54,7 @@ search_wikipedia_fallback = function(query, lang)
         'https://%s.wikipedia.org/api/rest_v1/page/summary/%s?redirect=true',
         lang, title_encoded
     )
-    local summary, summary_code = http.get_json(summary_url, { ['Accept'] = 'application/json' })
+    local summary, _ = http.get_json(summary_url, { ['Accept'] = 'application/json' })
     if not summary then
         return nil, 'Failed to retrieve article summary.'
     end
