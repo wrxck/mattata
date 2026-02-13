@@ -31,7 +31,7 @@ function plugin.on_message(api, message, ctx)
         tools.escape_html(message.chat.title or 'this chat'),
         result[1].rules_text
     )
-    api.send_message(message.chat.id, output, 'html')
+    api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

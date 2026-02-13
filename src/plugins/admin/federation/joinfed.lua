@@ -21,7 +21,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Please specify the federation ID.\nUsage: <code>/joinfed &lt;federation_id&gt;</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -36,7 +36,7 @@ function plugin.on_message(api, message, ctx)
                 'This chat is already part of the federation <b>%s</b>.\nUse /leavefed to leave it first.',
                 tools.escape_html(existing[1].name)
             ),
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -45,7 +45,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             chat_id,
             'Federation not found. Please check the ID and try again.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -56,7 +56,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             chat_id,
             'Failed to join the federation. Please try again later.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -66,7 +66,7 @@ function plugin.on_message(api, message, ctx)
             'This chat has joined the federation <b>%s</b>.',
             tools.escape_html(fed.name)
         ),
-        'html'
+        { parse_mode = 'html' }
     )
 end
 

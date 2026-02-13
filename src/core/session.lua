@@ -94,6 +94,11 @@ function session.set_admin_status(chat_id, user_id, is_admin)
     return redis.setex(cache_key, 300, is_admin and '1' or '0')
 end
 
+function session.invalidate_admin_status(chat_id, user_id)
+    local cache_key = string.format('cache:admin:%s:%s', tostring(chat_id), tostring(user_id))
+    return redis.del(cache_key)
+end
+
 -- Action state (multi-step commands, 5 min TTL)
 function session.set_action(chat_id, message_id, command)
     local key = string.format('action:%s:%s', tostring(chat_id), tostring(message_id))
@@ -145,6 +150,7 @@ function session.set_captcha(chat_id, user_id, text, message_id, timeout)
     local hash = string.format('chat:%s:captcha:%s', tostring(chat_id), tostring(user_id))
     redis.hset(hash, 'text', text)
     redis.hset(hash, 'id', tostring(message_id))
+    redis.expire(hash, timeout)
     redis.setex('captcha:' .. chat_id .. ':' .. user_id, timeout, '1')
 end
 
@@ -188,10 +194,8 @@ function session.is_globally_blocklisted(user_id)
 end
 
 function session.set_global_blocklist(user_id, ttl)
-    redis.set('global_blocklist:' .. tostring(user_id), '1')
-    if ttl then
-        redis.expire('global_blocklist:' .. tostring(user_id), ttl)
-    end
+    ttl = ttl or 604800  -- default 7 days
+    redis.setex('global_blocklist:' .. tostring(user_id), ttl, '1')
 end
 
 -- Disabled plugins cache

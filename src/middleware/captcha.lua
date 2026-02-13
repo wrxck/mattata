@@ -15,7 +15,13 @@ function captcha.run(ctx, message)
         return ctx, true
     end
 
-    -- Check if this user has a pending captcha
+    -- Fast path: single EXISTS check (avoids 2 HGET calls for 99% of messages)
+    local has_captcha = ctx.redis.exists('captcha:' .. message.chat.id .. ':' .. message.from.id)
+    if has_captcha ~= 1 and has_captcha ~= true then
+        return ctx, true
+    end
+
+    -- Slow path: user has pending captcha, fetch details
     local pending = session.get_captcha(message.chat.id, message.from.id)
     if not pending then
         return ctx, true

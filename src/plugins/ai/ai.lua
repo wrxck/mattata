@@ -51,9 +51,8 @@ end
 
 -- Call OpenAI Chat Completions API
 local function call_openai(api_key, model, messages)
-    local https = require('ssl.https')
+    local http = require('src.core.http')
     local json = require('dkjson')
-    local ltn12 = require('ltn12')
 
     local request_body = json.encode({
         model = model,
@@ -61,24 +60,15 @@ local function call_openai(api_key, model, messages)
         max_tokens = 1024
     })
 
-    local response_body = {}
-    local res, code = https.request({
-        url = 'https://api.openai.com/v1/chat/completions',
-        method = 'POST',
-        sink = ltn12.sink.table(response_body),
-        source = ltn12.source.string(request_body),
-        headers = {
-            ['Authorization'] = 'Bearer ' .. api_key,
-            ['Content-Type'] = 'application/json',
-            ['Content-Length'] = tostring(#request_body)
-        }
+    local body, code = http.post('https://api.openai.com/v1/chat/completions', request_body, 'application/json', {
+        ['Authorization'] = 'Bearer ' .. api_key
     })
 
-    if not res or code ~= 200 then
+    if code ~= 200 then
         return nil, 'OpenAI API request failed (HTTP ' .. tostring(code) .. ').'
     end
 
-    local data = json.decode(table.concat(response_body))
+    local data = json.decode(body)
     if not data or not data.choices or #data.choices == 0 then
         return nil, 'No response from OpenAI.'
     end
@@ -88,9 +78,8 @@ end
 
 -- Call Anthropic Messages API
 local function call_anthropic(api_key, model, messages)
-    local https = require('ssl.https')
+    local http = require('src.core.http')
     local json = require('dkjson')
-    local ltn12 = require('ltn12')
 
     -- Convert from OpenAI message format; extract system prompt
     local system_text = nil
@@ -110,25 +99,16 @@ local function call_anthropic(api_key, model, messages)
         messages = api_messages
     })
 
-    local response_body = {}
-    local res, code = https.request({
-        url = 'https://api.anthropic.com/v1/messages',
-        method = 'POST',
-        sink = ltn12.sink.table(response_body),
-        source = ltn12.source.string(request_body),
-        headers = {
-            ['x-api-key'] = api_key,
-            ['anthropic-version'] = '2023-06-01',
-            ['Content-Type'] = 'application/json',
-            ['Content-Length'] = tostring(#request_body)
-        }
+    local body, code = http.post('https://api.anthropic.com/v1/messages', request_body, 'application/json', {
+        ['x-api-key'] = api_key,
+        ['anthropic-version'] = '2023-06-01'
     })
 
-    if not res or code ~= 200 then
+    if code ~= 200 then
         return nil, 'Anthropic API request failed (HTTP ' .. tostring(code) .. ').'
     end
 
-    local data = json.decode(table.concat(response_body))
+    local data = json.decode(body)
     if not data or not data.content or #data.content == 0 then
         return nil, 'No response from Anthropic.'
     end
@@ -159,7 +139,7 @@ function plugin.on_message(api, message, ctx)
     end
 
     if not input or input == '' then
-        return api.send_message(message.chat.id, 'Please provide a prompt, e.g. <code>/ai What is the capital of France?</code>', 'html')
+        return api.send_message(message.chat.id, 'Please provide a prompt, e.g. <code>/ai What is the capital of France?</code>', { parse_mode = 'html' })
     end
 
     -- Send typing action while processing
@@ -189,7 +169,7 @@ function plugin.on_message(api, message, ctx)
         response = response:sub(1, 4090) .. '\n...'
     end
 
-    return api.send_message(message.chat.id, response, nil, true, false, message.message_id)
+    return api.send_message(message.chat.id, response, { link_preview_options = { is_disabled = true }, reply_parameters = { message_id = message.message_id } })
 end
 
 -- Respond to @mentions and DMs passively if AI is enabled
@@ -256,7 +236,7 @@ function plugin.on_new_message(api, message, ctx)
         response = response:sub(1, 4090) .. '\n...'
     end
 
-    return api.send_message(message.chat.id, response, nil, true, false, message.message_id)
+    return api.send_message(message.chat.id, response, { link_preview_options = { is_disabled = true }, reply_parameters = { message_id = message.message_id } })
 end
 
 return plugin

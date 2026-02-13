@@ -9,18 +9,31 @@ local permissions = {}
 local config = require('src.core.config')
 local session = require('src.core.session')
 
+-- Cached set of global admin IDs (rebuilt every 5 minutes)
+local admin_set = nil
+local admin_set_expires = 0
+
 -- Check if a user is a global bot admin
 function permissions.is_global_admin(user_id)
     user_id = tonumber(user_id)
     if not user_id then
         return false
     end
-    for _, admin_id in ipairs(config.bot_admins()) do
-        if tonumber(admin_id) == user_id then
-            return true
+    local now = os.time()
+    if not admin_set or now >= admin_set_expires then
+        admin_set = {}
+        for _, id in ipairs(config.bot_admins()) do
+            admin_set[tonumber(id)] = true
         end
+        admin_set_expires = now + 300
     end
-    return false
+    return admin_set[user_id] or false
+end
+
+-- Force rebuild of the global admin set (e.g. after config change)
+function permissions.clear_admin_cache()
+    admin_set = nil
+    admin_set_expires = 0
 end
 
 -- Check if a user is a group admin (Telegram admin/creator) or bot global admin

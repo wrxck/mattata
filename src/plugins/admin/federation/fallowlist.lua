@@ -52,7 +52,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'This chat is not part of any federation.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -61,7 +61,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Only the federation owner or a federation admin can manage the allowlist.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -70,7 +70,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Please specify a user to toggle on the allowlist by replying to their message or providing a user ID/username.\nUsage: <code>/fallowlist [user]</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -86,7 +86,7 @@ function plugin.on_message(api, message, ctx)
                 '<b>%s</b> has been removed from the federation allowlist.',
                 tools.escape_html(target_name)
             ),
-            'html'
+            { parse_mode = 'html' }
         )
     else
         ctx.db.call('sp_insert_federation_allowlist', { fed.id, target_id })
@@ -98,7 +98,7 @@ function plugin.on_message(api, message, ctx)
                 '<b>%s</b> has been added to the federation allowlist.',
                 tools.escape_html(target_name)
             ),
-            'html'
+            { parse_mode = 'html' }
         )
     end
 end

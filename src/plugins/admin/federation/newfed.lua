@@ -21,7 +21,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Please specify a name for the federation.\nUsage: <code>/newfed &lt;name&gt;</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -29,7 +29,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Federation name must be 128 characters or fewer.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -40,7 +40,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'You already own 5 federations, which is the maximum allowed.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -49,7 +49,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Failed to create the federation. Please try again later.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -60,7 +60,7 @@ function plugin.on_message(api, message, ctx)
         tools.escape_html(fed_id),
         tools.escape_html(fed_id)
     )
-    return api.send_message(message.chat.id, output, 'html')
+    return api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

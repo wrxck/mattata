@@ -12,16 +12,42 @@ local plugins = {}          -- ordered list of all loaded plugins
 local by_command = {}        -- command -> plugin lookup
 local by_name = {}           -- name -> plugin lookup
 local categories = {}        -- category -> list of plugin names
+local by_event = {}          -- event_name -> list of plugins with that handler
 
 local PERMANENT_PLUGINS = { 'help', 'about', 'plugins' }
+local PERMANENT_SET = { help = true, about = true, plugins = true }
+
+-- Event handler names to index for fast dispatch
+local INDEXED_EVENTS = {
+    'on_new_message', 'on_member_join', 'on_callback_query', 'on_inline_query',
+    'on_chat_join_request', 'on_chat_member_update', 'on_my_chat_member',
+    'on_reaction', 'on_reaction_count', 'on_chat_boost', 'on_removed_chat_boost',
+    'on_poll', 'on_poll_answer', 'cron'
+}
 
 local CATEGORIES = { 'admin', 'utility', 'fun', 'media', 'ai' }
+
+-- Build event index from current plugin list
+local function rebuild_event_index()
+    by_event = {}
+    for _, event in ipairs(INDEXED_EVENTS) do
+        by_event[event] = {}
+    end
+    for _, plugin in ipairs(plugins) do
+        for _, event in ipairs(INDEXED_EVENTS) do
+            if plugin[event] then
+                table.insert(by_event[event], plugin)
+            end
+        end
+    end
+end
 
 function loader.init(_, _, _)
     plugins = {}
     by_command = {}
     by_name = {}
     categories = {}
+    by_event = {}
 
     for _, category in ipairs(CATEGORIES) do
         categories[category] = {}
@@ -57,6 +83,7 @@ function loader.init(_, _, _)
         end
     end
 
+    rebuild_event_index()
     logger.info('Loaded %d plugins across %d categories', #plugins, #CATEGORIES)
 end
 
@@ -91,12 +118,12 @@ end
 
 -- Check if a plugin is permanent (cannot be disabled)
 function loader.is_permanent(name)
-    for _, pname in ipairs(PERMANENT_PLUGINS) do
-        if pname == name then
-            return true
-        end
-    end
-    return false
+    return PERMANENT_SET[name] or false
+end
+
+-- Get plugins that implement a specific event handler
+function loader.get_by_event(event_name)
+    return by_event[event_name] or {}
 end
 
 -- Hot-reload a plugin by name
@@ -138,6 +165,7 @@ function loader.reload(name)
     end
 
     by_name[name] = new_plugin
+    rebuild_event_index()
     logger.info('Hot-reloaded plugin: %s', name)
     return true
 end

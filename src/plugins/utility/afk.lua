@@ -86,7 +86,7 @@ function plugin.on_message(api, message, ctx)
         )
     end
 
-    return api.send_message(message.chat.id, output, 'html')
+    return api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 -- Passive handler: runs on every message (not just commands)
@@ -108,7 +108,7 @@ function plugin.on_new_message(api, message, ctx)
                 tools.escape_html(message.from.first_name),
                 format_time_ago(elapsed)
             )
-            api.send_message(message.chat.id, output, 'html')
+            api.send_message(message.chat.id, output, { parse_mode = 'html' })
         end
     end
 
@@ -139,7 +139,7 @@ function plugin.on_new_message(api, message, ctx)
                             format_time_ago(elapsed)
                         )
                     end
-                    api.send_message(message.chat.id, output, 'html')
+                    api.send_message(message.chat.id, output, { parse_mode = 'html' })
                 end
             end
         end

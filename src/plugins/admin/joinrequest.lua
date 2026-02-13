@@ -15,12 +15,6 @@ plugin.admin_only = true
 
 local json = require('dkjson')
 
-local POLICIES = {
-    ['auto-approve'] = true, ['approve'] = true, ['auto'] = true,
-    ['auto-reject'] = true, ['reject'] = true, ['deny'] = true,
-    ['manual'] = true, ['notify'] = true
-}
-
 local function normalize_policy(input)
     input = input:lower()
     if input == 'auto-approve' or input == 'approve' or input == 'auto' then

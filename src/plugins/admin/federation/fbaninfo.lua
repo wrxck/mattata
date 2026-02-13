@@ -58,7 +58,7 @@ function plugin.on_message(api, message, ctx)
                 target_id,
                 scope
             ),
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -86,7 +86,7 @@ function plugin.on_message(api, message, ctx)
         end
     end
 
-    return api.send_message(message.chat.id, output, 'html')
+    return api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

@@ -15,9 +15,8 @@ local cached_token = nil
 local token_expires = 0
 
 local function get_access_token(config)
-    local https = require('ssl.https')
+    local http = require('src.core.http')
     local json = require('dkjson')
-    local ltn12 = require('ltn12')
     local mime = require('mime')
 
     -- Return cached token if still valid
@@ -34,43 +33,32 @@ local function get_access_token(config)
     local credentials = mime.b64(client_id .. ':' .. client_secret)
     local request_body = 'grant_type=client_credentials'
 
-    local response_body = {}
-    local res, code = https.request({
-        url = 'https://accounts.spotify.com/api/token',
-        method = 'POST',
-        sink = ltn12.sink.table(response_body),
-        source = ltn12.source.string(request_body),
-        headers = {
-            ['Authorization'] = 'Basic ' .. credentials,
-            ['Content-Type'] = 'application/x-www-form-urlencoded',
-            ['Content-Length'] = tostring(#request_body)
-        }
+    local body, code = http.post('https://accounts.spotify.com/api/token', request_body, 'application/x-www-form-urlencoded', {
+        ['Authorization'] = 'Basic ' .. credentials
     })
 
-    if not res or code ~= 200 then
+    if code ~= 200 then
         return nil, 'Failed to authenticate with Spotify.'
     end
 
-    local data = json.decode(table.concat(response_body))
+    local data = json.decode(body)
     if not data or not data.access_token then
         return nil, 'Failed to parse Spotify auth response.'
     end
 
     cached_token = data.access_token
-    -- Expire 60 seconds early to be safe
     token_expires = os.time() + (data.expires_in or 3600) - 60
     return cached_token
 end
 
 function plugin.on_message(api, message, ctx)
-    local https = require('ssl.https')
+    local http = require('src.core.http')
     local json = require('dkjson')
     local url = require('socket.url')
     local tools = require('telegram-bot-lua.tools')
-    local ltn12 = require('ltn12')
 
     if not message.args or message.args == '' then
-        return api.send_message(message.chat.id, 'Please specify a search query, e.g. <code>/spotify bohemian rhapsody</code>.', 'html')
+        return api.send_message(message.chat.id, 'Please specify a search query, e.g. <code>/spotify bohemian rhapsody</code>.', { parse_mode = 'html' })
     end
 
     local token, err = get_access_token(ctx.config)
@@ -84,15 +72,9 @@ function plugin.on_message(api, message, ctx)
         query
     )
 
-    local response_body = {}
-    local res, code = https.request({
-        url = search_url,
-        method = 'GET',
-        sink = ltn12.sink.table(response_body),
-        headers = {
-            ['Authorization'] = 'Bearer ' .. token,
-            ['Accept'] = 'application/json'
-        }
+    local body, code = http.get(search_url, {
+        ['Authorization'] = 'Bearer ' .. token,
+        ['Accept'] = 'application/json'
     })
 
     if code == 401 then
@@ -103,23 +85,16 @@ function plugin.on_message(api, message, ctx)
         if not token then
             return api.send_message(message.chat.id, err or 'Failed to re-authenticate with Spotify.')
         end
-        response_body = {}
-        res, code = https.request({
-            url = search_url,
-            method = 'GET',
-            sink = ltn12.sink.table(response_body),
-            headers = {
-                ['Authorization'] = 'Bearer ' .. token,
-                ['Accept'] = 'application/json'
-            }
+        body, code = http.get(search_url, {
+            ['Authorization'] = 'Bearer ' .. token,
+            ['Accept'] = 'application/json'
         })
     end
 
-    if not res or code ~= 200 then
+    if code ~= 200 then
         return api.send_message(message.chat.id, 'Failed to search Spotify. Please try again later.')
     end
 
-    local body = table.concat(response_body)
     local data = json.decode(body)
     if not data or not data.tracks or not data.tracks.items or #data.tracks.items == 0 then
         return api.send_message(message.chat.id, 'No tracks found for that query.')
@@ -147,7 +122,7 @@ function plugin.on_message(api, message, ctx)
         tools.escape_html(track_url)
     )
 
-    return api.send_message(message.chat.id, output, 'html', true)
+    return api.send_message(message.chat.id, output, { parse_mode = 'html', link_preview_options = { is_disabled = true } })
 end
 
 return plugin

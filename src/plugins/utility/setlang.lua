@@ -42,7 +42,7 @@ function plugin.on_message(api, message, ctx)
     return api.send_message(
         message.chat.id,
         'Select your preferred language:',
-        nil, true, false, nil, keyboard
+        { reply_markup = keyboard }
     )
 end
 
@@ -52,16 +52,16 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
     if not code then return end
     local i18n = require('src.core.i18n')
     if not i18n.exists(code) then
-        return api.answer_callback_query(callback_query.id, 'Language not available.')
+        return api.answer_callback_query(callback_query.id, { text = 'Language not available.' })
     end
     ctx.session.set_setting(callback_query.from.id, 'language', code, 0)
     local name = LANG_NAMES[code] or code
-    api.answer_callback_query(callback_query.id, 'Language set to ' .. name .. '!')
+    api.answer_callback_query(callback_query.id, { text = 'Language set to ' .. name .. '!' })
     return api.edit_message_text(
         message.chat.id,
         message.message_id,
         string.format('Language set to <b>%s</b>.', name),
-        'html'
+        { parse_mode = 'html' }
     )
 end
 

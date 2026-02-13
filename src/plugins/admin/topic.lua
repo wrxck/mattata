@@ -1,92 +1,115 @@
 --[[
-    mattata v2.1 - Topic Plugin
+    mattata v2.0 - Topic Plugin
     Forum topic management for supergroups with topics enabled.
 ]]
 
 local plugin = {}
 plugin.name = 'topic'
 plugin.category = 'admin'
-plugin.description = 'Manage forum topics'
+plugin.description = 'Manage forum topics in supergroups'
 plugin.commands = { 'topic' }
-plugin.help = '/topic <create|close|reopen|delete|rename> [name] - Manage forum topics.'
+plugin.help = '/topic <create <name>|close|reopen|delete> - Manage forum topics.'
 plugin.group_only = true
 plugin.admin_only = true
 
+local tools = require('telegram-bot-lua.tools')
+
 function plugin.on_message(api, message, ctx)
-    if not message.chat.is_forum then
-        return api.send_message(message.chat.id, 'This command only works in forum-enabled groups.')
+    if not message.args then
+        return api.send_message(message.chat.id,
+            '<b>Topic management</b>\n\n'
+            .. '<code>/topic create &lt;name&gt;</code> - Create a new topic\n'
+            .. '<code>/topic close</code> - Close the current topic\n'
+            .. '<code>/topic reopen</code> - Reopen a closed topic\n'
+            .. '<code>/topic delete</code> - Delete the current topic\n\n'
+            .. 'Close, reopen, and delete must be used inside a topic thread.',
+            { parse_mode = 'html' }
+        )
     end
 
-    if not message.args or message.args == '' then
-        return api.send_message(message.chat.id, 'Usage:\n/topic create <name>\n/topic close\n/topic reopen\n/topic delete\n/topic rename <name>')
+    local action, rest = message.args:match('^(%S+)%s*(.*)')
+    if not action then
+        return api.send_message(message.chat.id, 'Usage: /topic <create <name>|close|reopen|delete>')
     end
 
-    local subcommand, args = message.args:match('^(%S+)%s*(.*)')
-    subcommand = subcommand:lower()
+    action = action:lower()
 
-    local topic_id = message.message_thread_id
-
-    if subcommand == 'create' then
-        if not args or args == '' then
+    if action == 'create' then
+        local name = rest and rest:match('^%s*(.+)%s*$')
+        if not name or name == '' then
             return api.send_message(message.chat.id, 'Usage: /topic create <name>')
         end
-        local result = api.create_forum_topic(message.chat.id, args)
-        if result and result.result then
-            return api.send_message(message.chat.id, string.format(
-                'Topic "<b>%s</b>" created.',
-                require('telegram-bot-lua.tools').escape_html(args)
-            ), 'html')
-        end
-        return api.send_message(message.chat.id, 'Failed to create topic.')
 
-    elseif subcommand == 'close' then
-        if not topic_id then
-            return api.send_message(message.chat.id, 'Send this command inside the topic you want to close.')
+        local result = api.create_forum_topic(message.chat.id, name)
+        if not result or not result.result then
+            return api.send_message(message.chat.id,
+                'I couldn\'t create the topic. Make sure the group has topics enabled and I have the right permissions.'
+            )
         end
-        local result = api.close_forum_topic(message.chat.id, topic_id)
-        if result then
-            return api.send_message(message.chat.id, 'Topic closed.')
-        end
-        return api.send_message(message.chat.id, 'Failed to close topic.')
 
-    elseif subcommand == 'reopen' then
-        if not topic_id then
-            return api.send_message(message.chat.id, 'Send this command inside the topic you want to reopen.')
-        end
-        local result = api.reopen_forum_topic(message.chat.id, topic_id)
-        if result then
-            return api.send_message(message.chat.id, 'Topic reopened.')
-        end
-        return api.send_message(message.chat.id, 'Failed to reopen topic.')
+        pcall(function()
+            ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, nil, 'topic', 'Created topic: ' .. name))
+        end)
 
-    elseif subcommand == 'delete' then
-        if not topic_id then
-            return api.send_message(message.chat.id, 'Send this command inside the topic you want to delete.')
-        end
-        local result = api.delete_forum_topic(message.chat.id, topic_id)
-        if result then
-            return -- topic deleted, can't send message to it
-        end
-        return api.send_message(message.chat.id, 'Failed to delete topic.')
+        return api.send_message(message.chat.id,
+            string.format('Topic <b>%s</b> has been created.', tools.escape_html(name)),
+            { parse_mode = 'html' }
+        )
 
-    elseif subcommand == 'rename' then
-        if not topic_id then
-            return api.send_message(message.chat.id, 'Send this command inside the topic you want to rename.')
+    elseif action == 'close' then
+        if not message.is_topic or not message.thread_id then
+            return api.send_message(message.chat.id, 'This command must be used inside a topic thread.')
         end
-        if not args or args == '' then
-            return api.send_message(message.chat.id, 'Usage: /topic rename <new name>')
+
+        local result = api.close_forum_topic(message.chat.id, message.thread_id)
+        if not result or not result.result then
+            return api.send_message(message.chat.id,
+                'I couldn\'t close this topic. Make sure I have the right permissions.'
+            )
         end
-        local result = api.edit_forum_topic(message.chat.id, topic_id, args)
-        if result then
-            return api.send_message(message.chat.id, string.format(
-                'Topic renamed to "<b>%s</b>".',
-                require('telegram-bot-lua.tools').escape_html(args)
-            ), 'html')
+
+        pcall(function()
+            ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, nil, 'topic', 'Closed topic ' .. message.thread_id))
+        end)
+
+        return api.send_message(message.chat.id, 'This topic has been closed.')
+
+    elseif action == 'reopen' then
+        if not message.is_topic or not message.thread_id then
+            return api.send_message(message.chat.id, 'This command must be used inside a topic thread.')
         end
-        return api.send_message(message.chat.id, 'Failed to rename topic.')
+
+        local result = api.reopen_forum_topic(message.chat.id, message.thread_id)
+        if not result or not result.result then
+            return api.send_message(message.chat.id,
+                'I couldn\'t reopen this topic. Make sure I have the right permissions.'
+            )
+        end
+
+        pcall(function()
+            ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, nil, 'topic', 'Reopened topic ' .. message.thread_id))
+        end)
+
+        return api.send_message(message.chat.id, 'This topic has been reopened.')
+
+    elseif action == 'delete' then
+        if not message.is_topic or not message.thread_id then
+            return api.send_message(message.chat.id, 'This command must be used inside a topic thread.')
+        end
+
+        local result = api.delete_forum_topic(message.chat.id, message.thread_id)
+        if not result or not result.result then
+            return api.send_message(message.chat.id,
+                'I couldn\'t delete this topic. Make sure I have the right permissions.'
+            )
+        end
+
+        pcall(function()
+            ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, nil, 'topic', 'Deleted topic ' .. message.thread_id))
+        end)
 
     else
-        return api.send_message(message.chat.id, 'Unknown subcommand. Use: create, close, reopen, delete, rename')
+        return api.send_message(message.chat.id, 'Unknown action. Usage: /topic <create <name>|close|reopen|delete>')
     end
 end
 
