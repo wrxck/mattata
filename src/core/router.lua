@@ -197,6 +197,31 @@ local function process_action(message, ctx)
     return message
 end
 
+-- Build a lightweight context for non-message updates (no full middleware pipeline)
+local function build_lightweight_ctx(chat, user)
+    local ctx = {}
+    for k, v in pairs(ctx_base) do
+        ctx[k] = v
+    end
+    if chat then
+        ctx.is_group = chat.type ~= 'private'
+        ctx.is_supergroup = chat.type == 'supergroup'
+        ctx.is_private = chat.type == 'private'
+    else
+        ctx.is_group = false
+        ctx.is_supergroup = false
+        ctx.is_private = true
+    end
+    ctx.is_global_admin = user and permissions.is_global_admin(user.id) or false
+    ctx.is_admin = false
+    ctx.is_mod = false
+    if user then
+        local lang_code = session.get_setting(user.id, 'language') or 'en_gb'
+        ctx.lang = i18n.get(lang_code)
+    end
+    return ctx
+end
+
 -- Handle a message update
 local function on_message(message)
     -- Validate
@@ -389,6 +414,140 @@ local function on_poll_answer(poll_answer)
     dispatch_event('on_poll_answer', poll_answer, build_ctx({ from = poll_answer.user, chat = { type = 'private' } }))
 end
 
+-- Handle chat join request updates
+local function on_chat_join_request(request)
+    if not request or not request.from or not request.chat then return end
+    if session.is_globally_blocklisted(request.from.id) then return end
+
+    local ctx = build_lightweight_ctx(request.chat, request.from)
+
+    for _, plugin in ipairs(loader.get_plugins()) do
+        if plugin.on_chat_join_request then
+            local ok, err = pcall(plugin.on_chat_join_request, api, request, ctx)
+            if not ok then
+                logger.error('Plugin %s.on_chat_join_request error: %s', plugin.name, tostring(err))
+            end
+        end
+    end
+end
+
+-- Handle chat member status changes
+local function on_chat_member(update)
+    if not update or not update.chat then return end
+    local user = update.from or (update.new_chat_member and update.new_chat_member.user)
+    if not user then return end
+
+    local ctx = build_lightweight_ctx(update.chat, user)
+
+    for _, plugin in ipairs(loader.get_plugins()) do
+        if plugin.on_chat_member_update then
+            local ok, err = pcall(plugin.on_chat_member_update, api, update, ctx)
+            if not ok then
+                logger.error('Plugin %s.on_chat_member_update error: %s', plugin.name, tostring(err))
+            end
+        end
+    end
+end
+
+-- Handle bot's own chat member status changes (added/removed/promoted)
+local function on_my_chat_member(update)
+    if not update or not update.chat then return end
+
+    local ctx = build_lightweight_ctx(update.chat, update.from)
+
+    for _, plugin in ipairs(loader.get_plugins()) do
+        if plugin.on_my_chat_member then
+            local ok, err = pcall(plugin.on_my_chat_member, api, update, ctx)
+            if not ok then
+                logger.error('Plugin %s.on_my_chat_member error: %s', plugin.name, tostring(err))
+            end
+        end
+    end
+end
+
+-- Handle message reaction changes
+local function on_message_reaction(reaction)
+    if not reaction or not reaction.chat then return end
+    local user = reaction.user or reaction.actor_chat
+    if not user then return end
+
+    local ctx = build_lightweight_ctx(reaction.chat, user)
+
+    for _, plugin in ipairs(loader.get_plugins()) do
+        if plugin.on_reaction then
+            local ok, err = pcall(plugin.on_reaction, api, reaction, ctx)
+            if not ok then
+                logger.error('Plugin %s.on_reaction error: %s', plugin.name, tostring(err))
+            end
+        end
+    end
+end
+
+-- Handle poll state changes
+local function on_poll(poll)
+    if not poll then return end
+
+    -- Polls have no chat context, use a minimal ctx
+    local ctx = build_lightweight_ctx(nil, nil)
+
+    for _, plugin in ipairs(loader.get_plugins()) do
+        if plugin.on_poll then
+            local ok, err = pcall(plugin.on_poll, api, poll, ctx)
+            if not ok then
+                logger.error('Plugin %s.on_poll error: %s', plugin.name, tostring(err))
+            end
+        end
+    end
+end
+
+-- Handle poll answer (user votes)
+local function on_poll_answer(answer)
+    if not answer or not answer.user then return end
+
+    local ctx = build_lightweight_ctx(nil, answer.user)
+
+    for _, plugin in ipairs(loader.get_plugins()) do
+        if plugin.on_poll_answer then
+            local ok, err = pcall(plugin.on_poll_answer, api, answer, ctx)
+            if not ok then
+                logger.error('Plugin %s.on_poll_answer error: %s', plugin.name, tostring(err))
+            end
+        end
+    end
+end
+
+-- Handle chat boost events
+local function on_chat_boost(boost)
+    if not boost or not boost.chat then return end
+
+    local ctx = build_lightweight_ctx(boost.chat, nil)
+
+    for _, plugin in ipairs(loader.get_plugins()) do
+        if plugin.on_chat_boost then
+            local ok, err = pcall(plugin.on_chat_boost, api, boost, ctx)
+            if not ok then
+                logger.error('Plugin %s.on_chat_boost error: %s', plugin.name, tostring(err))
+            end
+        end
+    end
+end
+
+-- Handle removed chat boost events
+local function on_removed_chat_boost(boost)
+    if not boost or not boost.chat then return end
+
+    local ctx = build_lightweight_ctx(boost.chat, nil)
+
+    for _, plugin in ipairs(loader.get_plugins()) do
+        if plugin.on_removed_chat_boost then
+            local ok, err = pcall(plugin.on_removed_chat_boost, api, boost, ctx)
+            if not ok then
+                logger.error('Plugin %s.on_removed_chat_boost error: %s', plugin.name, tostring(err))
+            end
+        end
+    end
+end
+
 -- Concurrent polling loop using telegram-bot-lua's async system
 function router.run()
     local polling = config.polling()
@@ -428,6 +587,51 @@ function router.run()
         end
     end
 
+    api.on_inline_query = function(iq)
+        local ok, err = pcall(on_inline_query, iq)
+        if not ok then logger.error('on_inline_query error: %s', tostring(err)) end
+    end
+
+    api.on_chat_join_request = function(req)
+        local ok, err = pcall(on_chat_join_request, req)
+        if not ok then logger.error('on_chat_join_request error: %s', tostring(err)) end
+    end
+
+    api.on_chat_member = function(update)
+        local ok, err = pcall(on_chat_member, update)
+        if not ok then logger.error('on_chat_member error: %s', tostring(err)) end
+    end
+
+    api.on_my_chat_member = function(update)
+        local ok, err = pcall(on_my_chat_member, update)
+        if not ok then logger.error('on_my_chat_member error: %s', tostring(err)) end
+    end
+
+    api.on_message_reaction = function(reaction)
+        local ok, err = pcall(on_message_reaction, reaction)
+        if not ok then logger.error('on_message_reaction error: %s', tostring(err)) end
+    end
+
+    api.on_poll = function(poll)
+        local ok, err = pcall(on_poll, poll)
+        if not ok then logger.error('on_poll error: %s', tostring(err)) end
+    end
+
+    api.on_poll_answer = function(answer)
+        local ok, err = pcall(on_poll_answer, answer)
+        if not ok then logger.error('on_poll_answer error: %s', tostring(err)) end
+    end
+
+    api.on_chat_boost = function(boost)
+        local ok, err = pcall(on_chat_boost, boost)
+        if not ok then logger.error('on_chat_boost error: %s', tostring(err)) end
+    end
+
+    api.on_removed_chat_boost = function(boost)
+        local ok, err = pcall(on_removed_chat_boost, boost)
+        if not ok then logger.error('on_removed_chat_boost error: %s', tostring(err)) end
+    end
+
     -- Cron: copas background thread, runs every 60s (uses event index)
     copas.addthread(function()
         while true do
@@ -465,8 +669,8 @@ function router.run()
             'message', 'edited_message', 'callback_query', 'inline_query',
             'chat_join_request', 'chat_member', 'my_chat_member',
             'message_reaction', 'message_reaction_count',
-            'chat_boost', 'removed_chat_boost',
-            'poll', 'poll_answer'
+            'poll', 'poll_answer',
+            'chat_boost', 'removed_chat_boost'
         }
     })
 end
