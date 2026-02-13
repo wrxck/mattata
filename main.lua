@@ -73,7 +73,33 @@ local ctx_base = {
 
 router.init(api, tools, loader, ctx_base)
 
--- 10. Notify admins
+-- 10. Register bot command menu with Telegram
+local json = require('dkjson')
+local user_commands = {}
+local admin_commands = {}
+for _, plugin in ipairs(loader.get_plugins()) do
+    if plugin.commands and #plugin.commands > 0 and plugin.description and plugin.description ~= '' then
+        local entry = { command = plugin.commands[1], description = plugin.description }
+        if plugin.admin_only or plugin.global_admin_only then
+            table.insert(admin_commands, entry)
+        else
+            table.insert(user_commands, entry)
+        end
+    end
+end
+-- Set default commands (visible to all users)
+api.set_my_commands(json.encode(user_commands))
+-- Set admin commands (visible to group admins only)
+if #admin_commands > 0 then
+    -- Merge user + admin so admins see everything
+    local all_commands = {}
+    for _, cmd in ipairs(user_commands) do table.insert(all_commands, cmd) end
+    for _, cmd in ipairs(admin_commands) do table.insert(all_commands, cmd) end
+    api.set_my_commands(json.encode(all_commands), { type = 'all_chat_administrators' })
+end
+logger.info('Registered %d user commands and %d admin commands with Telegram', #user_commands, #admin_commands)
+
+-- 11. Notify admins
 local info_msg = string.format(
     '<pre>mattata v%s connected!\n\n  Username: @%s\n  Name: %s\n  ID: %d\n  Plugins: %d</pre>',
     config.VERSION,
@@ -89,6 +115,6 @@ for _, admin_id in ipairs(config.bot_admins()) do
     api.send_message(admin_id, info_msg, 'html')
 end
 
--- 11. Start the bot
+-- 12. Start the bot
 logger.info('Starting main loop...')
 router.run()
