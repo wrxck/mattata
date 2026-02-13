@@ -16,7 +16,7 @@ function plugin.on_message(api, message, ctx)
         'Created by <a href="tg://user?id=221714512">Matt</a>. Powered by <code>mattata v%s</code>. Source code available <a href="https://github.com/wrxck/mattata">on GitHub</a>.',
         config.VERSION
     )
-    return api.send_message(message.chat.id, output, 'html')
+    return api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

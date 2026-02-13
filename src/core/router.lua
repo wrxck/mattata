@@ -337,6 +337,16 @@ local function on_callback_query(callback_query)
         return
     end
 
+    -- Rate limit callback queries (5 per 3 seconds per user)
+    local cb_rate_key = string.format('rate:cb:%s', callback_query.from.id)
+    local cb_count = ctx.redis.incr(cb_rate_key)
+    if cb_count == 1 then
+        ctx.redis.expire(cb_rate_key, 3)
+    end
+    if cb_count > 5 then
+        return api.answer_callback_query(callback_query.id, 'Slow down! You\'re pressing buttons too fast.')
+    end
+
     -- Load language for callback user
     local lang_code = session.get_setting(callback_query.from.id, 'language') or 'en_gb'
     ctx.lang = i18n.get(lang_code)
@@ -351,6 +361,15 @@ end
 local function on_inline_query(inline_query)
     if not inline_query or not inline_query.from then return end
     if session.is_globally_blocklisted(inline_query.from.id) then return end
+
+    -- Rate limit inline queries (3 per 2 seconds per user)
+    local iq_rate_key = string.format('rate:iq:%s', inline_query.from.id)
+    local redis_mod = ctx_base.redis
+    local iq_count = redis_mod.incr(iq_rate_key)
+    if iq_count == 1 then
+        redis_mod.expire(iq_rate_key, 2)
+    end
+    if iq_count > 3 then return end
 
     local ctx = build_ctx({ from = inline_query.from, chat = { type = 'private' } })
     local lang_code = session.get_setting(inline_query.from.id, 'language') or 'en_gb'

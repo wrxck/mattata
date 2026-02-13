@@ -110,7 +110,10 @@ function plugin.on_member_join(api, message, ctx)
             timeout
         )
 
-        local sent = api.send_message(message.chat.id, text, 'html', false, false, nil, json.encode(keyboard))
+        local sent = api.send_message(message.chat.id, text, {
+            parse_mode = 'html',
+            reply_markup = json.encode(keyboard)
+        })
 
         -- Store captcha state
         if sent and sent.result then

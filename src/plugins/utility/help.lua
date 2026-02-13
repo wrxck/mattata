@@ -64,7 +64,11 @@ function plugin.on_message(api, message, ctx)
             :callback_data_button('Settings', 'help:settings')
     )
 
-    return api.send_message(message.chat.id, output, 'html', true, false, nil, keyboard)
+    return api.send_message(message.chat.id, output, {
+        parse_mode = 'html',
+        disable_web_page_preview = true,
+        reply_markup = keyboard
+    })
 end
 
 function plugin.on_callback_query(api, callback_query, message, ctx)
@@ -94,7 +98,11 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         ):row(
             api.row():callback_data_button('Back', 'help:back')
         )
-        return api.edit_message_text(message.chat.id, message.message_id, output, 'html', true, keyboard)
+        return api.edit_message_text(message.chat.id, message.message_id, output, {
+            parse_mode = 'html',
+            disable_web_page_preview = true,
+            reply_markup = keyboard
+        })
 
     elseif data:match('^acmds:%d+$') then
         local page = tonumber(data:match('^acmds:(%d+)$'))
@@ -111,7 +119,11 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         ):row(
             api.row():callback_data_button('Back', 'help:back')
         )
-        return api.edit_message_text(message.chat.id, message.message_id, output, 'html', true, keyboard)
+        return api.edit_message_text(message.chat.id, message.message_id, output, {
+            parse_mode = 'html',
+            disable_web_page_preview = true,
+            reply_markup = keyboard
+        })
 
     elseif data == 'links' then
         local keyboard = api.inline_keyboard():row(
@@ -123,7 +135,10 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         ):row(
             api.row():callback_data_button('Back', 'help:back')
         )
-        return api.edit_message_text(message.chat.id, message.message_id, 'Useful links:', nil, true, keyboard)
+        return api.edit_message_text(message.chat.id, message.message_id, 'Useful links:', {
+            disable_web_page_preview = true,
+            reply_markup = keyboard
+        })
 
     elseif data == 'settings' then
         local permissions = require('src.core.permissions')
@@ -151,7 +166,11 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
             api.row():callback_data_button('Links', 'help:links')
                 :callback_data_button('Settings', 'help:settings')
         )
-        return api.edit_message_text(message.chat.id, message.message_id, output, 'html', true, keyboard)
+        return api.edit_message_text(message.chat.id, message.message_id, output, {
+            parse_mode = 'html',
+            disable_web_page_preview = true,
+            reply_markup = keyboard
+        })
 
     elseif data == 'noop' then
         return api.answer_callback_query(callback_query.id)

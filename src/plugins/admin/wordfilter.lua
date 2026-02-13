@@ -17,7 +17,7 @@ function plugin.on_message(api, message, ctx)
         local status = (enabled and #enabled > 0 and enabled[1].value == 'true') and 'enabled' or 'disabled'
         return api.send_message(message.chat.id, string.format(
             'Word filter is currently <b>%s</b>.\nUsage: /wordfilter <on|off>', status
-        ), 'html')
+        ), { parse_mode = 'html' })
     end
 
     local arg = message.args:lower()
@@ -72,7 +72,7 @@ function plugin.on_new_message(api, message, ctx)
                 api.send_message(message.chat.id, string.format(
                     '<a href="tg://user?id=%d">%s</a> has been warned for using a filtered word.',
                     message.from.id, require('telegram-bot-lua.tools').escape_html(message.from.first_name)
-                ), 'html')
+                ), { parse_mode = 'html' })
             elseif f.action == 'ban' then
                 api.delete_message(message.chat.id, message.message_id)
                 api.ban_chat_member(message.chat.id, message.from.id)

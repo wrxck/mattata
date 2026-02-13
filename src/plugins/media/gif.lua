@@ -19,7 +19,7 @@ function plugin.on_message(api, message, ctx)
     local ltn12 = require('ltn12')
 
     if not message.args or message.args == '' then
-        return api.send_message(message.chat.id, 'Please specify a search query, e.g. <code>/gif funny cats</code>.', 'html')
+        return api.send_message(message.chat.id, 'Please specify a search query, e.g. <code>/gif funny cats</code>.', { parse_mode = 'html' })
     end
 
     local query = url.escape(message.args)

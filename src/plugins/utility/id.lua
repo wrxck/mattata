@@ -56,7 +56,7 @@ function plugin.on_message(api, message, ctx)
         end
     end
 
-    return api.send_message(message.chat.id, table.concat(lines, '\n'), 'html')
+    return api.send_message(message.chat.id, table.concat(lines, '\n'), { parse_mode = 'html' })
 end
 
 return plugin
