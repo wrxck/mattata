@@ -36,7 +36,7 @@ function plugin.on_message(api, message, ctx)
     ctx.db.call('sp_set_member_role', { message.chat.id, user_id, 'trusted' })
 
     pcall(function()
-        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'trust', nil })
+        ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, user_id, 'trust', nil))
     end)
 
     local admin_name = tools.escape_html(message.from.first_name)
@@ -46,7 +46,7 @@ function plugin.on_message(api, message, ctx)
     api.send_message(message.chat.id, string.format(
         '<a href="tg://user?id=%d">%s</a> has trusted <a href="tg://user?id=%d">%s</a>.',
         message.from.id, admin_name, user_id, target_name
-    ), 'html')
+    ), { parse_mode = 'html' })
 end
 
 return plugin

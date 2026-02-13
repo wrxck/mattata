@@ -76,7 +76,7 @@ describe('plugins.utility.ping', function()
             message.date = os.time()
             ping_plugin.on_message(env.api, message, ctx)
             local call = env.api.get_call('send_message')
-            assert.are.equal('html', call.args[3])
+            assert.are.equal('html', call.args[3].parse_mode)
         end)
 
         it('should respond with snarky message for /pong', function()

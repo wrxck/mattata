@@ -224,7 +224,7 @@ describe('plugins.admin.ban', function()
             for _, call in ipairs(calls) do
                 if call.args[2]:match('has banned') then
                     found = true
-                    assert.are.equal('html', call.args[3])
+                    assert.are.equal('html', call.args[3].parse_mode)
                 end
             end
             assert.is_true(found)

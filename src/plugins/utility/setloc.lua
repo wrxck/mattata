@@ -12,8 +12,7 @@ plugin.help = '/setloc <address> - Set your location by providing an address or 
 
 function plugin.on_message(api, message, ctx)
     local tools = require('telegram-bot-lua.tools')
-    local https = require('ssl.https')
-    local json = require('dkjson')
+    local http = require('src.core.http')
     local url = require('socket.url')
 
     local input = message.args
@@ -29,7 +28,7 @@ function plugin.on_message(api, message, ctx)
                     result[1].latitude,
                     result[1].longitude
                 ),
-                'html'
+                { parse_mode = 'html' }
             )
         end
         return api.send_message(message.chat.id, 'You haven\'t set a location yet. Use /setloc <address> to set one.')
@@ -41,12 +40,10 @@ function plugin.on_message(api, message, ctx)
         'https://nominatim.openstreetmap.org/search?q=%s&format=json&limit=1&addressdetails=1',
         encoded
     )
-    local body, status = https.request(api_url)
-    if not body or status ~= 200 then
+    local data, status = http.get_json(api_url)
+    if not data then
         return api.send_message(message.chat.id, 'Failed to geocode that address. Please try again.')
     end
-
-    local data = json.decode(body)
     if not data or #data == 0 then
         return api.send_message(message.chat.id, 'No results found for that address. Please try a different query.')
     end
@@ -66,7 +63,7 @@ function plugin.on_message(api, message, ctx)
             tools.escape_html(address),
             lat, lng
         ),
-        'html'
+        { parse_mode = 'html' }
     )
 end
 

@@ -64,8 +64,8 @@ function plugin.on_message(api, message, ctx)
 
     -- log to database
     pcall(function()
-        ctx.db.call('sp_insert_ban', { message.chat.id, user_id, message.from.id, reason })
-        ctx.db.call('sp_log_admin_action', { message.chat.id, message.from.id, user_id, 'ban', reason })
+        ctx.db.call('sp_insert_ban', table.pack(message.chat.id, user_id, message.from.id, reason))
+        ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, user_id, 'ban', reason))
     end)
 
     local admin_name = tools.escape_html(message.from.first_name)
@@ -77,7 +77,7 @@ function plugin.on_message(api, message, ctx)
         '<a href="tg://user?id=%d">%s</a> has banned <a href="tg://user?id=%d">%s</a>.%s',
         message.from.id, admin_name, user_id, target_name, reason_text
     )
-    api.send_message(message.chat.id, output, 'html')
+    api.send_message(message.chat.id, output, { parse_mode = 'html' })
 
     -- clean up messages
     if message.reply then

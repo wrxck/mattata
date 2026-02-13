@@ -17,6 +17,8 @@ return {
         'inspirobot',
         'quote',
         'game',
+        'poll',
+        'reactions',
         'react'
     }
 }

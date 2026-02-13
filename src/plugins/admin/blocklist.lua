@@ -28,7 +28,7 @@ function plugin.on_message(api, message, ctx)
             local reason_text = row.reason and (' - ' .. tools.escape_html(row.reason)) or ''
             output = output .. string.format('- <a href="tg://user?id=%s">%s</a> [%s]%s\n', row.user_id, name, row.user_id, reason_text)
         end
-        return api.send_message(message.chat.id, output, 'html')
+        return api.send_message(message.chat.id, output, { parse_mode = 'html' })
     end
 
     -- /block or /blocklist add
@@ -71,7 +71,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, string.format(
             '<a href="tg://user?id=%d">%s</a> has been added to the blocklist.',
             user_id, target_name
-        ), 'html')
+        ), { parse_mode = 'html' })
     end
 
     -- /unblock or /blocklist remove
@@ -99,7 +99,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(message.chat.id, string.format(
             '<a href="tg://user?id=%d">%s</a> has been removed from the blocklist.',
             user_id, target_name
-        ), 'html')
+        ), { parse_mode = 'html' })
     end
 
     api.send_message(message.chat.id, 'Usage: /block <user> [reason] | /unblock <user> | /blocklist')

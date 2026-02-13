@@ -137,7 +137,7 @@ function plugin.on_message(api, message, ctx)
             return api.send_message(message.chat.id, 'You have no active reminders in this chat.')
         end
 
-        return api.send_message(message.chat.id, table.concat(lines, '\n'), 'html')
+        return api.send_message(message.chat.id, table.concat(lines, '\n'), { parse_mode = 'html' })
     end
 
     -- /remind <duration> <message>
@@ -153,7 +153,7 @@ function plugin.on_message(api, message, ctx)
             .. '<code>/remind 30m check the oven</code>\n'
             .. '<code>/remind 2h30m meeting with John</code>\n'
             .. '<code>/remind 1d renew subscription</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -170,7 +170,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Invalid duration format. Use combinations like: <code>30m</code>, <code>2h</code>, <code>1d</code>, <code>2h30m</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -236,7 +236,7 @@ function plugin.on_message(api, message, ctx)
             format_duration(duration),
             tools.escape_html(reminder_text)
         ),
-        'html'
+        { parse_mode = 'html' }
     )
 end
 
@@ -265,7 +265,7 @@ function plugin.cron(api, ctx)
                         tools.escape_html(text)
                     )
                     pcall(function()
-                        api.send_message(tonumber(chat_id), output, 'html')
+                        api.send_message(tonumber(chat_id), output, { parse_mode = 'html' })
                     end)
                 end
 

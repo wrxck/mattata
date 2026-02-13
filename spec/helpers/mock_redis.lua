@@ -37,6 +37,12 @@ function mock_redis.new()
         redis.store[key] = (tonumber(redis.store[key]) or 0) + n
         return redis.store[key]
     end
+    function redis.getset(key, value)
+        record('getset', key, value)
+        local old = redis.store[key]
+        redis.store[key] = tostring(value)
+        return old
+    end
 
     function redis.hget(key, field) record('hget', key, field); return redis.hashes[key] and redis.hashes[key][field] end
     function redis.hset(key, field, value)

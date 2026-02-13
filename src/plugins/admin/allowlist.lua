@@ -26,7 +26,7 @@ function plugin.on_message(api, message, ctx)
             local name = info and info.result and tools.escape_html(info.result.first_name) or tostring(row.user_id)
             output = output .. string.format('- <a href="tg://user?id=%s">%s</a> [%s]\n', row.user_id, name, row.user_id)
         end
-        return api.send_message(message.chat.id, output, 'html')
+        return api.send_message(message.chat.id, output, { parse_mode = 'html' })
     end
 
     local action, target = message.args:lower():match('^(%S+)%s+(.+)$')
@@ -57,7 +57,7 @@ function plugin.on_message(api, message, ctx)
         api.send_message(message.chat.id, string.format(
             '<a href="tg://user?id=%d">%s</a> has been added to the allowlist.',
             user_id, target_name
-        ), 'html')
+        ), { parse_mode = 'html' })
 
     elseif action == 'remove' or action == 'del' or action == 'delete' then
         ctx.db.call('sp_remove_allowlisted', { message.chat.id, user_id })
@@ -66,7 +66,7 @@ function plugin.on_message(api, message, ctx)
         api.send_message(message.chat.id, string.format(
             '<a href="tg://user?id=%d">%s</a> has been removed from the allowlist.',
             user_id, target_name
-        ), 'html')
+        ), { parse_mode = 'html' })
 
     else
         api.send_message(message.chat.id, 'Usage: /allowlist <add|remove> <user>')

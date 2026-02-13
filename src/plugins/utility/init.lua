@@ -33,6 +33,12 @@ return {
         'pokedex',
         'lastfm',
         'plugins',
+        'inline',
+        'rss',
+        'paste',
+        'bookmark',
+        'schedule',
+        'growth',
         'poll',
         'boosts'
     }

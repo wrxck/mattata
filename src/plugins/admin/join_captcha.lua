@@ -12,11 +12,21 @@ plugin.help = ''
 plugin.group_only = true
 plugin.admin_only = false
 
-local json = require('dkjson')
-
 -- Generate a simple math captcha
 local function generate_captcha()
-    math.randomseed(os.time())
+    -- Seed from /dev/urandom for unpredictable captchas (os.time() has 1s granularity)
+    local f = io.open('/dev/urandom', 'rb')
+    if f then
+        local b = f:read(4)
+        f:close()
+        if b then
+            local seed = 0
+            for i = 1, #b do seed = seed * 256 + b:byte(i) end
+            math.randomseed(seed)
+        end
+    else
+        math.randomseed(os.time() + os.clock() * 1000)
+    end
     local a = math.random(1, 20)
     local b = math.random(1, 20)
     local operators = { '+', '-' }
@@ -61,32 +71,36 @@ function plugin.on_member_join(api, message, ctx)
     if not ctx.is_group then return end
 
     -- Check if captcha is enabled
-    local enabled = ctx.db.execute(
-        "SELECT value FROM chat_settings WHERE chat_id = $1 AND key = 'captcha_enabled'",
-        { message.chat.id }
-    )
+    local enabled = ctx.db.call('sp_get_chat_setting', { message.chat.id, 'captcha_enabled' })
     if not enabled or #enabled == 0 or enabled[1].value ~= 'true' then
         return
     end
 
     if not require('src.core.permissions').can_restrict(api, message.chat.id) then return end
 
-    local timeout_result = ctx.db.execute(
-        "SELECT value FROM chat_settings WHERE chat_id = $1 AND key = 'captcha_timeout'",
-        { message.chat.id }
-    )
+    local timeout_result = ctx.db.call('sp_get_chat_setting', { message.chat.id, 'captcha_timeout' })
     local timeout = (timeout_result and #timeout_result > 0) and tonumber(timeout_result[1].value) or 300
 
     for _, new_member in ipairs(message.new_chat_members) do
         if new_member.is_bot then goto continue end
 
         -- Restrict the new member
-        api.restrict_chat_member(message.chat.id, new_member.id, os.time() + timeout, {
+        api.restrict_chat_member(message.chat.id, new_member.id, {
             can_send_messages = false,
-            can_send_media_messages = false,
+            can_send_audios = false,
+            can_send_documents = false,
+            can_send_photos = false,
+            can_send_videos = false,
+            can_send_video_notes = false,
+            can_send_voice_notes = false,
+            can_send_polls = false,
             can_send_other_messages = false,
-            can_add_web_page_previews = false
-        })
+            can_add_web_page_previews = false,
+            can_invite_users = false,
+            can_change_info = false,
+            can_pin_messages = false,
+            can_manage_topics = false
+        }, { until_date = os.time() + timeout })
 
         -- Generate captcha
         local question, answer = generate_captcha()
@@ -110,7 +124,7 @@ function plugin.on_member_join(api, message, ctx)
             timeout
         )
 
-        local sent = api.send_message(message.chat.id, text, 'html', false, false, nil, json.encode(keyboard))
+        local sent = api.send_message(message.chat.id, text, { parse_mode = 'html', reply_markup = keyboard })
 
         -- Store captcha state
         if sent and sent.result then
@@ -133,21 +147,31 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
 
     -- Only the joining user can answer
     if callback_query.from.id ~= user_id then
-        return api.answer_callback_query(callback_query.id, 'This captcha is not for you.')
+        return api.answer_callback_query(callback_query.id, { text = 'This captcha is not for you.' })
     end
 
     local captcha = ctx.session.get_captcha(chat_id, user_id)
     if not captcha then
-        return api.answer_callback_query(callback_query.id, 'This captcha has expired.')
+        return api.answer_callback_query(callback_query.id, { text = 'This captcha has expired.' })
     end
 
     if selected == captcha.text then
         -- Correct answer - unrestrict user
-        api.restrict_chat_member(chat_id, user_id, 0, {
+        api.restrict_chat_member(chat_id, user_id, {
             can_send_messages = true,
-            can_send_media_messages = true,
+            can_send_audios = true,
+            can_send_documents = true,
+            can_send_photos = true,
+            can_send_videos = true,
+            can_send_video_notes = true,
+            can_send_voice_notes = true,
+            can_send_polls = true,
             can_send_other_messages = true,
-            can_add_web_page_previews = true
+            can_add_web_page_previews = true,
+            can_invite_users = true,
+            can_change_info = false,
+            can_pin_messages = false,
+            can_manage_topics = false
         })
         ctx.session.clear_captcha(chat_id, user_id)
 
@@ -155,11 +179,11 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         api.edit_message_text(message.chat.id, message.message_id, string.format(
             '<a href="tg://user?id=%d">%s</a> has been verified. Welcome!',
             user_id, tools.escape_html(callback_query.from.first_name)
-        ), 'html')
-        api.answer_callback_query(callback_query.id, 'Correct! Welcome to the group.')
+        ), { parse_mode = 'html' })
+        api.answer_callback_query(callback_query.id, { text = 'Correct! Welcome to the group.' })
     else
         -- Wrong answer
-        api.answer_callback_query(callback_query.id, 'Wrong answer. Try again!')
+        api.answer_callback_query(callback_query.id, { text = 'Wrong answer. Try again!' })
     end
 end
 

@@ -11,8 +11,7 @@ plugin.commands = { 'pokedex', 'pokemon', 'dex' }
 plugin.help = '/pokedex <name|id> - Look up information about a Pokemon.'
 
 function plugin.on_message(api, message, ctx)
-    local https = require('ssl.https')
-    local json = require('dkjson')
+    local http = require('src.core.http')
     local tools = require('telegram-bot-lua.tools')
 
     local input = message.args
@@ -22,12 +21,10 @@ function plugin.on_message(api, message, ctx)
 
     local query = input:lower():gsub('%s+', '-')
     local api_url = 'https://pokeapi.co/api/v2/pokemon/' .. query
-    local body, status = https.request(api_url)
-    if not body or status ~= 200 then
+    local data, code = http.get_json(api_url)
+    if not data then
         return api.send_message(message.chat.id, 'Pokemon not found. Please check the name or ID and try again.')
     end
-
-    local data = json.decode(body)
     if not data then
         return api.send_message(message.chat.id, 'Failed to parse Pokemon data.')
     end
@@ -100,10 +97,10 @@ function plugin.on_message(api, message, ctx)
     -- Send sprite if available
     local sprite = data.sprites and data.sprites.front_default
     if sprite then
-        return api.send_photo(message.chat.id, sprite, table.concat(lines, '\n'), 'html')
+        return api.send_photo(message.chat.id, sprite, { caption = table.concat(lines, '\n'), parse_mode = 'html' })
     end
 
-    return api.send_message(message.chat.id, table.concat(lines, '\n'), 'html')
+    return api.send_message(message.chat.id, table.concat(lines, '\n'), { parse_mode = 'html' })
 end
 
 return plugin
