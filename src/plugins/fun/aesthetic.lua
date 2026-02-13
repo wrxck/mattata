@@ -12,11 +12,15 @@ plugin.help = '/aesthetic <text> - Convert text to fullwidth vaporwave text. Use
 
 -- Fullwidth characters start at U+FF01 for '!' (0x21) through U+FF5E for '~' (0x7E).
 -- Space (0x20) maps to ideographic space U+3000.
+-- Multi-byte UTF-8 characters are passed through unchanged.
 local function to_fullwidth(text)
     local result = {}
-    for i = 1, #text do
-        local byte = text:byte(i)
-        if byte == 0x20 then
+    for char in text:gmatch('[\1-\127\194-\244][\128-\191]*') do
+        local byte = char:byte(1)
+        if #char > 1 then
+            -- Multi-byte UTF-8 character, pass through unchanged
+            table.insert(result, char)
+        elseif byte == 0x20 then
             -- ASCII space -> ideographic space U+3000
             table.insert(result, '\xE3\x80\x80')
         elseif byte >= 0x21 and byte <= 0x7E then
@@ -29,7 +33,7 @@ local function to_fullwidth(text)
             local b3 = 0x80 + (codepoint % 64)
             table.insert(result, string.char(b1, b2, b3))
         else
-            table.insert(result, string.char(byte))
+            table.insert(result, char)
         end
     end
     return table.concat(result)

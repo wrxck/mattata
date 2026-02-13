@@ -50,7 +50,7 @@ local WMO_CODES = {
 local function geocode(query)
     local encoded = url.escape(query)
     local request_url = 'https://nominatim.openstreetmap.org/search?q=' .. encoded .. '&format=json&limit=1&addressdetails=1'
-    local data, code = http.get_json(request_url)
+    local data, _ = http.get_json(request_url)
     if not data then
         return nil, 'Geocoding request failed.'
     end
@@ -72,7 +72,7 @@ local function get_weather(lat, lon)
         .. '&temperature_unit=celsius&wind_speed_unit=kmh',
         lat, lon
     )
-    local data, code = http.get_json(request_url)
+    local data, _ = http.get_json(request_url)
     if not data or not data.current then
         return nil, 'Weather API request failed.'
     end

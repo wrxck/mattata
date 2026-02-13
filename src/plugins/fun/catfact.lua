@@ -13,7 +13,7 @@ plugin.help = '/catfact - Get a random cat fact from catfact.ninja.'
 function plugin.on_message(api, message, ctx)
     local http = require('src.core.http')
 
-    local data, code = http.get_json('https://catfact.ninja/fact')
+    local data, _ = http.get_json('https://catfact.ninja/fact')
 
     if not data then
         return api.send_message(message.chat.id, 'Failed to fetch a cat fact. Try again later.')

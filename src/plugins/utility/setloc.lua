@@ -40,7 +40,7 @@ function plugin.on_message(api, message, ctx)
         'https://nominatim.openstreetmap.org/search?q=%s&format=json&limit=1&addressdetails=1',
         encoded
     )
-    local data, status = http.get_json(api_url)
+    local data, _ = http.get_json(api_url)
     if not data then
         return api.send_message(message.chat.id, 'Failed to geocode that address. Please try again.')
     end

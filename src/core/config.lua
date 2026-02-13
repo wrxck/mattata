@@ -22,9 +22,13 @@ local function parse_env_file(path)
             local key, value = line:match('^([%w_]+)%s*=%s*(.*)$')
             if key then
                 -- Strip surrounding quotes
-                value = value:match('^"(.*)"$') or value:match("^'(.*)'$") or value
-                -- Strip inline comments (only for unquoted values)
-                value = value:match('^(.-)%s+#') or value
+                local quoted = value:match('^"(.*)"$') or value:match("^'(.*)'$")
+                if quoted then
+                    value = quoted
+                else
+                    -- Strip inline comments only for unquoted values
+                    value = value:match('^(.-)%s+#') or value
+                end
                 values[key] = value
             end
         end

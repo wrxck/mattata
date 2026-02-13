@@ -20,7 +20,7 @@ local function convert(amount, from, to)
         'https://api.frankfurter.app/latest?amount=%.2f&from=%s&to=%s',
         amount, from:upper(), to:upper()
     )
-    local data, code = http.get_json(request_url)
+    local data, _ = http.get_json(request_url)
     if not data then
         return nil, 'Currency conversion request failed. Check that the currency codes are valid.'
     end
