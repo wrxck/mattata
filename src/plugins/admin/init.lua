@@ -45,6 +45,13 @@ return {
         'pin',
         'allowedlinks',
         'allowlink',
+        'unpinall',
+        'chatinfo',
+        'customtitle',
+        'slowmode',
+        'topic',
+        'joinrequest',
+        'chatpermissions',
         -- Federation sub-package
         'federation.newfed',
         'federation.delfed',
