@@ -45,6 +45,7 @@ return {
         'pin',
         'allowedlinks',
         'allowlink',
+        'bulkops',
         -- Federation sub-package
         'federation.newfed',
         'federation.delfed',

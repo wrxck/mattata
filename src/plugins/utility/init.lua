@@ -32,6 +32,8 @@ return {
         'xkcd',
         'pokedex',
         'lastfm',
-        'plugins'
+        'plugins',
+        'poll',
+        'boosts'
     }
 }

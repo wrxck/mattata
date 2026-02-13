@@ -16,6 +16,7 @@ return {
         'catfact',
         'inspirobot',
         'quote',
-        'game'
+        'game',
+        'react'
     }
 }
