@@ -31,7 +31,7 @@ function plugin.on_message(api, message, ctx)
         query, api_key
     )
 
-    local data, code = http.get_json(search_url)
+    local data, _ = http.get_json(search_url)
 
     if not data then
         return api.send_message(message.chat.id, 'Failed to search YouTube. Please try again later.')
@@ -55,7 +55,7 @@ function plugin.on_message(api, message, ctx)
         video_id, api_key
     )
 
-    local stats_data, stats_code = http.get_json(stats_url)
+    local stats_data, _ = http.get_json(stats_url)
 
     local views = 'N/A'
     if stats_data then

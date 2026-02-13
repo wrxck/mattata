@@ -13,7 +13,7 @@ plugin.help = '/cat - Sends a random cat image.'
 function plugin.on_message(api, message, ctx)
     local http = require('src.core.http')
 
-    local data, code = http.get_json('https://api.thecatapi.com/v1/images/search')
+    local data, _ = http.get_json('https://api.thecatapi.com/v1/images/search')
 
     if not data then
         return api.send_message(message.chat.id, 'Failed to fetch a cat image. Please try again later.')

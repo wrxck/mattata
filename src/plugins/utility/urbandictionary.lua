@@ -22,7 +22,7 @@ function plugin.on_message(api, message, ctx)
 
     local encoded = url.escape(input)
     local api_url = 'https://api.urbandictionary.com/v0/define?term=' .. encoded
-    local data, code = http.get_json(api_url)
+    local data, _ = http.get_json(api_url)
     if not data then
         return api.send_message(message.chat.id, 'Failed to connect to Urban Dictionary. Please try again later.')
     end
