@@ -38,7 +38,7 @@ function plugin.on_message(api, message, ctx)
         end
         output = output .. '\nUsage: <code>/antispam &lt;type&gt; &lt;limit&gt;</code>\nTypes: text, sticker, photo, video, document, forward, audio, voice, gif\n'
         output = output .. '<code>/antispam &lt;type&gt; off</code> - Remove limit'
-        return api.send_message(message.chat.id, output, 'html')
+        return api.send_message(message.chat.id, output, { parse_mode = 'html' })
     end
 
     local msg_type, limit = message.args:lower():match('^(%S+)%s+(.+)$')
@@ -52,7 +52,7 @@ function plugin.on_message(api, message, ctx)
     local setting_key = 'antispam_' .. msg_type
     if limit == 'off' or limit == 'disable' or limit == '0' then
         ctx.db.call('sp_delete_chat_setting', { message.chat.id, setting_key })
-        return api.send_message(message.chat.id, string.format('Antispam limit for <b>%s</b> has been removed.', msg_type), 'html')
+        return api.send_message(message.chat.id, string.format('Antispam limit for <b>%s</b> has been removed.', msg_type), { parse_mode = 'html' })
     end
 
     limit = tonumber(limit)
@@ -65,7 +65,7 @@ function plugin.on_message(api, message, ctx)
     api.send_message(message.chat.id, string.format(
         'Antispam limit for <b>%s</b> set to <b>%d</b> message(s) per 5 seconds.',
         msg_type, limit
-    ), 'html')
+    ), { parse_mode = 'html' })
 end
 
 return plugin

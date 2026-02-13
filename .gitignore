@@ -1,5 +1,6 @@
 # Environment
 .env
+.env.*
 
 # Lua compiled
 *.luac

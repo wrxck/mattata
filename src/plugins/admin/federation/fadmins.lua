@@ -28,7 +28,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'This chat is not part of any federation.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -49,7 +49,7 @@ function plugin.on_message(api, message, ctx)
         output = output .. '\n\nNo promoted admins.'
     end
 
-    return api.send_message(message.chat.id, output, 'html')
+    return api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

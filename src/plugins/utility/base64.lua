@@ -36,7 +36,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             string.format('<b>Decoded:</b>\n<code>%s</code>', tools.escape_html(decoded)),
-            'html'
+            { parse_mode = 'html' }
         )
     else
         -- Encode to base64
@@ -47,7 +47,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             string.format('<b>Encoded:</b>\n<code>%s</code>', tools.escape_html(encoded)),
-            'html'
+            { parse_mode = 'html' }
         )
     end
 end

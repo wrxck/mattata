@@ -10,29 +10,16 @@ plugin.description = 'Search the web using DuckDuckGo'
 plugin.commands = { 'search', 'ddg', 'google' }
 plugin.help = '/search <query> - Search the web using DuckDuckGo Instant Answers.'
 
-local https = require('ssl.https')
-local json = require('dkjson')
+local http = require('src.core.http')
 local url = require('socket.url')
-local ltn12 = require('ltn12')
 local tools = require('telegram-bot-lua.tools')
 
 local function search(query)
     local encoded = url.escape(query)
     local request_url = 'https://api.duckduckgo.com/?q=' .. encoded .. '&format=json&no_redirect=1&no_html=1&skip_disambig=1'
-    local body = {}
-    local _, code = https.request({
-        url = request_url,
-        sink = ltn12.sink.table(body),
-        headers = {
-            ['User-Agent'] = 'mattata-telegram-bot/2.0'
-        }
-    })
-    if code ~= 200 then
-        return nil, 'Search request failed (HTTP ' .. tostring(code) .. ').'
-    end
-    local data = json.decode(table.concat(body))
+    local data, code = http.get_json(request_url)
     if not data then
-        return nil, 'Failed to parse search results.'
+        return nil, 'Search request failed (HTTP ' .. tostring(code) .. ').'
     end
     return data
 end
@@ -112,7 +99,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Please provide a search query.\nUsage: <code>/search your query here</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -127,12 +114,11 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'No instant answers found. <a href="' .. tools.escape_html(ddg_url) .. '">Search on DuckDuckGo</a>',
-            'html',
-            true
+            { parse_mode = 'html', link_preview_options = { is_disabled = true } }
         )
     end
 
-    return api.send_message(message.chat.id, output, 'html', true)
+    return api.send_message(message.chat.id, output, { parse_mode = 'html', link_preview_options = { is_disabled = true } })
 end
 
 return plugin

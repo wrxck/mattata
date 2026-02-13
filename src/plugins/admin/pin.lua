@@ -28,18 +28,13 @@ function plugin.on_message(api, message, ctx)
             disable_notification = false
         end
 
-        local success = api.pin_chat_message(message.chat.id, message.reply.message_id, disable_notification)
+        local success = api.pin_chat_message(message.chat.id, message.reply.message_id, { disable_notification = disable_notification })
         if not success then
             return api.send_message(message.chat.id, 'I couldn\'t pin that message. Make sure I have the right permissions.')
         end
 
         pcall(function()
-            ctx.db.insert('admin_actions', {
-                chat_id = message.chat.id,
-                admin_id = message.from.id,
-                action = 'pin',
-                reason = 'Pinned message ' .. message.reply.message_id
-            })
+            ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, nil, 'pin', 'Pinned message ' .. message.reply.message_id))
         end)
 
         -- Delete the command message
@@ -48,7 +43,7 @@ function plugin.on_message(api, message, ctx)
     elseif message.command == 'unpin' then
         local success
         if message.reply then
-            success = api.unpin_chat_message(message.chat.id, message.reply.message_id)
+            success = api.unpin_chat_message(message.chat.id, { message_id = message.reply.message_id })
         else
             success = api.unpin_chat_message(message.chat.id)
         end
@@ -58,11 +53,7 @@ function plugin.on_message(api, message, ctx)
         end
 
         pcall(function()
-            ctx.db.insert('admin_actions', {
-                chat_id = message.chat.id,
-                admin_id = message.from.id,
-                action = 'unpin'
-            })
+            ctx.db.call('sp_log_admin_action', table.pack(message.chat.id, message.from.id, nil, 'unpin', nil))
         end)
 
         api.send_message(message.chat.id, 'Message unpinned.')

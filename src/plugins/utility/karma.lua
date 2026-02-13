@@ -30,7 +30,7 @@ function plugin.on_message(api, message, ctx)
     return api.send_message(
         message.chat.id,
         string.format('%s has <b>%d</b> karma.', name, karma),
-        'html'
+        { parse_mode = 'html' }
     )
 end
 
@@ -60,7 +60,7 @@ function plugin.on_new_message(api, message, ctx)
     return api.send_message(
         message.chat.id,
         string.format('%s %s <b>%s</b> now has <b>%d</b> karma.', arrow, text == '+1' and 'Upvoted!' or 'Downvoted!', name, new_karma),
-        'html'
+        { parse_mode = 'html' }
     )
 end
 

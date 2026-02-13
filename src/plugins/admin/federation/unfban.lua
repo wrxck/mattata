@@ -56,7 +56,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'This chat is not part of any federation.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -65,7 +65,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Only the federation owner or a federation admin can use this command.',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -74,7 +74,7 @@ function plugin.on_message(api, message, ctx)
         return api.send_message(
             message.chat.id,
             'Please specify a user to unban by replying to their message or providing a user ID/username.\nUsage: <code>/unfban [user]</code>',
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -87,7 +87,7 @@ function plugin.on_message(api, message, ctx)
                 tools.escape_html(target_name),
                 target_id
             ),
-            'html'
+            { parse_mode = 'html' }
         )
     end
 
@@ -120,7 +120,7 @@ function plugin.on_message(api, message, ctx)
         success_count + fail_count
     )
 
-    return api.send_message(message.chat.id, output, 'html')
+    return api.send_message(message.chat.id, output, { parse_mode = 'html' })
 end
 
 return plugin

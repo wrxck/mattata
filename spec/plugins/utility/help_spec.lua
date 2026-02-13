@@ -122,7 +122,7 @@ describe('plugins.utility.help', function()
             message.args = nil
             help_plugin.on_message(env.api, message, ctx)
             local call = env.api.get_call('send_message')
-            assert.are.equal('html', call.args[3])
+            assert.are.equal('html', call.args[3].parse_mode)
         end)
     end)
 
