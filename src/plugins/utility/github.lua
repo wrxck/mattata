@@ -27,7 +27,7 @@ local http = require('src.core.http')
 local config = require('src.core.config')
 local json = require('dkjson')
 local tools = require('telegram-bot-lua.tools')
-local logger = require('src.core.logger')
+
 
 -- Constants
 local GITHUB_API = 'https://api.github.com'
@@ -533,7 +533,7 @@ handlers.star = function(api, message, ctx, arg)
     if not owner_repo then
         return api.send_message(message.chat.id, 'Usage: /gh star owner/repo')
     end
-    local data, code = gh_api_authed(api, redis, message, '/user/starred/' .. owner_repo, 'PUT')
+    local data, _ = gh_api_authed(api, redis, message, '/user/starred/' .. owner_repo, 'PUT')
     if not data then return end
     return api.send_message(message.chat.id,
         string.format('Starred <b>%s</b>.', tools.escape_html(owner_repo)),
@@ -548,7 +548,7 @@ handlers.unstar = function(api, message, ctx, arg)
     if not owner_repo then
         return api.send_message(message.chat.id, 'Usage: /gh unstar owner/repo')
     end
-    local data, code = gh_api_authed(api, redis, message, '/user/starred/' .. owner_repo, 'DELETE')
+    local data, _ = gh_api_authed(api, redis, message, '/user/starred/' .. owner_repo, 'DELETE')
     if not data then return end
     return api.send_message(message.chat.id,
         string.format('Unstarred <b>%s</b>.', tools.escape_html(owner_repo)),
@@ -619,7 +619,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         else
             path = string.format('/users/%s/repos?per_page=%d&sort=updated&page=%d', user, PER_PAGE, page)
         end
-        local repos, code = gh_api(path, token)
+        local repos, _ = gh_api(path, token)
         if not repos then
             return api.answer_callback_query(callback_query.id, { text = 'Failed to fetch repositories.' })
         end
@@ -638,7 +638,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         -- Reconstruct owner/repo from middle parts
         local owner_repo = table.concat(cb_parts, ':', 2, #cb_parts - 1)
         local path = string.format('/repos/%s/issues?per_page=%d&state=open&page=%d', owner_repo, PER_PAGE, page)
-        local issues, code = gh_api(path, token)
+        local issues, _ = gh_api(path, token)
         if not issues then
             return api.answer_callback_query(callback_query.id, { text = 'Failed to fetch issues.' })
         end
@@ -655,7 +655,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         -- Starred: s:page
         local page = tonumber(cb_parts[2]) or 1
         local path = string.format('/user/starred?per_page=%d&page=%d', PER_PAGE, page)
-        local repos, code = gh_api(path, token)
+        local repos, _ = gh_api(path, token)
         if not repos then
             return api.answer_callback_query(callback_query.id, { text = 'Failed to fetch starred repos.' })
         end
@@ -672,7 +672,7 @@ function plugin.on_callback_query(api, callback_query, message, ctx)
         -- Notifications: n:page
         local page = tonumber(cb_parts[2]) or 1
         local path = string.format('/notifications?per_page=%d&page=%d', PER_PAGE, page)
-        local notifications, code = gh_api(path, token)
+        local notifications, _ = gh_api(path, token)
         if not notifications then
             return api.answer_callback_query(callback_query.id, { text = 'Failed to fetch notifications.' })
         end
@@ -723,7 +723,7 @@ function plugin.cron(api, ctx)
                         'client_id=%s&device_code=%s&grant_type=urn:ietf:params:oauth:grant-type:device_code',
                         client_id, device.device_code
                     )
-                    local resp_body, code = http.post(ACCESS_TOKEN_URL, body, 'application/x-www-form-urlencoded', {
+                    local resp_body, _ = http.post(ACCESS_TOKEN_URL, body, 'application/x-www-form-urlencoded', {
                         ['Accept'] = 'application/json',
                     })
                     if resp_body and resp_body ~= '' then
