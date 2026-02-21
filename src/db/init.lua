@@ -14,7 +14,8 @@ local migration_files = {
     { name = '003_statistics_tables', path = 'src.db.migrations.003_statistics_tables' },
     { name = '004_performance_indexes', path = 'src.db.migrations.004_performance_indexes' },
     { name = '005_stored_procedures', path = 'src.db.migrations.005_stored_procedures' },
-    { name = '006_import_procedures', path = 'src.db.migrations.006_import_procedures' }
+    { name = '006_import_procedures', path = 'src.db.migrations.006_import_procedures' },
+    { name = '007_v1_import_tracking', path = 'src.db.migrations.007_v1_import_tracking' }
 }
 
 function migrations.run(db)
