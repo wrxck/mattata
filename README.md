@@ -56,6 +56,51 @@ cp .env.example .env
 lua main.lua
 ```
 
+## Upgrading from v1.5
+
+If you are upgrading from mattata v1.5, the migration is automatic. On first boot, mattata v2 detects v1.5 data and imports it into the new schema.
+
+### What gets migrated
+
+- **Chat settings** (antilink, welcome, captcha, max warnings, etc.)
+- **Welcome messages**
+- **Rules**
+- **Warnings** (per-user warning counts)
+- **Disabled plugins** (with name mapping to v2 plugin names)
+- **Filters** (word filters with actions)
+- **Triggers** (auto-responses)
+- **Bans** (group blocklist entries)
+- **Configuration** (`configuration.lua` converted to `.env` format)
+
+### How it works
+
+1. On startup, mattata scans Redis for v1-era key patterns and checks for `configuration.lua`
+2. If v1 data is found, it imports everything into PostgreSQL via a single transaction
+3. The migration is recorded in `schema_migrations` so it only runs once
+4. After success, v1 Redis keys are cleaned up and `configuration.lua` is renamed to `configuration.lua.v1.bak`
+
+### Prerequisites
+
+- Your v1.5 Redis instance must still be accessible (same host/port/db)
+- PostgreSQL must be running and configured in `.env` (or the migration will create `.env` from `configuration.lua`)
+
+### Config mapping reference
+
+| v1 (`configuration.lua`) | v2 (`.env`) |
+|---------------------------|-------------|
+| `bot_token` | `BOT_TOKEN` |
+| `admins` | `BOT_ADMINS` |
+| `redis.host` | `REDIS_HOST` |
+| `redis.port` | `REDIS_PORT` |
+| `redis.password` | `REDIS_PASSWORD` |
+| `keys.lastfm` | `LASTFM_API_KEY` |
+| `keys.youtube` | `YOUTUBE_API_KEY` |
+| `keys.weather` | `OPENWEATHERMAP_API_KEY` |
+| `keys.spotify_client_id` | `SPOTIFY_CLIENT_ID` |
+| `keys.spotify_client_secret` | `SPOTIFY_CLIENT_SECRET` |
+| `keys.spamwatch` | `SPAMWATCH_TOKEN` |
+| `log_channel` / `log_chat` | `LOG_CHAT` |
+
 ## Configuration
 
 All configuration is managed through environment variables. See `.env.example` for the full reference.
