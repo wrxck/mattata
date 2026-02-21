@@ -52,6 +52,24 @@ if not redis_ok then
 end
 session.init(redis)
 
+-- 6b. Check for v1.5 data migration
+local migrate = require('src.core.migrate')
+local v1_check = migrate.check(redis)
+if v1_check.detected then
+    logger.info('v1.5 installation detected (%d Redis keys). Running migration...', v1_check.key_count)
+    local v1_result = migrate.run(database, redis)
+    if v1_result.success then
+        if v1_result.already_migrated then
+            logger.debug('v1.5 migration already applied, skipping')
+        else
+            logger.info('v1.5 migration complete: %d records imported, %d keys cleaned',
+                v1_result.records_imported, v1_result.keys_cleaned)
+        end
+    else
+        logger.warn('v1.5 migration errors: %s', table.concat(v1_result.errors, '; '))
+    end
+end
+
 -- 7. Load languages
 i18n.init()
 
