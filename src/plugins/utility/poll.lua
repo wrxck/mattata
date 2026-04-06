@@ -50,8 +50,8 @@ function plugin.on_message(api, message, ctx)
     }
 
     if is_quiz then
-        opts.type = 'quiz'
-        opts.correct_option_id = 0 -- First option is correct
+        opts.poll_type = 'quiz'
+        opts.correct_option_id = 0
     end
 
     return api.send_poll(message.chat.id, question, json.encode(options), opts)
